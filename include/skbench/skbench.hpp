@@ -173,6 +173,32 @@ struct CorrectnessMetric {
     bool passed = false;
 };
 
+struct DirectionExecutionContract {
+    std::string nativePlacement;
+    std::string adapterPlacement;
+    bool destroysNativeInput = false;
+    bool adapterPreservesCallerInput = false;
+    bool requiresPreservationCopyForRepeatedExecution = false;
+    bool preservationIncludedInPrimitiveTiming = false;
+    bool preservationIncludedInAdapterTiming = false;
+    std::string nativeInputRepresentationId;
+    std::string nativeOutputRepresentationId;
+    std::string adapterInputRepresentationId;
+    std::string adapterOutputRepresentationId;
+    std::string physicalExtents;
+    std::string stridesElements;
+    std::size_t paddingElements = 0;
+    std::size_t minimumAlignmentBytes = 0;
+    std::string aliasing;
+    std::size_t reusableWorkBytes = 0;
+    bool outputCanFeedOppositeDirection = false;
+};
+
+struct ExecutionContract {
+    DirectionExecutionContract forward;
+    DirectionExecutionContract inverse;
+};
+
 struct ProviderRecord {
     std::string id;
     std::string version;
@@ -186,6 +212,7 @@ struct ProviderRecord {
     std::string configureFlags;
     std::string compilerFlags;
     std::size_t workers = 1;
+    ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
     std::size_t scratchBytes = 0;
     std::size_t opaquePlanningBytes = 0;
@@ -218,6 +245,8 @@ struct EnvironmentRecord {
 struct BenchmarkReport {
     std::string schema = "spectral-kernel-benchmark-v1";
     std::string status;
+    std::string scalarTypeId = "float64";
+    std::size_t scalarBits = 64;
     std::string runId;
     std::string profile;
     std::uint64_t seed = 0;

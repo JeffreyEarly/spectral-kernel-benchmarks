@@ -20,6 +20,14 @@
     "status": {
       "enum": ["passed", "failed"]
     },
+    "numericType": {
+      "type": "object",
+      "required": ["id", "scalarBits"],
+      "properties": {
+        "id": {"enum": ["float64", "float32"]},
+        "scalarBits": {"enum": [32, 64]}
+      }
+    },
     "run": {
       "type": "object",
       "required": ["id", "profile", "seed", "warmups", "samples"],
@@ -134,6 +142,14 @@
         ],
         "properties": {
           "workers": {"type": "integer", "minimum": 1},
+          "executionContract": {
+            "type": "object",
+            "required": ["forward", "inverse"],
+            "properties": {
+              "forward": {"$ref": "#/$defs/executionDirection"},
+              "inverse": {"$ref": "#/$defs/executionDirection"}
+            }
+          },
           "providerBuild": {
             "type": "object",
             "required": ["sourceIdentity", "sourceSha256", "configureFlags", "compilerFlags"]
@@ -190,6 +206,51 @@
             }
           }
         }
+      }
+    }
+  },
+  "$defs": {
+    "executionDirection": {
+      "type": "object",
+      "required": [
+        "nativePlacement",
+        "adapterPlacement",
+        "destroysNativeInput",
+        "adapterPreservesCallerInput",
+        "requiresPreservationCopyForRepeatedExecution",
+        "preservationIncludedInPrimitiveTiming",
+        "preservationIncludedInAdapterTiming",
+        "nativeInputRepresentationId",
+        "nativeOutputRepresentationId",
+        "adapterInputRepresentationId",
+        "adapterOutputRepresentationId",
+        "physicalExtents",
+        "stridesElements",
+        "paddingElements",
+        "minimumAlignmentBytes",
+        "aliasing",
+        "reusableWorkBytes",
+        "outputCanFeedOppositeDirection"
+      ],
+      "properties": {
+        "nativePlacement": {"enum": ["in-place", "out-of-place", "unsupported"]},
+        "adapterPlacement": {"enum": ["in-place", "out-of-place", "unsupported"]},
+        "destroysNativeInput": {"type": "boolean"},
+        "adapterPreservesCallerInput": {"type": "boolean"},
+        "requiresPreservationCopyForRepeatedExecution": {"type": "boolean"},
+        "preservationIncludedInPrimitiveTiming": {"type": "boolean"},
+        "preservationIncludedInAdapterTiming": {"type": "boolean"},
+        "nativeInputRepresentationId": {"type": "string", "minLength": 1},
+        "nativeOutputRepresentationId": {"type": "string", "minLength": 1},
+        "adapterInputRepresentationId": {"type": "string", "minLength": 1},
+        "adapterOutputRepresentationId": {"type": "string", "minLength": 1},
+        "physicalExtents": {"type": "string", "minLength": 1},
+        "stridesElements": {"type": "string", "minLength": 1},
+        "paddingElements": {"type": "integer", "minimum": 0},
+        "minimumAlignmentBytes": {"type": "integer", "minimum": 0},
+        "aliasing": {"type": "string", "minLength": 1},
+        "reusableWorkBytes": {"type": "integer", "minimum": 0},
+        "outputCanFeedOppositeDirection": {"type": "boolean"}
       }
     }
   }

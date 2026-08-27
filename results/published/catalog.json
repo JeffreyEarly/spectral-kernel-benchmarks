@@ -1,0 +1,338 @@
+{
+  "schema": "spectral-kernel-publication-catalog-v1",
+  "runs": [
+    {
+      "id": "20260827T185428Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Initial vertical slice from a dirty development tree with one production workload and incomplete provider coverage.",
+      "summary": "First M4 Max FFTW-versus-vDSP real-2-D vertical slice for the 256 by 256, Nz=65, fields=3 workload.",
+      "issues": [3, 5],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": true,
+      "artifacts": {
+        "result": "m4-max-quick-20260827.json",
+        "samples": "m4-max-quick-20260827.csv",
+        "resultSha256": "9be61d924c76743d837af2873e33f6f1d28620703a302c01363e7aa54ca4839a",
+        "samplesSha256": "63b949bd316c4c344fbe87f1d3a42e48c23a5d7fdd1fa79b650a4fc9444c4385"
+      },
+      "legacyUrls": [
+        "/runs/m4-max-quick-20260827.html"
+      ]
+    }
+  ],
+  "experiments": [
+    {
+      "id": "issue-003-fftw-production-baseline",
+      "issue": 3,
+      "phase": "collecting",
+      "title": "FFTW production baseline",
+      "question": "Can the benchmark reproduce WVM's production FFTW configuration and the historical issue #129 workloads exactly?",
+      "baseline": "This is the foundational raw-FFT baseline after the operator and representation contract in issue #2.",
+      "priorExperiments": [],
+      "downstreamIssues": [4, 7, 11, 15],
+      "definition": {
+        "unitOfWork": "Batched two-dimensional real-to-complex or complex-to-real transforms over WVM horizontal planes.",
+        "candidates": "FFTW 3.3.11 guru64 plans using the production NEON, pthread, compiler, layout, and planning configuration.",
+        "workloads": "Historical 256 and 512 square cases plus current Nz=129/257 and fields=1/3/4 cases with production antialiasing metadata.",
+        "controlledVariables": "Fixtures, precision, mathematical normalization, WVM strides, compiler policy, sampling protocol, and machine-state protocol.",
+        "changedVariables": "Workload shape, field count, and worker count only.",
+        "timedBoundary": "The raw FFTW execution call; planning and allocation are separate setup measurements.",
+        "excludedWork": "Fixture generation, correctness evaluation, horizontal retention, layout conversion, vertical projection, modal work, and nonlinear flux.",
+        "allocationPolicy": "No allocation in the timed steady-state loop."
+      },
+      "correctness": {
+        "oracle": "Independent mode-keyed direct-DFT oracle and inverse round trip.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Unsupported shapes or plan configurations are explicit capability results.",
+        "canSupport": "A reproducible raw FFTW baseline for later strategy and retained-operator comparisons.",
+        "cannotSupport": "A provider, layout, or complete-pipeline adoption decision by itself."
+      },
+      "requiredTables": ["planning and setup", "raw forward FFT", "raw inverse FFT", "correctness", "memory"]
+    },
+    {
+      "id": "issue-004-fftw-strategy-sweep",
+      "issue": 4,
+      "phase": "planned",
+      "title": "FFTW strategy sweep",
+      "question": "Do FFTW planning, alignment, layout, or scheduling strategies improve on the production baseline without unacceptable setup or memory costs?",
+      "baseline": "Compare every candidate with issue #3 and retain a Pareto set for issue #7.",
+      "priorExperiments": ["issue-003-fftw-production-baseline"],
+      "downstreamIssues": [7, 11, 15],
+      "definition": {
+        "unitOfWork": "The same full real-2-D transform batches as issue #3.",
+        "candidates": "Aligned and unaligned plans; ESTIMATE, MEASURE, PATIENT, and EXHAUSTIVE; wisdom; interleaved and split APIs; internal, outer, and hybrid threading.",
+        "workloads": "The production workload matrix established by issue #3.",
+        "controlledVariables": "Mathematical transforms, fixtures, precision, dimensions, sampling, compiler, and machine protocol.",
+        "changedVariables": "Planning effort, alignment, representation, wisdom state, and scheduling.",
+        "timedBoundary": "Raw provider execution with planning, allocation, wisdom, and conversions reported separately.",
+        "excludedWork": "Retention, vertical projection, modal work, and nonlinear flux.",
+        "allocationPolicy": "No allocation in timed execution; all setup memory is reported."
+      },
+      "correctness": {
+        "oracle": "The issue #2 full-spectrum oracle and issue #3 reference outputs.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Failed or unavailable plan/layout combinations remain visible.",
+        "canSupport": "A setup/throughput/memory Pareto set for retained-horizontal testing.",
+        "cannotSupport": "A complete retained-operator or pipeline winner."
+      },
+      "requiredTables": ["planning cost", "raw FFT", "alignment", "scheduling", "memory", "Pareto set"]
+    },
+    {
+      "id": "issue-005-vdsp-native-baseline",
+      "issue": 5,
+      "phase": "collecting",
+      "title": "vDSP native baseline",
+      "question": "What are the correct raw and adapter costs of native split-complex vDSP real-2-D transforms relative to the production FFTW baseline?",
+      "baseline": "Use issue #3 as the comparable full-transform baseline; supply candidates to issue #6 and issue #7.",
+      "priorExperiments": ["issue-003-fftw-production-baseline"],
+      "downstreamIssues": [6, 7, 11, 15],
+      "definition": {
+        "unitOfWork": "Batched native vDSP real-2-D forward or inverse transforms and separately measured WVM-compatible adapters.",
+        "candidates": "In-place and out-of-place Float64 vDSP APIs, explicit reusable scratch buffers, and native packed split-complex storage.",
+        "workloads": "Power-of-two production cases matched to issue #3, with unsupported dimensions reported explicitly.",
+        "controlledVariables": "Logical transforms, fixtures, precision, workload, worker policy, normalization, and sampling protocol.",
+        "changedVariables": "Provider-native placement, scratch policy, and adapter path.",
+        "timedBoundary": "Raw vDSP execution, packing, unpacking, conversion, and complete adapter are independent measurements.",
+        "excludedWork": "Planning and allocation from execution, vertical projection, modal work, and nonlinear flux.",
+        "allocationPolicy": "Reusable native and scratch buffers; zero timed-loop allocation."
+      },
+      "correctness": {
+        "oracle": "Independent mode-keyed oracle with explicit vDSP DC, Nyquist, normalization, and packing rules.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Unsupported shapes, placement modes, or storage contracts are explicit results rather than fallbacks.",
+        "canSupport": "A trustworthy raw vDSP and WVM-adapter baseline.",
+        "cannotSupport": "The best batching policy or complete retained-horizontal algorithm."
+      },
+      "requiredTables": ["setup and scratch", "raw FFT", "packing", "conversion", "adapter total", "correctness", "memory"]
+    },
+    {
+      "id": "issue-006-vdsp-batching-scheduling",
+      "issue": 6,
+      "phase": "planned",
+      "title": "vDSP batching and scheduling",
+      "question": "Can multiple-transform implementations or batch scheduling close the vDSP gap observed in issue #5?",
+      "baseline": "Compare with issues #3, #4, and #5; pass viable vDSP configurations to issue #7.",
+      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-004-fftw-strategy-sweep", "issue-005-vdsp-native-baseline"],
+      "downstreamIssues": [7, 11, 15],
+      "definition": {
+        "unitOfWork": "A complete batch of independent horizontal real-2-D transforms.",
+        "candidates": "Direct 2-D calls; separable row/column multiple-transform calls; persistent thread pools; Grand Central Dispatch; per-worker setup.",
+        "workloads": "The issue #5 production batch matrix.",
+        "controlledVariables": "Provider, precision, logical transforms, storage contract, fixtures, and sampling.",
+        "changedVariables": "Batch decomposition, worker count, setup sharing, scheduler, and transposition policy.",
+        "timedBoundary": "Native execution, scheduling, packing, transposition, and complete adapter are separate scopes.",
+        "excludedWork": "Vertical projection, modal work, and nonlinear flux.",
+        "allocationPolicy": "Persistent workers and buffers with no timed-loop allocation."
+      },
+      "correctness": {
+        "oracle": "Issue #5 provider conformance and mode-keyed outputs.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Unavailable APIs and shapes are published as capability results.",
+        "canSupport": "A vDSP scheduling Pareto set for issue #7.",
+        "cannotSupport": "A retained-horizontal or full-pipeline decision."
+      },
+      "requiredTables": ["native execution", "scheduling", "packing", "transposition", "adapter total", "memory"]
+    },
+    {
+      "id": "issue-007-retained-horizontal-algorithms",
+      "issue": 7,
+      "phase": "planned",
+      "title": "Retained horizontal algorithms",
+      "question": "Which correct algorithm computes the retained horizontal operator fastest when conversion and selection are optional algorithm choices?",
+      "baseline": "Compose survivors from issues #4, #6, and #12; feed issue #13 and issue #9.",
+      "priorExperiments": ["issue-004-fftw-strategy-sweep", "issue-006-vdsp-batching-scheduling", "issue-012-pruned-horizontal-transforms"],
+      "downstreamIssues": [9, 13, 11, 15],
+      "definition": {
+        "unitOfWork": "The retained operators P_h F_xy and F_xy^-1 E_h identified by logical mode key.",
+        "candidates": "Full transform plus selection, index views, fused selection/conversion, persistent provider order, and viable pruned transforms.",
+        "workloads": "Production antialiased dimensions and fields from the provider baseline issues.",
+        "controlledVariables": "Retained modes, fixtures, precision, mathematical normalization, and sampling.",
+        "changedVariables": "Provider, representation/order, selection or embedding algorithm, fusion, placement, and scheduling.",
+        "timedBoundary": "Raw FFTs remain separate; retained-operator components, adapters, and uninstrumented totals are all published.",
+        "excludedWork": "Vertical projection, modal work, and nonlinear flux.",
+        "allocationPolicy": "No timed-loop allocation; persistent representation memory is explicit."
+      },
+      "correctness": {
+        "oracle": "Independent retained-mode oracle keyed by horizontal wavenumber and field/vertical index.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "A native layout may be correct without canonical conversion; unsupported algorithms remain visible.",
+        "canSupport": "Retained-horizontal winners by workload and storage contract.",
+        "cannotSupport": "The downstream ordering/GEMM crossover or complete pipeline winner."
+      },
+      "requiredTables": ["raw FFT", "retention and embedding", "conversion", "retained total", "memory"]
+    },
+    {
+      "id": "issue-008-vertical-projection-gemm",
+      "issue": 8,
+      "phase": "planned",
+      "title": "Vertical projection and split-complex GEMM",
+      "question": "Which primitive and split-complex GEMM strategy is fastest for the antialiased vertical projection independently of horizontal layout?",
+      "baseline": "Establish the vertical-kernel baseline used by issue #13 and issue #9.",
+      "priorExperiments": [],
+      "downstreamIssues": [9, 13, 11, 15],
+      "definition": {
+        "unitOfWork": "Forward (Nj by Nz)(Nz by K) and inverse (Nz by Nj)(Nj by K) vertical projections.",
+        "candidates": "Complex GEMM, two split real GEMMs, grouped/batched variants, blocked kernels, and prepared matrix families.",
+        "workloads": "Nz=65/129/257, Nj=floor(2(Nz-1)/3), K=Nkl times fields, common and K-squared-grouped matrices.",
+        "controlledVariables": "Matrix values, logical column keys, precision, dimensions, and sampling protocol.",
+        "changedVariables": "Complex representation, GEMM strategy, grouping, blocking, and Accelerate thread setting.",
+        "timedBoundary": "Primitive GEMM excludes packing and matrix preparation; those costs are reported separately.",
+        "excludedWork": "Horizontal FFTs, input packing from horizontal representations, modal work, and nonlinear flux.",
+        "allocationPolicy": "Preallocated operands and outputs with zero timed-loop allocation."
+      },
+      "correctness": {
+        "oracle": "Independent Float64 matrix products in logical mode order.",
+        "tolerance": "Float64 scale-normalized and relative L2 errors at most the preregistered 1e-12 contract.",
+        "capabilityHandling": "Unsupported grouped or batched APIs are explicit results.",
+        "canSupport": "Primitive vertical-kernel and memory conclusions.",
+        "cannotSupport": "Whether data packing or a complete spectral pipeline is worthwhile."
+      },
+      "requiredTables": ["forward GEMM", "inverse GEMM", "grouped GEMM", "matrix setup", "memory"]
+    },
+    {
+      "id": "issue-009-combined-spectral-pipeline",
+      "issue": 9,
+      "phase": "planned",
+      "title": "Combined spectral pipeline",
+      "question": "Which complete synthetic spectral-operator graph is fastest after composing the best horizontal, vertical, and ordering policies?",
+      "baseline": "Compose reference candidates from issues #7, #8, and #13; provide primary evidence to issue #11.",
+      "priorExperiments": ["issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm", "issue-013-ordering-packing-crossover"],
+      "downstreamIssues": [11, 15],
+      "definition": {
+        "unitOfWork": "Horizontal forward, vertical forward, representative modal work, vertical inverse, and horizontal inverse.",
+        "candidates": "Complete interleaved, split, provider-native, reordered, tiled, and fused algorithm graphs.",
+        "workloads": "Representative production antialiased horizontal and vertical shapes with fields=1/3/4.",
+        "controlledVariables": "Mathematical operator, fixtures, retained modes, precision, and sampling protocol.",
+        "changedVariables": "Provider, horizontal algorithm, representation/order, vertical kernel, packing, fusion, placement, and scheduling.",
+        "timedBoundary": "A separately measured uninstrumented end-to-end steady-state iteration plus a diagnostic component ledger.",
+        "excludedWork": "WVM nonlinear flux, time integration, model state management, I/O, and correctness evaluation.",
+        "allocationPolicy": "Zero allocations in the timed pipeline; all persistent and peak memory reported."
+      },
+      "correctness": {
+        "oracle": "Independent horizontal-and-vertical projection keyed by (k,l,j,field) plus complete round-trip equivalence.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Fused stages are marked fused and unsupported graphs remain visible.",
+        "canSupport": "The primary synthetic-pipeline evidence for a WVM integration candidate.",
+        "cannotSupport": "Scientific equivalence inside the full nonlinear WVM calculation."
+      },
+      "requiredTables": ["component ledger", "uninstrumented total", "setup", "memory", "break-even reuse"]
+    },
+    {
+      "id": "issue-010-kfr-ducc-screen",
+      "issue": 10,
+      "phase": "planned",
+      "title": "KFR and DUCC provider screen",
+      "question": "Can KFR or DUCC beat the stable retained-horizontal baseline on relevant Apple-Silicon workloads?",
+      "baseline": "Compare optional providers with issue #7 without blocking v1.",
+      "priorExperiments": ["issue-007-retained-horizontal-algorithms"],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "Raw real-2-D FFTs and the complete retained-horizontal operator.",
+        "candidates": "KFR and DUCC behind the provider-independent logical operator contract.",
+        "workloads": "Power-of-two, rectangular, and representative non-power-of-two cases.",
+        "controlledVariables": "Fixtures, precision, logical retained modes, compiler, and sampling.",
+        "changedVariables": "Provider, supported shape, representation, placement, and adapter.",
+        "timedBoundary": "Raw provider calls and retained-operator totals are separate.",
+        "excludedWork": "Vertical projection, complete pipeline, nonlinear flux, and dependency build time from execution.",
+        "allocationPolicy": "No allocation in timed steady state."
+      },
+      "correctness": {
+        "oracle": "Issue #2 full and retained mode-keyed oracles.",
+        "tolerance": "Precision-appropriate preregistered tolerance.",
+        "capabilityHandling": "Provider exclusions are published without fallback.",
+        "canSupport": "A decision to promote an optional provider into deeper experiments.",
+        "cannotSupport": "The initial FFTW/vDSP v1 decision."
+      },
+      "requiredTables": ["raw FFT", "adapter", "retained total", "capabilities", "memory"]
+    },
+    {
+      "id": "issue-012-pruned-horizontal-transforms",
+      "issue": 12,
+      "phase": "planned",
+      "title": "Pruned horizontal transforms",
+      "question": "Can an algorithm that computes only retained horizontal modes beat full-transform FFTW or vDSP baselines?",
+      "baseline": "Compare with issues #3 and #5; feed viable or negative results to issue #7.",
+      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-005-vdsp-native-baseline"],
+      "downstreamIssues": [7, 11],
+      "definition": {
+        "unitOfWork": "Forward retained-mode computation and inverse reconstruction without requiring a materialized full half-spectrum.",
+        "candidates": "Pruned, implicitly de-aliased, fused transform-selection, and feasibility-bound algorithms.",
+        "workloads": "WVM production dimensions, fields=1/3/4, and power-of-two cases.",
+        "controlledVariables": "Logical retained modes, fixtures, precision, correctness oracle, and sampling.",
+        "changedVariables": "Pruning algorithm, fusion, representation, placement, and scheduling.",
+        "timedBoundary": "The inseparable retained transform is timed honestly; full provider FFTs remain separate baselines.",
+        "excludedWork": "Vertical projection, modal work, nonlinear flux, and feasibility-analysis setup from steady-state execution.",
+        "allocationPolicy": "No timed-loop allocation; tables and scratch memory reported."
+      },
+      "correctness": {
+        "oracle": "Independent retained-mode forward and inverse oracle.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "A reproducible negative feasibility result satisfies the experiment when no candidate can compete.",
+        "canSupport": "Promotion or rejection of pruned candidates for issue #7.",
+        "cannotSupport": "A complete pipeline decision without vertical and movement experiments."
+      },
+      "requiredTables": ["retained forward", "retained inverse", "full-FFT baseline", "setup", "memory", "feasibility"]
+    },
+    {
+      "id": "issue-013-ordering-packing-crossover",
+      "issue": 13,
+      "phase": "planned",
+      "title": "Ordering and packing crossover",
+      "question": "When does optional reordering between horizontal transforms and vertical projections repay its movement cost?",
+      "baseline": "Cross issue #7 horizontal candidates with issue #8 vertical kernels; feed complete policies to issue #9.",
+      "priorExperiments": ["issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm"],
+      "downstreamIssues": [9, 11, 15],
+      "definition": {
+        "unitOfWork": "Transfer retained modes into a vertical projection and back, including only movement required by each candidate policy.",
+        "candidates": "No reorder, MATLAB gather/transpose/radial order, pre-permuted matrices, fused conversion, tiled pack-and-GEMM, and persistent compact layouts.",
+        "workloads": "Reference horizontal cases crossed with Nz=65/129/257, retained Nj, fields=1/3/4, matrix families, and reuse counts.",
+        "controlledVariables": "Logical modes, vertical operator, fixtures, precision, and total mathematical work.",
+        "changedVariables": "Physical order, packing/fusion, matrix preparation, tiling, persistence, direction, and reuse count.",
+        "timedBoundary": "Primitive GEMM, packing, combined packing-plus-GEMM, setup, and reuse-sequence totals are separate.",
+        "excludedWork": "Raw FFT execution except inseparable fusion, modal physics, nonlinear flux, and correctness evaluation.",
+        "allocationPolicy": "Zero allocations in steady state; persistent, scratch, and prepared-matrix memory reported."
+      },
+      "correctness": {
+        "oracle": "Independent mode-keyed horizontal-and-vertical projection with permutation-invariance checks.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "Shape-, machine-, and direction-specific results are permitted and exclusions remain visible.",
+        "canSupport": "Movement and reuse crossover policies for issue #9.",
+        "cannotSupport": "A universal required physical order or complete pipeline winner."
+      },
+      "requiredTables": ["bytes moved", "packing", "primitive GEMM", "pack plus GEMM", "setup", "reuse crossover", "memory"]
+    },
+    {
+      "id": "issue-015-float32-spectral-kernel-screen",
+      "issue": 15,
+      "phase": "planned",
+      "title": "Float32 spectral-kernel screen",
+      "question": "Does Float32 change the FFTW-versus-vDSP, layout, GEMM, or complete-pipeline conclusions after accuracy and storage contracts are included?",
+      "baseline": "Pair with the stable Float64 experiments from issues #3, #5, #7, #8, #13, and #9 without blocking v1.",
+      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-005-vdsp-native-baseline", "issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm", "issue-013-ordering-packing-crossover", "issue-009-combined-spectral-pipeline"],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "The same antialiased FFT, vertical projection, and synthetic pipeline as the Float64 reference experiments.",
+        "candidates": "FFTW float APIs, Float32 vDSP, complex and split-real GEMM, and retained algorithms that support Float32.",
+        "workloads": "Paired Float32/Float64 production shapes, fields, vertical retention, and scheduling sweeps.",
+        "controlledVariables": "Logical operator, fixture scaling, retained modes, planning effort, worker policy, and sampling.",
+        "changedVariables": "Precision, provider, representation, placement, packing, vertical kernel, batching, and scheduling.",
+        "timedBoundary": "Raw FFT, raw GEMM, movement, adapters, and uninstrumented totals are separate.",
+        "excludedWork": "Fixture generation, oracle evaluation, report generation, WVM nonlinear flux, and model-level validation.",
+        "allocationPolicy": "Zero allocations in steady state with all padding, work, scratch, and peak memory reported."
+      },
+      "correctness": {
+        "oracle": "Independent Float64 mode-keyed oracle with scale-normalized maximum, relative L2, round-trip, energy, and boundary errors.",
+        "tolerance": "Dimension-aware Float32 thresholds are committed before reference publication; Float64's 1e-12 threshold is not reused.",
+        "capabilityHandling": "In-place-only, out-of-place-only, unsupported dimensions, and unavailable representations are explicit.",
+        "canSupport": "Kernel-level Float32 accuracy, speed, movement, and memory conclusions.",
+        "cannotSupport": "Scientific approval of Float32 for production WVM trajectories or diagnostics."
+      },
+      "requiredTables": ["paired raw FFT", "paired GEMM", "placement", "movement", "accuracy", "memory", "pipeline total"]
+    }
+  ]
+}

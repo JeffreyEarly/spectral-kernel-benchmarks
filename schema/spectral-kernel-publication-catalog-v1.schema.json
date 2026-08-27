@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JeffreyEarly/spectral-kernel-benchmarks/schema/spectral-kernel-publication-catalog-v1.schema.json",
+  "title": "Spectral kernel publication catalog v1",
+  "type": "object",
+  "required": ["schema", "runs", "experiments"],
+  "properties": {
+    "schema": {"const": "spectral-kernel-publication-catalog-v1"},
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "statusReason", "summary", "issues", "experiments", "priorExperiments", "supersedes", "grandfathered", "artifacts", "legacyUrls"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["preliminary", "reference", "superseded", "withdrawn"]},
+          "statusReason": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "issues": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 1}, "uniqueItems": true},
+          "experiments": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "priorExperiments": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "supersedes": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "grandfathered": {"type": "boolean"},
+          "artifacts": {
+            "type": "object",
+            "required": ["result", "samples", "resultSha256", "samplesSha256"],
+            "properties": {
+              "result": {"type": "string", "minLength": 1},
+              "samples": {"type": "string", "minLength": 1},
+              "resultSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "samplesSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            }
+          },
+          "legacyUrls": {"type": "array", "items": {"type": "string", "pattern": "^/"}, "uniqueItems": true}
+        }
+      }
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "issue", "phase", "title", "question", "baseline", "priorExperiments", "downstreamIssues", "definition", "correctness", "requiredTables"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^issue-[0-9]{3}-[a-z0-9-]+$"},
+          "issue": {"type": "integer", "minimum": 1},
+          "phase": {"enum": ["planned", "collecting", "complete"]},
+          "title": {"type": "string", "minLength": 1},
+          "question": {"type": "string", "minLength": 1},
+          "baseline": {"type": "string", "minLength": 1},
+          "priorExperiments": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "downstreamIssues": {"type": "array", "items": {"type": "integer", "minimum": 1}, "uniqueItems": true},
+          "definition": {
+            "type": "object",
+            "required": ["unitOfWork", "candidates", "workloads", "controlledVariables", "changedVariables", "timedBoundary", "excludedWork", "allocationPolicy"]
+          },
+          "correctness": {
+            "type": "object",
+            "required": ["oracle", "tolerance", "capabilityHandling", "canSupport", "cannotSupport"]
+          },
+          "requiredTables": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+        }
+      }
+    }
+  }
+}

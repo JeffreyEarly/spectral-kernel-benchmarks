@@ -10,7 +10,7 @@ T_h^+ = P_h\mathcal{F}_{xy},
 T_h^- = \mathcal{F}_{xy}^{-1}E_h.
 $$
 
-(P_h) selects the retained independent horizontal Fourier modes. (E_h) embeds those values into the Hermitian half-spectrum required by an inverse real transform. Logical values are identified by ((k,l,j,\mathrm{field})); their physical order is not part of the mathematics.
+$P_h$ selects the retained independent horizontal Fourier modes. $E_h$ embeds those values into the Hermitian half-spectrum required by an inverse real transform. Logical values are identified by $(k,l,j,\mathrm{field})$; their physical order is not part of the mathematics.
 
 The vertical contract records
 
@@ -20,39 +20,56 @@ $$
 
 although vertical matrix multiplication is intentionally outside the first FFT-only implementation slice.
 
-The contract uses a deterministic truncated orthonormal DCT-II matrix pair as its provider-independent vertical fixture. This fixture is not a model of a particular stratification; it supplies reproducible (N_j\times N_z) and (N_z\times N_j) operators for validating shapes, ordering, modal round trips, and combined horizontal–vertical projections before production vertical matrices are introduced by the GEMM issues.
+The contract uses a deterministic truncated orthonormal DCT-II matrix pair as its provider-independent vertical fixture. This fixture is not a model of a particular stratification; it supplies reproducible $N_j\times N_z$ and $N_z\times N_j$ operators for validating shapes, ordering, modal round trips, and combined horizontal–vertical projections before production vertical matrices are introduced by the GEMM issues.
 
 ## Horizontal retention
 
-Production cases use WVM's radial two-thirds rule. For each DFT mode pair ((k,l)), the descriptor keeps one primary member of each conjugate pair, excludes the two-dimensional Nyquist axes, and retains the mode when
+Production cases use WVM's radial two-thirds rule. For each DFT mode pair $(k,l)$, the descriptor keeps one primary member of each conjugate pair, excludes the two-dimensional Nyquist axes, and retains the mode when
 
 $$
 \sqrt{K^2+L^2} \le \frac{2K_{\max}}{3}.
 $$
 
-Retained modes are ordered stably by radial magnitude, then integer (k), then integer (l), matching WVM's `sortrows([Kh,K,L])` convention. Result bundles include a hash of this logical order. Non-antialiased workloads are correctness diagnostics and do not determine performance decisions.
+Retained modes are ordered stably by radial magnitude, then integer $k$, then integer $l$, matching WVM's `sortrows([Kh,K,L])` convention. Result bundles include a hash of this logical order. Non-antialiased workloads are correctness diagnostics and do not determine performance decisions.
 
 ## Representations
 
 The initial implementation distinguishes these representations:
 
-- A real WVM grid with physical index order (x,y,z,\mathrm{field}), where (x) is contiguous.
-- The WVM full Hermitian half-spectrum with physical order (z,\mathrm{field},k_x,k_y), where the (N_z\times\mathrm{fields}) block is contiguous for each stored horizontal mode.
+- A real WVM grid with physical index order $(x,y,z,\mathrm{field})$, where $x$ is contiguous.
+- The WVM full Hermitian half-spectrum with physical order $(z,\mathrm{field},k_x,k_y)$, where the $N_z\times\mathrm{fields}$ block is contiguous for each stored horizontal mode.
 - A plane-major interleaved Hermitian half-spectrum used only for representation checks and comparisons with historical experiments.
 - vDSP's packed split-complex real-transform representation, including its special DC and Nyquist boundary packing.
-- A compact retained representation with physical order (z,\mathrm{field},\mathrm{radial\ mode}).
+- A compact retained representation with physical order $(z,\mathrm{field},\mathrm{radial\ mode})$.
 
 FFTW uses guru64 strides to write the WVM full-spectrum representation directly. The vDSP provider operates on its native split representation. Correctness is tested after a mode-keyed mapping; no provider is required to materialize a canonical order before it can be judged correct.
 
 ## Correctness
 
-The independent direct DFT uses the same mathematical sign and normalization as FFTW: the forward transform is unnormalized and the inverse transform returns (N_xN_y) times the physical input. The maximum reported error is
+The independent direct DFT uses the same mathematical sign and normalization as FFTW: the forward transform is unnormalized and the inverse transform returns $N_xN_y$ times the physical input. The maximum reported error is
 
 $$
 \epsilon = \frac{\max_i |a_i-b_i|}{\max(1,\max_i |b_i|)}.
 $$
 
-The denominator supplies an explicit absolute-error rule for values near zero. Required correctness tolerance is (epsilon\le10^{-12}).
+The denominator supplies an explicit absolute-error rule for values near zero. The Float64 correctness tolerance is $\epsilon\le10^{-12}$. Float32 experiments must preregister dimension-aware thresholds based on Float32 machine epsilon and operation count; they report raw scale-normalized maximum, relative $L_2$, round-trip, energy, retained-mode, and Hermitian-boundary errors rather than reusing the Float64 threshold.
+
+## Numeric type and execution placement
+
+Every new run declares one numeric type, currently `float64` or `float32`, and its scalar bit width. The initial v1 decision remains Float64-only. Float32 results are a separately identified follow-up evidence chain and cannot silently enter Float64 aggregates.
+
+Every provider and algorithm records distinct forward and inverse execution contracts. Each direction states:
+
+- whether the provider-native operation is in-place, out-of-place, or unsupported;
+- whether the complete adapter is in-place, out-of-place, or unsupported;
+- whether native execution destroys its input and whether the adapter preserves the caller's input;
+- whether repeated execution requires restoration or a preservation copy, and whether that work is included in primitive and adapter timing;
+- native and adapter input/output representation identifiers;
+- physical extents, element strides, padding, minimum alignment, and aliasing restrictions;
+- reusable work-buffer bytes;
+- whether native output can feed the opposite transform direction without conversion.
+
+Placement is an algorithm and storage contract, not a mathematical requirement. Primitive timing honors the provider's native contract. Adapter and pipeline timing include preservation, packing, or copying only when the declared caller-data lifetime requires that work. A report must not compare an in-place primitive with an out-of-place adapter as if they perform identical work, and it must not charge a preservation copy when the source is genuinely dead.
 
 Focused validation covers impulse, sinusoid, deterministic random, DC, and Nyquist fixtures. It checks full forward provider conformance, inverse round trips, the retained horizontal operator against a directly evaluated mode-keyed oracle, representation round trips, gather/embed round trips, Hermitian boundaries, and permutation invariance.
 
@@ -76,7 +93,7 @@ The required component ledger is:
 
 The FFT-only slice marks the vertical and modal stages `unsupported`. FFTW marks representation conversion and packing `elided` because its guru64 plan writes the production WVM layout directly. vDSP marks conversion and permutation/packing `fused` at the ledger level and also publishes the separately measurable adapter components.
 
-Provider-native primitive timing excludes packing, conversion, allocation, planning, and the restoration of destructive inverse inputs. Adapter totals include the transformations needed to accept or return WVM's full-spectrum representations. Retained-operator totals additionally include (P_h) or (E_h) and are measured in separate uninstrumented loops. Component medians need not sum to the total because cache state, fusion, and instrumentation change execution.
+Provider-native primitive timing excludes packing, conversion, allocation, planning, and any explicitly excluded restoration of destructive inputs. Adapter totals include the transformations needed to accept or return WVM's full-spectrum representations under their recorded caller-data lifetime. Retained-operator totals additionally include $P_h$ or $E_h$ and are measured in separate uninstrumented loops. Component medians need not sum to the total because cache state, fusion, and instrumentation change execution.
 
 All steady-state buffers, vDSP setups, and vDSP worker threads are persistent. No timed loop performs an intentional allocation.
 
@@ -87,7 +104,8 @@ Provider construction reports mutually exclusive setup-only (`otherSeconds`), al
 The JSON document conforms to `spectral-kernel-benchmark-v1` and records:
 
 - logical operator, algorithm, representation, mode-order, scheduling, and provider identifiers;
-- (H,N_{kl},N_z,N_j), fields, planes, strides, retention rules, grouping, and order hashes;
+- $H,N_{kl},N_z,N_j$, fields, planes, strides, retention rules, grouping, and order hashes;
+- numeric type and forward/inverse execution-placement contracts;
 - machine, OS, compiler, flags, source commit, and dirty-tree metadata;
 - planning configuration and cost;
 - explicit persistent, scratch, input, full-spectrum, and retained-spectrum bytes;
@@ -96,6 +114,23 @@ The JSON document conforms to `spectral-kernel-benchmark-v1` and records:
 Each bundle also records the exact WVM history audited for the contract: the production-layout baseline, the historical issue #129 harness, and its recorded decision commit. The benchmark repository commit and dirty state come from the build itself, so an uncommitted development run is identifiable rather than silently presented as a clean reference.
 
 The accompanying CSV contains one row per timing sample and is intended for statistical analysis and `skbench compare`.
+
+## Append-only publication
+
+`results/published/catalog.json` is the mutable index of immutable evidence. Every run has a permanent `run.id`, one publication status (`preliminary`, `reference`, `superseded`, or `withdrawn`), issue and experiment associations, a status explanation, and SHA-256 hashes for its JSON and CSV artifacts. Numerical pass/fail status is independent of publication status.
+
+New bundles use `results/published/runs/<run-id>/result.json` and `results/published/runs/<run-id>/samples.csv`. Once published, those files and their catalog artifact paths and hashes cannot change or disappear. Status, explanation, experiment association, and supersession metadata may evolve without hiding the original evidence. Only `reference` runs from clean trees and passing numerical tests may enter adoption statistics.
+
+The initial M4 run is explicitly grandfathered at its original flat artifact paths and remains byte-identical. Its legacy page `/runs/m4-max-quick-20260827.html` remains available alongside its canonical `/runs/20260827T185428Z-lyra/` page.
+
+Stable publication routes are:
+
+- `/runs/<run-id>/` for immutable run records;
+- `/experiments/<experiment-id>/` for accumulating issue-level evidence and experiment definitions;
+- `/methods/operators-and-representations/` for this methodology;
+- `/decisions/v1/` for the evidence synthesis and adoption decision.
+
+Pages generation reads committed artifacts and never executes a benchmark. `python3 tools/validate_publication.py` performs the fast local catalog and immutability checks; `python3 tools/build_site.py --output _site` renders the site independently.
 
 ## Scope boundary
 

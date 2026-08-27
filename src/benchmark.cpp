@@ -201,6 +201,94 @@ std::vector<LedgerEntry> vdspLedger() {
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
+ExecutionContract fftwExecutionContract(const Workload& workload) {
+    const auto planes = workload.planes();
+    const auto realExtents = "[planes=" + std::to_string(planes) + "][Ny=" + std::to_string(workload.ny) +
+        "][Nx=" + std::to_string(workload.nx) + "]";
+    const auto spectrumExtents = "[Ny=" + std::to_string(workload.ny) + "][NxHalf=" +
+        std::to_string(workload.nxHalf()) + "][planes=" + std::to_string(planes) + "]";
+    const auto realStrides = "x=1,y=" + std::to_string(workload.nx) + ",plane=" +
+        std::to_string(workload.realPlaneElements());
+    const auto spectrumStrides = "plane=1,kx=" + std::to_string(planes) + ",ky=" +
+        std::to_string(planes * workload.nxHalf());
+
+    ExecutionContract contract;
+    contract.forward = {
+        "out-of-place",
+        "out-of-place",
+        false,
+        true,
+        false,
+        false,
+        false,
+        "wvm-x-fastest-real-grid",
+        "wvm-frequency-major-interleaved-half-spectrum",
+        "wvm-x-fastest-real-grid",
+        "wvm-frequency-major-interleaved-half-spectrum",
+        "input=" + realExtents + "; output=" + spectrumExtents,
+        "input{" + realStrides + "}; output{" + spectrumStrides + "}",
+        0,
+        1,
+        "input and output do not overlap; FFTW_UNALIGNED accepts arbitrary scalar alignment",
+        0,
+        true};
+    contract.inverse = {
+        "out-of-place",
+        "out-of-place",
+        true,
+        false,
+        true,
+        false,
+        false,
+        "wvm-frequency-major-interleaved-half-spectrum",
+        "wvm-x-fastest-real-grid",
+        "wvm-frequency-major-interleaved-half-spectrum",
+        "wvm-x-fastest-real-grid",
+        "input=" + spectrumExtents + "; output=" + realExtents,
+        "input{" + spectrumStrides + "}; output{" + realStrides + "}",
+        0,
+        1,
+        "input and output do not overlap; multidimensional FFTW c2r may destroy its input",
+        0,
+        true};
+    return contract;
+}
+
+ExecutionContract vdspExecutionContract(const Workload& workload) {
+    const auto half = workload.nx / 2;
+    const auto planes = workload.planes();
+    const auto nativeExtents = "two split arrays [planes=" + std::to_string(planes) + "][Ny=" +
+        std::to_string(workload.ny) + "][Nx/2=" + std::to_string(half) + "]";
+    const auto nativeStrides = "split-slot=1,row=" + std::to_string(half) + ",plane=" +
+        std::to_string(half * workload.ny);
+
+    DirectionExecutionContract nativeDirection{
+        "in-place",
+        "out-of-place",
+        true,
+        true,
+        true,
+        false,
+        true,
+        "vdsp-packed-split-complex",
+        "vdsp-packed-split-complex",
+        "wvm-x-fastest-real-grid",
+        "wvm-frequency-major-interleaved-half-spectrum",
+        nativeExtents,
+        nativeStrides,
+        0,
+        alignof(double),
+        "real and imaginary split arrays are disjoint; each transform overwrites its native input",
+        0,
+        true};
+    ExecutionContract contract;
+    contract.forward = nativeDirection;
+    contract.inverse = nativeDirection;
+    contract.inverse.adapterInputRepresentationId = "wvm-frequency-major-interleaved-half-spectrum";
+    contract.inverse.adapterOutputRepresentationId = "wvm-x-fastest-real-grid";
+    return contract;
+}
+
 void appendUnsupportedVdspRecord(BenchmarkReport& report, const Profile& selected, const VDSPProvider& provider) {
     ProviderRecord record;
     record.id = "accelerate-vdsp";
@@ -212,6 +300,7 @@ void appendUnsupportedVdspRecord(BenchmarkReport& report, const Profile& selecte
     record.schedulingId = "persistent-thread-pool";
     record.sourceIdentity = "Apple Accelerate system framework";
     record.workers = selected.defaultWorkers;
+    record.execution = vdspExecutionContract(report.workload);
     record.otherSetupSeconds = provider.otherSetupSeconds();
     record.allocationSeconds = provider.allocationSeconds();
     record.planningSeconds = provider.planningSeconds();
@@ -436,6 +525,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     fftwRecord.configureFlags = "--host=aarch64-apple-darwin --enable-neon --enable-threads --disable-fortran --disable-openmp --enable-shared --disable-static";
     fftwRecord.compilerFlags = "-O3 -mcpu=native -mmacosx-version-min=13.3";
     fftwRecord.workers = workers;
+    fftwRecord.execution = fftwExecutionContract(workload);
     fftwRecord.otherSetupSeconds = fftw.otherSetupSeconds();
     fftwRecord.allocationSeconds = fftw.allocationSeconds();
     fftwRecord.planningSeconds = fftw.planningSeconds();
@@ -514,6 +604,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     vdspRecord.configureFlags = "system framework";
     vdspRecord.compilerFlags = report.environment.compilerFlags;
     vdspRecord.workers = workers;
+    vdspRecord.execution = vdspExecutionContract(workload);
     vdspRecord.explicitPersistentBytes = vdsp.explicitPersistentBytes();
     vdspRecord.otherSetupSeconds = vdsp.otherSetupSeconds();
     vdspRecord.allocationSeconds = vdsp.allocationSeconds();

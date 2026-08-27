@@ -53,6 +53,30 @@ void samples(std::ostream& stream, const std::vector<double>& values) {
     stream << ']';
 }
 
+void executionDirection(std::ostream& stream, const DirectionExecutionContract& contract) {
+    stream << "{\"nativePlacement\":"; quote(stream, contract.nativePlacement);
+    stream << ",\"adapterPlacement\":"; quote(stream, contract.adapterPlacement);
+    stream << ",\"destroysNativeInput\":" << (contract.destroysNativeInput ? "true" : "false");
+    stream << ",\"adapterPreservesCallerInput\":" << (contract.adapterPreservesCallerInput ? "true" : "false");
+    stream << ",\"requiresPreservationCopyForRepeatedExecution\":" <<
+        (contract.requiresPreservationCopyForRepeatedExecution ? "true" : "false");
+    stream << ",\"preservationIncludedInPrimitiveTiming\":" <<
+        (contract.preservationIncludedInPrimitiveTiming ? "true" : "false");
+    stream << ",\"preservationIncludedInAdapterTiming\":" <<
+        (contract.preservationIncludedInAdapterTiming ? "true" : "false");
+    stream << ",\"nativeInputRepresentationId\":"; quote(stream, contract.nativeInputRepresentationId);
+    stream << ",\"nativeOutputRepresentationId\":"; quote(stream, contract.nativeOutputRepresentationId);
+    stream << ",\"adapterInputRepresentationId\":"; quote(stream, contract.adapterInputRepresentationId);
+    stream << ",\"adapterOutputRepresentationId\":"; quote(stream, contract.adapterOutputRepresentationId);
+    stream << ",\"physicalExtents\":"; quote(stream, contract.physicalExtents);
+    stream << ",\"stridesElements\":"; quote(stream, contract.stridesElements);
+    stream << ",\"paddingElements\":" << contract.paddingElements;
+    stream << ",\"minimumAlignmentBytes\":" << contract.minimumAlignmentBytes;
+    stream << ",\"aliasing\":"; quote(stream, contract.aliasing);
+    stream << ",\"reusableWorkBytes\":" << contract.reusableWorkBytes;
+    stream << ",\"outputCanFeedOppositeDirection\":" << (contract.outputCanFeedOppositeDirection ? "true" : "false") << '}';
+}
+
 std::vector<std::string> splitCsv(std::string_view line) {
     std::vector<std::string> fields;
     std::string current;
@@ -105,6 +129,8 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
     stream << "{\n";
     stream << "  \"schema\":"; quote(stream, report.schema); stream << ",\n";
     stream << "  \"status\":"; quote(stream, report.status); stream << ",\n";
+    stream << "  \"numericType\":{\"id\":"; quote(stream, report.scalarTypeId);
+    stream << ",\"scalarBits\":" << report.scalarBits << "},\n";
     stream << "  \"run\":{\"id\":"; quote(stream, report.runId);
     stream << ",\"profile\":"; quote(stream, report.profile);
     stream << ",\"seed\":" << report.seed << ",\"warmups\":" << report.warmups << ",\"samples\":" << report.samples << "},\n";
@@ -153,6 +179,11 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"configureFlags\":"; quote(stream, provider.configureFlags);
         stream << ",\"compilerFlags\":"; quote(stream, provider.compilerFlags); stream << '}';
         stream << ",\"workers\":" << provider.workers;
+        stream << ",\"executionContract\":{\"forward\":";
+        executionDirection(stream, provider.execution.forward);
+        stream << ",\"inverse\":";
+        executionDirection(stream, provider.execution.inverse);
+        stream << '}';
         stream << ",\"setup\":{\"totalSeconds\":";
         number(stream, provider.otherSetupSeconds + provider.allocationSeconds + provider.planningSeconds);
         stream << ",\"otherSeconds\":"; number(stream, provider.otherSetupSeconds);

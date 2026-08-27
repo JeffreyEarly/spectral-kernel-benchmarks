@@ -31,7 +31,9 @@ build/release/skbench compare --input results/local/<run>.csv
 
 `validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
 
-`run` writes a versioned JSON manifest/report and a sample-level CSV file. Scratch runs go to `results/local/` and are ignored. Only compact reviewed artifacts belong under `results/published/`.
+`run` writes a versioned JSON manifest/report and a sample-level CSV file. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
+
+Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries
 
@@ -52,13 +54,21 @@ See [the benchmark contract](docs/benchmark-contract.md) and [the v1 JSON schema
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.
 
-Build it locally with:
+Validate the publication catalog without building the site:
+
+```sh
+python3 tools/validate_publication.py
+```
+
+Build the site locally with:
 
 ```sh
 python3 tools/build_site.py --output _site
 ```
 
-The `Publish benchmark dashboard` workflow rebuilds and deploys the site when dashboard sources or published bundles change on `main`. GitHub Pages is configured to use **GitHub Actions** as its source. The project site is `https://jeffreyearly.github.io/spectral-kernel-benchmarks/`.
+The generated archive provides permanent `/runs/<run-id>/` pages, accumulating `/experiments/<experiment-id>/` pages, the shared `/methods/operators-and-representations/` methodology, and the evolving `/decisions/v1/` synthesis. Preliminary, superseded, withdrawn, negative, and unsupported evidence remains visible; only clean, passing `reference` runs contribute to adoption statistics.
+
+The `Publish benchmark dashboard` workflow validates, rebuilds, and deploys the site when dashboard sources or published bundles change on `main`. It only reads committed files and never executes benchmarks. GitHub Pages is configured to use **GitHub Actions** as its source. The project site is `https://jeffreyearly.github.io/spectral-kernel-benchmarks/`.
 
 ## Provenance
 

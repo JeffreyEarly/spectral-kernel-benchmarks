@@ -10,6 +10,8 @@ on:
       - "schema/**"
       - "site/**"
       - "tools/build_site.py"
+      - "tools/publication.py"
+      - "tools/validate_publication.py"
   workflow_dispatch:
 
 permissions:
@@ -26,6 +28,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Validate current publication
+        run: python3 tools/validate_publication.py
+      - name: Enforce append-only publication against previous push
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: python3 tools/validate_publication.py --baseline-ref "${{ github.event.before }}"
       - name: Build dashboard
         run: python3 tools/build_site.py --output _site
       - name: Configure Pages
