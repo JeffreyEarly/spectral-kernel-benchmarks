@@ -189,8 +189,7 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"otherSeconds\":"; number(stream, provider.otherSetupSeconds);
         stream << ",\"allocationSeconds\":"; number(stream, provider.allocationSeconds); stream << "}";
         stream << ",\"planning\":{\"seconds\":"; number(stream, provider.planningSeconds);
-        stream << ",\"configuration\":";
-        quote(stream, provider.id == "fftw" ? "FFTW_MEASURE|FFTW_UNALIGNED; guru64; internal pthreads" : "radix-2 setup per persistent worker");
+        stream << ",\"configuration\":"; quote(stream, provider.planningConfiguration);
         stream << ",\"temporaryBytes\":" << provider.opaquePlanningBytes << "}";
         stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes << ",\"scratchBytes\":" << provider.scratchBytes << ",\"opaqueProviderMemory\":true}";
         stream << ",\"componentLedger\":[";

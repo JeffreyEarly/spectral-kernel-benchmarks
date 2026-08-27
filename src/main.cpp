@@ -12,8 +12,8 @@ namespace {
 void usage(std::ostream& output) {
     output << "Usage:\n"
            << "  skbench list\n"
-           << "  skbench validate [--profile smoke|quick|exhaustive]\n"
-           << "  skbench run [--profile NAME] [--workers N] [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
+           << "  skbench validate [--profile NAME]\n"
+           << "  skbench run [--profile NAME] [--vdsp-strategy NAME] [--workers N] [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
 std::string requireValue(int argc, char** argv, int& index) {
@@ -31,6 +31,11 @@ void list() {
     std::cout << "providers:\n"
               << "  fftw: pinned 3.3.11 NEON/pthreads, guru64 WVM strides\n"
               << "  accelerate-vdsp: double split-complex radix-2 2-D, persistent outer batching\n"
+              << "vDSP strategies:\n"
+              << "  in-place\n"
+              << "  in-place-explicit-scratch\n"
+              << "  out-of-place\n"
+              << "  out-of-place-explicit-scratch\n"
               << "representations:\n"
               << "  logical retained modes keyed by (k,l,j,field)\n"
               << "  WVM frequency-major interleaved Hermitian half-spectrum\n"
@@ -88,6 +93,7 @@ int main(int argc, char** argv) {
             for (int index = 2; index < argc; ++index) {
                 const std::string_view key = argv[index];
                 if (key == "--profile") options.profile = requireValue(argc, argv, index);
+                else if (key == "--vdsp-strategy") options.vdspStrategy = requireValue(argc, argv, index);
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));

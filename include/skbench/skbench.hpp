@@ -110,9 +110,19 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+enum class VDSPTransformStrategy {
+    inPlace,
+    inPlaceExplicitScratch,
+    outOfPlace,
+    outOfPlaceExplicitScratch
+};
+
+std::string_view vdspTransformStrategyName(VDSPTransformStrategy strategy) noexcept;
+VDSPTransformStrategy vdspTransformStrategyNamed(std::string_view name);
+
 class VDSPProvider {
 public:
-    VDSPProvider(const Workload& workload, std::size_t workers);
+    VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy);
     ~VDSPProvider();
     VDSPProvider(VDSPProvider&&) noexcept;
     VDSPProvider& operator=(VDSPProvider&&) noexcept;
@@ -132,8 +142,13 @@ public:
     double otherSetupSeconds() const noexcept;
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;
+    VDSPTransformStrategy strategy() const noexcept;
+    std::size_t workers() const noexcept;
+    std::size_t nativeOperandBytes() const noexcept;
     std::size_t nativeBufferBytes() const noexcept;
     std::size_t explicitPersistentBytes() const noexcept;
+    std::size_t scratchBytes() const noexcept;
+    std::size_t minimumAlignmentBytes() const noexcept;
     std::string libraryIdentity() const;
 
 private:
@@ -211,6 +226,7 @@ struct ProviderRecord {
     std::string sourceSha256;
     std::string configureFlags;
     std::string compilerFlags;
+    std::string planningConfiguration;
     std::size_t workers = 1;
     ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
@@ -277,6 +293,7 @@ Profile profileNamed(std::string_view name);
 
 struct RunOptions {
     std::string profile = "quick";
+    std::string vdspStrategy = "in-place";
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

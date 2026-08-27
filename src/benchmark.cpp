@@ -140,7 +140,12 @@ std::string utcTimestamp(bool compact) {
     std::tm utc{};
     gmtime_r(&time, &utc);
     std::ostringstream stream;
-    stream << std::put_time(&utc, compact ? "%Y%m%dT%H%M%SZ" : "%Y-%m-%dT%H:%M:%SZ");
+    if (compact) {
+        const auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count() % 1000000;
+        stream << std::put_time(&utc, "%Y%m%dT%H%M%S") << std::setfill('0') << std::setw(6) << microseconds << 'Z';
+    } else {
+        stream << std::put_time(&utc, "%Y-%m-%dT%H:%M:%SZ");
+    }
     return stream.str();
 }
 
@@ -186,10 +191,25 @@ std::vector<LedgerEntry> fftwLedger() {
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
-std::vector<LedgerEntry> vdspLedger() {
+std::string vdspApiName(VDSPTransformStrategy strategy) {
+    switch (strategy) {
+        case VDSPTransformStrategy::inPlace: return "vDSP_fft2d_zripD";
+        case VDSPTransformStrategy::inPlaceExplicitScratch: return "vDSP_fft2d_zriptD";
+        case VDSPTransformStrategy::outOfPlace: return "vDSP_fft2d_zropD";
+        case VDSPTransformStrategy::outOfPlaceExplicitScratch: return "vDSP_fft2d_zroptD";
+    }
+    return "unknown";
+}
+
+std::string vdspAlgorithmId(VDSPTransformStrategy strategy) {
+    return "vdsp-radix2-2d-" + std::string(vdspTransformStrategyName(strategy)) + "-persistent-outer-batch";
+}
+
+std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy) {
+    const auto api = vdspApiName(strategy);
     return {
         {"setup/planning", StageState::setupOnly, "one radix-2 setup per persistent worker"},
-        {"raw forward FFT", StageState::executed, "batched outer scheduling of native vDSP_fft2d_zripD calls"},
+        {"raw forward FFT", StageState::executed, "batched outer scheduling of native " + api + " calls"},
         {"horizontal retention", StageState::executed, "radial two-thirds mode-keyed gather"},
         {"representation conversion", StageState::fused, "split/interleaved conversion is fused with vDSP packing and WVM reordering"},
         {"permutation/packing", StageState::fused, "real packing and frequency-major WVM reordering are timed adapter components"},
@@ -197,7 +217,7 @@ std::vector<LedgerEntry> vdspLedger() {
         {"modal work", StageState::unsupported, "outside this FFT vertical slice"},
         {"raw inverse vertical MM", StageState::unsupported, "outside this FFT vertical slice"},
         {"horizontal embedding", StageState::executed, "mode-keyed retained spectrum embedded before the inverse adapter"},
-        {"raw inverse FFT", StageState::executed, "batched outer scheduling of native vDSP_fft2d_zripD calls"},
+        {"raw inverse FFT", StageState::executed, "batched outer scheduling of native " + api + " calls"},
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
@@ -254,36 +274,46 @@ ExecutionContract fftwExecutionContract(const Workload& workload) {
     return contract;
 }
 
-ExecutionContract vdspExecutionContract(const Workload& workload) {
+ExecutionContract vdspExecutionContract(const Workload& workload, const VDSPProvider& provider) {
     const auto half = workload.nx / 2;
     const auto planes = workload.planes();
+    const auto strategy = provider.strategy();
+    const bool outOfPlace = strategy == VDSPTransformStrategy::outOfPlace ||
+                            strategy == VDSPTransformStrategy::outOfPlaceExplicitScratch;
     const auto nativeExtents = "two split arrays [planes=" + std::to_string(planes) + "][Ny=" +
         std::to_string(workload.ny) + "][Nx/2=" + std::to_string(half) + "]";
     const auto nativeStrides = "split-slot=1,row=" + std::to_string(half) + ",plane=" +
         std::to_string(half * workload.ny);
 
-    DirectionExecutionContract nativeDirection{
-        "in-place",
+    const auto nativePlacement = outOfPlace ? "out-of-place" : "in-place";
+    const auto physicalExtents = outOfPlace
+        ? "input=" + nativeExtents + "; output=" + nativeExtents
+        : nativeExtents;
+    const auto aliasing = outOfPlace
+        ? "input and output split arrays are disjoint; each real/imaginary pair is disjoint"
+        : "real and imaginary split arrays are disjoint; native output overwrites native input";
+    DirectionExecutionContract forward{
+        nativePlacement,
         "out-of-place",
+        !outOfPlace,
         true,
-        true,
-        true,
+        !outOfPlace,
         false,
-        true,
+        !outOfPlace,
         "vdsp-packed-split-complex",
         "vdsp-packed-split-complex",
         "wvm-x-fastest-real-grid",
         "wvm-frequency-major-interleaved-half-spectrum",
-        nativeExtents,
+        physicalExtents,
         nativeStrides,
         0,
-        alignof(double),
-        "real and imaginary split arrays are disjoint; each transform overwrites its native input",
-        0,
+        provider.minimumAlignmentBytes(),
+        aliasing,
+        provider.scratchBytes(),
         true};
     ExecutionContract contract;
-    contract.forward = nativeDirection;
-    contract.inverse = nativeDirection;
+    contract.forward = forward;
+    contract.inverse = forward;
     contract.inverse.adapterInputRepresentationId = "wvm-frequency-major-interleaved-half-spectrum";
     contract.inverse.adapterOutputRepresentationId = "wvm-x-fastest-real-grid";
     return contract;
@@ -294,17 +324,18 @@ void appendUnsupportedVdspRecord(BenchmarkReport& report, const Profile& selecte
     record.id = "accelerate-vdsp";
     record.version = "system";
     record.libraryIdentity = provider.libraryIdentity();
-    record.algorithmId = "vdsp-radix2-2d-persistent-outer-batch";
+    record.algorithmId = vdspAlgorithmId(provider.strategy());
     record.nativeRepresentationId = "vdsp-packed-split-complex";
     record.modeOrderId = "vdsp-packed-special-boundaries";
     record.schedulingId = "persistent-thread-pool";
     record.sourceIdentity = "Apple Accelerate system framework";
+    record.planningConfiguration = "radix-2 setup per persistent worker; " + std::string(vdspTransformStrategyName(provider.strategy()));
     record.workers = selected.defaultWorkers;
-    record.execution = vdspExecutionContract(report.workload);
+    record.execution = vdspExecutionContract(report.workload, provider);
     record.otherSetupSeconds = provider.otherSetupSeconds();
     record.allocationSeconds = provider.allocationSeconds();
     record.planningSeconds = provider.planningSeconds();
-    record.ledger = vdspLedger();
+    record.ledger = vdspLedger(provider.strategy());
     for (auto& entry : record.ledger) entry.state = StageState::unsupported;
     record.correctness.push_back({provider.capability(), std::numeric_limits<double>::infinity(), tolerance, false});
     report.providers.push_back(std::move(record));
@@ -317,7 +348,17 @@ std::vector<Profile> profiles() {
     return {
         {"smoke", "Small deterministic correctness and CLI exercise; performance is not meaningful.", {8, 8, 7, 2, 1.0, 1.0, true}, 1, 1, 2},
         {"quick", "First production FFT vertical slice from WVM issue #129.", {256, 256, 65, 3, 1.0, 1.0, true}, totalWorkers, 3, 15},
-        {"exhaustive", "Initial larger reference shape; broader sweeps are added by later issues.", {512, 512, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 20}};
+        {"exhaustive", "Initial larger reference shape from WVM issue #129.", {512, 512, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-historical-256-nz65-f3", "Historical issue #129 medium workload, three fields.", {256, 256, 65, 3, 1.0, 1.0, true}, totalWorkers, 3, 15},
+        {"wvm-historical-256-nz65-f4", "Historical issue #129 medium workload, four fields.", {256, 256, 65, 4, 1.0, 1.0, true}, totalWorkers, 3, 15},
+        {"wvm-historical-512-nz129-f3", "Historical issue #129 large workload, three fields.", {512, 512, 129, 3, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-historical-512-nz129-f4", "Historical issue #129 large workload, four fields.", {512, 512, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-current-256-nz129-f1", "Current WVM 256-cubed-class workload, one field.", {256, 256, 129, 1, 1.0, 1.0, true}, totalWorkers, 3, 15},
+        {"wvm-current-256-nz129-f3", "Current WVM 256-cubed-class workload, three fields.", {256, 256, 129, 3, 1.0, 1.0, true}, totalWorkers, 3, 15},
+        {"wvm-current-256-nz129-f4", "Current WVM 256-cubed-class workload, four fields.", {256, 256, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 15},
+        {"wvm-current-512-nz257-f1", "Current WVM 512-cubed-class workload, one field.", {512, 512, 257, 1, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-current-512-nz257-f3", "Current WVM 512-cubed-class workload, three fields.", {512, 512, 257, 3, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-current-512-nz257-f4", "Current WVM 512-cubed-class workload, four fields.", {512, 512, 257, 4, 1.0, 1.0, true}, totalWorkers, 3, 20}};
 }
 
 Profile profileNamed(std::string_view name) {
@@ -388,12 +429,6 @@ ValidationReport validateBenchmark(std::string_view profileName) {
         FixtureKind::impulse, FixtureKind::sinusoid, FixtureKind::random, FixtureKind::dc, FixtureKind::nyquist};
 
     FFTWProvider fftw(workload, 1);
-    VDSPProvider vdsp(workload, 1);
-    if (!vdsp.supported()) {
-        report.messages.push_back(vdsp.capability());
-        return report;
-    }
-
     std::vector<Complex> oracle(workload.spectrumElements());
     std::vector<Complex> actual(workload.spectrumElements());
     std::vector<Complex> inverseInput(workload.spectrumElements());
@@ -423,15 +458,29 @@ ValidationReport validateBenchmark(std::string_view profileName) {
         passed = passed && fftwInverseError <= tolerance;
         report.messages.push_back("fftw/" + std::string(fixtureName(fixture)) + "/inverse=" + std::to_string(fftwInverseError));
 
-        vdsp.forwardAdapter(input.data(), actual.data());
-        const auto vdspForwardError = maximumRelativeError(actual.data(), oracle.data(), oracle.size());
-        passed = passed && vdspForwardError <= tolerance;
-        report.messages.push_back("vdsp/" + std::string(fixtureName(fixture)) + "/forward=" + std::to_string(vdspForwardError));
+        for (const auto strategy : {VDSPTransformStrategy::inPlace,
+                                    VDSPTransformStrategy::inPlaceExplicitScratch,
+                                    VDSPTransformStrategy::outOfPlace,
+                                    VDSPTransformStrategy::outOfPlaceExplicitScratch}) {
+            VDSPProvider vdsp(workload, 1, strategy);
+            if (!vdsp.supported()) {
+                passed = false;
+                report.messages.push_back(vdsp.capability());
+                continue;
+            }
+            vdsp.forwardAdapter(input.data(), actual.data());
+            const auto vdspForwardError = maximumRelativeError(actual.data(), oracle.data(), oracle.size());
+            passed = passed && vdspForwardError <= tolerance;
+            report.messages.push_back("vdsp/" + std::string(vdspTransformStrategyName(strategy)) + "/" +
+                                      std::string(fixtureName(fixture)) + "/forward=" + std::to_string(vdspForwardError));
 
-        vdsp.inverseAdapter(oracle.data(), output.data());
-        const auto vdspInverseError = maximumRelativeError(output.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny));
-        passed = passed && vdspInverseError <= tolerance;
-        report.messages.push_back("vdsp/" + std::string(fixtureName(fixture)) + "/inverse=" + std::to_string(vdspInverseError));
+            vdsp.inverseAdapter(oracle.data(), output.data());
+            const auto vdspInverseError = maximumRelativeError(
+                output.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny));
+            passed = passed && vdspInverseError <= tolerance;
+            report.messages.push_back("vdsp/" + std::string(vdspTransformStrategyName(strategy)) + "/" +
+                                      std::string(fixtureName(fixture)) + "/inverse=" + std::to_string(vdspInverseError));
+        }
 
         wvmToPlaneMajor(workload, oracle.data(), planeMajor.data());
         planeMajorToWvm(workload, planeMajor.data(), layoutRoundTrip.data());
@@ -472,6 +521,7 @@ ValidationReport validateBenchmark(std::string_view profileName) {
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
     auto selected = profileNamed(options.profile);
+    const auto vdspStrategy = vdspTransformStrategyNamed(options.vdspStrategy);
     const auto workers = options.workers == 0 ? selected.defaultWorkers : options.workers;
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
     const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
@@ -524,6 +574,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     fftwRecord.sourceSha256 = "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
     fftwRecord.configureFlags = "--host=aarch64-apple-darwin --enable-neon --enable-threads --disable-fortran --disable-openmp --enable-shared --disable-static";
     fftwRecord.compilerFlags = "-O3 -mcpu=native -mmacosx-version-min=13.3";
+    fftwRecord.planningConfiguration = "FFTW_MEASURE|FFTW_UNALIGNED; guru64; internal pthreads";
     fftwRecord.workers = workers;
     fftwRecord.execution = fftwExecutionContract(workload);
     fftwRecord.otherSetupSeconds = fftw.otherSetupSeconds();
@@ -571,7 +622,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         })));
     report.providers.push_back(std::move(fftwRecord));
 
-    VDSPProvider vdsp(workload, workers);
+    VDSPProvider vdsp(workload, workers, vdspStrategy);
     if (!vdsp.supported()) {
         appendUnsupportedVdspRecord(report, selected, vdsp);
         report.status = "failed";
@@ -596,20 +647,23 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     vdspRecord.id = "accelerate-vdsp";
     vdspRecord.version = "system";
     vdspRecord.libraryIdentity = vdsp.libraryIdentity();
-    vdspRecord.algorithmId = "vdsp-radix2-2d-persistent-outer-batch";
+    vdspRecord.algorithmId = vdspAlgorithmId(vdsp.strategy());
     vdspRecord.nativeRepresentationId = "vdsp-packed-split-complex";
     vdspRecord.modeOrderId = "vdsp-packed-special-boundaries";
     vdspRecord.schedulingId = "persistent-thread-pool";
     vdspRecord.sourceIdentity = "Apple Accelerate system framework";
     vdspRecord.configureFlags = "system framework";
     vdspRecord.compilerFlags = report.environment.compilerFlags;
+    vdspRecord.planningConfiguration = "radix-2 setup per persistent worker; " +
+        std::string(vdspTransformStrategyName(vdsp.strategy()));
     vdspRecord.workers = workers;
-    vdspRecord.execution = vdspExecutionContract(workload);
+    vdspRecord.execution = vdspExecutionContract(workload, vdsp);
     vdspRecord.explicitPersistentBytes = vdsp.explicitPersistentBytes();
+    vdspRecord.scratchBytes = vdsp.scratchBytes();
     vdspRecord.otherSetupSeconds = vdsp.otherSetupSeconds();
     vdspRecord.allocationSeconds = vdsp.allocationSeconds();
     vdspRecord.planningSeconds = vdsp.planningSeconds();
-    vdspRecord.ledger = vdspLedger();
+    vdspRecord.ledger = vdspLedger(vdsp.strategy());
     vdspRecord.correctness = {
         metric("full forward versus FFTW", vdspForwardError),
         metric("full inverse versus FFTW", vdspInverseReferenceError),
@@ -618,38 +672,38 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         metric("retained inverse versus FFTW", vdspRetainedInverseError)};
 
     vdspRecord.timings.push_back(series("primitive", "raw FFT", "forward", StageState::executed,
-        vdsp.nativeBufferBytes() * 2,
+        vdsp.nativeOperandBytes() * 2,
         measure(warmups, sampleCount,
             [&] { vdsp.packForwardInput(input.data()); },
             [&] { vdsp.executeForwardNative(); })));
     vdspRecord.timings.push_back(series("primitive", "raw FFT", "inverse", StageState::executed,
-        vdsp.nativeBufferBytes() * 2,
+        vdsp.nativeOperandBytes() * 2,
         measure(warmups, sampleCount,
             [&] { vdsp.packInverseInput(referenceSpectrum.data()); },
             [&] { vdsp.executeInverseNative(); })));
 
     vdspRecord.timings.push_back(series("adapter-component", "real-to-vDSP packing", "forward", StageState::executed,
-        report.fullRealBytes + vdsp.nativeBufferBytes(),
+        report.fullRealBytes + vdsp.nativeOperandBytes(),
         measure(warmups, sampleCount, [&] { vdsp.packForwardInput(input.data()); })));
     vdsp.packForwardInput(input.data());
     vdsp.executeForwardNative();
     vdspRecord.timings.push_back(series("adapter-component", "vDSP-to-WVM conversion and permutation", "forward", StageState::executed,
-        vdsp.nativeBufferBytes() + report.fullSpectrumBytes,
+        vdsp.nativeOperandBytes() + report.fullSpectrumBytes,
         measure(warmups, sampleCount, [&] { vdsp.unpackForwardOutput(workingSpectrum.data()); })));
     vdspRecord.timings.push_back(series("adapter-component", "WVM-to-vDSP conversion and permutation", "inverse", StageState::executed,
-        report.fullSpectrumBytes + vdsp.nativeBufferBytes(),
+        report.fullSpectrumBytes + vdsp.nativeOperandBytes(),
         measure(warmups, sampleCount, [&] { vdsp.packInverseInput(referenceSpectrum.data()); })));
     vdsp.packInverseInput(referenceSpectrum.data());
     vdsp.executeInverseNative();
     vdspRecord.timings.push_back(series("adapter-component", "vDSP-to-real unpacking", "inverse", StageState::executed,
-        vdsp.nativeBufferBytes() + report.fullRealBytes,
+        vdsp.nativeOperandBytes() + report.fullRealBytes,
         measure(warmups, sampleCount, [&] { vdsp.unpackInverseOutput(output.data()); })));
 
     vdspRecord.timings.push_back(series("adapter-total", "WVM-compatible full-spectrum adapter", "forward", StageState::executed,
-        report.fullRealBytes + 2 * vdsp.nativeBufferBytes() + report.fullSpectrumBytes,
+        report.fullRealBytes + 2 * vdsp.nativeOperandBytes() + report.fullSpectrumBytes,
         measure(warmups, sampleCount, [&] { vdsp.forwardAdapter(input.data(), workingSpectrum.data()); })));
     vdspRecord.timings.push_back(series("adapter-total", "WVM-compatible full-spectrum adapter", "inverse", StageState::executed,
-        report.fullSpectrumBytes + 2 * vdsp.nativeBufferBytes() + report.fullRealBytes,
+        report.fullSpectrumBytes + 2 * vdsp.nativeOperandBytes() + report.fullRealBytes,
         measure(warmups, sampleCount, [&] { vdsp.inverseAdapter(referenceSpectrum.data(), output.data()); })));
     vdspRecord.timings.push_back(series("operator-component", "horizontal retention", "forward", StageState::executed,
         report.fullSpectrumBytes + report.retainedSpectrumBytes,
@@ -658,13 +712,13 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         report.retainedSpectrumBytes + report.fullSpectrumBytes,
         measure(warmups, sampleCount, [&] { embedRetained(workload, modes, retainedSpectrum.data(), inverseSpectrum.data()); })));
     vdspRecord.timings.push_back(series("uninstrumented-total", "retained horizontal operator", "forward", StageState::executed,
-        report.fullRealBytes + 2 * vdsp.nativeBufferBytes() + report.fullSpectrumBytes + report.retainedSpectrumBytes,
+        report.fullRealBytes + 2 * vdsp.nativeOperandBytes() + report.fullSpectrumBytes + report.retainedSpectrumBytes,
         measure(warmups, sampleCount, [&] {
             vdsp.forwardAdapter(input.data(), workingSpectrum.data());
             gatherRetained(workload, modes, workingSpectrum.data(), retainedWorking.data());
         })));
     vdspRecord.timings.push_back(series("uninstrumented-total", "retained horizontal operator", "inverse", StageState::executed,
-        report.retainedSpectrumBytes + report.fullSpectrumBytes + 2 * vdsp.nativeBufferBytes() + report.fullRealBytes,
+        report.retainedSpectrumBytes + report.fullSpectrumBytes + 2 * vdsp.nativeOperandBytes() + report.fullRealBytes,
         measure(warmups, sampleCount, [&] {
             embedRetained(workload, modes, retainedSpectrum.data(), inverseSpectrum.data());
             vdsp.inverseAdapter(inverseSpectrum.data(), output.data());

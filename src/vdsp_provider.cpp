@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <dlfcn.h>
 #include <memory>
 #include <mutex>
+#include <new>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -118,6 +121,51 @@ bool powerOfTwo(std::size_t value) {
     return value >= 2 && (value & (value - 1)) == 0;
 }
 
+class AlignedBuffer {
+public:
+    static constexpr std::size_t alignment = 64;
+
+    AlignedBuffer() = default;
+    explicit AlignedBuffer(std::size_t count) { resize(count); }
+    ~AlignedBuffer() { std::free(data_); }
+
+    AlignedBuffer(const AlignedBuffer&) = delete;
+    AlignedBuffer& operator=(const AlignedBuffer&) = delete;
+
+    AlignedBuffer(AlignedBuffer&& other) noexcept : data_(std::exchange(other.data_, nullptr)), size_(std::exchange(other.size_, 0)) {}
+    AlignedBuffer& operator=(AlignedBuffer&& other) noexcept {
+        if (this != &other) {
+            std::free(data_);
+            data_ = std::exchange(other.data_, nullptr);
+            size_ = std::exchange(other.size_, 0);
+        }
+        return *this;
+    }
+
+    void resize(std::size_t count) {
+        if (count == size_) return;
+        std::free(data_);
+        data_ = nullptr;
+        size_ = 0;
+        if (count == 0) return;
+        void* storage = nullptr;
+        if (posix_memalign(&storage, alignment, count * sizeof(double)) != 0) throw std::bad_alloc();
+        data_ = static_cast<double*>(storage);
+        size_ = count;
+        std::fill(data_, data_ + size_, 0.0);
+    }
+
+    double* data() noexcept { return data_; }
+    const double* data() const noexcept { return data_; }
+    std::size_t size() const noexcept { return size_; }
+    double* begin() noexcept { return data_; }
+    double* end() noexcept { return data_ + size_; }
+
+private:
+    double* data_ = nullptr;
+    std::size_t size_ = 0;
+};
+
 #if SKBENCH_HAVE_ACCELERATE
 vDSP_Length log2Length(std::size_t value) {
     vDSP_Length result = 0;
@@ -128,9 +176,28 @@ vDSP_Length log2Length(std::size_t value) {
 
 } // namespace
 
+std::string_view vdspTransformStrategyName(VDSPTransformStrategy strategy) noexcept {
+    switch (strategy) {
+        case VDSPTransformStrategy::inPlace: return "in-place";
+        case VDSPTransformStrategy::inPlaceExplicitScratch: return "in-place-explicit-scratch";
+        case VDSPTransformStrategy::outOfPlace: return "out-of-place";
+        case VDSPTransformStrategy::outOfPlaceExplicitScratch: return "out-of-place-explicit-scratch";
+    }
+    return "unknown";
+}
+
+VDSPTransformStrategy vdspTransformStrategyNamed(std::string_view name) {
+    if (name == "in-place") return VDSPTransformStrategy::inPlace;
+    if (name == "in-place-explicit-scratch") return VDSPTransformStrategy::inPlaceExplicitScratch;
+    if (name == "out-of-place") return VDSPTransformStrategy::outOfPlace;
+    if (name == "out-of-place-explicit-scratch") return VDSPTransformStrategy::outOfPlaceExplicitScratch;
+    throw std::invalid_argument("Unknown vDSP strategy: " + std::string(name));
+}
+
 class VDSPProvider::Impl {
 public:
-    Impl(const Workload& workload, std::size_t workers) : workload_(workload) {
+    Impl(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy)
+        : workload_(workload), strategy_(strategy) {
         if (workers == 0) throw std::invalid_argument("vDSP workers must be positive.");
 #if SKBENCH_HAVE_ACCELERATE
         if (!powerOfTwo(workload.nx) || !powerOfTwo(workload.ny)) {
@@ -142,8 +209,17 @@ public:
         otherSetupSeconds_ = elapsedSeconds(setupStart);
         const auto nativeCount = workload.planes() * (workload.nx / 2) * workload.ny;
         const auto allocationStart = Clock::now();
-        real_.resize(nativeCount);
-        imag_.resize(nativeCount);
+        inputReal_.resize(nativeCount);
+        inputImag_.resize(nativeCount);
+        if (outOfPlace()) {
+            outputReal_.resize(nativeCount);
+            outputImag_.resize(nativeCount);
+        }
+        if (usesExplicitScratch()) {
+            scratchElementsPerWorker_ = std::max(workload.ny, workload.nx / 2);
+            scratchReal_.resize(executor_->workerCount() * scratchElementsPerWorker_);
+            scratchImag_.resize(executor_->workerCount() * scratchElementsPerWorker_);
+        }
         setups_.resize(executor_->workerCount(), nullptr);
         allocationSeconds_ = elapsedSeconds(allocationStart);
         const auto planningStart = Clock::now();
@@ -157,7 +233,7 @@ public:
             }
         }
         supported_ = true;
-        capability_ = "supported: double split-complex radix-2 2-D";
+        capability_ = "supported: double split-complex radix-2 2-D; " + std::string(vdspTransformStrategyName(strategy_));
         planningSeconds_ = elapsedSeconds(planningStart);
 #else
         (void)workers;
@@ -179,6 +255,19 @@ public:
 
     std::size_t nativePlaneElements() const { return (workload_.nx / 2) * workload_.ny; }
 
+    bool outOfPlace() const noexcept {
+        return strategy_ == VDSPTransformStrategy::outOfPlace ||
+               strategy_ == VDSPTransformStrategy::outOfPlaceExplicitScratch;
+    }
+
+    bool usesExplicitScratch() const noexcept {
+        return strategy_ == VDSPTransformStrategy::inPlaceExplicitScratch ||
+               strategy_ == VDSPTransformStrategy::outOfPlaceExplicitScratch;
+    }
+
+    const double* resultReal() const noexcept { return outOfPlace() ? outputReal_.data() : inputReal_.data(); }
+    const double* resultImag() const noexcept { return outOfPlace() ? outputImag_.data() : inputImag_.data(); }
+
     void packForward(const double* input) {
         requireSupported();
         const auto half = workload_.nx / 2;
@@ -189,8 +278,8 @@ public:
             for (std::size_t y = 0; y < workload_.ny; ++y) {
                 for (std::size_t x = 0; x < half; ++x) {
                     const auto packed = destinationOffset + y * half + x;
-                    real_[packed] = input[sourceOffset + y * workload_.nx + 2 * x];
-                    imag_[packed] = input[sourceOffset + y * workload_.nx + 2 * x + 1];
+                    inputReal_.data()[packed] = input[sourceOffset + y * workload_.nx + 2 * x];
+                    inputImag_.data()[packed] = input[sourceOffset + y * workload_.nx + 2 * x + 1];
                 }
             }
         }
@@ -215,18 +304,18 @@ public:
             for (std::size_t y = 0; y < workload_.ny; ++y) {
                 for (std::size_t x = 1; x < half; ++x) {
                     const auto packed = offset + y * half + x;
-                    output[wvmSpectrumIndex(workload_, x, y, z, field)] = {0.5 * real_[packed], 0.5 * imag_[packed]};
+                    output[wvmSpectrumIndex(workload_, x, y, z, field)] = {0.5 * resultReal()[packed], 0.5 * resultImag()[packed]};
                 }
             }
-            output[wvmSpectrumIndex(workload_, 0, 0, z, field)] = {0.5 * real_[offset], 0.0};
-            output[wvmSpectrumIndex(workload_, half, 0, z, field)] = {0.5 * imag_[offset], 0.0};
-            output[wvmSpectrumIndex(workload_, 0, yNyquist, z, field)] = {0.5 * real_[offset + half], 0.0};
-            output[wvmSpectrumIndex(workload_, half, yNyquist, z, field)] = {0.5 * imag_[offset + half], 0.0};
+            output[wvmSpectrumIndex(workload_, 0, 0, z, field)] = {0.5 * resultReal()[offset], 0.0};
+            output[wvmSpectrumIndex(workload_, half, 0, z, field)] = {0.5 * resultImag()[offset], 0.0};
+            output[wvmSpectrumIndex(workload_, 0, yNyquist, z, field)] = {0.5 * resultReal()[offset + half], 0.0};
+            output[wvmSpectrumIndex(workload_, half, yNyquist, z, field)] = {0.5 * resultImag()[offset + half], 0.0};
             for (std::size_t y = 1; y < yNyquist; ++y) {
                 const auto first = offset + (2 * y) * half;
                 const auto second = offset + (2 * y + 1) * half;
-                const Complex zero{0.5 * real_[first], 0.5 * real_[second]};
-                const Complex nyquist{0.5 * imag_[first], 0.5 * imag_[second]};
+                const Complex zero{0.5 * resultReal()[first], 0.5 * resultReal()[second]};
+                const Complex nyquist{0.5 * resultImag()[first], 0.5 * resultImag()[second]};
                 output[wvmSpectrumIndex(workload_, 0, y, z, field)] = zero;
                 output[wvmSpectrumIndex(workload_, 0, workload_.ny - y, z, field)] = conjugate(zero);
                 output[wvmSpectrumIndex(workload_, half, y, z, field)] = nyquist;
@@ -237,8 +326,8 @@ public:
 
     void packInverse(const Complex* input) {
         requireSupported();
-        std::fill(real_.begin(), real_.end(), 0.0);
-        std::fill(imag_.begin(), imag_.end(), 0.0);
+        std::fill(inputReal_.begin(), inputReal_.end(), 0.0);
+        std::fill(inputImag_.begin(), inputImag_.end(), 0.0);
         const auto half = workload_.nx / 2;
         const auto nativePlane = nativePlaneElements();
         const auto yNyquist = workload_.ny / 2;
@@ -250,23 +339,23 @@ public:
                 for (std::size_t x = 1; x < half; ++x) {
                     const auto value = input[wvmSpectrumIndex(workload_, x, y, z, field)];
                     const auto packed = offset + y * half + x;
-                    real_[packed] = value.real;
-                    imag_[packed] = value.imag;
+                    inputReal_.data()[packed] = value.real;
+                    inputImag_.data()[packed] = value.imag;
                 }
             }
-            real_[offset] = input[wvmSpectrumIndex(workload_, 0, 0, z, field)].real;
-            imag_[offset] = input[wvmSpectrumIndex(workload_, half, 0, z, field)].real;
-            real_[offset + half] = input[wvmSpectrumIndex(workload_, 0, yNyquist, z, field)].real;
-            imag_[offset + half] = input[wvmSpectrumIndex(workload_, half, yNyquist, z, field)].real;
+            inputReal_.data()[offset] = input[wvmSpectrumIndex(workload_, 0, 0, z, field)].real;
+            inputImag_.data()[offset] = input[wvmSpectrumIndex(workload_, half, 0, z, field)].real;
+            inputReal_.data()[offset + half] = input[wvmSpectrumIndex(workload_, 0, yNyquist, z, field)].real;
+            inputImag_.data()[offset + half] = input[wvmSpectrumIndex(workload_, half, yNyquist, z, field)].real;
             for (std::size_t y = 1; y < yNyquist; ++y) {
                 const auto zero = input[wvmSpectrumIndex(workload_, 0, y, z, field)];
                 const auto nyquist = input[wvmSpectrumIndex(workload_, half, y, z, field)];
                 const auto first = offset + (2 * y) * half;
                 const auto second = offset + (2 * y + 1) * half;
-                real_[first] = zero.real;
-                real_[second] = zero.imag;
-                imag_[first] = nyquist.real;
-                imag_[second] = nyquist.imag;
+                inputReal_.data()[first] = zero.real;
+                inputReal_.data()[second] = zero.imag;
+                inputImag_.data()[first] = nyquist.real;
+                inputImag_.data()[second] = nyquist.imag;
             }
         }
     }
@@ -288,52 +377,90 @@ public:
             for (std::size_t y = 0; y < workload_.ny; ++y) {
                 for (std::size_t x = 0; x < half; ++x) {
                     const auto packed = sourceOffset + y * half + x;
-                    output[destinationOffset + y * workload_.nx + 2 * x] = real_[packed];
-                    output[destinationOffset + y * workload_.nx + 2 * x + 1] = imag_[packed];
+                    output[destinationOffset + y * workload_.nx + 2 * x] = resultReal()[packed];
+                    output[destinationOffset + y * workload_.nx + 2 * x + 1] = resultImag()[packed];
                 }
             }
         }
     }
 
 #if SKBENCH_HAVE_ACCELERATE
+    DSPDoubleSplitComplex scratch(std::size_t worker) {
+        const auto offset = worker * scratchElementsPerWorker_;
+        return {scratchReal_.data() + offset, scratchImag_.data() + offset};
+    }
+
+    void executePlane(std::size_t worker, std::size_t plane, FFTDirection direction) {
+        const auto nativePlane = nativePlaneElements();
+        const auto offset = plane * nativePlane;
+        const auto half = workload_.nx / 2;
+        DSPDoubleSplitComplex input{inputReal_.data() + offset, inputImag_.data() + offset};
+        DSPDoubleSplitComplex output{
+            outOfPlace() ? outputReal_.data() + offset : inputReal_.data() + offset,
+            outOfPlace() ? outputImag_.data() + offset : inputImag_.data() + offset};
+        const auto log2Nx = log2Length(workload_.nx);
+        const auto log2Ny = log2Length(workload_.ny);
+        switch (strategy_) {
+            case VDSPTransformStrategy::inPlace:
+                vDSP_fft2d_zripD(setups_[worker], &input, 1, static_cast<vDSP_Stride>(half),
+                                 log2Nx, log2Ny, direction);
+                break;
+            case VDSPTransformStrategy::inPlaceExplicitScratch: {
+                auto work = scratch(worker);
+                vDSP_fft2d_zriptD(setups_[worker], &input, 1, static_cast<vDSP_Stride>(half), &work,
+                                  log2Nx, log2Ny, direction);
+                break;
+            }
+            case VDSPTransformStrategy::outOfPlace:
+                vDSP_fft2d_zropD(setups_[worker], &input, 1, static_cast<vDSP_Stride>(half),
+                                 &output, 1, static_cast<vDSP_Stride>(half), log2Nx, log2Ny, direction);
+                break;
+            case VDSPTransformStrategy::outOfPlaceExplicitScratch: {
+                auto work = scratch(worker);
+                vDSP_fft2d_zroptD(setups_[worker], &input, 1, static_cast<vDSP_Stride>(half),
+                                  &output, 1, static_cast<vDSP_Stride>(half), &work, log2Nx, log2Ny, direction);
+                break;
+            }
+        }
+    }
+
     static void forwardTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
         auto& self = *static_cast<Impl*>(context);
-        const auto nativePlane = self.nativePlaneElements();
-        const auto half = self.workload_.nx / 2;
         for (std::size_t plane = begin; plane < end; ++plane) {
-            DSPDoubleSplitComplex split{self.real_.data() + plane * nativePlane, self.imag_.data() + plane * nativePlane};
-            vDSP_fft2d_zripD(self.setups_[worker], &split, 1, static_cast<vDSP_Stride>(half),
-                             log2Length(self.workload_.nx), log2Length(self.workload_.ny), FFT_FORWARD);
+            self.executePlane(worker, plane, FFT_FORWARD);
         }
     }
 
     static void inverseTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
         auto& self = *static_cast<Impl*>(context);
-        const auto nativePlane = self.nativePlaneElements();
-        const auto half = self.workload_.nx / 2;
         for (std::size_t plane = begin; plane < end; ++plane) {
-            DSPDoubleSplitComplex split{self.real_.data() + plane * nativePlane, self.imag_.data() + plane * nativePlane};
-            vDSP_fft2d_zripD(self.setups_[worker], &split, 1, static_cast<vDSP_Stride>(half),
-                             log2Length(self.workload_.nx), log2Length(self.workload_.ny), FFT_INVERSE);
+            self.executePlane(worker, plane, FFT_INVERSE);
         }
     }
 #endif
 
     Workload workload_;
+    VDSPTransformStrategy strategy_ = VDSPTransformStrategy::inPlace;
     bool supported_ = false;
     std::string capability_;
     double otherSetupSeconds_ = 0.0;
     double allocationSeconds_ = 0.0;
     double planningSeconds_ = 0.0;
+    std::size_t scratchElementsPerWorker_ = 0;
     std::unique_ptr<PlaneExecutor> executor_;
-    std::vector<double> real_;
-    std::vector<double> imag_;
+    AlignedBuffer inputReal_;
+    AlignedBuffer inputImag_;
+    AlignedBuffer outputReal_;
+    AlignedBuffer outputImag_;
+    AlignedBuffer scratchReal_;
+    AlignedBuffer scratchImag_;
 #if SKBENCH_HAVE_ACCELERATE
     std::vector<FFTSetupD> setups_;
 #endif
 };
 
-VDSPProvider::VDSPProvider(const Workload& workload, std::size_t workers) : impl_(std::make_unique<Impl>(workload, workers)) {}
+VDSPProvider::VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy)
+    : impl_(std::make_unique<Impl>(workload, workers, strategy)) {}
 
 VDSPProvider::~VDSPProvider() = default;
 VDSPProvider::VDSPProvider(VDSPProvider&&) noexcept = default;
@@ -366,13 +493,30 @@ double VDSPProvider::allocationSeconds() const noexcept { return impl_->allocati
 
 double VDSPProvider::planningSeconds() const noexcept { return impl_->planningSeconds_; }
 
+VDSPTransformStrategy VDSPProvider::strategy() const noexcept { return impl_->strategy_; }
+
+std::size_t VDSPProvider::workers() const noexcept {
+    return impl_->executor_ == nullptr ? 0 : impl_->executor_->workerCount();
+}
+
+std::size_t VDSPProvider::nativeOperandBytes() const noexcept {
+    return (impl_->inputReal_.size() + impl_->inputImag_.size()) * sizeof(double);
+}
+
 std::size_t VDSPProvider::nativeBufferBytes() const noexcept {
-    return (impl_->real_.size() + impl_->imag_.size()) * sizeof(double);
+    return (impl_->inputReal_.size() + impl_->inputImag_.size() +
+            impl_->outputReal_.size() + impl_->outputImag_.size()) * sizeof(double);
 }
 
 std::size_t VDSPProvider::explicitPersistentBytes() const noexcept {
     return nativeBufferBytes();
 }
+
+std::size_t VDSPProvider::scratchBytes() const noexcept {
+    return (impl_->scratchReal_.size() + impl_->scratchImag_.size()) * sizeof(double);
+}
+
+std::size_t VDSPProvider::minimumAlignmentBytes() const noexcept { return AlignedBuffer::alignment; }
 
 std::string VDSPProvider::libraryIdentity() const {
 #if SKBENCH_HAVE_ACCELERATE

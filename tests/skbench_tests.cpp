@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace {
@@ -18,6 +19,33 @@ int main() {
         require(workload.planes() == 14, "plane count");
         require(workload.nxHalf() == 5, "half width");
         require(workload.retainedVerticalModes() == 4, "retained vertical count");
+
+        for (const auto strategy : {skbench::VDSPTransformStrategy::inPlace,
+                                    skbench::VDSPTransformStrategy::inPlaceExplicitScratch,
+                                    skbench::VDSPTransformStrategy::outOfPlace,
+                                    skbench::VDSPTransformStrategy::outOfPlaceExplicitScratch}) {
+            const auto name = skbench::vdspTransformStrategyName(strategy);
+            require(skbench::vdspTransformStrategyNamed(name) == strategy, "vDSP strategy name round trip");
+        }
+
+        const auto profileList = skbench::profiles();
+        require(skbench::profileNamed("wvm-historical-256-nz65-f4").workload.planes() == 260,
+                "historical workload profile");
+        require(skbench::profileNamed("wvm-current-512-nz257-f4").workload.planes() == 1028,
+                "current workload profile");
+        require(profileList.size() == 13, "unexpected profile count");
+
+        skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);
+        skbench::VDSPProvider outOfPlaceScratch(workload, 2, skbench::VDSPTransformStrategy::outOfPlaceExplicitScratch);
+        if (inPlace.supported() && outOfPlaceScratch.supported()) {
+            const auto operandBytes = workload.realElements() * sizeof(double);
+            require(inPlace.nativeOperandBytes() == operandBytes, "vDSP operand bytes");
+            require(inPlace.nativeBufferBytes() == operandBytes, "in-place vDSP persistent bytes");
+            require(inPlace.scratchBytes() == 0, "in-place vDSP scratch bytes");
+            require(outOfPlaceScratch.nativeBufferBytes() == 2 * operandBytes, "out-of-place vDSP persistent bytes");
+            require(outOfPlaceScratch.scratchBytes() == 2 * 2 * 8 * sizeof(double), "vDSP per-worker scratch bytes");
+            require(outOfPlaceScratch.minimumAlignmentBytes() == 64, "vDSP buffer alignment");
+        }
 
         const auto modes = skbench::retainedHorizontalModes(workload);
         require(!modes.empty(), "retained modes are empty");

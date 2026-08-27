@@ -44,6 +44,8 @@ The initial implementation distinguishes these representations:
 
 FFTW uses guru64 strides to write the WVM full-spectrum representation directly. The vDSP provider operates on its native split representation. Correctness is tested after a mode-keyed mapping; no provider is required to materialize a canonical order before it can be judged correct.
 
+The issue #3/#5 baseline matrix has ten named workloads. The historical issue #129 cases are $256^2$, $N_z=65$, fields $=3,4$ and $512^2$, $N_z=129$, fields $=3,4$. The current WVM cases are $256^2$, $N_z=129$, fields $=1,3,4$ and $512^2$, $N_z=257$, fields $=1,3,4$. These cases change the number of independent horizontal planes but do not change the primitive two-dimensional transform.
+
 ## Correctness
 
 The independent direct DFT uses the same mathematical sign and normalization as FFTW: the forward transform is unnormalized and the inverse transform returns $N_xN_y$ times the physical input. The maximum reported error is
@@ -68,6 +70,8 @@ Every provider and algorithm records distinct forward and inverse execution cont
 - physical extents, element strides, padding, minimum alignment, and aliasing restrictions;
 - reusable work-buffer bytes;
 - whether native output can feed the opposite transform direction without conversion.
+
+The native vDSP baseline treats `vDSP_fft2d_zripD`, `vDSP_fft2d_zriptD`, `vDSP_fft2d_zropD`, and `vDSP_fft2d_zroptD` as four separate algorithms. They respectively test in-place or out-of-place execution with provider-managed or caller-supplied temporary storage. Native input, output, and caller-supplied work arrays are 64-byte aligned. Caller-supplied work is one split-complex buffer per persistent worker, with each real and imaginary array containing $\max(N_y,N_x/2)$ doubles as required by the Accelerate API. Persistent input/output storage and scratch storage are reported separately.
 
 Placement is an algorithm and storage contract, not a mathematical requirement. Primitive timing honors the provider's native contract. Adapter and pipeline timing include preservation, packing, or copying only when the declared caller-data lifetime requires that work. A report must not compare an in-place primitive with an out-of-place adapter as if they perform identical work, and it must not charge a preservation copy when the source is genuinely dead.
 
