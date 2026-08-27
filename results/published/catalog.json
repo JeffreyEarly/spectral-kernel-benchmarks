@@ -23,6 +23,294 @@
       "legacyUrls": [
         "/runs/m4-max-quick-20260827.html"
       ]
+    },
+    {
+      "id": "20260827T202612701037Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place and 1 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202612701037Z-lyra/result.json",
+        "samples": "runs/20260827T202612701037Z-lyra/samples.csv",
+        "resultSha256": "dd99b925fa7d304026947e290ce5cacc795487389909feb671a142bc064d7ead",
+        "samplesSha256": "88ebb0f4661854a75e36b2a116681b07a1ff53c76416d52df3199df35de1de3f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202642191699Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place and 12 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202642191699Z-lyra/result.json",
+        "samples": "runs/20260827T202642191699Z-lyra/samples.csv",
+        "resultSha256": "ac1c99fed5d711678b957fc7e73e6f06bd1fb276503fce04c1266986f03dee96",
+        "samplesSha256": "b115160de4c27728c4db792f644d0d24801a239a5cf64b5ef48fc2578fdda0dc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202654300137Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place and 16 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202654300137Z-lyra/result.json",
+        "samples": "runs/20260827T202654300137Z-lyra/samples.csv",
+        "resultSha256": "5aab15c12756f595ab7542fe377e8a4ab68ca01f37300c3a8df0b0cf02bef53f",
+        "samplesSha256": "af445ad66fb700429981ed9b5025cc901fb780a46a116a30bf44690d1ccafeba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202706457614Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place-explicit-scratch and 1 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202706457614Z-lyra/result.json",
+        "samples": "runs/20260827T202706457614Z-lyra/samples.csv",
+        "resultSha256": "8924fc69eb0757ff441ec12735bc1f544cd99a9a4e29697910705310137dfa37",
+        "samplesSha256": "638b7fba80cdc79c13b71f1752943cf83b0b6c3bb738899c9b5767e19d54c997"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202735947743Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place-explicit-scratch and 12 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202735947743Z-lyra/result.json",
+        "samples": "runs/20260827T202735947743Z-lyra/samples.csv",
+        "resultSha256": "9c339270edbe0ebd554e761e0f4497fb5109140fde4339af3c71774431fdd83c",
+        "samplesSha256": "941e596fa5a8bf1c1ccda7c11207b9b843688df7bb7c2c5eb9b7df3817a9b69b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202748084501Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP in-place-explicit-scratch and 16 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202748084501Z-lyra/result.json",
+        "samples": "runs/20260827T202748084501Z-lyra/samples.csv",
+        "resultSha256": "8ca6e6efbfda808db7ed66c1acec2fe68bf9af0cd57c030d85bc999efd982dcc",
+        "samplesSha256": "d5c7e5aff23c8fe9822437e7eb48d2e974fe06ed8b5e89885510017d32eb583a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202800263027Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place and 1 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202800263027Z-lyra/result.json",
+        "samples": "runs/20260827T202800263027Z-lyra/samples.csv",
+        "resultSha256": "fcc97d91b75e3782fe67ef1f2ecfe665463e3517e409a3507f0b7330994404a8",
+        "samplesSha256": "4571f33d1f4626037f5d3f682502ab720cf6f7edb658f5722fb58cafc8090b37"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202829956948Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place and 12 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202829956948Z-lyra/result.json",
+        "samples": "runs/20260827T202829956948Z-lyra/samples.csv",
+        "resultSha256": "a0d47666f02102cd51130e7d3d20f0b12143408726f090a6c5270272cd28d777",
+        "samplesSha256": "00c53c4a9b810997bf36594bfa216ae2104f9f0d1a1dd2286640038999702e1c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202841880034Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place and 16 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202841880034Z-lyra/result.json",
+        "samples": "runs/20260827T202841880034Z-lyra/samples.csv",
+        "resultSha256": "5679c28c24c9b6b04b61963854a018f4af45b7da10e49ad7f9083071a9421749",
+        "samplesSha256": "79367a1415afe847417f3e9015b0a64faec1f42c8d7a9b43761b3b986d8cb26b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202854130831Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place-explicit-scratch and 1 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202854130831Z-lyra/result.json",
+        "samples": "runs/20260827T202854130831Z-lyra/samples.csv",
+        "resultSha256": "cfe97212908bcafccd419c4b59d6ea9c32ba7fed8ad1998d5996854b4aa468a1",
+        "samplesSha256": "428320c15a4d50cef656907f65bd9fec8fe2c731aa7c240430959b2318a9f6d6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202923770670Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place-explicit-scratch and 12 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202923770670Z-lyra/result.json",
+        "samples": "runs/20260827T202923770670Z-lyra/samples.csv",
+        "resultSha256": "136425f3d00b233b95b2ba13a2e44c761da03fc1453a1898095cf2465fac16ea",
+        "samplesSha256": "f8209561f4ec6b2b19296cc28fdc3b6df999848769459840c3b9d3edb94e92cc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T202935702633Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max placement, scratch, and worker evidence for one historical workload; preliminary until the complete issue #3/#5 workload matrix and machine-state protocol are complete.",
+      "summary": "M4 Max Float64 256 by 256, Nz=65, fields=3 baseline using vDSP out-of-place-explicit-scratch and 16 worker(s), with a matched FFTW record.",
+      "issues": [
+        3,
+        5
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T202935702633Z-lyra/result.json",
+        "samples": "runs/20260827T202935702633Z-lyra/samples.csv",
+        "resultSha256": "c34cb184a0ed7d07a7b682b434456af9759cb0c87a29affc9deffd81f1c72d89",
+        "samplesSha256": "e460a7c24237750591f9d9bcc09ca0cb154c778164fc7acc1bab94f2855916dd"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
