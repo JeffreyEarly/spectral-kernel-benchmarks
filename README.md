@@ -2,7 +2,7 @@
 
 This repository is an independent C++20/CMake laboratory for finding the fastest correct antialiased spectral-operator implementation on Apple Silicon. It publishes primitive FFT and matrix-multiplication performance separately from representation adapters, data movement, and complete operator pipelines.
 
-The current vertical slice compares the production WVM FFTW 3.3.11 two-dimensional real transform with Accelerate/vDSP for the $256 \times 256$, $N_z=65$, fields $=3$ workload. FFTW writes WVM's frequency-major output directly; vDSP uses native packed split-complex storage and reports packing, conversion, permutation, raw transform, and complete retained-operator costs independently.
+The initial vertical slice compares the production WVM FFTW 3.3.11 two-dimensional real transform with Accelerate/vDSP for the $256 \times 256$, $N_z=65$, fields $=3$ workload. FFTW writes WVM's frequency-major output directly; vDSP uses native packed split-complex storage and reports packing, conversion, permutation, raw transform, and complete retained-operator costs independently. Later append-only evidence expands the exact WVM baseline matrix and tests vDSP placement, scratch, batching, GCD scheduling, and packed-real separable row/column decompositions without rewriting that initial result.
 
 This repository does not reimplement WVM's nonlinear flux calculation. Later composed benchmarks will reproduce the relevant kernel graph, dimensions, reuse, and buffer lifetimes using deterministic synthetic data. Final nonlinear-flux validation remains in WVM.
 

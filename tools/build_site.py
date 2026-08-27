@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import random
 import re
 import shutil
 import statistics
@@ -96,6 +97,28 @@ def coefficient_of_variation(item: dict | None) -> str:
     if len(values) < 2 or statistics.mean(values) == 0.0:
         return "not available"
     return f"{100.0 * statistics.stdev(values) / statistics.mean(values):.1f}%"
+
+
+def bootstrap_median_interval(item: dict | None) -> tuple[float, float] | None:
+    if item is None:
+        return None
+    values = [float(value) for value in item.get("samplesSeconds", [])]
+    if len(values) < 2:
+        return None
+    generator = random.Random(0x5B3EC6)
+    medians = sorted(
+        statistics.median(generator.choices(values, k=len(values))) for _ in range(4096)
+    )
+    return medians[int(0.025 * (len(medians) - 1))], medians[int(0.975 * (len(medians) - 1))]
+
+
+def timing_with_interval(item: dict | None) -> str:
+    if item is None:
+        return "not measured"
+    interval = bootstrap_median_interval(item)
+    if interval is None:
+        return format_ms(item["medianSeconds"])
+    return f'{format_ms(item["medianSeconds"])} [{format_ms(interval[0])}–{format_ms(interval[1])}]'
 
 
 def maximum_correctness_error(provider: dict) -> float | None:
@@ -446,7 +469,12 @@ def definition_list(values: dict) -> str:
 
 def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
     rows: list[str] = []
-    for bundle in bundles:
+    def sort_key(bundle: PublishedBundle) -> tuple[int, int, str, int]:
+        provider = next(item for item in bundle.result["providers"] if item["id"] == "accelerate-vdsp")
+        workload = bundle.result["workload"]
+        return workload["Nx"], workload["Ny"], provider["algorithmId"], provider["workers"]
+
+    for bundle in sorted(bundles, key=sort_key):
         result = bundle.result
         provider = next((item for item in result["providers"] if item["id"] == "accelerate-vdsp"), None)
         if provider is None:
@@ -476,6 +504,9 @@ def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
                 return f'<span class="muted">{escaped(state)}</span>'
             return f'{format_ms(forward["medianSeconds"])} / {format_ms(inverse["medianSeconds"])}'
 
+        def interval_pair(forward: dict | None, inverse: dict | None) -> str:
+            return f"{escaped(timing_with_interval(forward))}<br>{escaped(timing_with_interval(inverse))}"
+
         run_id = run["id"]
         rows.append(
             "<tr>"
@@ -484,7 +515,7 @@ def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
             f'<td>{escaped(provider["algorithmId"])}<br><span class="muted">{escaped(provider["schedulingId"])}</span></td>'
             f'<td class="numeric">{provider["workers"]}</td>'
-            f'<td class="numeric">{pair(raw_forward, raw_inverse)}</td>'
+            f'<td class="numeric">{interval_pair(raw_forward, raw_inverse)}</td>'
             f'<td class="numeric">{escaped(coefficient_of_variation(raw_forward))} / {escaped(coefficient_of_variation(raw_inverse))}</td>'
             f'<td class="numeric">{format_ms(scheduler["medianSeconds"]) if scheduler is not None else "not measured"}</td>'
             f'<td class="numeric">{pair(row_forward, row_inverse)}</td>'
@@ -499,7 +530,7 @@ def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return (
         '<div class="table-scroll"><table class="experiment-evidence-table issue6-evidence-table">'
-        '<caption>Medians are forward / inverse milliseconds. Raw FFT is the authoritative batch wall time. '
+        '<caption>Raw FFT rows show forward then inverse median milliseconds with deterministic percentile-bootstrap 95% intervals in brackets. Raw FFT is the authoritative batch wall time. '
         'CV is the sample standard deviation divided by the sample mean. Empty-dispatch time is a non-additive scheduler diagnostic. '
         'Row and column phases include their own dispatches; adapter includes all WVM-compatible packing and conversion.</caption>'
         '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm / scheduler</th>'
@@ -508,6 +539,100 @@ def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
         '<th scope="col">Adapter</th><th scope="col">Explicit memory</th><th scope="col">Max error</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
+
+
+def vdsp_batch_synthesis(bundles: list[PublishedBundle]) -> str:
+    records: list[tuple[dict, dict, dict]] = []
+    for bundle in bundles:
+        vdsp = next((item for item in bundle.result["providers"] if item["id"] == "accelerate-vdsp"), None)
+        fftw = next((item for item in bundle.result["providers"] if item["id"] == "fftw"), None)
+        if vdsp is not None and fftw is not None:
+            records.append((bundle.result, vdsp, fftw))
+    if not records:
+        return ""
+
+    def raw(provider: dict, direction: str) -> float:
+        item = timing(provider, "primitive", direction)
+        if item is None:
+            raise ValueError(f"Missing primitive {direction} timing for {provider['id']}")
+        return float(item["medianSeconds"])
+
+    def candidate_name(provider: dict) -> str:
+        algorithm = provider["algorithmId"]
+        for name in ("direct-persistent", "direct-gcd", "separable-persistent", "separable-gcd"):
+            if algorithm.endswith(name):
+                return name
+        return algorithm
+
+    profiles = sorted({result["run"]["profile"] for result, _, _ in records})
+    rows: list[str] = []
+    candidate_algorithms = {
+        vdsp["algorithmId"]
+        for _, vdsp, _ in records
+        if not vdsp["algorithmId"].endswith("direct-persistent")
+    }
+    advancing = set(candidate_algorithms)
+    for profile in profiles:
+        profile_records = [record for record in records if record[0]["run"]["profile"] == profile]
+        baseline = [record for record in profile_records if record[1]["algorithmId"].endswith("direct-persistent")]
+        alternatives = [record for record in profile_records if not record[1]["algorithmId"].endswith("direct-persistent")]
+        workload = profile_records[0][0]["workload"]
+        baseline_forward = min(baseline, key=lambda record: raw(record[1], "forward"))
+        baseline_inverse = min(baseline, key=lambda record: raw(record[1], "inverse"))
+        alternative_forward = min(alternatives, key=lambda record: raw(record[1], "forward"))
+        alternative_inverse = min(alternatives, key=lambda record: raw(record[1], "inverse"))
+        fftw_forward = min(profile_records, key=lambda record: raw(record[2], "forward"))
+        fftw_inverse = min(profile_records, key=lambda record: raw(record[2], "inverse"))
+        best_vdsp_forward = min(profile_records, key=lambda record: raw(record[1], "forward"))
+        best_vdsp_inverse = min(profile_records, key=lambda record: raw(record[1], "inverse"))
+        forward_improvement = 100.0 * (
+            1.0 - raw(alternative_forward[1], "forward") / raw(baseline_forward[1], "forward")
+        )
+        inverse_improvement = 100.0 * (
+            1.0 - raw(alternative_inverse[1], "inverse") / raw(baseline_inverse[1], "inverse")
+        )
+        for algorithm in list(advancing):
+            candidate = [record for record in profile_records if record[1]["algorithmId"] == algorithm]
+            improves_forward = min(raw(record[1], "forward") for record in candidate) <= 0.9 * raw(
+                baseline_forward[1], "forward"
+            )
+            improves_inverse = min(raw(record[1], "inverse") for record in candidate) <= 0.9 * raw(
+                baseline_inverse[1], "inverse"
+            )
+            if not (improves_forward and improves_inverse):
+                advancing.remove(algorithm)
+
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{workload["Nx"]} × {workload["Ny"]}<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</span></th>'
+            f'<td class="numeric">{format_ms(raw(baseline_forward[1], "forward"))} (w{baseline_forward[1]["workers"]}) / '
+            f'{format_ms(raw(baseline_inverse[1], "inverse"))} (w{baseline_inverse[1]["workers"]})</td>'
+            f'<td class="numeric">{format_ms(raw(alternative_forward[1], "forward"))} '
+            f'({escaped(candidate_name(alternative_forward[1]))}, w{alternative_forward[1]["workers"]}) / '
+            f'{format_ms(raw(alternative_inverse[1], "inverse"))} '
+            f'({escaped(candidate_name(alternative_inverse[1]))}, w{alternative_inverse[1]["workers"]})</td>'
+            f'<td class="numeric">{forward_improvement:+.1f}% / {inverse_improvement:+.1f}%</td>'
+            f'<td class="numeric">{raw(best_vdsp_forward[1], "forward") / raw(fftw_forward[2], "forward"):.2f}× / '
+            f'{raw(best_vdsp_inverse[1], "inverse") / raw(fftw_inverse[2], "inverse"):.2f}×</td>'
+            "</tr>"
+        )
+
+    advancement = (
+        "New candidates advancing to the full production matrix: "
+        + ", ".join(sorted(advancing))
+        if advancing
+        else "No new GCD or separable candidate clears the 10% advancement screen on both directions and both workloads."
+    )
+    return f"""
+      <h3>Diagnostic conclusion</h3>
+      <p>The advancement screen carries a new candidate forward only when its best worker count reduces both raw forward and inverse medians by at least 10% on both representative workloads, without moving work outside the primitive boundary. {escaped(advancement)}</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Best median raw times in milliseconds are forward / inverse. Positive improvement means the best non-baseline candidate is faster than direct-persistent. The final column is best vDSP divided by matched best FFTW.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Direct-persistent best</th><th scope="col">Best alternative</th><th scope="col">Improvement</th><th scope="col">vDSP / FFTW</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">Direct-persistent therefore remains the only issue #6 candidate carried forward: 12 workers for the representative 256² batch and 16 workers for the representative 512² batch. GCD dispatch overhead is negligible relative to transform time but does not materially change throughput. In the separable implementation, the isolated strided-column phase dominates; its phase medians are diagnostic and non-additive. These preliminary results do not replace the full fields 1/3/4 workload matrix or reference-depth machine-state protocol.</p>
+    """
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
@@ -584,6 +709,7 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
     evidence_table = experiment_evidence_table(experiment, related)
+    synthesis = vdsp_batch_synthesis(related) if experiment_id == "issue-006-vdsp-batching-scheduling" else ""
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Experiment · issue #{experiment['issue']} · {escaped(experiment['phase'])}</p>
@@ -611,6 +737,7 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
       <p class="eyebrow">Publication deliverable</p><h2 id="publication-heading">Permanent evidence</h2>
       <p>Stable experiment ID: <code>{escaped(experiment_id)}</code>. Required result tables: {escaped(', '.join(experiment['requiredTables']))}.</p>
       <p>{escaped(evidence_statement)}</p>
+      {synthesis}
       {evidence_table}
       <h3>Immutable run archive</h3>
       {archive(related, '../../')}

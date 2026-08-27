@@ -6,7 +6,10 @@
       "status": "preliminary",
       "statusReason": "Initial vertical slice from a dirty development tree with one production workload and incomplete provider coverage.",
       "summary": "First M4 Max FFTW-versus-vDSP real-2-D vertical slice for the 256 by 256, Nz=65, fields=3 workload.",
-      "issues": [3, 5],
+      "issues": [
+        3,
+        5
+      ],
       "experiments": [
         "issue-003-fftw-production-baseline",
         "issue-005-vdsp-native-baseline"
@@ -959,6 +962,1206 @@
         "samplesSha256": "6adce08905c6c53c04c3e4d4b3177bd9b4526663c7cd7ef07f3ca749e8f22f52"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260827T211606218681Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211606218681Z-lyra/result.json",
+        "samples": "runs/20260827T211606218681Z-lyra/samples.csv",
+        "resultSha256": "7e26bf63029c132ffc69b1590465618f10e0938aab46d86c479fea83d7ce4fa5",
+        "samplesSha256": "12401632b59b2aa88e93c4a4bec76b71e5d01ec58fe4529a85de7a510364f8f1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211624991988Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211624991988Z-lyra/result.json",
+        "samples": "runs/20260827T211624991988Z-lyra/samples.csv",
+        "resultSha256": "01a5908dfef712c9eacaae2027af796391163f907f0b3e4c46a436de7a6142af",
+        "samplesSha256": "5fa166687f86c7962786f763d864d77a9fe1eabd2ae6c96270e284b647b6b1ad"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211637938701Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211637938701Z-lyra/result.json",
+        "samples": "runs/20260827T211637938701Z-lyra/samples.csv",
+        "resultSha256": "2a19f3c8cbfc4cc833a33003b1f1baf3ad448f402aed60c1bf1ff36fff338ff1",
+        "samplesSha256": "b1eab8b148e5821b8e92552f677c9ffdd9fde69c2ac5b4a4c1af8a3aa09e61bd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211648199428Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211648199428Z-lyra/result.json",
+        "samples": "runs/20260827T211648199428Z-lyra/samples.csv",
+        "resultSha256": "b7c15fed66a9f82c11454f5fd9f4d14be8b1a8a18e284ed7b5d568cf88f04593",
+        "samplesSha256": "d2c4e9bdd3ca18834950f1784e0ec0d117c7dd2feca33ae0dbf357270eff9d22"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211657455957Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211657455957Z-lyra/result.json",
+        "samples": "runs/20260827T211657455957Z-lyra/samples.csv",
+        "resultSha256": "de685435396cfd6c81197c47d789c926da22000e9d8bbfaaa3baa8516e4011f9",
+        "samplesSha256": "ebee5ea2f2d408e89b122aa7c02b368b46155cc94d40c048b1eb57875450fedd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211706906772Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211706906772Z-lyra/result.json",
+        "samples": "runs/20260827T211706906772Z-lyra/samples.csv",
+        "resultSha256": "9afd4a3eaeedf8c432f410fe1a5788feef7e33a98347bebfe680a5e137b8791a",
+        "samplesSha256": "723d8dcc5ddf2ac7ed239639b8c5d60baf240530f2825e27648e5c0b56950c9b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211716757395Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211716757395Z-lyra/result.json",
+        "samples": "runs/20260827T211716757395Z-lyra/samples.csv",
+        "resultSha256": "d291f09be4abfa55bdc8f0a8c74410bda61d67b4ade9d16d9696513bce7230ec",
+        "samplesSha256": "11732d6431d559714fd90d462c26f1db634de738861d40c08e71fa1a7c334be4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211735445050Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211735445050Z-lyra/result.json",
+        "samples": "runs/20260827T211735445050Z-lyra/samples.csv",
+        "resultSha256": "08a75eabedcc1f149d72217c81f89f97b69c843a2f68fac946ac6531c7780f9e",
+        "samplesSha256": "3e29582b8b26215dfc60fc0eaf701971952cd0113bf6a89c1a63cbb36844d7e6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211748252785Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211748252785Z-lyra/result.json",
+        "samples": "runs/20260827T211748252785Z-lyra/samples.csv",
+        "resultSha256": "19cbc78cf346939b551f04a9a6403a1cdec778708abf30b774c7627c32a26b9f",
+        "samplesSha256": "c327bcb39a86b08b02a2145fadae0fead95bf459ba6cf58216ec9b35354eb929"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211758517378Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211758517378Z-lyra/result.json",
+        "samples": "runs/20260827T211758517378Z-lyra/samples.csv",
+        "resultSha256": "b6b6efd71b29d45e53ed8c0f72cdb4305c2e25fd7c75e6d867edf42af7d62ffb",
+        "samplesSha256": "6a6cfb35e3e257af557b8c66c722de14e7ce7d05371b2ecc793df76ab3fd2817"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211807501240Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211807501240Z-lyra/result.json",
+        "samples": "runs/20260827T211807501240Z-lyra/samples.csv",
+        "resultSha256": "a341fc6b91e7e08b9a087a310ec10319e74d20941a86a48db27e3b69d6ed5a0b",
+        "samplesSha256": "b24d0a1960e82366184b430d8fa5b08cf5284b70e61f24bddfad2e341648ed91"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211817212597Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211817212597Z-lyra/result.json",
+        "samples": "runs/20260827T211817212597Z-lyra/samples.csv",
+        "resultSha256": "d93ff054561339477b364c3f3893410f75f96dea3f5fe94d1fb1f3c3fe43338c",
+        "samplesSha256": "9c289736043348d4b485651fdff6adad9ccfff1028b38c357b893f5f65190e8c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211827041716Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211827041716Z-lyra/result.json",
+        "samples": "runs/20260827T211827041716Z-lyra/samples.csv",
+        "resultSha256": "a2103e9b9f2763587ebd4cd5d29fbe24499fc10f5239d977be547c72e75c2829",
+        "samplesSha256": "014be4c7573ca9cdd1942decc52d3325b1eefb7ccc277503269d2a3afb7f36aa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211853468193Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211853468193Z-lyra/result.json",
+        "samples": "runs/20260827T211853468193Z-lyra/samples.csv",
+        "resultSha256": "b411bbd013268223f8659f45b4f5cb550c4046cea93bb3b471cf613bd73f4758",
+        "samplesSha256": "c41fa749a9a967aa939be21211f2e04761b6b69c4ef16f3a7b9ae068a6bae610"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211910685286Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211910685286Z-lyra/result.json",
+        "samples": "runs/20260827T211910685286Z-lyra/samples.csv",
+        "resultSha256": "8f85b1210aa6438b94b9b577caa50132342a3ab867bd1e1292edaf0a63f860fd",
+        "samplesSha256": "d5f9a57bb3da094f100eafad3b4f0f91ee8970b048bc8dc85855a3746f338137"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211923783161Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211923783161Z-lyra/result.json",
+        "samples": "runs/20260827T211923783161Z-lyra/samples.csv",
+        "resultSha256": "142a90073e08713771bf518209690b2740a6355d62398bcfb581e0591a949e61",
+        "samplesSha256": "6ed46d9be636473315f838dbf24f56431dc49f41774e291fcc4142e0a0832322"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211934579908Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211934579908Z-lyra/result.json",
+        "samples": "runs/20260827T211934579908Z-lyra/samples.csv",
+        "resultSha256": "ecb645b993d41733a3e9adf923d1cb6a686811cda829a0fd4799c2eccd335629",
+        "samplesSha256": "9d3a8f99174af26993ddd6b1065857f794350f194a866e89cc320bfd7f9ccb84"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211945502778Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211945502778Z-lyra/result.json",
+        "samples": "runs/20260827T211945502778Z-lyra/samples.csv",
+        "resultSha256": "5b4c63eedee97c7ed87e397e9df97df3b3ae24da99393f035b0c3c7d4b8eb242",
+        "samplesSha256": "80532982a4803e2e8034008e2e37107b77f30d8a92d98c3523f85f2b09a21eb7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T211956728010Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T211956728010Z-lyra/result.json",
+        "samples": "runs/20260827T211956728010Z-lyra/samples.csv",
+        "resultSha256": "496ad5622c759e68da3814122b93b805f163afef2a49bd25123a7728f1ec018e",
+        "samplesSha256": "68de1884b2ef3c9d25468f00c0bccd8fcf928b2101c96cbff72c7defd8cfa710"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212023038480Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212023038480Z-lyra/result.json",
+        "samples": "runs/20260827T212023038480Z-lyra/samples.csv",
+        "resultSha256": "7527e3f0d493a8c7ca6bd3d121bbb1c5b991278095e41fbb6eb4bfff2de8aca1",
+        "samplesSha256": "f63b9c79e4e01dcd51856ec49694d772090aaf85cb488b14ffcc42bb236c26c8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212040004933Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212040004933Z-lyra/result.json",
+        "samples": "runs/20260827T212040004933Z-lyra/samples.csv",
+        "resultSha256": "9c7e323c186534443f30c734f1803f128189d68bb5ddff86488bced473641f0b",
+        "samplesSha256": "b1fb00b636471a3a54975d3288c6fce4f06119c34efbb1b8045f9f127b5bf923"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212053049799Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212053049799Z-lyra/result.json",
+        "samples": "runs/20260827T212053049799Z-lyra/samples.csv",
+        "resultSha256": "ec2731ac6faae9b929871ecd4a2f653a7be205391b62798a1469b77cdd6d952b",
+        "samplesSha256": "b9401b37a2940d65a7cb50e98e48d78bf8c983415750e8582057b3faa754a1f4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212103848375Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212103848375Z-lyra/result.json",
+        "samples": "runs/20260827T212103848375Z-lyra/samples.csv",
+        "resultSha256": "8b163aaabf52c46b3d62eaf1f29cd8acec4b97ecf8f92d8528ff985a4d46e4b3",
+        "samplesSha256": "36a857cd6307dfeff4899b0480b94b16918f77b95cd1ab95583bd2f41080ef44"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212115063734Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212115063734Z-lyra/result.json",
+        "samples": "runs/20260827T212115063734Z-lyra/samples.csv",
+        "resultSha256": "e8e7fce7d41882f677a5ddfd478f7ce9c2646d257648c3899b4536aff1326270",
+        "samplesSha256": "9944466052e3283da066c57251a7d7cde925f331423247fb8ec34aeb189f40d0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212126297878Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212126297878Z-lyra/result.json",
+        "samples": "runs/20260827T212126297878Z-lyra/samples.csv",
+        "resultSha256": "9eefc4939772fdf1997295b5f2b587ad10c0c23b735f9ef9cc5a26b9f940c2bf",
+        "samplesSha256": "ce100387b7b2332614372bb8a6c9130fe245c006d1c5c129154f41fb127951e2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212414322060Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212414322060Z-lyra/result.json",
+        "samples": "runs/20260827T212414322060Z-lyra/samples.csv",
+        "resultSha256": "86b1671208342b5472e9688dd567f1e04b3dfe20e363bfd933916a00826c264a",
+        "samplesSha256": "85536b5425042fe1ce8e0d66eb6621fe53ca39bf15382adba9aea2f36e4e052c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212608865023Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212608865023Z-lyra/result.json",
+        "samples": "runs/20260827T212608865023Z-lyra/samples.csv",
+        "resultSha256": "2c6d0fdd181c26f5dd16a017ae26b6f177c216e2dc873b6960b4bdd6385101d5",
+        "samplesSha256": "52bfd3a10dca66a324bfddbd0a81bb5d03b4c6ef38ecbbf4f9d773a2eb764126"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212724785608Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212724785608Z-lyra/result.json",
+        "samples": "runs/20260827T212724785608Z-lyra/samples.csv",
+        "resultSha256": "90b705e38f71fc6aeaf9c55e0ca10c25f1dbe2f78f6744a9d8e182d4d71db476",
+        "samplesSha256": "f5a97f5070ef7a3324c8ade790688f306bb0b4fd6a93affa4e5b48e7474be3c2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212822194118Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212822194118Z-lyra/result.json",
+        "samples": "runs/20260827T212822194118Z-lyra/samples.csv",
+        "resultSha256": "80b10edfb053751bb7929bc72c5eb102d3260603a0e824dc82adf0de28bc2e91",
+        "samplesSha256": "7c416fce6046177f04e5d1a3a04e9ea0ec5451054c348752eec480795ab182db"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T212916809225Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-persistent and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T212916809225Z-lyra/result.json",
+        "samples": "runs/20260827T212916809225Z-lyra/samples.csv",
+        "resultSha256": "e0f0049afd33acbbd50b9447770752376a0a8cb3ed1622d1f17dafee47b77637",
+        "samplesSha256": "f3e101a0bd6aa3bd15eeca346a26682fd0c462e095d199a4fd54668884ff67e8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213011221224Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213011221224Z-lyra/result.json",
+        "samples": "runs/20260827T213011221224Z-lyra/samples.csv",
+        "resultSha256": "719ca28f43f64e4c8b2f9e405b300861df134f932088425e3b15536b8e979ac0",
+        "samplesSha256": "7c4205311dbe08ad8a5b9f18d2a0c6ed5939a46b0eb070de2c2c36589286b2ca"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213258841679Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213258841679Z-lyra/result.json",
+        "samples": "runs/20260827T213258841679Z-lyra/samples.csv",
+        "resultSha256": "3638413889e3a6d3a76f559c2378385ba1b0689f0b4f9fdaec34ff2011a6e711",
+        "samplesSha256": "60f546fca0e14f9ea38370d2f4a59c0f207b5e7aba74d7b00c9c11423a16d0fb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213452082561Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213452082561Z-lyra/result.json",
+        "samples": "runs/20260827T213452082561Z-lyra/samples.csv",
+        "resultSha256": "e39abeb79e292fcee0b91b314dc089254b221f87849cac3aa479a9cffbbf7fef",
+        "samplesSha256": "101a17fc24f97eb9e652fc8f4022153299d5b1924eaf6dc1426e7117c488fd71"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213607364361Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213607364361Z-lyra/result.json",
+        "samples": "runs/20260827T213607364361Z-lyra/samples.csv",
+        "resultSha256": "a449b3c5674f6f1f6ae9921252cde311c4a282dd33c0b96aa7ce72c721b27dcb",
+        "samplesSha256": "4e65b378c10d03603a09d83f2b4fd357862d49e522baf64f016c1cf178b0a0af"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213704538793Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213704538793Z-lyra/result.json",
+        "samples": "runs/20260827T213704538793Z-lyra/samples.csv",
+        "resultSha256": "cb9967ae3c49d895fca44873e3c0e8248488a903e77c2dba1783adbe19b46721",
+        "samplesSha256": "f029cb8de64afcd4ef2a1157ab604be0bd94396eb8b0395e35204adf0c51782c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213759216554Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-native-2d-in-place-direct-gcd and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213759216554Z-lyra/result.json",
+        "samples": "runs/20260827T213759216554Z-lyra/samples.csv",
+        "resultSha256": "87e7d21fbfc11abd020d859264682163d7e58d1310cf789016ca55fe905b7172",
+        "samplesSha256": "7cf720f96bc0cf6597815de519b473832368fe11817552ba1c43f2e85ce67ade"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T213853590457Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T213853590457Z-lyra/result.json",
+        "samples": "runs/20260827T213853590457Z-lyra/samples.csv",
+        "resultSha256": "3b5829191f4eec3ff7415912a60331db0d5c0c7253cf0347ced3fda5147980e7",
+        "samplesSha256": "f12d0ab6b67eb1cdda236325820bd96f7cef1451c96b8b280fb5dc76b965030f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T214248135907Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T214248135907Z-lyra/result.json",
+        "samples": "runs/20260827T214248135907Z-lyra/samples.csv",
+        "resultSha256": "41ed9c090058505fa1f99c46ce7768e3d7bea0ddc9faba07a2ad5d45239c02a7",
+        "samplesSha256": "bf06b8b620c5e1f51c28c9b41c913eeb096226c8ac6d6836d488fbda111aca3f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T214518193795Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T214518193795Z-lyra/result.json",
+        "samples": "runs/20260827T214518193795Z-lyra/samples.csv",
+        "resultSha256": "939304b98169a66e08d26cf8dbf0855d011c8d995f240f33669c3f2c9fd49465",
+        "samplesSha256": "330ad659fcc2cdc5d3765cb56434a87c2e1a12a93563badb95ee582c836e1f3c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T214655953139Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T214655953139Z-lyra/result.json",
+        "samples": "runs/20260827T214655953139Z-lyra/samples.csv",
+        "resultSha256": "ec187d2fdbe97360612587f4b79b177a0487154f46ee593ad32969e2d5a22d93",
+        "samplesSha256": "b6a4f35d2d73b9edf90ad47243b327b5aaec243528e51445d2fc0910bfc43cc7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T214809333868Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T214809333868Z-lyra/result.json",
+        "samples": "runs/20260827T214809333868Z-lyra/samples.csv",
+        "resultSha256": "aa71e4378be5f25f47247c3911f128f2e8e628bd1e299ff706cd90dcb5a2991f",
+        "samplesSha256": "f3fd646101fd838d3d782f56a4a99278cb73647f854c9599c4af33a28c3ea2ee"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T214918074027Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-persistent and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T214918074027Z-lyra/result.json",
+        "samples": "runs/20260827T214918074027Z-lyra/samples.csv",
+        "resultSha256": "88336b26f9c43199d70681006cdbd6a82aa8343306de73b7848ce94241c08603",
+        "samplesSha256": "fec4e6192209012ba2a06278c1a6777ffe602b76a5e894f37744c529f770d29a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T215025850972Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 1 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T215025850972Z-lyra/result.json",
+        "samples": "runs/20260827T215025850972Z-lyra/samples.csv",
+        "resultSha256": "331fa62d5a4978fe1fac24d35b247e88175a07cf46ca6d94eaa50ba22c64ea43",
+        "samplesSha256": "5e07cf418450ad0e4c4598867e0c0f7ae485d0313998dadeb4407f1c3305f01a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T215422042882Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 2 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T215422042882Z-lyra/result.json",
+        "samples": "runs/20260827T215422042882Z-lyra/samples.csv",
+        "resultSha256": "c1eec3f25b206b8b1b47c2fe9c22f717cb812903fcbc8bd5400c590d7d11d386",
+        "samplesSha256": "133c99de8f6e2e0ba2972b77ecfbb82fe58e1516c2a982a45b09085e1e87a9b5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T215654755049Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 4 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T215654755049Z-lyra/result.json",
+        "samples": "runs/20260827T215654755049Z-lyra/samples.csv",
+        "resultSha256": "9e55641d9eecc87d5695fe364f642037680a62f4850a4139bafee5a67d79b137",
+        "samplesSha256": "800dcc70064e5fa5614fd4cb614fc16d66b1284d98a5cc0a0c0509fea189602c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T215832822789Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 8 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T215832822789Z-lyra/result.json",
+        "samples": "runs/20260827T215832822789Z-lyra/samples.csv",
+        "resultSha256": "779a4bf772d778b075cbd6da81bed3aaa00ba2044d28dc9dfc555a99ae2e42e9",
+        "samplesSha256": "ac72a57da0bb2427cd12d4ef195ffb1a89f7837dcadf85edb77ef64b1e360571"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T215947120148Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 12 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T215947120148Z-lyra/result.json",
+        "samples": "runs/20260827T215947120148Z-lyra/samples.csv",
+        "resultSha256": "f9fb23db92b82c5b5456edcaf4f718e64355387273d16efbcf5d1c842e795995",
+        "samplesSha256": "c8eac3849af936327afd9505d910bcac613393fd597843e5f92aac58a610c19d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260827T220056957967Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean nine-sample M4 Max issue #6 diagnostic sweep over two representative workloads, four batching/decomposition candidates, and six worker counts; preliminary pending reference-depth machine-state control and the full production workload matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using vdsp-radix2-separable-packed-real-in-place-separable-gcd and 16 logical worker(s), with a matched FFTW record.",
+      "issues": [
+        6
+      ],
+      "experiments": [
+        "issue-006-vdsp-batching-scheduling"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260827T220056957967Z-lyra/result.json",
+        "samples": "runs/20260827T220056957967Z-lyra/samples.csv",
+        "resultSha256": "5d1997fd4fef2d1a929fce52ca5e2c08c08d64d529094e751a24f6348d32224a",
+        "samplesSha256": "e025a746dc493ad59ef9e794953fb741eff7e1d2cd27570c1c629a3f066347b0"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -970,7 +2173,12 @@
       "question": "Can the benchmark reproduce WVM's production FFTW configuration and the historical issue #129 workloads exactly?",
       "baseline": "This is the foundational raw-FFT baseline after the operator and representation contract in issue #2.",
       "priorExperiments": [],
-      "downstreamIssues": [4, 7, 11, 15],
+      "downstreamIssues": [
+        4,
+        7,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "Batched two-dimensional real-to-complex or complex-to-real transforms over WVM horizontal planes.",
         "candidates": "FFTW 3.3.11 guru64 plans using the production NEON, pthread, compiler, layout, and planning configuration.",
@@ -988,7 +2196,13 @@
         "canSupport": "A reproducible raw FFTW baseline for later strategy and retained-operator comparisons.",
         "cannotSupport": "A provider, layout, or complete-pipeline adoption decision by itself."
       },
-      "requiredTables": ["planning and setup", "raw forward FFT", "raw inverse FFT", "correctness", "memory"]
+      "requiredTables": [
+        "planning and setup",
+        "raw forward FFT",
+        "raw inverse FFT",
+        "correctness",
+        "memory"
+      ]
     },
     {
       "id": "issue-004-fftw-strategy-sweep",
@@ -997,8 +2211,14 @@
       "title": "FFTW strategy sweep",
       "question": "Do FFTW planning, alignment, layout, or scheduling strategies improve on the production baseline without unacceptable setup or memory costs?",
       "baseline": "Compare every candidate with issue #3 and retain a Pareto set for issue #7.",
-      "priorExperiments": ["issue-003-fftw-production-baseline"],
-      "downstreamIssues": [7, 11, 15],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "downstreamIssues": [
+        7,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "The same full real-2-D transform batches as issue #3.",
         "candidates": "Aligned and unaligned plans; ESTIMATE, MEASURE, PATIENT, and EXHAUSTIVE; wisdom; interleaved and split APIs; internal, outer, and hybrid threading.",
@@ -1016,7 +2236,14 @@
         "canSupport": "A setup/throughput/memory Pareto set for retained-horizontal testing.",
         "cannotSupport": "A complete retained-operator or pipeline winner."
       },
-      "requiredTables": ["planning cost", "raw FFT", "alignment", "scheduling", "memory", "Pareto set"]
+      "requiredTables": [
+        "planning cost",
+        "raw FFT",
+        "alignment",
+        "scheduling",
+        "memory",
+        "Pareto set"
+      ]
     },
     {
       "id": "issue-005-vdsp-native-baseline",
@@ -1025,8 +2252,15 @@
       "title": "vDSP native baseline",
       "question": "What are the correct raw and adapter costs of native split-complex vDSP real-2-D transforms relative to the production FFTW baseline?",
       "baseline": "Use issue #3 as the comparable full-transform baseline; supply candidates to issue #6 and issue #7.",
-      "priorExperiments": ["issue-003-fftw-production-baseline"],
-      "downstreamIssues": [6, 7, 11, 15],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "downstreamIssues": [
+        6,
+        7,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "Batched native vDSP real-2-D forward or inverse transforms and separately measured WVM-compatible adapters.",
         "candidates": "In-place and out-of-place Float64 vDSP APIs, explicit reusable scratch buffers, and native packed split-complex storage.",
@@ -1044,17 +2278,33 @@
         "canSupport": "A trustworthy raw vDSP and WVM-adapter baseline.",
         "cannotSupport": "The best batching policy or complete retained-horizontal algorithm."
       },
-      "requiredTables": ["setup and scratch", "raw FFT", "packing", "conversion", "adapter total", "correctness", "memory"]
+      "requiredTables": [
+        "setup and scratch",
+        "raw FFT",
+        "packing",
+        "conversion",
+        "adapter total",
+        "correctness",
+        "memory"
+      ]
     },
     {
       "id": "issue-006-vdsp-batching-scheduling",
       "issue": 6,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "vDSP batching and scheduling",
       "question": "Can multiple-transform implementations or batch scheduling close the vDSP gap observed in issue #5?",
       "baseline": "Compare with issues #3, #4, and #5; pass viable vDSP configurations to issue #7.",
-      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-004-fftw-strategy-sweep", "issue-005-vdsp-native-baseline"],
-      "downstreamIssues": [7, 11, 15],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-004-fftw-strategy-sweep",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "downstreamIssues": [
+        7,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "A complete batch of independent horizontal real-2-D transforms.",
         "candidates": "Direct 2-D calls; separable row/column multiple-transform calls; persistent thread pools; Grand Central Dispatch; per-worker setup.",
@@ -1072,7 +2322,14 @@
         "canSupport": "A vDSP scheduling Pareto set for issue #7.",
         "cannotSupport": "A retained-horizontal or full-pipeline decision."
       },
-      "requiredTables": ["native execution", "scheduling", "packing", "transposition", "adapter total", "memory"]
+      "requiredTables": [
+        "native execution",
+        "scheduling",
+        "packing",
+        "transposition",
+        "adapter total",
+        "memory"
+      ]
     },
     {
       "id": "issue-007-retained-horizontal-algorithms",
@@ -1081,8 +2338,17 @@
       "title": "Retained horizontal algorithms",
       "question": "Which correct algorithm computes the retained horizontal operator fastest when conversion and selection are optional algorithm choices?",
       "baseline": "Compose survivors from issues #4, #6, and #12; feed issue #13 and issue #9.",
-      "priorExperiments": ["issue-004-fftw-strategy-sweep", "issue-006-vdsp-batching-scheduling", "issue-012-pruned-horizontal-transforms"],
-      "downstreamIssues": [9, 13, 11, 15],
+      "priorExperiments": [
+        "issue-004-fftw-strategy-sweep",
+        "issue-006-vdsp-batching-scheduling",
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "downstreamIssues": [
+        9,
+        13,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "The retained operators P_h F_xy and F_xy^-1 E_h identified by logical mode key.",
         "candidates": "Full transform plus selection, index views, fused selection/conversion, persistent provider order, and viable pruned transforms.",
@@ -1100,7 +2366,13 @@
         "canSupport": "Retained-horizontal winners by workload and storage contract.",
         "cannotSupport": "The downstream ordering/GEMM crossover or complete pipeline winner."
       },
-      "requiredTables": ["raw FFT", "retention and embedding", "conversion", "retained total", "memory"]
+      "requiredTables": [
+        "raw FFT",
+        "retention and embedding",
+        "conversion",
+        "retained total",
+        "memory"
+      ]
     },
     {
       "id": "issue-008-vertical-projection-gemm",
@@ -1110,7 +2382,12 @@
       "question": "Which primitive and split-complex GEMM strategy is fastest for the antialiased vertical projection independently of horizontal layout?",
       "baseline": "Establish the vertical-kernel baseline used by issue #13 and issue #9.",
       "priorExperiments": [],
-      "downstreamIssues": [9, 13, 11, 15],
+      "downstreamIssues": [
+        9,
+        13,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "Forward (Nj by Nz)(Nz by K) and inverse (Nz by Nj)(Nj by K) vertical projections.",
         "candidates": "Complex GEMM, two split real GEMMs, grouped/batched variants, blocked kernels, and prepared matrix families.",
@@ -1128,7 +2405,13 @@
         "canSupport": "Primitive vertical-kernel and memory conclusions.",
         "cannotSupport": "Whether data packing or a complete spectral pipeline is worthwhile."
       },
-      "requiredTables": ["forward GEMM", "inverse GEMM", "grouped GEMM", "matrix setup", "memory"]
+      "requiredTables": [
+        "forward GEMM",
+        "inverse GEMM",
+        "grouped GEMM",
+        "matrix setup",
+        "memory"
+      ]
     },
     {
       "id": "issue-009-combined-spectral-pipeline",
@@ -1137,8 +2420,15 @@
       "title": "Combined spectral pipeline",
       "question": "Which complete synthetic spectral-operator graph is fastest after composing the best horizontal, vertical, and ordering policies?",
       "baseline": "Compose reference candidates from issues #7, #8, and #13; provide primary evidence to issue #11.",
-      "priorExperiments": ["issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm", "issue-013-ordering-packing-crossover"],
-      "downstreamIssues": [11, 15],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "downstreamIssues": [
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "Horizontal forward, vertical forward, representative modal work, vertical inverse, and horizontal inverse.",
         "candidates": "Complete interleaved, split, provider-native, reordered, tiled, and fused algorithm graphs.",
@@ -1156,7 +2446,13 @@
         "canSupport": "The primary synthetic-pipeline evidence for a WVM integration candidate.",
         "cannotSupport": "Scientific equivalence inside the full nonlinear WVM calculation."
       },
-      "requiredTables": ["component ledger", "uninstrumented total", "setup", "memory", "break-even reuse"]
+      "requiredTables": [
+        "component ledger",
+        "uninstrumented total",
+        "setup",
+        "memory",
+        "break-even reuse"
+      ]
     },
     {
       "id": "issue-010-kfr-ducc-screen",
@@ -1165,7 +2461,9 @@
       "title": "KFR and DUCC provider screen",
       "question": "Can KFR or DUCC beat the stable retained-horizontal baseline on relevant Apple-Silicon workloads?",
       "baseline": "Compare optional providers with issue #7 without blocking v1.",
-      "priorExperiments": ["issue-007-retained-horizontal-algorithms"],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms"
+      ],
       "downstreamIssues": [],
       "definition": {
         "unitOfWork": "Raw real-2-D FFTs and the complete retained-horizontal operator.",
@@ -1184,7 +2482,13 @@
         "canSupport": "A decision to promote an optional provider into deeper experiments.",
         "cannotSupport": "The initial FFTW/vDSP v1 decision."
       },
-      "requiredTables": ["raw FFT", "adapter", "retained total", "capabilities", "memory"]
+      "requiredTables": [
+        "raw FFT",
+        "adapter",
+        "retained total",
+        "capabilities",
+        "memory"
+      ]
     },
     {
       "id": "issue-012-pruned-horizontal-transforms",
@@ -1193,8 +2497,14 @@
       "title": "Pruned horizontal transforms",
       "question": "Can an algorithm that computes only retained horizontal modes beat full-transform FFTW or vDSP baselines?",
       "baseline": "Compare with issues #3 and #5; feed viable or negative results to issue #7.",
-      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-005-vdsp-native-baseline"],
-      "downstreamIssues": [7, 11],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "downstreamIssues": [
+        7,
+        11
+      ],
       "definition": {
         "unitOfWork": "Forward retained-mode computation and inverse reconstruction without requiring a materialized full half-spectrum.",
         "candidates": "Pruned, implicitly de-aliased, fused transform-selection, and feasibility-bound algorithms.",
@@ -1212,7 +2522,14 @@
         "canSupport": "Promotion or rejection of pruned candidates for issue #7.",
         "cannotSupport": "A complete pipeline decision without vertical and movement experiments."
       },
-      "requiredTables": ["retained forward", "retained inverse", "full-FFT baseline", "setup", "memory", "feasibility"]
+      "requiredTables": [
+        "retained forward",
+        "retained inverse",
+        "full-FFT baseline",
+        "setup",
+        "memory",
+        "feasibility"
+      ]
     },
     {
       "id": "issue-013-ordering-packing-crossover",
@@ -1221,8 +2538,15 @@
       "title": "Ordering and packing crossover",
       "question": "When does optional reordering between horizontal transforms and vertical projections repay its movement cost?",
       "baseline": "Cross issue #7 horizontal candidates with issue #8 vertical kernels; feed complete policies to issue #9.",
-      "priorExperiments": ["issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm"],
-      "downstreamIssues": [9, 11, 15],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "downstreamIssues": [
+        9,
+        11,
+        15
+      ],
       "definition": {
         "unitOfWork": "Transfer retained modes into a vertical projection and back, including only movement required by each candidate policy.",
         "candidates": "No reorder, MATLAB gather/transpose/radial order, pre-permuted matrices, fused conversion, tiled pack-and-GEMM, and persistent compact layouts.",
@@ -1240,7 +2564,15 @@
         "canSupport": "Movement and reuse crossover policies for issue #9.",
         "cannotSupport": "A universal required physical order or complete pipeline winner."
       },
-      "requiredTables": ["bytes moved", "packing", "primitive GEMM", "pack plus GEMM", "setup", "reuse crossover", "memory"]
+      "requiredTables": [
+        "bytes moved",
+        "packing",
+        "primitive GEMM",
+        "pack plus GEMM",
+        "setup",
+        "reuse crossover",
+        "memory"
+      ]
     },
     {
       "id": "issue-015-float32-spectral-kernel-screen",
@@ -1249,7 +2581,14 @@
       "title": "Float32 spectral-kernel screen",
       "question": "Does Float32 change the FFTW-versus-vDSP, layout, GEMM, or complete-pipeline conclusions after accuracy and storage contracts are included?",
       "baseline": "Pair with the stable Float64 experiments from issues #3, #5, #7, #8, #13, and #9 without blocking v1.",
-      "priorExperiments": ["issue-003-fftw-production-baseline", "issue-005-vdsp-native-baseline", "issue-007-retained-horizontal-algorithms", "issue-008-vertical-projection-gemm", "issue-013-ordering-packing-crossover", "issue-009-combined-spectral-pipeline"],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover",
+        "issue-009-combined-spectral-pipeline"
+      ],
       "downstreamIssues": [],
       "definition": {
         "unitOfWork": "The same antialiased FFT, vertical projection, and synthetic pipeline as the Float64 reference experiments.",
@@ -1268,7 +2607,15 @@
         "canSupport": "Kernel-level Float32 accuracy, speed, movement, and memory conclusions.",
         "cannotSupport": "Scientific approval of Float32 for production WVM trajectories or diagnostics."
       },
-      "requiredTables": ["paired raw FFT", "paired GEMM", "placement", "movement", "accuracy", "memory", "pipeline total"]
+      "requiredTables": [
+        "paired raw FFT",
+        "paired GEMM",
+        "placement",
+        "movement",
+        "accuracy",
+        "memory",
+        "pipeline total"
+      ]
     }
   ]
 }

@@ -31,7 +31,7 @@ class PublicationValidationTests(unittest.TestCase):
     def test_current_catalog_and_grandfathered_hashes_validate(self) -> None:
         catalog, bundles = load_and_validate(PUBLISHED)
         self.assertEqual("spectral-kernel-publication-catalog-v1", catalog["schema"])
-        self.assertEqual(40, len(bundles))
+        self.assertEqual(88, len(bundles))
         grandfathered = next(bundle for bundle in bundles if bundle.publication["grandfathered"])
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
