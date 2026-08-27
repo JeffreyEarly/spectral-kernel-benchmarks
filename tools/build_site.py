@@ -20,6 +20,11 @@ SUMMARY_SCOPES = (
     ("Retained horizontal operator", "uninstrumented-total"),
 )
 
+EXPERIMENT_PROVIDER_IDS = {
+    "issue-003-fftw-production-baseline": "fftw",
+    "issue-005-vdsp-native-baseline": "accelerate-vdsp",
+}
+
 
 def escaped(value: object) -> str:
     return html.escape(str(value), quote=True)
@@ -417,6 +422,60 @@ def definition_list(values: dict) -> str:
     return f'<dl class="detail-list evidence-definition">{entries}</dl>'
 
 
+def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
+    provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
+    if provider_id is None or not bundles:
+        return ""
+    rows: list[str] = []
+    for bundle in bundles:
+        result = bundle.result
+        provider = next((item for item in result["providers"] if item["id"] == provider_id), None)
+        if provider is None:
+            continue
+        workload = result["workload"]
+        run = result["run"]
+        publication = bundle.publication
+        raw_forward = timing(provider, "primitive", "forward")
+        raw_inverse = timing(provider, "primitive", "inverse")
+        adapter_forward = timing(provider, "adapter-total", "forward")
+        adapter_inverse = timing(provider, "adapter-total", "inverse")
+        retained_forward = timing(provider, "uninstrumented-total", "forward")
+        retained_inverse = timing(provider, "uninstrumented-total", "inverse")
+
+        def pair(forward: dict | None, inverse: dict | None) -> str:
+            if forward is None or inverse is None:
+                return '<span class="muted">not measured</span>'
+            return f'{format_ms(forward["medianSeconds"])} / {format_ms(inverse["medianSeconds"])}'
+
+        explicit_memory = format_bytes(provider["memory"]["persistentBytes"])
+        scratch_memory = format_bytes(provider["memory"]["scratchBytes"])
+        run_id = run["id"]
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+            f'<span class="muted">{run["samples"]} samples · {publication_badge(publication["status"])}</span></td>'
+            f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
+            f'<td>{escaped(provider["algorithmId"])}</td>'
+            f'<td class="numeric">{provider["workers"]}</td>'
+            f'<td class="numeric">{pair(raw_forward, raw_inverse)}</td>'
+            f'<td class="numeric">{pair(adapter_forward, adapter_inverse)}</td>'
+            f'<td class="numeric">{pair(retained_forward, retained_inverse)}</td>'
+            f'<td class="numeric">{explicit_memory}<br><span class="muted">scratch {scratch_memory}</span></td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table">'
+        '<caption>Medians in milliseconds are forward / inverse. Primitive FFT excludes packing and conversion; adapter includes the WVM-compatible mapping; retained total also includes horizontal selection or embedding. Memory is explicit persistent provider storage plus separately reported scratch.</caption>'
+        '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm</th>'
+        '<th scope="col">Workers</th><th scope="col">Primitive FFT</th><th scope="col">Adapter</th>'
+        '<th scope="col">Retained total</th><th scope="col">Explicit memory</th><th scope="col">Max error</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
 def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -434,6 +493,7 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         if reference_count
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
+    evidence_table = experiment_evidence_table(experiment, related)
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Experiment · issue #{experiment['issue']} · {escaped(experiment['phase'])}</p>
@@ -461,6 +521,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
       <p class="eyebrow">Publication deliverable</p><h2 id="publication-heading">Permanent evidence</h2>
       <p>Stable experiment ID: <code>{escaped(experiment_id)}</code>. Required result tables: {escaped(', '.join(experiment['requiredTables']))}.</p>
       <p>{escaped(evidence_statement)}</p>
+      {evidence_table}
+      <h3>Immutable run archive</h3>
       {archive(related, '../../')}
     </section>
     """

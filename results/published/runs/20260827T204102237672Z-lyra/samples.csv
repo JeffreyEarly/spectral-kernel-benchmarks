@@ -1,0 +1,103 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,forward,executed,407384064,0,0.040715666999999997
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,forward,executed,407384064,1,0.040178290999999998
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,forward,executed,407384064,2,0.040476083000000003
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,forward,executed,407384064,3,0.040561167000000002
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,forward,executed,407384064,4,0.040254125000000002
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,inverse,executed,407384064,0,0.0471175
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,inverse,executed,407384064,1,0.047505832999999997
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,inverse,executed,407384064,2,0.047418459000000003
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,inverse,executed,407384064,3,0.047417500000000001
+20260827T204102237672Z-lyra,fftw,primitive,raw FFT,inverse,executed,407384064,4,0.047444917000000003
+20260827T204102237672Z-lyra,fftw,adapter-component,representation conversion,forward,elided,0,,
+20260827T204102237672Z-lyra,fftw,adapter-component,representation conversion,inverse,elided,0,,
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,407384064,0,0.040197249999999997
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,407384064,1,0.040374291
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,407384064,2,0.041918375000000001
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,407384064,3,0.040414499999999999
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,407384064,4,0.040630332999999998
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,407384064,0,0.048083666999999997
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,407384064,1,0.047243250000000001
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,407384064,2,0.046904750000000002
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,407384064,3,0.047083750000000001
+20260827T204102237672Z-lyra,fftw,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,407384064,4,0.047050959000000003
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal retention,forward,executed,275314896,0,0.0036007499999999998
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal retention,forward,executed,275314896,1,0.0034003330000000002
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal retention,forward,executed,275314896,2,0.0033625840000000001
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal retention,forward,executed,275314896,3,0.0033799160000000002
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal retention,forward,executed,275314896,4,0.0035017920000000001
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal embedding,inverse,executed,275314896,0,0.0037243749999999998
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal embedding,inverse,executed,275314896,1,0.0037491249999999999
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal embedding,inverse,executed,275314896,2,0.0040214999999999999
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal embedding,inverse,executed,275314896,3,0.0038077089999999998
+20260827T204102237672Z-lyra,fftw,operator-component,horizontal embedding,inverse,executed,275314896,4,0.003757958
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,forward,executed,478214352,0,0.044917625000000003
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,forward,executed,478214352,1,0.043920124999999997
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,forward,executed,478214352,2,0.04369775
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,forward,executed,478214352,3,0.044009417000000002
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,forward,executed,478214352,4,0.043651958999999997
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,inverse,executed,478214352,0,0.050764749999999997
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,inverse,executed,478214352,1,0.050964292000000001
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,inverse,executed,478214352,2,0.050764625000000001
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,inverse,executed,478214352,3,0.050809709000000002
+20260827T204102237672Z-lyra,fftw,uninstrumented-total,retained horizontal operator,inverse,executed,478214352,4,0.050763500000000003
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,forward,executed,405798912,0,0.39265212500000002
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,forward,executed,405798912,1,0.392604958
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,forward,executed,405798912,2,0.39363383400000002
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,forward,executed,405798912,3,0.39711170800000001
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,forward,executed,405798912,4,0.391876208
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,inverse,executed,405798912,0,0.39869949999999998
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,inverse,executed,405798912,1,0.39790474999999997
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,inverse,executed,405798912,2,0.39929662500000002
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,inverse,executed,405798912,3,0.39862545799999999
+20260827T204102237672Z-lyra,accelerate-vdsp,primitive,raw FFT,inverse,executed,405798912,4,0.39782466700000002
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,real-to-vDSP packing,forward,executed,405798912,0,0.0050241249999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,real-to-vDSP packing,forward,executed,405798912,1,0.00460525
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,real-to-vDSP packing,forward,executed,405798912,2,0.0046216249999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,real-to-vDSP packing,forward,executed,405798912,3,0.0043665830000000003
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,real-to-vDSP packing,forward,executed,405798912,4,0.0054198750000000002
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-WVM conversion and permutation,forward,executed,407384064,0,0.035513833000000002
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-WVM conversion and permutation,forward,executed,407384064,1,0.035496459000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-WVM conversion and permutation,forward,executed,407384064,2,0.035660958
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-WVM conversion and permutation,forward,executed,407384064,3,0.035739
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-WVM conversion and permutation,forward,executed,407384064,4,0.035672875
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,WVM-to-vDSP conversion and permutation,inverse,executed,407384064,0,0.067614584000000005
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,WVM-to-vDSP conversion and permutation,inverse,executed,407384064,1,0.066956291000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,WVM-to-vDSP conversion and permutation,inverse,executed,407384064,2,0.066956125000000005
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,WVM-to-vDSP conversion and permutation,inverse,executed,407384064,3,0.066727375000000005
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,WVM-to-vDSP conversion and permutation,inverse,executed,407384064,4,0.066995957999999994
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-real unpacking,inverse,executed,405798912,0,0.0033322080000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-real unpacking,inverse,executed,405798912,1,0.0030858750000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-real unpacking,inverse,executed,405798912,2,0.0031245420000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-real unpacking,inverse,executed,405798912,3,0.0032087079999999998
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-component,vDSP-to-real unpacking,inverse,executed,405798912,4,0.0031622080000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,813182976,0,0.433714667
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,813182976,1,0.43429708299999997
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,813182976,2,0.43391970899999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,813182976,3,0.432075084
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,forward,executed,813182976,4,0.43169991699999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,813182976,0,0.46650524999999998
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,813182976,1,0.46905116699999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,813182976,2,0.47010933399999999
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,813182976,3,0.46931429200000002
+20260827T204102237672Z-lyra,accelerate-vdsp,adapter-total,WVM-compatible full-spectrum adapter,inverse,executed,813182976,4,0.46731658300000001
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal retention,forward,executed,275314896,0,0.003580958
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal retention,forward,executed,275314896,1,0.0033877920000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal retention,forward,executed,275314896,2,0.0033749159999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal retention,forward,executed,275314896,3,0.0033732499999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal retention,forward,executed,275314896,4,0.0036629589999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal embedding,inverse,executed,275314896,0,0.0037623750000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal embedding,inverse,executed,275314896,1,0.0039721670000000004
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal embedding,inverse,executed,275314896,2,0.0039920829999999996
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal embedding,inverse,executed,275314896,3,0.0037324580000000001
+20260827T204102237672Z-lyra,accelerate-vdsp,operator-component,horizontal embedding,inverse,executed,275314896,4,0.0038011669999999998
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,forward,executed,884013264,0,0.43526104199999999
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,forward,executed,884013264,1,0.435385417
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,forward,executed,884013264,2,0.43603237500000003
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,forward,executed,884013264,3,0.43635299999999999
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,forward,executed,884013264,4,0.44481479200000001
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,inverse,executed,884013264,0,0.47123208300000002
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,inverse,executed,884013264,1,0.47127608399999998
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,inverse,executed,884013264,2,0.47748787500000001
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,inverse,executed,884013264,3,0.47374445900000001
+20260827T204102237672Z-lyra,accelerate-vdsp,uninstrumented-total,retained horizontal operator,inverse,executed,884013264,4,0.47191879199999998

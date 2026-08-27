@@ -301,6 +301,15 @@ thead th {
   text-transform: capitalize;
 }
 
+.experiment-evidence-table {
+  min-width: 1500px;
+}
+
+.experiment-evidence-table td:nth-child(1),
+.experiment-evidence-table td:nth-child(3) {
+  overflow-wrap: anywhere;
+}
+
 td.best {
   background: #e8f6ee;
   color: #0a5836;
