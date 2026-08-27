@@ -34,6 +34,23 @@ int main() {
             const auto name = skbench::vdspBatchStrategyName(strategy);
             require(skbench::vdspBatchStrategyNamed(name) == strategy, "vDSP batch strategy name round trip");
         }
+        for (const auto mode : {skbench::FFTWPlanningMode::estimate,
+                               skbench::FFTWPlanningMode::measure,
+                               skbench::FFTWPlanningMode::patient,
+                               skbench::FFTWPlanningMode::exhaustive}) {
+            const auto name = skbench::fftwPlanningModeName(mode);
+            require(skbench::fftwPlanningModeNamed(name) == mode, "FFTW planning name round trip");
+        }
+        for (const auto strategy : {skbench::FFTWAlignmentStrategy::aligned,
+                                    skbench::FFTWAlignmentStrategy::unaligned}) {
+            const auto name = skbench::fftwAlignmentStrategyName(strategy);
+            require(skbench::fftwAlignmentStrategyNamed(name) == strategy, "FFTW alignment name round trip");
+        }
+        for (const auto strategy : {skbench::FFTWWisdomStrategy::cold,
+                                    skbench::FFTWWisdomStrategy::generatedImport}) {
+            const auto name = skbench::fftwWisdomStrategyName(strategy);
+            require(skbench::fftwWisdomStrategyNamed(name) == strategy, "FFTW wisdom name round trip");
+        }
 
         const auto profileList = skbench::profiles();
         require(skbench::profileNamed("wvm-historical-256-nz65-f4").workload.planes() == 260,
@@ -41,6 +58,48 @@ int main() {
         require(skbench::profileNamed("wvm-current-512-nz257-f4").workload.planes() == 1028,
                 "current workload profile");
         require(profileList.size() == 13, "unexpected profile count");
+
+        skbench::RunOptions fftwOptions;
+        fftwOptions.profile = "smoke";
+        fftwOptions.providers = "fftw";
+        fftwOptions.fftwPlanning = "measure";
+        fftwOptions.fftwAlignment = "aligned";
+        fftwOptions.fftwWisdom = "generated-import";
+        fftwOptions.fftwInternalWorkers = 2;
+        fftwOptions.fftwOuterWorkers = 2;
+        fftwOptions.warmups = 1;
+        fftwOptions.samples = 2;
+        const auto fftwReport = skbench::runBenchmark(fftwOptions);
+        require(fftwReport.status == "passed", "FFTW strategy benchmark failed");
+        require(fftwReport.providers.size() == 1, "FFTW-only provider selection failed");
+        const auto& fftwRecord = fftwReport.providers.front();
+        require(fftwRecord.internalWorkers == 2 && fftwRecord.outerWorkers == 2 && fftwRecord.workers == 4,
+                "FFTW worker topology");
+        require(fftwRecord.wisdomGenerationSeconds > 0.0 && fftwRecord.wisdomImportSeconds > 0.0,
+                "FFTW wisdom accounting");
+        require(fftwRecord.wisdomBytes > 0, "FFTW wisdom bytes");
+        require(fftwRecord.correctness.size() == 3, "FFTW strategy correctness metrics");
+        require(fftwRecord.correctness[0].passed && fftwRecord.correctness[1].passed && fftwRecord.correctness[2].passed,
+                "FFTW strategy correctness");
+        bool foundScheduler = false;
+        for (const auto& timing : fftwRecord.timings) {
+            if (timing.stage == "batch scheduler empty dispatch") {
+                foundScheduler = timing.state == skbench::StageState::executed && timing.seconds.size() == 2;
+            }
+        }
+        require(foundScheduler, "FFTW outer scheduler timing");
+
+        skbench::RunOptions exhaustiveOptions = fftwOptions;
+        exhaustiveOptions.fftwPlanning = "exhaustive";
+        exhaustiveOptions.fftwWisdom = "cold";
+        exhaustiveOptions.fftwInternalWorkers = 1;
+        exhaustiveOptions.fftwOuterWorkers = 1;
+        exhaustiveOptions.fftwPlanningTimeLimitSeconds = 0.001;
+        exhaustiveOptions.samples = 1;
+        const auto exhaustiveReport = skbench::runBenchmark(exhaustiveOptions);
+        require(exhaustiveReport.status == "passed", "time-bounded FFTW exhaustive benchmark failed");
+        require(exhaustiveReport.providers.front().planningBudgetExhausted,
+                "FFTW exhaustive planning budget was not recorded");
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);
         skbench::VDSPProvider outOfPlaceScratch(workload, 2, skbench::VDSPTransformStrategy::outOfPlaceExplicitScratch);

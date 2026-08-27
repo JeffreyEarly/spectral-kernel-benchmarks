@@ -13,7 +13,13 @@ void usage(std::ostream& output) {
     output << "Usage:\n"
            << "  skbench list\n"
            << "  skbench validate [--profile NAME]\n"
-           << "  skbench run [--profile NAME] [--vdsp-strategy NAME] [--vdsp-batch-strategy NAME] [--workers N] [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
+           << "  skbench run [--profile NAME] [--providers both|fftw] [--workers N]\n"
+           << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
+           << "              [--fftw-alignment aligned|unaligned] [--fftw-wisdom cold|generated-import]\n"
+           << "              [--fftw-internal-workers N] [--fftw-outer-workers N]\n"
+           << "              [--fftw-planning-time-limit SECONDS]\n"
+           << "              [--vdsp-strategy NAME] [--vdsp-batch-strategy NAME]\n"
+           << "              [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
 std::string requireValue(int argc, char** argv, int& index) {
@@ -31,6 +37,17 @@ void list() {
     std::cout << "providers:\n"
               << "  fftw: pinned 3.3.11 NEON/pthreads, guru64 WVM strides\n"
               << "  accelerate-vdsp: double packed split-complex radix-2, direct or separable outer batching\n"
+              << "FFTW planning modes:\n"
+              << "  estimate\n"
+              << "  measure\n"
+              << "  patient\n"
+              << "  exhaustive\n"
+              << "FFTW alignment strategies:\n"
+              << "  aligned\n"
+              << "  unaligned\n"
+              << "FFTW wisdom strategies:\n"
+              << "  cold\n"
+              << "  generated-import\n"
               << "vDSP strategies:\n"
               << "  in-place\n"
               << "  in-place-explicit-scratch\n"
@@ -98,6 +115,13 @@ int main(int argc, char** argv) {
             for (int index = 2; index < argc; ++index) {
                 const std::string_view key = argv[index];
                 if (key == "--profile") options.profile = requireValue(argc, argv, index);
+                else if (key == "--providers") options.providers = requireValue(argc, argv, index);
+                else if (key == "--fftw-planning") options.fftwPlanning = requireValue(argc, argv, index);
+                else if (key == "--fftw-alignment") options.fftwAlignment = requireValue(argc, argv, index);
+                else if (key == "--fftw-wisdom") options.fftwWisdom = requireValue(argc, argv, index);
+                else if (key == "--fftw-internal-workers") options.fftwInternalWorkers = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--fftw-outer-workers") options.fftwOuterWorkers = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--fftw-planning-time-limit") options.fftwPlanningTimeLimitSeconds = std::stod(requireValue(argc, argv, index));
                 else if (key == "--vdsp-strategy") options.vdspStrategy = requireValue(argc, argv, index);
                 else if (key == "--vdsp-batch-strategy") options.vdspBatchStrategy = requireValue(argc, argv, index);
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));

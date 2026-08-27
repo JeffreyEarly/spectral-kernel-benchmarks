@@ -24,6 +24,7 @@ Use `SKBENCH_FFTW_ROOT` at configure time to select an existing compatible FFTW 
 build/release/skbench list
 build/release/skbench validate --profile smoke
 build/release/skbench run --profile quick
+build/release/skbench run --profile wvm-historical-256-nz65-f3 --providers fftw --fftw-planning measure --fftw-alignment aligned --fftw-internal-workers 12 --fftw-outer-workers 1
 build/release/skbench run --profile wvm-historical-256-nz65-f4 --vdsp-strategy out-of-place-explicit-scratch --workers 12
 build/release/skbench run --profile wvm-historical-256-nz65-f3 --vdsp-batch-strategy separable-gcd --workers 12
 build/release/skbench compare --input results/local/<run>.csv
@@ -33,7 +34,7 @@ build/release/skbench compare --input results/local/<run>.csv
 
 `validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It exercises all four native vDSP placement/scratch strategies, direct persistent-pool and GCD scheduling, and the separable packed-real candidates. It also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
 
-`run` writes a versioned JSON manifest/report and a sample-level CSV file. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. `--vdsp-batch-strategy` independently selects `direct-persistent`, `direct-gcd`, `separable-persistent`, or `separable-gcd`; the separable prototype currently supports in-place placement. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
+`run` writes a versioned JSON manifest/report and a sample-level CSV file. `--providers fftw` omits the unchanged vDSP provider during FFTW strategy screens. `--fftw-planning`, `--fftw-alignment`, and `--fftw-wisdom` select the planner contract; `--fftw-internal-workers` and `--fftw-outer-workers` distinguish FFTW pthread parallelism from persistent outer batch sharding. `--fftw-planning-time-limit` applies FFTW's per-plan-call limit and records whether the observed planning interval exhausted that budget. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. `--vdsp-batch-strategy` independently selects `direct-persistent`, `direct-gcd`, `separable-persistent`, or `separable-gcd`; the separable prototype currently supports in-place placement. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
 
 The issue #3/#5 sweep driver expands the ten named WVM workloads across all four vDSP strategies and the one-worker, performance-core, and total-core counts. Inspect the commands before starting the deliberately long full matrix:
 
@@ -43,6 +44,15 @@ python3 tools/run_float64_baseline_sweep.py
 ```
 
 Use `--profiles`, `--strategies`, and `--workers` for a bounded exploratory increment. The driver writes only ignored local bundles and a resumable evidence manifest; publication remains an explicit reviewed step.
+
+The issue #4 diagnostic driver holds the production guru64 representation fixed while screening FFTW planning, alignment, generated/imported wisdom, internal pthreads, persistent outer sharding, and selected hybrid topologies. Its default worker set resolves to 1, 2, 4, 8, performance-core count, and total-core count. `PATIENT` and `EXHAUSTIVE` use explicit per-plan-call budgets, so reaching a budget remains visible rather than silently presenting a truncated search as an unlimited plan:
+
+```sh
+python3 tools/run_fftw_strategy_sweep.py --dry-run
+python3 tools/run_fftw_strategy_sweep.py
+```
+
+Use `--matrix planning` or `--matrix scheduling` for one half of the screen. Wisdom generation, wisdom import, final plan construction, empty outer-dispatch overhead, raw transforms, retained operations, memory, variability, and correctness remain distinct.
 
 The issue #6 diagnostic driver compares native two-dimensional calls and packed-real separable row/column transforms under the persistent pool and GCD. Its default matrix uses the representative historical $256^2$ and $512^2$ three-field workloads and workers 1, 2, 4, 8, performance-core count, and total-core count:
 

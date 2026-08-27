@@ -1,5 +1,7 @@
 #include "skbench/skbench.hpp"
 
+#include <fftw3.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -9,6 +11,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <new>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -45,6 +48,31 @@ std::uint64_t bytes(std::size_t count, std::size_t elementSize) {
     }
     return static_cast<std::uint64_t>(count) * static_cast<std::uint64_t>(elementSize);
 }
+
+template <typename Value>
+class FFTWArray {
+public:
+    explicit FFTWArray(std::size_t count) : count_(count) {
+        storage_ = static_cast<Value*>(fftw_malloc(count_ * sizeof(Value)));
+        if (storage_ == nullptr) throw std::bad_alloc();
+    }
+
+    ~FFTWArray() { fftw_free(storage_); }
+    FFTWArray(const FFTWArray&) = delete;
+    FFTWArray& operator=(const FFTWArray&) = delete;
+
+    Value* data() noexcept { return storage_; }
+    const Value* data() const noexcept { return storage_; }
+    Value* begin() noexcept { return storage_; }
+    const Value* begin() const noexcept { return storage_; }
+    Value* end() noexcept { return storage_ + count_; }
+    const Value* end() const noexcept { return storage_ + count_; }
+    std::size_t size() const noexcept { return count_; }
+
+private:
+    Value* storage_ = nullptr;
+    std::size_t count_ = 0;
+};
 
 template <typename Prepare, typename Action>
 std::vector<double> measure(std::size_t warmups, std::size_t samples, Prepare prepare, Action action) {
@@ -177,9 +205,48 @@ std::string sysctlString(const char* name) {
 }
 #endif
 
-std::vector<LedgerEntry> fftwLedger() {
+std::string fftwAlgorithmId(const FFTWProvider& provider) {
+    const auto strategy = provider.strategy();
+    return "wvm-guru64-" + std::string(fftwPlanningModeName(strategy.planningMode)) + "-" +
+        std::string(fftwAlignmentStrategyName(strategy.alignment)) + "-" +
+        std::string(fftwWisdomStrategyName(strategy.wisdom));
+}
+
+std::string fftwSchedulingId(const FFTWProvider& provider) {
+    if (provider.outerWorkers() == 1) return "fftw-internal-pthreads";
+    if (provider.internalWorkers() == 1) return "persistent-outer-batch-sharding";
+    return "persistent-outer-batch-sharding+fftw-internal-pthreads";
+}
+
+std::string fftwPlanningConfiguration(const FFTWProvider& provider) {
+    const auto strategy = provider.strategy();
+    std::ostringstream output;
+    output << "FFTW_";
+    switch (strategy.planningMode) {
+        case FFTWPlanningMode::estimate: output << "ESTIMATE"; break;
+        case FFTWPlanningMode::measure: output << "MEASURE"; break;
+        case FFTWPlanningMode::patient: output << "PATIENT"; break;
+        case FFTWPlanningMode::exhaustive: output << "EXHAUSTIVE"; break;
+    }
+    if (strategy.alignment == FFTWAlignmentStrategy::unaligned) output << "|FFTW_UNALIGNED";
+    output << "; guru64; wisdom=" << fftwWisdomStrategyName(strategy.wisdom)
+           << "; internal-workers=" << provider.internalWorkers()
+           << "; outer-workers=" << provider.outerWorkers();
+    if (provider.planningTimeLimitSeconds() > 0.0) {
+        output << "; per-plan-time-limit-seconds=" << provider.planningTimeLimitSeconds()
+               << "; budget-exhausted=" << (provider.planningBudgetExhausted() ? "true" : "false");
+    }
+    return output.str();
+}
+
+std::vector<LedgerEntry> fftwLedger(const FFTWProvider& provider) {
+    const auto setup = fftwPlanningConfiguration(provider);
+    const auto scheduling = provider.outerWorkers() > 1
+        ? "persistent outer batch sharding with separately measured empty-dispatch overhead"
+        : "single guru64 batch plan with FFTW internal pthreads";
     return {
-        {"setup/planning", StageState::setupOnly, "FFTW guru64 MEASURE|UNALIGNED plans"},
+        {"setup/planning", StageState::setupOnly, setup},
+        {"batch scheduling", provider.outerWorkers() > 1 ? StageState::executed : StageState::elided, scheduling},
         {"raw forward FFT", StageState::executed, "provider-native WVM-strided r2c"},
         {"horizontal retention", StageState::executed, "radial two-thirds mode-keyed gather"},
         {"representation conversion", StageState::elided, "FFTW writes the WVM frequency-major representation directly"},
@@ -247,7 +314,7 @@ std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy, VDSPBatchStr
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
-ExecutionContract fftwExecutionContract(const Workload& workload) {
+ExecutionContract fftwExecutionContract(const Workload& workload, const FFTWProvider& provider) {
     const auto planes = workload.planes();
     const auto realExtents = "[planes=" + std::to_string(planes) + "][Ny=" + std::to_string(workload.ny) +
         "][Nx=" + std::to_string(workload.nx) + "]";
@@ -274,8 +341,10 @@ ExecutionContract fftwExecutionContract(const Workload& workload) {
         "input=" + realExtents + "; output=" + spectrumExtents,
         "input{" + realStrides + "}; output{" + spectrumStrides + "}",
         0,
-        1,
-        "input and output do not overlap; FFTW_UNALIGNED accepts arbitrary scalar alignment",
+        provider.minimumAlignmentBytes(),
+        provider.minimumAlignmentBytes() > 1
+            ? "input and output do not overlap; new-array execution uses the planning alignment classes"
+            : "input and output do not overlap; FFTW_UNALIGNED accepts arbitrary scalar alignment",
         0,
         true};
     contract.inverse = {
@@ -293,8 +362,10 @@ ExecutionContract fftwExecutionContract(const Workload& workload) {
         "input=" + spectrumExtents + "; output=" + realExtents,
         "input{" + spectrumStrides + "}; output{" + realStrides + "}",
         0,
-        1,
-        "input and output do not overlap; multidimensional FFTW c2r may destroy its input",
+        provider.minimumAlignmentBytes(),
+        provider.minimumAlignmentBytes() > 1
+            ? "input and output do not overlap and match planning alignment classes; multidimensional FFTW c2r may destroy its input"
+            : "input and output do not overlap; multidimensional FFTW c2r may destroy its input",
         0,
         true};
     return contract;
@@ -359,6 +430,8 @@ void appendUnsupportedVdspRecord(BenchmarkReport& report, const Profile& selecte
         std::string(vdspTransformStrategyName(provider.strategy())) + "; " +
         std::string(vdspBatchStrategyName(provider.batchStrategy()));
     record.workers = selected.defaultWorkers;
+    record.internalWorkers = 1;
+    record.outerWorkers = selected.defaultWorkers;
     record.execution = vdspExecutionContract(report.workload, provider);
     record.otherSetupSeconds = provider.otherSetupSeconds();
     record.allocationSeconds = provider.allocationSeconds();
@@ -556,9 +629,23 @@ ValidationReport validateBenchmark(std::string_view profileName) {
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
     auto selected = profileNamed(options.profile);
+    if (options.providers != "both" && options.providers != "fftw") {
+        throw std::invalid_argument("providers must be either 'both' or 'fftw'.");
+    }
+    const auto fftwPlanningMode = fftwPlanningModeNamed(options.fftwPlanning);
+    const auto fftwAlignment = fftwAlignmentStrategyNamed(options.fftwAlignment);
+    const auto fftwWisdom = fftwWisdomStrategyNamed(options.fftwWisdom);
     const auto vdspStrategy = vdspTransformStrategyNamed(options.vdspStrategy);
     const auto vdspBatchStrategy = vdspBatchStrategyNamed(options.vdspBatchStrategy);
     const auto workers = options.workers == 0 ? selected.defaultWorkers : options.workers;
+    const auto fftwInternalWorkers = options.fftwInternalWorkers == 0 ? workers : options.fftwInternalWorkers;
+    const FFTWStrategy fftwStrategy{
+        fftwPlanningMode,
+        fftwAlignment,
+        fftwWisdom,
+        fftwInternalWorkers,
+        options.fftwOuterWorkers,
+        options.fftwPlanningTimeLimitSeconds};
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
     const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
     selected.defaultWorkers = workers;
@@ -583,42 +670,72 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
     report.retainedSpectrumBytes = bytes(modes.size() * workload.planes(), sizeof(Complex));
 
-    auto input = makeFixture(workload, FixtureKind::random, options.seed);
-    std::vector<Complex> referenceSpectrum(workload.spectrumElements());
-    std::vector<Complex> workingSpectrum(workload.spectrumElements());
-    std::vector<Complex> inverseSpectrum(workload.spectrumElements());
+    const auto inputFixture = makeFixture(workload, FixtureKind::random, options.seed);
+    FFTWArray<double> input(workload.realElements());
+    std::copy(inputFixture.begin(), inputFixture.end(), input.begin());
+    FFTWArray<Complex> referenceSpectrum(workload.spectrumElements());
+    FFTWArray<Complex> workingSpectrum(workload.spectrumElements());
+    FFTWArray<Complex> inverseSpectrum(workload.spectrumElements());
     std::vector<Complex> retainedSpectrum(modes.size() * workload.planes());
     std::vector<Complex> retainedWorking(modes.size() * workload.planes());
-    std::vector<double> fftwOutput(workload.realElements());
-    std::vector<double> output(workload.realElements());
+    FFTWArray<double> referenceOutput(workload.realElements());
+    FFTWArray<double> fftwOutput(workload.realElements());
+    FFTWArray<double> output(workload.realElements());
 
-    FFTWProvider fftw(workload, workers);
-    fftw.forward(input.data(), referenceSpectrum.data());
-    inverseSpectrum = referenceSpectrum;
-    fftw.inverse(inverseSpectrum.data(), fftwOutput.data());
+    FFTWProvider referenceFftw(workload, FFTWStrategy{
+        FFTWPlanningMode::estimate,
+        FFTWAlignmentStrategy::unaligned,
+        FFTWWisdomStrategy::cold,
+        1,
+        1,
+        0.0});
+    referenceFftw.forward(input.data(), referenceSpectrum.data());
+    std::copy(referenceSpectrum.begin(), referenceSpectrum.end(), inverseSpectrum.begin());
+    referenceFftw.inverse(inverseSpectrum.data(), referenceOutput.data());
     gatherRetained(workload, modes, referenceSpectrum.data(), retainedSpectrum.data());
+
+    FFTWProvider fftw(workload, fftwStrategy);
+    fftw.forward(input.data(), workingSpectrum.data());
+    const auto fftwForwardReferenceError = maximumRelativeError(
+        workingSpectrum.data(), referenceSpectrum.data(), referenceSpectrum.size());
+    std::copy(referenceSpectrum.begin(), referenceSpectrum.end(), inverseSpectrum.begin());
+    fftw.inverse(inverseSpectrum.data(), fftwOutput.data());
+    const auto fftwInverseReferenceError = maximumRelativeError(
+        fftwOutput.data(), referenceOutput.data(), referenceOutput.size());
+    const auto fftwRoundTripError = maximumRelativeError(
+        fftwOutput.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny));
 
     ProviderRecord fftwRecord;
     fftwRecord.id = "fftw";
     fftwRecord.version = fftw.version();
     fftwRecord.libraryIdentity = fftw.libraryIdentity();
-    fftwRecord.algorithmId = "wvm-production-guru64-measure-unaligned";
+    fftwRecord.algorithmId = fftwAlgorithmId(fftw);
     fftwRecord.nativeRepresentationId = "wvm-frequency-major-interleaved-half-spectrum";
     fftwRecord.modeOrderId = "full-r2c-kx-nonnegative-ky-wrapped";
-    fftwRecord.schedulingId = "fftw-internal-pthreads";
+    fftwRecord.schedulingId = fftwSchedulingId(fftw);
     fftwRecord.sourceIdentity = "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz";
     fftwRecord.sourceSha256 = "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
     fftwRecord.configureFlags = "--host=aarch64-apple-darwin --enable-neon --enable-threads --disable-fortran --disable-openmp --enable-shared --disable-static";
     fftwRecord.compilerFlags = "-O3 -mcpu=native -mmacosx-version-min=13.3";
-    fftwRecord.planningConfiguration = "FFTW_MEASURE|FFTW_UNALIGNED; guru64; internal pthreads";
-    fftwRecord.workers = workers;
-    fftwRecord.execution = fftwExecutionContract(workload);
+    fftwRecord.planningConfiguration = fftwPlanningConfiguration(fftw);
+    fftwRecord.workers = fftw.totalLogicalWorkers();
+    fftwRecord.internalWorkers = fftw.internalWorkers();
+    fftwRecord.outerWorkers = fftw.outerWorkers();
+    fftwRecord.execution = fftwExecutionContract(workload, fftw);
     fftwRecord.otherSetupSeconds = fftw.otherSetupSeconds();
     fftwRecord.allocationSeconds = fftw.allocationSeconds();
     fftwRecord.planningSeconds = fftw.planningSeconds();
+    fftwRecord.wisdomGenerationSeconds = fftw.wisdomGenerationSeconds();
+    fftwRecord.wisdomImportSeconds = fftw.wisdomImportSeconds();
+    fftwRecord.planningTimeLimitSeconds = fftw.planningTimeLimitSeconds();
+    fftwRecord.planningBudgetExhausted = fftw.planningBudgetExhausted();
+    fftwRecord.wisdomBytes = fftw.wisdomBytes();
     fftwRecord.opaquePlanningBytes = fftw.planningBytes();
-    fftwRecord.ledger = fftwLedger();
-    fftwRecord.correctness.push_back(metric("full inverse round trip", maximumRelativeError(fftwOutput.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny))));
+    fftwRecord.ledger = fftwLedger(fftw);
+    fftwRecord.correctness = {
+        metric("full forward versus fixed FFTW ESTIMATE reference", fftwForwardReferenceError),
+        metric("full inverse versus fixed FFTW ESTIMATE reference", fftwInverseReferenceError),
+        metric("full inverse round trip", fftwRoundTripError)};
 
     fftwRecord.timings.push_back(series("primitive", "raw FFT", "forward", StageState::executed,
         report.fullRealBytes + report.fullSpectrumBytes,
@@ -628,6 +745,12 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         measure(warmups, sampleCount,
             [&] { std::copy(referenceSpectrum.begin(), referenceSpectrum.end(), inverseSpectrum.begin()); },
             [&] { fftw.inverse(inverseSpectrum.data(), output.data()); })));
+    fftwRecord.timings.push_back(series(
+        "diagnostic-component", "batch scheduler empty dispatch", "shared",
+        fftw.outerWorkers() > 1 ? StageState::executed : StageState::elided, 0,
+        fftw.outerWorkers() > 1
+            ? measure(warmups, sampleCount, [&] { fftw.executeSchedulerNoop(); })
+            : std::vector<double>{}));
     fftwRecord.timings.push_back(series("adapter-component", "representation conversion", "forward", StageState::elided, 0));
     fftwRecord.timings.push_back(series("adapter-component", "representation conversion", "inverse", StageState::elided, 0));
     fftwRecord.timings.push_back(series("adapter-total", "WVM-compatible full-spectrum adapter", "forward", StageState::executed,
@@ -657,6 +780,11 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
             fftw.inverse(inverseSpectrum.data(), output.data());
         })));
     report.providers.push_back(std::move(fftwRecord));
+
+    if (options.providers == "fftw") {
+        report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
+        return report;
+    }
 
     VDSPProvider vdsp(workload, workers, vdspStrategy, vdspBatchStrategy);
     if (!vdsp.supported()) {
@@ -694,6 +822,8 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         std::string(vdspTransformStrategyName(vdsp.strategy())) + "; " +
         std::string(vdspBatchStrategyName(vdsp.batchStrategy()));
     vdspRecord.workers = workers;
+    vdspRecord.internalWorkers = 1;
+    vdspRecord.outerWorkers = workers;
     vdspRecord.execution = vdspExecutionContract(workload, vdsp);
     vdspRecord.explicitPersistentBytes = vdsp.explicitPersistentBytes();
     vdspRecord.scratchBytes = vdsp.scratchBytes();

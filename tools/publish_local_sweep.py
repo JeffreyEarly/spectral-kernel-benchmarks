@@ -24,6 +24,10 @@ def main() -> int:
     parser.add_argument("--status", choices=sorted(PUBLICATION_STATUSES), default="preliminary")
     parser.add_argument("--status-reason", required=True)
     parser.add_argument("--prior-experiment", action="append", default=[])
+    parser.add_argument(
+        "--primary-provider",
+        help="Provider used in catalog summaries; defaults to vDSP for issue #6 and otherwise the first provider",
+    )
     parser.add_argument("--allow-dirty", action="store_true", help="Permit bundles whose embedded benchmark tree was dirty")
     parser.add_argument("--apply", action="store_true", help="Copy artifacts and update catalog.json")
     arguments = parser.parse_args()
@@ -73,11 +77,27 @@ def main() -> int:
             parser.error(f"publication destination already exists: {destination_dir}")
 
         workload = result["workload"]
-        provider = next(item for item in result["providers"] if item["id"] == "accelerate-vdsp")
+        primary_provider = arguments.primary_provider
+        if primary_provider is None and arguments.experiment == "issue-006-vdsp-batching-scheduling":
+            primary_provider = "accelerate-vdsp"
+        if primary_provider is None:
+            provider = result["providers"][0]
+        else:
+            provider = next(
+                (item for item in result["providers"] if item["id"] == primary_provider), None
+            )
+            if provider is None:
+                parser.error(f"run {run_id} lacks primary provider {primary_provider}")
+        scheduling = provider.get("scheduling", {})
+        worker_description = (
+            f"internal={scheduling['internalWorkers']}, outer={scheduling['outerWorkers']}"
+            if scheduling
+            else f"logical workers={provider['workers']}"
+        )
         summary = (
             f"{result['environment']['cpuBrand']} {result['numericType']['id']} "
             f"{workload['Nx']} by {workload['Ny']}, Nz={workload['Nz']}, fields={workload['fields']} "
-            f"using {provider['algorithmId']} and {provider['workers']} logical worker(s), with a matched FFTW record."
+            f"using {provider['algorithmId']} ({worker_description})."
         )
         publication = {
             "id": run_id,

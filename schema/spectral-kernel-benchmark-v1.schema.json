@@ -142,6 +142,15 @@
         ],
         "properties": {
           "workers": {"type": "integer", "minimum": 1},
+          "scheduling": {
+            "type": "object",
+            "required": ["internalWorkers", "outerWorkers", "totalLogicalWorkers"],
+            "properties": {
+              "internalWorkers": {"type": "integer", "minimum": 1},
+              "outerWorkers": {"type": "integer", "minimum": 1},
+              "totalLogicalWorkers": {"type": "integer", "minimum": 1}
+            }
+          },
           "executionContract": {
             "type": "object",
             "required": ["forward", "inverse"],
@@ -160,7 +169,21 @@
             "properties": {
               "totalSeconds": {"type": "number", "minimum": 0},
               "otherSeconds": {"type": "number", "minimum": 0},
-              "allocationSeconds": {"type": "number", "minimum": 0}
+              "allocationSeconds": {"type": "number", "minimum": 0},
+              "wisdomGenerationSeconds": {"type": "number", "minimum": 0},
+              "wisdomImportSeconds": {"type": "number", "minimum": 0}
+            }
+          },
+          "planning": {
+            "type": "object",
+            "required": ["seconds", "configuration", "temporaryBytes"],
+            "properties": {
+              "seconds": {"type": "number", "minimum": 0},
+              "configuration": {"type": "string"},
+              "temporaryBytes": {"type": "integer", "minimum": 0},
+              "wisdomBytes": {"type": "integer", "minimum": 0},
+              "timeLimitSeconds": {"type": "number", "minimum": 0},
+              "budgetExhausted": {"type": "boolean"}
             }
           },
           "componentLedger": {

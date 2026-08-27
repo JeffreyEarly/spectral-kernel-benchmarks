@@ -179,18 +179,28 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"configureFlags\":"; quote(stream, provider.configureFlags);
         stream << ",\"compilerFlags\":"; quote(stream, provider.compilerFlags); stream << '}';
         stream << ",\"workers\":" << provider.workers;
+        stream << ",\"scheduling\":{\"internalWorkers\":" << provider.internalWorkers
+               << ",\"outerWorkers\":" << provider.outerWorkers
+               << ",\"totalLogicalWorkers\":" << provider.workers << '}';
         stream << ",\"executionContract\":{\"forward\":";
         executionDirection(stream, provider.execution.forward);
         stream << ",\"inverse\":";
         executionDirection(stream, provider.execution.inverse);
         stream << '}';
         stream << ",\"setup\":{\"totalSeconds\":";
-        number(stream, provider.otherSetupSeconds + provider.allocationSeconds + provider.planningSeconds);
+        number(stream, provider.otherSetupSeconds + provider.allocationSeconds + provider.planningSeconds +
+                       provider.wisdomGenerationSeconds + provider.wisdomImportSeconds);
         stream << ",\"otherSeconds\":"; number(stream, provider.otherSetupSeconds);
-        stream << ",\"allocationSeconds\":"; number(stream, provider.allocationSeconds); stream << "}";
+        stream << ",\"allocationSeconds\":"; number(stream, provider.allocationSeconds);
+        stream << ",\"wisdomGenerationSeconds\":"; number(stream, provider.wisdomGenerationSeconds);
+        stream << ",\"wisdomImportSeconds\":"; number(stream, provider.wisdomImportSeconds);
+        stream << "}";
         stream << ",\"planning\":{\"seconds\":"; number(stream, provider.planningSeconds);
         stream << ",\"configuration\":"; quote(stream, provider.planningConfiguration);
-        stream << ",\"temporaryBytes\":" << provider.opaquePlanningBytes << "}";
+        stream << ",\"temporaryBytes\":" << provider.opaquePlanningBytes;
+        stream << ",\"wisdomBytes\":" << provider.wisdomBytes;
+        stream << ",\"timeLimitSeconds\":"; number(stream, provider.planningTimeLimitSeconds);
+        stream << ",\"budgetExhausted\":" << (provider.planningBudgetExhausted ? "true" : "false") << "}";
         stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes << ",\"scratchBytes\":" << provider.scratchBytes << ",\"opaqueProviderMemory\":true}";
         stream << ",\"componentLedger\":[";
         for (std::size_t ledgerIndex = 0; ledgerIndex < provider.ledger.size(); ++ledgerIndex) {

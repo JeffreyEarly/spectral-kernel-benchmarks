@@ -87,9 +87,45 @@ void directC2R(const Workload& workload, const Complex* wvmSpectrum, double* out
 double maximumRelativeError(const Complex* actual, const Complex* expected, std::size_t count);
 double maximumRelativeError(const double* actual, const double* expected, std::size_t count, double actualScale = 1.0);
 
+enum class FFTWPlanningMode {
+    estimate,
+    measure,
+    patient,
+    exhaustive
+};
+
+std::string_view fftwPlanningModeName(FFTWPlanningMode mode) noexcept;
+FFTWPlanningMode fftwPlanningModeNamed(std::string_view name);
+
+enum class FFTWAlignmentStrategy {
+    aligned,
+    unaligned
+};
+
+std::string_view fftwAlignmentStrategyName(FFTWAlignmentStrategy strategy) noexcept;
+FFTWAlignmentStrategy fftwAlignmentStrategyNamed(std::string_view name);
+
+enum class FFTWWisdomStrategy {
+    cold,
+    generatedImport
+};
+
+std::string_view fftwWisdomStrategyName(FFTWWisdomStrategy strategy) noexcept;
+FFTWWisdomStrategy fftwWisdomStrategyNamed(std::string_view name);
+
+struct FFTWStrategy {
+    FFTWPlanningMode planningMode = FFTWPlanningMode::measure;
+    FFTWAlignmentStrategy alignment = FFTWAlignmentStrategy::unaligned;
+    FFTWWisdomStrategy wisdom = FFTWWisdomStrategy::cold;
+    std::size_t internalWorkers = 1;
+    std::size_t outerWorkers = 1;
+    double planningTimeLimitSeconds = 0.0;
+};
+
 class FFTWProvider {
 public:
     FFTWProvider(const Workload& workload, std::size_t workers);
+    FFTWProvider(const Workload& workload, FFTWStrategy strategy);
     ~FFTWProvider();
     FFTWProvider(FFTWProvider&&) noexcept;
     FFTWProvider& operator=(FFTWProvider&&) noexcept;
@@ -98,10 +134,21 @@ public:
 
     void forward(const double* input, Complex* wvmSpectrum);
     void inverse(Complex* wvmSpectrum, double* output);
+    void executeSchedulerNoop();
     double otherSetupSeconds() const noexcept;
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;
+    double wisdomGenerationSeconds() const noexcept;
+    double wisdomImportSeconds() const noexcept;
+    double planningTimeLimitSeconds() const noexcept;
+    bool planningBudgetExhausted() const noexcept;
+    std::size_t wisdomBytes() const noexcept;
     std::size_t planningBytes() const noexcept;
+    std::size_t internalWorkers() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    std::size_t totalLogicalWorkers() const noexcept;
+    std::size_t minimumAlignmentBytes() const noexcept;
+    FFTWStrategy strategy() const noexcept;
     std::string libraryIdentity() const;
     std::string version() const;
 
@@ -246,6 +293,8 @@ struct ProviderRecord {
     std::string compilerFlags;
     std::string planningConfiguration;
     std::size_t workers = 1;
+    std::size_t internalWorkers = 1;
+    std::size_t outerWorkers = 1;
     ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
     std::size_t scratchBytes = 0;
@@ -253,6 +302,11 @@ struct ProviderRecord {
     double otherSetupSeconds = 0.0;
     double allocationSeconds = 0.0;
     double planningSeconds = 0.0;
+    double wisdomGenerationSeconds = 0.0;
+    double wisdomImportSeconds = 0.0;
+    double planningTimeLimitSeconds = 0.0;
+    bool planningBudgetExhausted = false;
+    std::size_t wisdomBytes = 0;
     std::vector<TimingSeries> timings;
     std::vector<LedgerEntry> ledger;
     std::vector<CorrectnessMetric> correctness;
@@ -311,6 +365,13 @@ Profile profileNamed(std::string_view name);
 
 struct RunOptions {
     std::string profile = "quick";
+    std::string providers = "both";
+    std::string fftwPlanning = "measure";
+    std::string fftwAlignment = "unaligned";
+    std::string fftwWisdom = "cold";
+    std::size_t fftwInternalWorkers = 0;
+    std::size_t fftwOuterWorkers = 1;
+    double fftwPlanningTimeLimitSeconds = 0.0;
     std::string vdspStrategy = "in-place";
     std::string vdspBatchStrategy = "direct-persistent";
     std::size_t workers = 0;
