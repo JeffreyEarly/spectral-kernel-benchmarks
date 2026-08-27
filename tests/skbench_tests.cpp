@@ -1,6 +1,9 @@
 #include "skbench/skbench.hpp"
+#include "allocation_tracker.hpp"
 
+#include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -9,6 +12,44 @@ namespace {
 
 void require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+template <typename Value>
+struct FreeDeleter {
+    void operator()(Value* pointer) const noexcept { std::free(pointer); }
+};
+
+template <typename Value>
+std::unique_ptr<Value, FreeDeleter<Value>> alignedBuffer(std::size_t count) {
+    void* storage = nullptr;
+    if (posix_memalign(&storage, 64, count * sizeof(Value)) != 0 || storage == nullptr) {
+        throw std::bad_alloc();
+    }
+    return std::unique_ptr<Value, FreeDeleter<Value>>(static_cast<Value*>(storage));
+}
+
+void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::FFTWStrategy strategy) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 31) / 31.0;
+    }
+
+    skbench::FFTWProvider provider(workload, strategy);
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.forward(input.get(), spectrum.get());
+        provider.inverse(spectrum.get(), output.get());
+        if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.forward(input.get(), spectrum.get());
+        provider.inverse(spectrum.get(), output.get());
+        if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+    require(skbench::test::endAllocationTracking() == 0, "FFTW steady-state execution allocated memory");
 }
 
 } // namespace
@@ -100,6 +141,38 @@ int main() {
         require(exhaustiveReport.status == "passed", "time-bounded FFTW exhaustive benchmark failed");
         require(exhaustiveReport.providers.front().planningBudgetExhausted,
                 "FFTW exhaustive planning budget was not recorded");
+
+        if (skbench::test::allocationTrackingSupported()) {
+            void* proof = nullptr;
+            skbench::test::beginAllocationTracking();
+            const auto proofResult = posix_memalign(&proof, 64, 64);
+            const auto proofCount = skbench::test::endAllocationTracking();
+            require(proofResult == 0 && proof != nullptr, "allocation tracker proof allocation failed");
+            std::free(proof);
+            require(proofCount > 0, "allocation tracker did not observe a proof allocation");
+
+            requireAllocationFreeExecution(workload, {
+                skbench::FFTWPlanningMode::estimate,
+                skbench::FFTWAlignmentStrategy::aligned,
+                skbench::FFTWWisdomStrategy::cold,
+                2,
+                1,
+                0.0});
+            requireAllocationFreeExecution(workload, {
+                skbench::FFTWPlanningMode::estimate,
+                skbench::FFTWAlignmentStrategy::aligned,
+                skbench::FFTWWisdomStrategy::cold,
+                1,
+                2,
+                0.0});
+            requireAllocationFreeExecution(workload, {
+                skbench::FFTWPlanningMode::estimate,
+                skbench::FFTWAlignmentStrategy::aligned,
+                skbench::FFTWWisdomStrategy::cold,
+                2,
+                2,
+                0.0});
+        }
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);
         skbench::VDSPProvider outOfPlaceScratch(workload, 2, skbench::VDSPTransformStrategy::outOfPlaceExplicitScratch);
