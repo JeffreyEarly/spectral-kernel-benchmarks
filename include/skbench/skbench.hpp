@@ -120,9 +120,20 @@ enum class VDSPTransformStrategy {
 std::string_view vdspTransformStrategyName(VDSPTransformStrategy strategy) noexcept;
 VDSPTransformStrategy vdspTransformStrategyNamed(std::string_view name);
 
+enum class VDSPBatchStrategy {
+    directPersistent,
+    directGcd,
+    separablePersistent,
+    separableGcd
+};
+
+std::string_view vdspBatchStrategyName(VDSPBatchStrategy strategy) noexcept;
+VDSPBatchStrategy vdspBatchStrategyNamed(std::string_view name);
+
 class VDSPProvider {
 public:
-    VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy);
+    VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy,
+                 VDSPBatchStrategy batchStrategy = VDSPBatchStrategy::directPersistent);
     ~VDSPProvider();
     VDSPProvider(VDSPProvider&&) noexcept;
     VDSPProvider& operator=(VDSPProvider&&) noexcept;
@@ -133,9 +144,14 @@ public:
     std::string capability() const;
     void packForwardInput(const double* input);
     void executeForwardNative();
+    void executeForwardRowsNative();
+    void executeForwardColumnsNative();
     void unpackForwardOutput(Complex* wvmSpectrum) const;
     void packInverseInput(const Complex* wvmSpectrum);
     void executeInverseNative();
+    void executeInverseColumnsNative();
+    void executeInverseRowsNative();
+    void executeSchedulerNoop();
     void unpackInverseOutput(double* output) const;
     void forwardAdapter(const double* input, Complex* wvmSpectrum);
     void inverseAdapter(const Complex* wvmSpectrum, double* output);
@@ -143,6 +159,8 @@ public:
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;
     VDSPTransformStrategy strategy() const noexcept;
+    VDSPBatchStrategy batchStrategy() const noexcept;
+    bool separable() const noexcept;
     std::size_t workers() const noexcept;
     std::size_t nativeOperandBytes() const noexcept;
     std::size_t nativeBufferBytes() const noexcept;
@@ -294,6 +312,7 @@ Profile profileNamed(std::string_view name);
 struct RunOptions {
     std::string profile = "quick";
     std::string vdspStrategy = "in-place";
+    std::string vdspBatchStrategy = "direct-persistent";
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

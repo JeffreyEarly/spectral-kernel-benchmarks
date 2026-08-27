@@ -27,6 +27,13 @@ int main() {
             const auto name = skbench::vdspTransformStrategyName(strategy);
             require(skbench::vdspTransformStrategyNamed(name) == strategy, "vDSP strategy name round trip");
         }
+        for (const auto strategy : {skbench::VDSPBatchStrategy::directPersistent,
+                                    skbench::VDSPBatchStrategy::directGcd,
+                                    skbench::VDSPBatchStrategy::separablePersistent,
+                                    skbench::VDSPBatchStrategy::separableGcd}) {
+            const auto name = skbench::vdspBatchStrategyName(strategy);
+            require(skbench::vdspBatchStrategyNamed(name) == strategy, "vDSP batch strategy name round trip");
+        }
 
         const auto profileList = skbench::profiles();
         require(skbench::profileNamed("wvm-historical-256-nz65-f4").workload.planes() == 260,
@@ -37,6 +44,8 @@ int main() {
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);
         skbench::VDSPProvider outOfPlaceScratch(workload, 2, skbench::VDSPTransformStrategy::outOfPlaceExplicitScratch);
+        skbench::VDSPProvider separable(workload, 2, skbench::VDSPTransformStrategy::inPlace,
+                                        skbench::VDSPBatchStrategy::separablePersistent);
         if (inPlace.supported() && outOfPlaceScratch.supported()) {
             const auto operandBytes = workload.realElements() * sizeof(double);
             require(inPlace.nativeOperandBytes() == operandBytes, "vDSP operand bytes");
@@ -45,6 +54,26 @@ int main() {
             require(outOfPlaceScratch.nativeBufferBytes() == 2 * operandBytes, "out-of-place vDSP persistent bytes");
             require(outOfPlaceScratch.scratchBytes() == 2 * 2 * 8 * sizeof(double), "vDSP per-worker scratch bytes");
             require(outOfPlaceScratch.minimumAlignmentBytes() == 64, "vDSP buffer alignment");
+        }
+        if (inPlace.supported() && separable.supported()) {
+            const auto operandBytes = workload.realElements() * sizeof(double);
+            require(separable.nativeBufferBytes() == operandBytes, "separable vDSP persistent bytes");
+            require(separable.scratchBytes() == 2 * 2 * workload.ny * sizeof(double),
+                    "separable vDSP boundary scratch bytes");
+            const auto input = skbench::makeFixture(workload, skbench::FixtureKind::random, 129);
+            std::vector<skbench::Complex> directSpectrum(workload.spectrumElements());
+            std::vector<skbench::Complex> separableSpectrum(workload.spectrumElements());
+            std::vector<double> directOutput(workload.realElements());
+            std::vector<double> separableOutput(workload.realElements());
+            inPlace.forwardAdapter(input.data(), directSpectrum.data());
+            separable.forwardAdapter(input.data(), separableSpectrum.data());
+            require(skbench::maximumRelativeError(separableSpectrum.data(), directSpectrum.data(), directSpectrum.size()) < 1.0e-12,
+                    "separable vDSP forward equivalence");
+            inPlace.inverseAdapter(directSpectrum.data(), directOutput.data());
+            separable.inverseAdapter(directSpectrum.data(), separableOutput.data());
+            require(skbench::maximumRelativeError(separableOutput.data(), directOutput.data(), directOutput.size()) < 1.0e-12,
+                    "separable vDSP inverse equivalence");
+            separable.executeSchedulerNoop();
         }
 
         const auto modes = skbench::retainedHorizontalModes(workload);

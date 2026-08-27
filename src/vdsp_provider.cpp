@@ -17,6 +17,9 @@
 #if SKBENCH_HAVE_ACCELERATE
 #include <Accelerate/Accelerate.h>
 #endif
+#if defined(__APPLE__) && SKBENCH_HAVE_ACCELERATE
+#include <dispatch/dispatch.h>
+#endif
 
 namespace skbench {
 namespace {
@@ -35,11 +38,19 @@ std::string libraryContaining(const void* symbol) {
     return {};
 }
 
-class PlaneExecutor {
+class BatchExecutor {
 public:
     using Task = void (*)(void*, std::size_t, std::size_t, std::size_t);
 
-    PlaneExecutor(std::size_t planes, std::size_t requestedWorkers)
+    virtual ~BatchExecutor() = default;
+    virtual std::size_t workerCount() const noexcept = 0;
+    virtual void run(void* context, Task task) = 0;
+};
+
+class PersistentPlaneExecutor final : public BatchExecutor {
+public:
+
+    PersistentPlaneExecutor(std::size_t planes, std::size_t requestedWorkers)
         : planes_(planes), workers_(std::max<std::size_t>(1, std::min(planes, requestedWorkers))) {
         threads_.reserve(workers_ - 1);
         for (std::size_t worker = 1; worker < workers_; ++worker) {
@@ -47,7 +58,7 @@ public:
         }
     }
 
-    ~PlaneExecutor() {
+    ~PersistentPlaneExecutor() override {
         {
             std::lock_guard<std::mutex> lock(mutex_);
             stopping_ = true;
@@ -57,12 +68,12 @@ public:
         for (auto& thread : threads_) thread.join();
     }
 
-    PlaneExecutor(const PlaneExecutor&) = delete;
-    PlaneExecutor& operator=(const PlaneExecutor&) = delete;
+    PersistentPlaneExecutor(const PersistentPlaneExecutor&) = delete;
+    PersistentPlaneExecutor& operator=(const PersistentPlaneExecutor&) = delete;
 
-    std::size_t workerCount() const noexcept { return workers_; }
+    std::size_t workerCount() const noexcept override { return workers_; }
 
-    void run(void* context, Task task) {
+    void run(void* context, Task task) override {
         if (workers_ == 1) {
             task(context, 0, 0, planes_);
             return;
@@ -116,6 +127,40 @@ private:
     std::condition_variable done_;
     std::vector<std::thread> threads_;
 };
+
+#if defined(__APPLE__) && SKBENCH_HAVE_ACCELERATE
+class GcdPlaneExecutor final : public BatchExecutor {
+public:
+    GcdPlaneExecutor(std::size_t planes, std::size_t requestedWorkers)
+        : planes_(planes), workers_(std::max<std::size_t>(1, std::min(planes, requestedWorkers))),
+          queue_(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {}
+
+    std::size_t workerCount() const noexcept override { return workers_; }
+
+    void run(void* context, Task task) override {
+        RunContext run{context, task, planes_, workers_};
+        dispatch_apply_f(workers_, queue_, &run, &GcdPlaneExecutor::invoke);
+    }
+
+private:
+    struct RunContext {
+        void* taskContext;
+        Task task;
+        std::size_t planes;
+        std::size_t workers;
+    };
+
+    static void invoke(void* context, std::size_t worker) {
+        const auto& run = *static_cast<const RunContext*>(context);
+        run.task(run.taskContext, worker, run.planes * worker / run.workers,
+                 run.planes * (worker + 1) / run.workers);
+    }
+
+    std::size_t planes_ = 0;
+    std::size_t workers_ = 1;
+    dispatch_queue_t queue_ = nullptr;
+};
+#endif
 
 bool powerOfTwo(std::size_t value) {
     return value >= 2 && (value & (value - 1)) == 0;
@@ -194,18 +239,50 @@ VDSPTransformStrategy vdspTransformStrategyNamed(std::string_view name) {
     throw std::invalid_argument("Unknown vDSP strategy: " + std::string(name));
 }
 
+std::string_view vdspBatchStrategyName(VDSPBatchStrategy strategy) noexcept {
+    switch (strategy) {
+        case VDSPBatchStrategy::directPersistent: return "direct-persistent";
+        case VDSPBatchStrategy::directGcd: return "direct-gcd";
+        case VDSPBatchStrategy::separablePersistent: return "separable-persistent";
+        case VDSPBatchStrategy::separableGcd: return "separable-gcd";
+    }
+    return "unknown";
+}
+
+VDSPBatchStrategy vdspBatchStrategyNamed(std::string_view name) {
+    if (name == "direct-persistent") return VDSPBatchStrategy::directPersistent;
+    if (name == "direct-gcd") return VDSPBatchStrategy::directGcd;
+    if (name == "separable-persistent") return VDSPBatchStrategy::separablePersistent;
+    if (name == "separable-gcd") return VDSPBatchStrategy::separableGcd;
+    throw std::invalid_argument("Unknown vDSP batch strategy: " + std::string(name));
+}
+
 class VDSPProvider::Impl {
 public:
-    Impl(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy)
-        : workload_(workload), strategy_(strategy) {
+    Impl(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy,
+         VDSPBatchStrategy batchStrategy)
+        : workload_(workload), strategy_(strategy), batchStrategy_(batchStrategy) {
         if (workers == 0) throw std::invalid_argument("vDSP workers must be positive.");
 #if SKBENCH_HAVE_ACCELERATE
         if (!powerOfTwo(workload.nx) || !powerOfTwo(workload.ny)) {
             capability_ = "unsupported: vDSP radix-2 requires power-of-two Nx and Ny";
             return;
         }
+        if (separable() && strategy_ != VDSPTransformStrategy::inPlace) {
+            capability_ = "unsupported: separable packed-real prototype currently supports only in-place placement";
+            return;
+        }
         const auto setupStart = Clock::now();
-        executor_ = std::make_unique<PlaneExecutor>(workload.planes(), workers);
+        if (usesGcd()) {
+#if defined(__APPLE__)
+            executor_ = std::make_unique<GcdPlaneExecutor>(workload.planes(), workers);
+#else
+            capability_ = "unsupported: Grand Central Dispatch is available only on Apple platforms";
+            return;
+#endif
+        } else {
+            executor_ = std::make_unique<PersistentPlaneExecutor>(workload.planes(), workers);
+        }
         otherSetupSeconds_ = elapsedSeconds(setupStart);
         const auto nativeCount = workload.planes() * (workload.nx / 2) * workload.ny;
         const auto allocationStart = Clock::now();
@@ -215,8 +292,8 @@ public:
             outputReal_.resize(nativeCount);
             outputImag_.resize(nativeCount);
         }
-        if (usesExplicitScratch()) {
-            scratchElementsPerWorker_ = std::max(workload.ny, workload.nx / 2);
+        if (usesExplicitScratch() || separable()) {
+            scratchElementsPerWorker_ = separable() ? workload.ny : std::max(workload.ny, workload.nx / 2);
             scratchReal_.resize(executor_->workerCount() * scratchElementsPerWorker_);
             scratchImag_.resize(executor_->workerCount() * scratchElementsPerWorker_);
         }
@@ -233,7 +310,9 @@ public:
             }
         }
         supported_ = true;
-        capability_ = "supported: double split-complex radix-2 2-D; " + std::string(vdspTransformStrategyName(strategy_));
+        capability_ = "supported: double split-complex radix-2; " +
+            std::string(vdspTransformStrategyName(strategy_)) + "; " +
+            std::string(vdspBatchStrategyName(batchStrategy_));
         planningSeconds_ = elapsedSeconds(planningStart);
 #else
         (void)workers;
@@ -253,7 +332,22 @@ public:
         if (!supported_) throw std::runtime_error(capability_);
     }
 
+    void requireSeparable() const {
+        requireSupported();
+        if (!separable()) throw std::logic_error("vDSP row/column phase requested for a direct 2-D strategy");
+    }
+
     std::size_t nativePlaneElements() const { return (workload_.nx / 2) * workload_.ny; }
+
+    bool separable() const noexcept {
+        return batchStrategy_ == VDSPBatchStrategy::separablePersistent ||
+               batchStrategy_ == VDSPBatchStrategy::separableGcd;
+    }
+
+    bool usesGcd() const noexcept {
+        return batchStrategy_ == VDSPBatchStrategy::directGcd ||
+               batchStrategy_ == VDSPBatchStrategy::separableGcd;
+    }
 
     bool outOfPlace() const noexcept {
         return strategy_ == VDSPTransformStrategy::outOfPlace ||
@@ -288,7 +382,26 @@ public:
     void executeForward() {
         requireSupported();
 #if SKBENCH_HAVE_ACCELERATE
-        executor_->run(this, &Impl::forwardTask);
+        if (separable()) {
+            executeForwardRows();
+            executeForwardColumns();
+        } else {
+            executor_->run(this, &Impl::forwardDirectTask);
+        }
+#endif
+    }
+
+    void executeForwardRows() {
+        requireSeparable();
+#if SKBENCH_HAVE_ACCELERATE
+        executor_->run(this, &Impl::forwardRowsTask);
+#endif
+    }
+
+    void executeForwardColumns() {
+        requireSeparable();
+#if SKBENCH_HAVE_ACCELERATE
+        executor_->run(this, &Impl::forwardColumnsTask);
 #endif
     }
 
@@ -363,7 +476,33 @@ public:
     void executeInverse() {
         requireSupported();
 #if SKBENCH_HAVE_ACCELERATE
-        executor_->run(this, &Impl::inverseTask);
+        if (separable()) {
+            executeInverseColumns();
+            executeInverseRows();
+        } else {
+            executor_->run(this, &Impl::inverseDirectTask);
+        }
+#endif
+    }
+
+    void executeInverseColumns() {
+        requireSeparable();
+#if SKBENCH_HAVE_ACCELERATE
+        executor_->run(this, &Impl::inverseColumnsTask);
+#endif
+    }
+
+    void executeInverseRows() {
+        requireSeparable();
+#if SKBENCH_HAVE_ACCELERATE
+        executor_->run(this, &Impl::inverseRowsTask);
+#endif
+    }
+
+    void executeSchedulerNoop() {
+        requireSupported();
+#if SKBENCH_HAVE_ACCELERATE
+        executor_->run(nullptr, &Impl::noopTask);
 #endif
     }
 
@@ -424,30 +563,131 @@ public:
         }
     }
 
-    static void forwardTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+    void executeSeparableRows(std::size_t worker, std::size_t plane, FFTDirection direction) {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        const auto log2Nx = log2Length(workload_.nx);
+        for (std::size_t y = 0; y < workload_.ny; ++y) {
+            DSPDoubleSplitComplex row{inputReal_.data() + offset + y * half,
+                                      inputImag_.data() + offset + y * half};
+            vDSP_fft_zripD(setups_[worker], &row, 1, log2Nx, direction);
+        }
+    }
+
+    void executeInteriorColumns(std::size_t worker, std::size_t plane, FFTDirection direction) {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        const auto log2Ny = log2Length(workload_.ny);
+        for (std::size_t x = 1; x < half; ++x) {
+            DSPDoubleSplitComplex column{inputReal_.data() + offset + x,
+                                         inputImag_.data() + offset + x};
+            vDSP_fft_zipD(setups_[worker], &column, static_cast<vDSP_Stride>(half), log2Ny, direction);
+        }
+    }
+
+    void executeForwardBoundaryColumn(std::size_t worker, std::size_t plane, bool xNyquist) {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        auto work = scratch(worker);
+        auto* target = xNyquist ? inputImag_.data() : inputReal_.data();
+        for (std::size_t y = 0; y < workload_.ny; ++y) {
+            work.realp[y] = target[offset + y * half];
+            work.imagp[y] = 0.0;
+        }
+        vDSP_fft_zipD(setups_[worker], &work, 1, log2Length(workload_.ny), FFT_FORWARD);
+
+        const auto yNyquist = workload_.ny / 2;
+        target[offset] = work.realp[0];
+        target[offset + half] = work.realp[yNyquist];
+        for (std::size_t y = 1; y < yNyquist; ++y) {
+            target[offset + (2 * y) * half] = work.realp[y];
+            target[offset + (2 * y + 1) * half] = work.imagp[y];
+        }
+    }
+
+    void executeInverseBoundaryColumn(std::size_t worker, std::size_t plane, bool xNyquist) {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        const auto yNyquist = workload_.ny / 2;
+        auto work = scratch(worker);
+        auto* source = xNyquist ? inputImag_.data() : inputReal_.data();
+        work.realp[0] = source[offset];
+        work.imagp[0] = 0.0;
+        work.realp[yNyquist] = source[offset + half];
+        work.imagp[yNyquist] = 0.0;
+        for (std::size_t y = 1; y < yNyquist; ++y) {
+            const auto real = source[offset + (2 * y) * half];
+            const auto imag = source[offset + (2 * y + 1) * half];
+            work.realp[y] = real;
+            work.imagp[y] = imag;
+            work.realp[workload_.ny - y] = real;
+            work.imagp[workload_.ny - y] = -imag;
+        }
+        vDSP_fft_zipD(setups_[worker], &work, 1, log2Length(workload_.ny), FFT_INVERSE);
+        for (std::size_t y = 0; y < workload_.ny; ++y) {
+            source[offset + y * half] = work.realp[y];
+        }
+    }
+
+    static void forwardDirectTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
         auto& self = *static_cast<Impl*>(context);
         for (std::size_t plane = begin; plane < end; ++plane) {
             self.executePlane(worker, plane, FFT_FORWARD);
         }
     }
 
-    static void inverseTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+    static void inverseDirectTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
         auto& self = *static_cast<Impl*>(context);
         for (std::size_t plane = begin; plane < end; ++plane) {
             self.executePlane(worker, plane, FFT_INVERSE);
         }
     }
+
+    static void forwardRowsTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+        auto& self = *static_cast<Impl*>(context);
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            self.executeSeparableRows(worker, plane, FFT_FORWARD);
+        }
+    }
+
+    static void forwardColumnsTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+        auto& self = *static_cast<Impl*>(context);
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            self.executeInteriorColumns(worker, plane, FFT_FORWARD);
+            self.executeForwardBoundaryColumn(worker, plane, false);
+            self.executeForwardBoundaryColumn(worker, plane, true);
+        }
+    }
+
+    static void inverseColumnsTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+        auto& self = *static_cast<Impl*>(context);
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            self.executeInteriorColumns(worker, plane, FFT_INVERSE);
+            self.executeInverseBoundaryColumn(worker, plane, false);
+            self.executeInverseBoundaryColumn(worker, plane, true);
+        }
+    }
+
+    static void inverseRowsTask(void* context, std::size_t worker, std::size_t begin, std::size_t end) {
+        auto& self = *static_cast<Impl*>(context);
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            self.executeSeparableRows(worker, plane, FFT_INVERSE);
+        }
+    }
+
+    static void noopTask(void*, std::size_t, std::size_t, std::size_t) {}
 #endif
 
     Workload workload_;
     VDSPTransformStrategy strategy_ = VDSPTransformStrategy::inPlace;
+    VDSPBatchStrategy batchStrategy_ = VDSPBatchStrategy::directPersistent;
     bool supported_ = false;
     std::string capability_;
     double otherSetupSeconds_ = 0.0;
     double allocationSeconds_ = 0.0;
     double planningSeconds_ = 0.0;
     std::size_t scratchElementsPerWorker_ = 0;
-    std::unique_ptr<PlaneExecutor> executor_;
+    std::unique_ptr<BatchExecutor> executor_;
     AlignedBuffer inputReal_;
     AlignedBuffer inputImag_;
     AlignedBuffer outputReal_;
@@ -459,8 +699,9 @@ public:
 #endif
 };
 
-VDSPProvider::VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy)
-    : impl_(std::make_unique<Impl>(workload, workers, strategy)) {}
+VDSPProvider::VDSPProvider(const Workload& workload, std::size_t workers, VDSPTransformStrategy strategy,
+                           VDSPBatchStrategy batchStrategy)
+    : impl_(std::make_unique<Impl>(workload, workers, strategy, batchStrategy)) {}
 
 VDSPProvider::~VDSPProvider() = default;
 VDSPProvider::VDSPProvider(VDSPProvider&&) noexcept = default;
@@ -470,9 +711,14 @@ bool VDSPProvider::supported() const noexcept { return impl_->supported_; }
 std::string VDSPProvider::capability() const { return impl_->capability_; }
 void VDSPProvider::packForwardInput(const double* input) { impl_->packForward(input); }
 void VDSPProvider::executeForwardNative() { impl_->executeForward(); }
+void VDSPProvider::executeForwardRowsNative() { impl_->executeForwardRows(); }
+void VDSPProvider::executeForwardColumnsNative() { impl_->executeForwardColumns(); }
 void VDSPProvider::unpackForwardOutput(Complex* output) const { impl_->unpackForward(output); }
 void VDSPProvider::packInverseInput(const Complex* input) { impl_->packInverse(input); }
 void VDSPProvider::executeInverseNative() { impl_->executeInverse(); }
+void VDSPProvider::executeInverseColumnsNative() { impl_->executeInverseColumns(); }
+void VDSPProvider::executeInverseRowsNative() { impl_->executeInverseRows(); }
+void VDSPProvider::executeSchedulerNoop() { impl_->executeSchedulerNoop(); }
 void VDSPProvider::unpackInverseOutput(double* output) const { impl_->unpackInverse(output); }
 
 void VDSPProvider::forwardAdapter(const double* input, Complex* output) {
@@ -494,6 +740,10 @@ double VDSPProvider::allocationSeconds() const noexcept { return impl_->allocati
 double VDSPProvider::planningSeconds() const noexcept { return impl_->planningSeconds_; }
 
 VDSPTransformStrategy VDSPProvider::strategy() const noexcept { return impl_->strategy_; }
+
+VDSPBatchStrategy VDSPProvider::batchStrategy() const noexcept { return impl_->batchStrategy_; }
+
+bool VDSPProvider::separable() const noexcept { return impl_->separable(); }
 
 std::size_t VDSPProvider::workers() const noexcept {
     return impl_->executor_ == nullptr ? 0 : impl_->executor_->workerCount();

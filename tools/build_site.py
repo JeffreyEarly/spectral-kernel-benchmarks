@@ -7,6 +7,7 @@ import argparse
 import html
 import re
 import shutil
+import statistics
 from pathlib import Path
 from urllib.parse import quote
 
@@ -23,6 +24,7 @@ SUMMARY_SCOPES = (
 EXPERIMENT_PROVIDER_IDS = {
     "issue-003-fftw-production-baseline": "fftw",
     "issue-005-vdsp-native-baseline": "accelerate-vdsp",
+    "issue-006-vdsp-batching-scheduling": "accelerate-vdsp",
 }
 
 
@@ -74,6 +76,26 @@ def timing(provider: dict, scope: str, direction: str) -> dict | None:
     if len(matches) > 1:
         raise ValueError(f"Multiple {scope}/{direction} timings for {provider['id']}")
     return matches[0] if matches else None
+
+
+def stage_timing(provider: dict, scope: str, stage: str, direction: str) -> dict | None:
+    matches = [
+        item
+        for item in provider["timings"]
+        if item["scope"] == scope and item["stage"] == stage and item["direction"] == direction
+    ]
+    if len(matches) > 1:
+        raise ValueError(f"Multiple {scope}/{stage}/{direction} timings for {provider['id']}")
+    return matches[0] if matches else None
+
+
+def coefficient_of_variation(item: dict | None) -> str:
+    if item is None:
+        return "not measured"
+    values = [float(value) for value in item.get("samplesSeconds", [])]
+    if len(values) < 2 or statistics.mean(values) == 0.0:
+        return "not available"
+    return f"{100.0 * statistics.stdev(values) / statistics.mean(values):.1f}%"
 
 
 def maximum_correctness_error(provider: dict) -> float | None:
@@ -422,7 +444,75 @@ def definition_list(values: dict) -> str:
     return f'<dl class="detail-list evidence-definition">{entries}</dl>'
 
 
+def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in bundles:
+        result = bundle.result
+        provider = next((item for item in result["providers"] if item["id"] == "accelerate-vdsp"), None)
+        if provider is None:
+            continue
+        workload = result["workload"]
+        run = result["run"]
+        publication = bundle.publication
+        raw_forward = timing(provider, "primitive", "forward")
+        raw_inverse = timing(provider, "primitive", "inverse")
+        scheduler = stage_timing(provider, "diagnostic-component", "batch scheduler empty dispatch", "shared")
+        row_forward = stage_timing(provider, "primitive-component", "real row FFTs", "forward")
+        row_inverse = stage_timing(provider, "primitive-component", "real row FFTs", "inverse")
+        column_forward = stage_timing(
+            provider, "primitive-component", "complex column FFTs and Hermitian boundaries", "forward"
+        )
+        column_inverse = stage_timing(
+            provider, "primitive-component", "complex column FFTs and Hermitian boundaries", "inverse"
+        )
+        adapter_forward = timing(provider, "adapter-total", "forward")
+        adapter_inverse = timing(provider, "adapter-total", "inverse")
+
+        def pair(forward: dict | None, inverse: dict | None) -> str:
+            if forward is None or inverse is None:
+                return '<span class="muted">not measured</span>'
+            if forward["state"] != "executed" or inverse["state"] != "executed":
+                state = forward["state"] if forward["state"] == inverse["state"] else "mixed states"
+                return f'<span class="muted">{escaped(state)}</span>'
+            return f'{format_ms(forward["medianSeconds"])} / {format_ms(inverse["medianSeconds"])}'
+
+        run_id = run["id"]
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+            f'<span class="muted">{run["samples"]} samples · {publication_badge(publication["status"])}</span></td>'
+            f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
+            f'<td>{escaped(provider["algorithmId"])}<br><span class="muted">{escaped(provider["schedulingId"])}</span></td>'
+            f'<td class="numeric">{provider["workers"]}</td>'
+            f'<td class="numeric">{pair(raw_forward, raw_inverse)}</td>'
+            f'<td class="numeric">{escaped(coefficient_of_variation(raw_forward))} / {escaped(coefficient_of_variation(raw_inverse))}</td>'
+            f'<td class="numeric">{format_ms(scheduler["medianSeconds"]) if scheduler is not None else "not measured"}</td>'
+            f'<td class="numeric">{pair(row_forward, row_inverse)}</td>'
+            f'<td class="numeric">{pair(column_forward, column_inverse)}</td>'
+            f'<td class="numeric">{pair(adapter_forward, adapter_inverse)}</td>'
+            f'<td class="numeric">{format_bytes(provider["memory"]["persistentBytes"])}<br>'
+            f'<span class="muted">scratch {format_bytes(provider["memory"]["scratchBytes"])}</span></td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table issue6-evidence-table">'
+        '<caption>Medians are forward / inverse milliseconds. Raw FFT is the authoritative batch wall time. '
+        'CV is the sample standard deviation divided by the sample mean. Empty-dispatch time is a non-additive scheduler diagnostic. '
+        'Row and column phases include their own dispatches; adapter includes all WVM-compatible packing and conversion.</caption>'
+        '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm / scheduler</th>'
+        '<th scope="col">Workers</th><th scope="col">Raw FFT</th><th scope="col">Raw CV</th>'
+        '<th scope="col">Empty dispatch</th><th scope="col">Row phase</th><th scope="col">Column phase</th>'
+        '<th scope="col">Adapter</th><th scope="col">Explicit memory</th><th scope="col">Max error</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
+    if experiment["id"] == "issue-006-vdsp-batching-scheduling":
+        return vdsp_batch_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
     if provider_id is None or not bundles:
         return ""

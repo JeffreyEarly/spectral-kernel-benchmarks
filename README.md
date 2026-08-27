@@ -25,14 +25,15 @@ build/release/skbench list
 build/release/skbench validate --profile smoke
 build/release/skbench run --profile quick
 build/release/skbench run --profile wvm-historical-256-nz65-f4 --vdsp-strategy out-of-place-explicit-scratch --workers 12
+build/release/skbench run --profile wvm-historical-256-nz65-f3 --vdsp-batch-strategy separable-gcd --workers 12
 build/release/skbench compare --input results/local/<run>.csv
 ```
 
 `smoke` is a small correctness and contract exercise. `quick` is the first production workload: 195 independent $256 \times 256$ real planes with the exact WVM FFTW guru64 input and output strides. `exhaustive` supplies the historical $512 \times 512$, $N_z=129$, fields $=4$ shape. `skbench list` also exposes the complete issue #3/#5 matrix as named `wvm-historical-*` and `wvm-current-*` profiles.
 
-`validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It exercises all four native vDSP placement/scratch strategies and also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
+`validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It exercises all four native vDSP placement/scratch strategies, direct persistent-pool and GCD scheduling, and the separable packed-real candidates. It also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
 
-`run` writes a versioned JSON manifest/report and a sample-level CSV file. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
+`run` writes a versioned JSON manifest/report and a sample-level CSV file. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. `--vdsp-batch-strategy` independently selects `direct-persistent`, `direct-gcd`, `separable-persistent`, or `separable-gcd`; the separable prototype currently supports in-place placement. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
 
 The issue #3/#5 sweep driver expands the ten named WVM workloads across all four vDSP strategies and the one-worker, performance-core, and total-core counts. Inspect the commands before starting the deliberately long full matrix:
 
@@ -42,6 +43,15 @@ python3 tools/run_float64_baseline_sweep.py
 ```
 
 Use `--profiles`, `--strategies`, and `--workers` for a bounded exploratory increment. The driver writes only ignored local bundles and a resumable evidence manifest; publication remains an explicit reviewed step.
+
+The issue #6 diagnostic driver compares native two-dimensional calls and packed-real separable row/column transforms under the persistent pool and GCD. Its default matrix uses the representative historical $256^2$ and $512^2$ three-field workloads and workers 1, 2, 4, 8, performance-core count, and total-core count:
+
+```sh
+python3 tools/run_vdsp_batch_sweep.py --dry-run
+python3 tools/run_vdsp_batch_sweep.py
+```
+
+The authoritative primitive measurement is complete batch wall time. Separable row and column phases and an empty-dispatch scheduler diagnostic are also sampled, but they are non-additive because each phase has its own dispatch and cache state. No candidate performs an explicit column transpose; that stage is recorded as `elided`.
 
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. The original M4 bundle remains byte-identical at its legacy paths.
 

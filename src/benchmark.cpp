@@ -13,6 +13,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <utility>
 
 #include <sys/utsname.h>
 #include <unistd.h>
@@ -191,7 +192,7 @@ std::vector<LedgerEntry> fftwLedger() {
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
-std::string vdspApiName(VDSPTransformStrategy strategy) {
+std::string vdspDirectApiName(VDSPTransformStrategy strategy) {
     switch (strategy) {
         case VDSPTransformStrategy::inPlace: return "vDSP_fft2d_zripD";
         case VDSPTransformStrategy::inPlaceExplicitScratch: return "vDSP_fft2d_zriptD";
@@ -201,15 +202,40 @@ std::string vdspApiName(VDSPTransformStrategy strategy) {
     return "unknown";
 }
 
-std::string vdspAlgorithmId(VDSPTransformStrategy strategy) {
-    return "vdsp-radix2-2d-" + std::string(vdspTransformStrategyName(strategy)) + "-persistent-outer-batch";
+std::string vdspApiName(VDSPTransformStrategy strategy, VDSPBatchStrategy batchStrategy) {
+    if (batchStrategy == VDSPBatchStrategy::separablePersistent ||
+        batchStrategy == VDSPBatchStrategy::separableGcd) {
+        return "vDSP_fft_zripD rows and vDSP_fft_zipD columns";
+    }
+    return vdspDirectApiName(strategy);
 }
 
-std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy) {
-    const auto api = vdspApiName(strategy);
+std::string vdspAlgorithmId(VDSPTransformStrategy strategy, VDSPBatchStrategy batchStrategy) {
+    const auto decomposition = batchStrategy == VDSPBatchStrategy::separablePersistent ||
+                               batchStrategy == VDSPBatchStrategy::separableGcd
+        ? "separable-packed-real"
+        : "native-2d";
+    return "vdsp-radix2-" + std::string(decomposition) + "-" +
+        std::string(vdspTransformStrategyName(strategy)) + "-" +
+        std::string(vdspBatchStrategyName(batchStrategy));
+}
+
+std::string vdspSchedulingId(VDSPBatchStrategy batchStrategy) {
+    return batchStrategy == VDSPBatchStrategy::directGcd || batchStrategy == VDSPBatchStrategy::separableGcd
+        ? "gcd-global-user-initiated"
+        : "persistent-thread-pool";
+}
+
+std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy, VDSPBatchStrategy batchStrategy) {
+    const auto api = vdspApiName(strategy, batchStrategy);
+    const auto separable = batchStrategy == VDSPBatchStrategy::separablePersistent ||
+                           batchStrategy == VDSPBatchStrategy::separableGcd;
     return {
-        {"setup/planning", StageState::setupOnly, "one radix-2 setup per persistent worker"},
-        {"raw forward FFT", StageState::executed, "batched outer scheduling of native " + api + " calls"},
+        {"setup/planning", StageState::setupOnly, "one radix-2 setup per logical batch worker"},
+        {"raw forward FFT", StageState::executed, "batched outer scheduling of " + api},
+        {"batch scheduling", StageState::executed, "non-additive empty-dispatch diagnostic for " + vdspSchedulingId(batchStrategy)},
+        {"row/column decomposition", separable ? StageState::executed : StageState::fused,
+         separable ? "separately timed real-row and complex-column phases" : "native 2-D call owns decomposition"},
         {"horizontal retention", StageState::executed, "radial two-thirds mode-keyed gather"},
         {"representation conversion", StageState::fused, "split/interleaved conversion is fused with vDSP packing and WVM reordering"},
         {"permutation/packing", StageState::fused, "real packing and frequency-major WVM reordering are timed adapter components"},
@@ -217,7 +243,7 @@ std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy) {
         {"modal work", StageState::unsupported, "outside this FFT vertical slice"},
         {"raw inverse vertical MM", StageState::unsupported, "outside this FFT vertical slice"},
         {"horizontal embedding", StageState::executed, "mode-keyed retained spectrum embedded before the inverse adapter"},
-        {"raw inverse FFT", StageState::executed, "batched outer scheduling of native " + api + " calls"},
+        {"raw inverse FFT", StageState::executed, "batched outer scheduling of " + api},
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
@@ -324,18 +350,20 @@ void appendUnsupportedVdspRecord(BenchmarkReport& report, const Profile& selecte
     record.id = "accelerate-vdsp";
     record.version = "system";
     record.libraryIdentity = provider.libraryIdentity();
-    record.algorithmId = vdspAlgorithmId(provider.strategy());
+    record.algorithmId = vdspAlgorithmId(provider.strategy(), provider.batchStrategy());
     record.nativeRepresentationId = "vdsp-packed-split-complex";
     record.modeOrderId = "vdsp-packed-special-boundaries";
-    record.schedulingId = "persistent-thread-pool";
+    record.schedulingId = vdspSchedulingId(provider.batchStrategy());
     record.sourceIdentity = "Apple Accelerate system framework";
-    record.planningConfiguration = "radix-2 setup per persistent worker; " + std::string(vdspTransformStrategyName(provider.strategy()));
+    record.planningConfiguration = "radix-2 setup per logical batch worker; " +
+        std::string(vdspTransformStrategyName(provider.strategy())) + "; " +
+        std::string(vdspBatchStrategyName(provider.batchStrategy()));
     record.workers = selected.defaultWorkers;
     record.execution = vdspExecutionContract(report.workload, provider);
     record.otherSetupSeconds = provider.otherSetupSeconds();
     record.allocationSeconds = provider.allocationSeconds();
     record.planningSeconds = provider.planningSeconds();
-    record.ledger = vdspLedger(provider.strategy());
+    record.ledger = vdspLedger(provider.strategy(), provider.batchStrategy());
     for (auto& entry : record.ledger) entry.state = StageState::unsupported;
     record.correctness.push_back({provider.capability(), std::numeric_limits<double>::infinity(), tolerance, false});
     report.providers.push_back(std::move(record));
@@ -458,11 +486,16 @@ ValidationReport validateBenchmark(std::string_view profileName) {
         passed = passed && fftwInverseError <= tolerance;
         report.messages.push_back("fftw/" + std::string(fixtureName(fixture)) + "/inverse=" + std::to_string(fftwInverseError));
 
-        for (const auto strategy : {VDSPTransformStrategy::inPlace,
-                                    VDSPTransformStrategy::inPlaceExplicitScratch,
-                                    VDSPTransformStrategy::outOfPlace,
-                                    VDSPTransformStrategy::outOfPlaceExplicitScratch}) {
-            VDSPProvider vdsp(workload, 1, strategy);
+        const std::vector<std::pair<VDSPTransformStrategy, VDSPBatchStrategy>> vdspCandidates = {
+            {VDSPTransformStrategy::inPlace, VDSPBatchStrategy::directPersistent},
+            {VDSPTransformStrategy::inPlaceExplicitScratch, VDSPBatchStrategy::directPersistent},
+            {VDSPTransformStrategy::outOfPlace, VDSPBatchStrategy::directPersistent},
+            {VDSPTransformStrategy::outOfPlaceExplicitScratch, VDSPBatchStrategy::directPersistent},
+            {VDSPTransformStrategy::inPlace, VDSPBatchStrategy::directGcd},
+            {VDSPTransformStrategy::inPlace, VDSPBatchStrategy::separablePersistent},
+            {VDSPTransformStrategy::inPlace, VDSPBatchStrategy::separableGcd}};
+        for (const auto [strategy, batchStrategy] : vdspCandidates) {
+            VDSPProvider vdsp(workload, 1, strategy, batchStrategy);
             if (!vdsp.supported()) {
                 passed = false;
                 report.messages.push_back(vdsp.capability());
@@ -471,14 +504,16 @@ ValidationReport validateBenchmark(std::string_view profileName) {
             vdsp.forwardAdapter(input.data(), actual.data());
             const auto vdspForwardError = maximumRelativeError(actual.data(), oracle.data(), oracle.size());
             passed = passed && vdspForwardError <= tolerance;
-            report.messages.push_back("vdsp/" + std::string(vdspTransformStrategyName(strategy)) + "/" +
+            const auto candidate = std::string(vdspTransformStrategyName(strategy)) + "/" +
+                std::string(vdspBatchStrategyName(batchStrategy));
+            report.messages.push_back("vdsp/" + candidate + "/" +
                                       std::string(fixtureName(fixture)) + "/forward=" + std::to_string(vdspForwardError));
 
             vdsp.inverseAdapter(oracle.data(), output.data());
             const auto vdspInverseError = maximumRelativeError(
                 output.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny));
             passed = passed && vdspInverseError <= tolerance;
-            report.messages.push_back("vdsp/" + std::string(vdspTransformStrategyName(strategy)) + "/" +
+            report.messages.push_back("vdsp/" + candidate + "/" +
                                       std::string(fixtureName(fixture)) + "/inverse=" + std::to_string(vdspInverseError));
         }
 
@@ -522,6 +557,7 @@ ValidationReport validateBenchmark(std::string_view profileName) {
 BenchmarkReport runBenchmark(const RunOptions& options) {
     auto selected = profileNamed(options.profile);
     const auto vdspStrategy = vdspTransformStrategyNamed(options.vdspStrategy);
+    const auto vdspBatchStrategy = vdspBatchStrategyNamed(options.vdspBatchStrategy);
     const auto workers = options.workers == 0 ? selected.defaultWorkers : options.workers;
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
     const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
@@ -622,7 +658,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         })));
     report.providers.push_back(std::move(fftwRecord));
 
-    VDSPProvider vdsp(workload, workers, vdspStrategy);
+    VDSPProvider vdsp(workload, workers, vdspStrategy, vdspBatchStrategy);
     if (!vdsp.supported()) {
         appendUnsupportedVdspRecord(report, selected, vdsp);
         report.status = "failed";
@@ -647,15 +683,16 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     vdspRecord.id = "accelerate-vdsp";
     vdspRecord.version = "system";
     vdspRecord.libraryIdentity = vdsp.libraryIdentity();
-    vdspRecord.algorithmId = vdspAlgorithmId(vdsp.strategy());
+    vdspRecord.algorithmId = vdspAlgorithmId(vdsp.strategy(), vdsp.batchStrategy());
     vdspRecord.nativeRepresentationId = "vdsp-packed-split-complex";
     vdspRecord.modeOrderId = "vdsp-packed-special-boundaries";
-    vdspRecord.schedulingId = "persistent-thread-pool";
+    vdspRecord.schedulingId = vdspSchedulingId(vdsp.batchStrategy());
     vdspRecord.sourceIdentity = "Apple Accelerate system framework";
     vdspRecord.configureFlags = "system framework";
     vdspRecord.compilerFlags = report.environment.compilerFlags;
-    vdspRecord.planningConfiguration = "radix-2 setup per persistent worker; " +
-        std::string(vdspTransformStrategyName(vdsp.strategy()));
+    vdspRecord.planningConfiguration = "radix-2 setup per logical batch worker; " +
+        std::string(vdspTransformStrategyName(vdsp.strategy())) + "; " +
+        std::string(vdspBatchStrategyName(vdsp.batchStrategy()));
     vdspRecord.workers = workers;
     vdspRecord.execution = vdspExecutionContract(workload, vdsp);
     vdspRecord.explicitPersistentBytes = vdsp.explicitPersistentBytes();
@@ -663,7 +700,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     vdspRecord.otherSetupSeconds = vdsp.otherSetupSeconds();
     vdspRecord.allocationSeconds = vdsp.allocationSeconds();
     vdspRecord.planningSeconds = vdsp.planningSeconds();
-    vdspRecord.ledger = vdspLedger(vdsp.strategy());
+    vdspRecord.ledger = vdspLedger(vdsp.strategy(), vdsp.batchStrategy());
     vdspRecord.correctness = {
         metric("full forward versus FFTW", vdspForwardError),
         metric("full inverse versus FFTW", vdspInverseReferenceError),
@@ -681,6 +718,44 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         measure(warmups, sampleCount,
             [&] { vdsp.packInverseInput(referenceSpectrum.data()); },
             [&] { vdsp.executeInverseNative(); })));
+    vdspRecord.timings.push_back(series("diagnostic-component", "batch scheduler empty dispatch", "shared",
+        StageState::executed, 0,
+        measure(warmups, sampleCount, [&] { vdsp.executeSchedulerNoop(); })));
+
+    if (vdsp.separable()) {
+        vdspRecord.timings.push_back(series("primitive-component", "real row FFTs", "forward", StageState::executed,
+            vdsp.nativeOperandBytes() * 2,
+            measure(warmups, sampleCount,
+                [&] { vdsp.packForwardInput(input.data()); },
+                [&] { vdsp.executeForwardRowsNative(); })));
+        vdspRecord.timings.push_back(series("primitive-component", "complex column FFTs and Hermitian boundaries", "forward",
+            StageState::executed, vdsp.nativeOperandBytes() * 2,
+            measure(warmups, sampleCount,
+                [&] {
+                    vdsp.packForwardInput(input.data());
+                    vdsp.executeForwardRowsNative();
+                },
+                [&] { vdsp.executeForwardColumnsNative(); })));
+        vdspRecord.timings.push_back(series("primitive-component", "complex column FFTs and Hermitian boundaries", "inverse",
+            StageState::executed, vdsp.nativeOperandBytes() * 2,
+            measure(warmups, sampleCount,
+                [&] { vdsp.packInverseInput(referenceSpectrum.data()); },
+                [&] { vdsp.executeInverseColumnsNative(); })));
+        vdspRecord.timings.push_back(series("primitive-component", "real row FFTs", "inverse", StageState::executed,
+            vdsp.nativeOperandBytes() * 2,
+            measure(warmups, sampleCount,
+                [&] {
+                    vdsp.packInverseInput(referenceSpectrum.data());
+                    vdsp.executeInverseColumnsNative();
+                },
+                [&] { vdsp.executeInverseRowsNative(); })));
+    } else {
+        vdspRecord.timings.push_back(series("primitive-component", "real row FFTs", "forward", StageState::fused, 0));
+        vdspRecord.timings.push_back(series("primitive-component", "complex column FFTs and Hermitian boundaries", "forward", StageState::fused, 0));
+        vdspRecord.timings.push_back(series("primitive-component", "complex column FFTs and Hermitian boundaries", "inverse", StageState::fused, 0));
+        vdspRecord.timings.push_back(series("primitive-component", "real row FFTs", "inverse", StageState::fused, 0));
+    }
+    vdspRecord.timings.push_back(series("algorithm-component", "column transposition", "shared", StageState::elided, 0));
 
     vdspRecord.timings.push_back(series("adapter-component", "real-to-vDSP packing", "forward", StageState::executed,
         report.fullRealBytes + vdsp.nativeOperandBytes(),
