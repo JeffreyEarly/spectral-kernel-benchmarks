@@ -98,7 +98,7 @@ python3 tools/build_site.py --output _site
 
 The generated archive provides permanent `/runs/<run-id>/` pages, accumulating `/experiments/<experiment-id>/` pages, the shared `/methods/operators-and-representations/` methodology, and the evolving `/decisions/v1/` synthesis. Preliminary, superseded, withdrawn, negative, and unsupported evidence remains visible; only clean, passing `reference` runs contribute to adoption statistics.
 
-The `Publish benchmark dashboard` workflow validates, rebuilds, and deploys the site when dashboard sources or published bundles change on `main`. It only reads committed files and never executes benchmarks. GitHub Pages is configured to use **GitHub Actions** as its source. The project site is `https://jeffreyearly.github.io/spectral-kernel-benchmarks/`.
+The `Publish benchmark dashboard` workflow validates, rebuilds, and deploys the site when dashboard sources or published bundles change on `main`. It only reads committed files and never executes benchmarks. GitHub Pages is configured to use **GitHub Actions** as its source. The project site is [jeffreyearly.github.io/spectral-kernel-benchmarks](https://jeffreyearly.github.io/spectral-kernel-benchmarks/); the accumulating FFTW strategy screen has its own [issue #4 experiment page](https://jeffreyearly.github.io/spectral-kernel-benchmarks/experiments/issue-004-fftw-strategy-sweep/).
 
 ## Provenance
 

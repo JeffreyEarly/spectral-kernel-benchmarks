@@ -24,6 +24,7 @@ SUMMARY_SCOPES = (
 
 EXPERIMENT_PROVIDER_IDS = {
     "issue-003-fftw-production-baseline": "fftw",
+    "issue-004-fftw-strategy-sweep": "fftw",
     "issue-005-vdsp-native-baseline": "accelerate-vdsp",
     "issue-006-vdsp-batching-scheduling": "accelerate-vdsp",
 }
@@ -541,6 +542,248 @@ def vdsp_batch_evidence_table(bundles: list[PublishedBundle]) -> str:
     )
 
 
+def fftw_candidate_name(provider: dict) -> str:
+    algorithm = provider["algorithmId"].removeprefix("wvm-guru64-")
+    scheduling = provider["scheduling"]
+    internal = scheduling["internalWorkers"]
+    outer = scheduling["outerWorkers"]
+    if outer == 1:
+        topology = f"internal {internal}"
+    elif internal == 1:
+        topology = f"outer {outer}"
+    else:
+        topology = f"hybrid {internal}×{outer}"
+    return f"{algorithm} · {topology}"
+
+
+def fftw_screen_cohort(bundles: list[PublishedBundle]) -> list[PublishedBundle]:
+    current = [
+        bundle
+        for bundle in bundles
+        if bundle.publication["status"] in ("reference", "preliminary")
+    ]
+    if not current:
+        return []
+    status = "reference" if any(bundle.publication["status"] == "reference" for bundle in current) else "preliminary"
+    same_status = [bundle for bundle in current if bundle.publication["status"] == status]
+    latest = max(same_status, key=lambda bundle: bundle.result["environment"]["timestampUtc"])
+    commit = latest.result["environment"]["gitCommit"]
+    return [
+        bundle
+        for bundle in same_status
+        if bundle.result["environment"]["gitCommit"] == commit
+    ]
+
+
+def fftw_screen_classifications(bundles: list[PublishedBundle]) -> tuple[dict[str, str], list[PublishedBundle]]:
+    cohort = fftw_screen_cohort(bundles)
+    classifications: dict[str, str] = {}
+    workload_groups: dict[tuple[int, int, int, int], list[tuple[PublishedBundle, tuple[float, float, float]]]] = {}
+    for bundle in cohort:
+        result = bundle.result
+        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        if provider is None:
+            continue
+        run_id = result["run"]["id"]
+        if provider["planning"].get("budgetExhausted", False):
+            classifications[run_id] = "infeasible within planning budget"
+            continue
+        raw_forward = timing(provider, "primitive", "forward")
+        raw_inverse = timing(provider, "primitive", "inverse")
+        if raw_forward is None or raw_inverse is None:
+            classifications[run_id] = "incomplete"
+            continue
+        workload = result["workload"]
+        key = workload["Nx"], workload["Ny"], workload["Nz"], workload["fields"]
+        objectives = (
+            float(raw_forward["medianSeconds"]),
+            float(raw_inverse["medianSeconds"]),
+            float(provider["setup"]["totalSeconds"]),
+        )
+        workload_groups.setdefault(key, []).append((bundle, objectives))
+
+    for records in workload_groups.values():
+        for bundle, objectives in records:
+            dominated = any(
+                other is not bundle
+                and all(left <= right for left, right in zip(other_objectives, objectives))
+                and any(left < right for left, right in zip(other_objectives, objectives))
+                for other, other_objectives in records
+            )
+            classifications[bundle.result["run"]["id"]] = "dominated" if dominated else "Pareto"
+    return classifications, cohort
+
+
+def fftw_strategy_evidence_table(bundles: list[PublishedBundle]) -> str:
+    classifications, cohort = fftw_screen_classifications(bundles)
+    cohort_ids = {bundle.result["run"]["id"] for bundle in cohort}
+    rows: list[str] = []
+
+    def sort_key(bundle: PublishedBundle) -> tuple[int, int, int, str, int, int]:
+        result = bundle.result
+        provider = next(item for item in result["providers"] if item["id"] == "fftw")
+        workload = result["workload"]
+        rank = {"Pareto": 0, "dominated": 1, "infeasible within planning budget": 2}.get(
+            classifications.get(result["run"]["id"], "archived cohort"), 3
+        )
+        scheduling = provider["scheduling"]
+        return (
+            workload["Nx"],
+            workload["Ny"],
+            rank,
+            provider["algorithmId"],
+            scheduling["internalWorkers"],
+            scheduling["outerWorkers"],
+        )
+
+    for bundle in sorted(bundles, key=sort_key):
+        result = bundle.result
+        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        if provider is None:
+            continue
+        workload = result["workload"]
+        run = result["run"]
+        publication = bundle.publication
+        raw_forward = timing(provider, "primitive", "forward")
+        raw_inverse = timing(provider, "primitive", "inverse")
+        adapter_forward = timing(provider, "adapter-total", "forward")
+        adapter_inverse = timing(provider, "adapter-total", "inverse")
+        retained_forward = timing(provider, "uninstrumented-total", "forward")
+        retained_inverse = timing(provider, "uninstrumented-total", "inverse")
+        scheduler = stage_timing(provider, "diagnostic-component", "batch scheduler empty dispatch", "shared")
+        setup = provider["setup"]
+        planning = provider["planning"]
+
+        def interval_pair(forward: dict | None, inverse: dict | None) -> str:
+            return f"{escaped(timing_with_interval(forward))}<br>{escaped(timing_with_interval(inverse))}"
+
+        def pair(forward: dict | None, inverse: dict | None) -> str:
+            if forward is None or inverse is None:
+                return '<span class="muted">not measured</span>'
+            return f'{format_ms(forward["medianSeconds"])} / {format_ms(inverse["medianSeconds"])}'
+
+        scheduler_display = (
+            format_ms(scheduler["medianSeconds"])
+            if scheduler is not None and scheduler["state"] == "executed"
+            else "elided"
+        )
+        time_limit = float(planning.get("timeLimitSeconds", 0.0))
+        budget_display = (
+            f'{time_limit:g} s/call · {"exhausted" if planning.get("budgetExhausted", False) else "not exhausted"}'
+            if time_limit > 0.0
+            else "unlimited"
+        )
+        run_id = run["id"]
+        screen = classifications.get(run_id, "archived cohort" if run_id not in cohort_ids else "incomplete")
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+            f'<span class="muted">{run["samples"]} samples · {publication_badge(publication["status"])}</span></td>'
+            f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
+            f'<td>{escaped(fftw_candidate_name(provider))}<br><span class="muted">{escaped(provider["algorithmId"])}<br>'
+            f'{escaped(provider["schedulingId"])}</span></td>'
+            f'<td class="numeric">{interval_pair(raw_forward, raw_inverse)}</td>'
+            f'<td class="numeric">{escaped(coefficient_of_variation(raw_forward))} / {escaped(coefficient_of_variation(raw_inverse))}</td>'
+            f'<td class="numeric">{pair(adapter_forward, adapter_inverse)}</td>'
+            f'<td class="numeric">{pair(retained_forward, retained_inverse)}</td>'
+            f'<td class="numeric">{format_ms(setup["totalSeconds"])} total<br>'
+            f'<span class="muted">plan {format_ms(planning["seconds"])}; wisdom '
+            f'{format_ms(setup.get("wisdomGenerationSeconds", 0.0))} / '
+            f'{format_ms(setup.get("wisdomImportSeconds", 0.0))}</span></td>'
+            f'<td>{escaped(budget_display)}<br><span class="muted">wisdom {format_bytes(planning.get("wisdomBytes", 0))}</span></td>'
+            f'<td class="numeric">{scheduler_display}</td>'
+            f'<td class="numeric">plan {format_bytes(planning["temporaryBytes"])}<br>'
+            f'<span class="muted">persistent {format_bytes(provider["memory"]["persistentBytes"])}; '
+            f'scratch {format_bytes(provider["memory"]["scratchBytes"])}</span></td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+            f'<td>{escaped(screen)}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table issue4-evidence-table">'
+        '<caption>Raw FFT rows show forward then inverse median milliseconds with deterministic percentile-bootstrap 95% intervals in brackets. '
+        'CV is the sample standard deviation divided by the sample mean. Adapter and retained totals are forward / inverse medians. '
+        'Wisdom setup is generation / import. Empty-dispatch time is a non-additive scheduler diagnostic. Every current-cohort candidate is shown as Pareto, dominated, or infeasible within its planning budget.</caption>'
+        '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Plan / alignment / wisdom / topology</th>'
+        '<th scope="col">Raw FFT</th><th scope="col">Raw CV</th><th scope="col">Adapter</th><th scope="col">Retained total</th>'
+        '<th scope="col">Setup</th><th scope="col">Planning budget</th><th scope="col">Empty dispatch</th>'
+        '<th scope="col">Memory</th><th scope="col">Max error</th><th scope="col">Screen</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
+    classifications, cohort = fftw_screen_classifications(bundles)
+    if not cohort:
+        return ""
+    records: list[tuple[dict, dict, str]] = []
+    for bundle in cohort:
+        result = bundle.result
+        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        if provider is not None:
+            records.append((result, provider, classifications[result["run"]["id"]]))
+    if not records:
+        return ""
+
+    rows: list[str] = []
+    workload_keys = sorted(
+        {
+            (result["workload"]["Nx"], result["workload"]["Ny"], result["workload"]["Nz"], result["workload"]["fields"])
+            for result, _, _ in records
+        }
+    )
+    for key in workload_keys:
+        workload_records = [
+            record
+            for record in records
+            if (
+                record[0]["workload"]["Nx"],
+                record[0]["workload"]["Ny"],
+                record[0]["workload"]["Nz"],
+                record[0]["workload"]["fields"],
+            ) == key
+        ]
+        pareto = sorted(
+            (record for record in workload_records if record[2] == "Pareto"),
+            key=lambda record: float(record[1]["setup"]["totalSeconds"]),
+        )
+        entries = []
+        for _, provider, _ in pareto:
+            forward = timing(provider, "primitive", "forward")
+            inverse = timing(provider, "primitive", "inverse")
+            if forward is None or inverse is None:
+                continue
+            entries.append(
+                f'<strong>{escaped(fftw_candidate_name(provider))}</strong><br>'
+                f'<span class="muted">{format_ms(forward["medianSeconds"])} / '
+                f'{format_ms(inverse["medianSeconds"])} ms; setup {format_ms(provider["setup"]["totalSeconds"])} ms</span>'
+            )
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{key[0]} × {key[1]}<br><span class="muted">N<sub>z</sub>={key[2]}, fields={key[3]}</span></th>'
+            f'<td>{"<hr>".join(entries)}</td>'
+            "</tr>"
+        )
+
+    counts = {name: list(classifications.values()).count(name) for name in set(classifications.values())}
+    max_error = max(maximum_correctness_error(provider) or 0.0 for _, provider, _ in records)
+    commit = cohort[0].result["environment"]["gitCommit"]
+    status = cohort[0].publication["status"]
+    return f"""
+      <h3>Reproducible Pareto screen</h3>
+      <p>The current {escaped(status)} cohort is commit <code>{escaped(commit)}</code>. Within each workload, a candidate is Pareto when no other eligible candidate is no slower in raw forward FFT, raw inverse FFT, and total setup while being strictly better in at least one. Total setup includes allocation, planning, and wisdom generation/import. Memory is reported but is identical within each workload in this increment; nine-sample CVs are reported rather than used as a hard gate.</p>
+      <p>{counts.get("Pareto", 0)} workload-candidates are Pareto, {counts.get("dominated", 0)} are dominated, and {counts.get("infeasible within planning budget", 0)} are marked infeasible within the configured per-plan feasibility budget. All {len(records)} runs passed the fixed-reference and round-trip checks; the cohort maximum relative error is {format_error(max_error)}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Pareto candidates ordered by total setup. Times are raw forward / inverse medians followed by total setup; all are milliseconds.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Non-dominated candidates</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">This is a bounded strategy screen, not the final issue #4 Pareto set or a WVM adoption decision. It excludes FFTW split APIs and most production fields/workloads. Budget-limited PATIENT and EXHAUSTIVE plans remain valid measured transforms, but this experiment cannot claim that their requested search completed.</p>
+    """
+
+
 def vdsp_batch_synthesis(bundles: list[PublishedBundle]) -> str:
     records: list[tuple[dict, dict, dict]] = []
     for bundle in bundles:
@@ -636,6 +879,8 @@ def vdsp_batch_synthesis(bundles: list[PublishedBundle]) -> str:
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
+    if experiment["id"] == "issue-004-fftw-strategy-sweep":
+        return fftw_strategy_evidence_table(bundles)
     if experiment["id"] == "issue-006-vdsp-batching-scheduling":
         return vdsp_batch_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
@@ -709,7 +954,12 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
     evidence_table = experiment_evidence_table(experiment, related)
-    synthesis = vdsp_batch_synthesis(related) if experiment_id == "issue-006-vdsp-batching-scheduling" else ""
+    if experiment_id == "issue-004-fftw-strategy-sweep":
+        synthesis = fftw_strategy_synthesis(related)
+    elif experiment_id == "issue-006-vdsp-batching-scheduling":
+        synthesis = vdsp_batch_synthesis(related)
+    else:
+        synthesis = ""
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Experiment · issue #{experiment['issue']} · {escaped(experiment['phase'])}</p>

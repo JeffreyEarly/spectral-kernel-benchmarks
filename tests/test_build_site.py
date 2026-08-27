@@ -47,6 +47,7 @@ class BuildSiteTests(unittest.TestCase):
             legacy_page = output / "runs" / "m4-max-quick-20260827.html"
             canonical_page = output / "runs" / "20260827T185428Z-lyra" / "index.html"
             issue_3_page = output / "experiments" / "issue-003-fftw-production-baseline" / "index.html"
+            issue_4_page = output / "experiments" / "issue-004-fftw-strategy-sweep" / "index.html"
             issue_5_page = output / "experiments" / "issue-005-vdsp-native-baseline" / "index.html"
             issue_6_page = output / "experiments" / "issue-006-vdsp-batching-scheduling" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
@@ -60,12 +61,22 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
             self.assertTrue(issue_3_page.is_file())
+            self.assertTrue(issue_4_page.is_file())
             self.assertTrue(issue_5_page.is_file())
             self.assertTrue(issue_6_page.is_file())
             self.assertTrue(float32_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertIn("What this experiment measures", issue_3_page.read_text(encoding="utf-8"))
+            issue_4_html = issue_4_page.read_text(encoding="utf-8")
+            self.assertIn("Reproducible Pareto screen", issue_4_html)
+            self.assertIn("deterministic percentile-bootstrap 95% intervals", issue_4_html)
+            self.assertIn("infeasible within planning budget", issue_4_html)
+            self.assertIn("wvm-guru64-measure-unaligned-cold", issue_4_html)
+            self.assertIn("20260827T223146704900Z-lyra", issue_4_html)
+            self.assertIn("13 workload-candidates are Pareto", issue_4_html)
+            self.assertIn("33 are dominated", issue_4_html)
+            self.assertIn("6 are marked infeasible", issue_4_html)
             issue_5_html = issue_5_page.read_text(encoding="utf-8")
             self.assertIn("No reference run has been published", issue_5_html)
             self.assertIn("Primitive FFT", issue_5_html)
