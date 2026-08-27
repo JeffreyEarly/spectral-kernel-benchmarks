@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  macos-correctness:
+    name: macOS compilation and correctness
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake --preset macos-release
+      - name: Build
+        run: cmake --build --preset macos-release
+      - name: Test
+        run: ctest --preset macos-release
+      - name: Exercise result contract
+        run: build/release/skbench run --profile smoke --output results/local/ci-smoke.json
+      - name: Check JSON syntax
+        run: python3 -m json.tool results/local/ci-smoke.json >/dev/null
+      - name: Test and build benchmark dashboard
+        run: |
+          python3 -m unittest tests/test_build_site.py
+          python3 tools/build_site.py --output _site

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JeffreyEarly/spectral-kernel-benchmarks/schema/spectral-kernel-benchmark-v1.schema.json",
+  "title": "Spectral kernel benchmark v1 result",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "run",
+    "provenance",
+    "logicalOperators",
+    "workload",
+    "environment",
+    "providers"
+  ],
+  "properties": {
+    "schema": {
+      "const": "spectral-kernel-benchmark-v1"
+    },
+    "status": {
+      "enum": ["passed", "failed"]
+    },
+    "run": {
+      "type": "object",
+      "required": ["id", "profile", "seed", "warmups", "samples"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "profile": {"enum": ["smoke", "quick", "exhaustive"]},
+        "seed": {"type": "integer", "minimum": 0},
+        "warmups": {"type": "integer", "minimum": 0},
+        "samples": {"type": "integer", "minimum": 1}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "benchmarkRepository",
+        "waveVortexModelRepository",
+        "waveVortexModelIssue",
+        "auditedProductionBaselineCommit",
+        "historicalHarnessCommit",
+        "historicalDecisionCommit"
+      ],
+      "properties": {
+        "benchmarkRepository": {"const": "JeffreyEarly/spectral-kernel-benchmarks"},
+        "waveVortexModelRepository": {"const": "JeffreyEarly/wave-vortex-model"},
+        "waveVortexModelIssue": {"const": 129},
+        "auditedProductionBaselineCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "historicalHarnessCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "historicalDecisionCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "logicalOperators": {
+      "type": "object",
+      "required": ["horizontalForward", "horizontalInverse", "verticalForward", "verticalInverse", "verticalFixtureId", "resultKey"]
+    },
+    "workload": {
+      "type": "object",
+      "required": [
+        "Nx",
+        "Ny",
+        "Nz",
+        "fields",
+        "H",
+        "Nkl",
+        "Nj",
+        "planes",
+        "antialias",
+        "grouping",
+        "stridesElements",
+        "bytes",
+        "permutationHashes"
+      ],
+      "properties": {
+        "Nx": {"type": "integer", "minimum": 2},
+        "Ny": {"type": "integer", "minimum": 2},
+        "Nz": {"type": "integer", "minimum": 1},
+        "fields": {"type": "integer", "minimum": 1},
+        "H": {"type": "integer", "minimum": 1},
+        "Nkl": {"type": "integer", "minimum": 1},
+        "Nj": {"type": "integer", "minimum": 0},
+        "planes": {"type": "integer", "minimum": 1},
+        "antialias": {
+          "type": "object",
+          "required": ["enabled", "horizontalPolicy", "horizontalCutoffFraction", "verticalPolicy", "verticalRetainedFraction"]
+        },
+        "grouping": {"type": "object"},
+        "stridesElements": {"type": "object"},
+        "bytes": {"type": "object"},
+        "permutationHashes": {"type": "object"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "timestampUtc",
+        "hostname",
+        "operatingSystem",
+        "machineModel",
+        "cpuBrand",
+        "totalCores",
+        "performanceCores",
+        "efficiencyCores",
+        "physicalMemoryBytes",
+        "compiler",
+        "compilerVersion",
+        "compilerFlags",
+        "buildType",
+        "gitCommit",
+        "gitDirty"
+      ]
+    },
+    "providers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "libraryIdentity",
+          "algorithmId",
+          "nativeRepresentationId",
+          "modeOrderId",
+          "schedulingId",
+          "providerBuild",
+          "workers",
+          "setup",
+          "planning",
+          "memory",
+          "componentLedger",
+          "timings",
+          "correctness"
+        ],
+        "properties": {
+          "workers": {"type": "integer", "minimum": 1},
+          "providerBuild": {
+            "type": "object",
+            "required": ["sourceIdentity", "sourceSha256", "configureFlags", "compilerFlags"]
+          },
+          "setup": {
+            "type": "object",
+            "required": ["totalSeconds", "otherSeconds", "allocationSeconds"],
+            "properties": {
+              "totalSeconds": {"type": "number", "minimum": 0},
+              "otherSeconds": {"type": "number", "minimum": 0},
+              "allocationSeconds": {"type": "number", "minimum": 0}
+            }
+          },
+          "componentLedger": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["stage", "state", "detail"],
+              "properties": {
+                "state": {
+                  "enum": ["executed", "fused", "elided", "setup-only", "unsupported"]
+                }
+              }
+            }
+          },
+          "timings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["scope", "stage", "direction", "state", "bytesMoved", "medianSeconds", "samplesSeconds"],
+              "properties": {
+                "state": {
+                  "enum": ["executed", "fused", "elided", "setup-only", "unsupported"]
+                },
+                "bytesMoved": {"type": "integer", "minimum": 0},
+                "medianSeconds": {"type": "number", "minimum": 0},
+                "samplesSeconds": {
+                  "type": "array",
+                  "items": {"type": "number", "minimum": 0}
+                }
+              }
+            }
+          },
+          "correctness": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "maximumRelativeError", "tolerance", "passed"],
+              "properties": {
+                "maximumRelativeError": {"type": ["number", "null"], "minimum": 0},
+                "tolerance": {"type": "number", "exclusiveMinimum": 0},
+                "passed": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

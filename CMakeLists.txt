@@ -1,0 +1,79 @@
+cmake_minimum_required(VERSION 3.24)
+
+project(spectral-kernel-benchmarks VERSION 0.1.0 LANGUAGES C CXX)
+
+include(CTest)
+find_package(Threads REQUIRED)
+
+option(SKBENCH_BUILD_TESTS "Build the focused correctness test executable." ON)
+set(SKBENCH_FFTW_ROOT "" CACHE PATH "Root of a pinned FFTW 3.3.11 installation. Leave empty to build the pinned provider.")
+set(SKBENCH_FFTW_BUILD_JOBS "12" CACHE STRING "Parallel jobs used when building the pinned FFTW provider.")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(SkbenchFFTW)
+
+execute_process(
+    COMMAND git rev-parse --short=12 HEAD
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    OUTPUT_VARIABLE SKBENCH_GIT_COMMIT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+if(NOT SKBENCH_GIT_COMMIT)
+    set(SKBENCH_GIT_COMMIT "unknown")
+endif()
+execute_process(
+    COMMAND git status --porcelain --untracked-files=normal
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    OUTPUT_VARIABLE SKBENCH_GIT_STATUS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+if(SKBENCH_GIT_STATUS)
+    set(SKBENCH_GIT_DIRTY 1)
+else()
+    set(SKBENCH_GIT_DIRTY 0)
+endif()
+
+add_library(skbench_core
+    src/benchmark.cpp
+    src/fftw_provider.cpp
+    src/json.cpp
+    src/model.cpp
+    src/vdsp_provider.cpp)
+target_compile_features(skbench_core PUBLIC cxx_std_20)
+target_include_directories(skbench_core
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(skbench_core PRIVATE skbench_fftw Threads::Threads)
+target_compile_definitions(skbench_core PRIVATE
+    SKBENCH_FFTW_VERSION="3.3.11"
+    SKBENCH_GIT_COMMIT="${SKBENCH_GIT_COMMIT}"
+    SKBENCH_GIT_DIRTY=${SKBENCH_GIT_DIRTY}
+    SKBENCH_BUILD_FLAGS="$<$<CONFIG:Release>:-O3\ -mcpu=native>")
+
+if(APPLE)
+    find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+    target_link_libraries(skbench_core PRIVATE "${ACCELERATE_FRAMEWORK}")
+    target_compile_definitions(skbench_core PRIVATE SKBENCH_HAVE_ACCELERATE=1)
+else()
+    target_compile_definitions(skbench_core PRIVATE SKBENCH_HAVE_ACCELERATE=0)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(skbench_core PRIVATE
+        -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion
+        $<$<CONFIG:Release>:-O3;-mcpu=native>)
+endif()
+
+add_executable(skbench src/main.cpp)
+target_compile_features(skbench PRIVATE cxx_std_20)
+target_link_libraries(skbench PRIVATE skbench_core)
+
+if(SKBENCH_BUILD_TESTS)
+    add_executable(skbench_tests tests/skbench_tests.cpp)
+    target_compile_features(skbench_tests PRIVATE cxx_std_20)
+    target_link_libraries(skbench_tests PRIVATE skbench_core)
+    add_test(NAME skbench-unit COMMAND skbench_tests)
+    add_test(NAME skbench-cli-list COMMAND skbench list)
+    add_test(NAME skbench-cli-validate COMMAND skbench validate --profile smoke)
+    set_tests_properties(skbench-cli-validate PROPERTIES TIMEOUT 120)
+endif()

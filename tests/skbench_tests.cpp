@@ -1,0 +1,60 @@
+#include "skbench/skbench.hpp"
+
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+namespace {
+
+void require(bool condition, const char* message) {
+    if (!condition) throw std::runtime_error(message);
+}
+
+} // namespace
+
+int main() {
+    try {
+        const skbench::Workload workload{8, 8, 7, 2, 1.0, 1.0, true};
+        require(workload.planes() == 14, "plane count");
+        require(workload.nxHalf() == 5, "half width");
+        require(workload.retainedVerticalModes() == 4, "retained vertical count");
+
+        const auto modes = skbench::retainedHorizontalModes(workload);
+        require(!modes.empty(), "retained modes are empty");
+        require(modes.front().k == 0 && modes.front().l == 0, "DC is not first");
+        require(skbench::modeOrderHash(modes) == skbench::modeOrderHash(modes), "mode hash is unstable");
+
+        std::vector<skbench::Complex> wvm(workload.spectrumElements());
+        for (std::size_t index = 0; index < wvm.size(); ++index) {
+            wvm[index] = {static_cast<double>(index), -static_cast<double>(index)};
+        }
+        std::vector<skbench::Complex> planeMajor(wvm.size());
+        std::vector<skbench::Complex> roundTrip(wvm.size());
+        skbench::wvmToPlaneMajor(workload, wvm.data(), planeMajor.data());
+        skbench::planeMajorToWvm(workload, planeMajor.data(), roundTrip.data());
+        require(skbench::maximumRelativeError(roundTrip.data(), wvm.data(), wvm.size()) == 0.0, "layout round trip");
+
+        std::vector<skbench::Complex> retained(modes.size() * workload.planes());
+        std::vector<skbench::Complex> embedded(wvm.size());
+        std::vector<skbench::Complex> retainedAgain(retained.size());
+        skbench::gatherRetained(workload, modes, wvm.data(), retained.data());
+        skbench::embedRetained(workload, modes, retained.data(), embedded.data());
+        skbench::gatherRetained(workload, modes, embedded.data(), retainedAgain.data());
+        require(skbench::maximumRelativeError(retainedAgain.data(), retained.data(), retained.size()) == 0.0, "retained gather/embed round trip");
+
+        const auto vertical = skbench::orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes());
+        std::vector<skbench::Complex> modal(modes.size() * workload.fields * workload.retainedVerticalModes());
+        std::vector<skbench::Complex> physicalAgain(retained.size());
+        std::vector<skbench::Complex> modalAgain(modal.size());
+        skbench::verticalForward(workload, modes.size(), vertical, retained.data(), modal.data());
+        skbench::verticalInverse(workload, modes.size(), vertical, modal.data(), physicalAgain.data());
+        skbench::verticalForward(workload, modes.size(), vertical, physicalAgain.data(), modalAgain.data());
+        require(skbench::maximumRelativeError(modalAgain.data(), modal.data(), modal.size()) < 1.0e-12, "vertical modal round trip");
+
+        std::cout << "skbench unit tests passed\n";
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << "skbench_tests: " << error.what() << '\n';
+        return 1;
+    }
+}
