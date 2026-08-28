@@ -1619,6 +1619,7 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
     errors: list[float] = []
     direct_primitive_ratios: list[float] = []
     direct_combined_ratios: list[float] = []
+    direct_ratios_by_fields: dict[int, list[float]] = {}
     direct_call_counts: list[int] = []
     packed_call_counts: list[int] = []
     for profile in profiles:
@@ -1679,6 +1680,9 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
                         float(direct_total["medianSeconds"]) /
                         float(packed_total["medianSeconds"])
                     )
+                    direct_ratios_by_fields.setdefault(
+                        int(bundle.result["workload"]["fields"]), []
+                    ).append(direct_combined_ratios[-1])
                 errors.extend(
                     float(metric[name])
                     for metric in direct_provider["correctness"]
@@ -1708,6 +1712,12 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
             len(direct_combined_ratios)
         )
         direct_wins = sum(value < 1.0 for value in direct_combined_ratios)
+        fields_summary = "; ".join(
+            f"fields={fields}: {sum(value < 1.0 for value in values)}/{len(values)} wins, "
+            f"{math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× geometric, "
+            f"{min(values):.3f}×–{max(values):.3f}× range"
+            for fields, values in sorted(direct_ratios_by_fields.items())
+        )
         conclusion = (
             "For this bounded cohort, avoided movement offsets the efficiency loss from the many small GEMMs."
             if combined_geomean < 1.0
@@ -1716,7 +1726,7 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
         no_reorder_section = f"""
       <h3>Direct WVM-order no-reorder increment</h3>
       <p>This follow-on asks whether the radial gather and split conversion are worth paying for at all. The new algorithm reads each retained frequency’s contiguous N<sub>z</sub>×fields block directly from the WVM half-spectrum, applies its real K²-dependent matrix with one complex zgemm per retained frequency, keeps a zero-padded frequency-major modal representation, and reconstructs directly into persistent zero-padded WVM storage. Immutable matrix preparation, scheduler creation, and the initial zero-fill are setup-only. Hermitian boundary repair is fused into the timed kernel. The mathematical operator, fixtures, Float64 precision, thread limit, schedules, workloads, warmups, and samples match the packed split candidate in each run.</p>
-      <p>Across {len(direct_combined_ratios)} same-run workload/schedule/direction comparisons, direct no-reorder wins {direct_wins}; its direct/packed-split geometric ratio is {primitive_geomean:.3f}× at the primitive boundary and {combined_geomean:.3f}× for the one-shot total. The one-shot ratios span {min(direct_combined_ratios):.3f}×–{max(direct_combined_ratios):.3f}×. Direct execution issues {min(direct_call_counts)}–{max(direct_call_counts)} GEMM calls per direction, versus {min(packed_call_counts)}–{max(packed_call_counts)} for packed split. {conclusion}</p>
+      <p>Across {len(direct_combined_ratios)} same-run workload/schedule/direction comparisons, direct no-reorder wins {direct_wins}; its direct/packed-split geometric ratio is {primitive_geomean:.3f}× at the primitive boundary and {combined_geomean:.3f}× for the one-shot total. The one-shot ratios span {min(direct_combined_ratios):.3f}×–{max(direct_combined_ratios):.3f}×. By field count: {fields_summary}. Direct execution issues {min(direct_call_counts)}–{max(direct_call_counts)} GEMM calls per direction, versus {min(packed_call_counts)}–{max(packed_call_counts)} for packed split. {conclusion}</p>
       <p>This comparison still excludes raw FFT execution, nonlinear or modal physics, provider-native horizontal fusion, tiling, and 512-class scaling. A shape-specific result is evidence about this algorithm boundary, not a requirement to gather or to preserve WVM order in production.</p>
         """
     baseline_scope = (

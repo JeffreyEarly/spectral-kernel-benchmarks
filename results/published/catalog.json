@@ -5258,6 +5258,198 @@
         "samplesSha256": "50fb4e5e877310bc3de7b55865b118562a43d6d23ef430f1f4263600a23fa704"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T034102945836Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034102945836Z-lyra/result.json",
+        "samples": "runs/20260828T034102945836Z-lyra/samples.csv",
+        "resultSha256": "f8101ff20f3f1ee4f051495a815e108785c3353e7fd7d98be43c524a480e49ce",
+        "samplesSha256": "cea040205615d1f830a51c6c1707b523c4494939071653eea42978188c9971c5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034109959922Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034109959922Z-lyra/result.json",
+        "samples": "runs/20260828T034109959922Z-lyra/samples.csv",
+        "resultSha256": "f1bdc82d0b3cb4c5ed081851c83bd94c2be245484952e68b19d1dec5068fb61a",
+        "samplesSha256": "0a6b26a4eaa43b2002247946ea8b79bf02645ed4877ba1c1de851600698e613c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034116821348Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034116821348Z-lyra/result.json",
+        "samples": "runs/20260828T034116821348Z-lyra/samples.csv",
+        "resultSha256": "643e6f9f51a39de39a0b6f822245f79c91ff03fb324a185e42383e67ae170ade",
+        "samplesSha256": "9fd0284bb101bae7ccda89f26125e6609c7fae726f5c6664235bd868112982d2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034124721836Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034124721836Z-lyra/result.json",
+        "samples": "runs/20260828T034124721836Z-lyra/samples.csv",
+        "resultSha256": "4d398902e93a7b89ba59d5a615da602310761ba701b06cbcac7f2a6fa7264272",
+        "samplesSha256": "f5886b8e8e525477ad7a7a64f51826e13b061e19868c2ccbef42bc20cfb3d12a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034131927189Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034131927189Z-lyra/result.json",
+        "samples": "runs/20260828T034131927189Z-lyra/samples.csv",
+        "resultSha256": "dbee9ca27029437ce476c388bfa9a554b02ebacb98b9db2746911abf6f302208",
+        "samplesSha256": "1e5796ec8d8149dde6b5208a1611ac56b5f0ec3cb83abbd598e23196435665ba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034148646372Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034148646372Z-lyra/result.json",
+        "samples": "runs/20260828T034148646372Z-lyra/samples.csv",
+        "resultSha256": "2b57333b45192e0de1b08fb091204acadf441e71b90400f951d9bb4d48d534fa",
+        "samplesSha256": "b3d26ec6138e3fed1a0b3ec9e76338d67eecac92f9587b81eb555f077cc00f95"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034204097920Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034204097920Z-lyra/result.json",
+        "samples": "runs/20260828T034204097920Z-lyra/samples.csv",
+        "resultSha256": "724bcd3425283467b29617a8f62516391e6108c18f8b0605c607adcf5a7fcde8",
+        "samplesSha256": "a7472037c15f1d00a2d87c32d50a982c1113b3168c8b63f70328fd0cfdba6eee"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T034224811058Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First clean M4 Max same-run screen of direct WVM-frequency-major per-mode zgemm against the published MATLAB-style gather-to-split static-12 and dynamic-16 finalists; bounded to four 256-class Float64 profiles.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-frequency-major-direct-per-mode-zgemm-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T034224811058Z-lyra/result.json",
+        "samples": "runs/20260828T034224811058Z-lyra/samples.csv",
+        "resultSha256": "485ccc0e10189099ec56c6838a8f39ac7dee063e70800d6cec136cf37b228d96",
+        "samplesSha256": "bb7ffdd0333294eb0c7e33471296499c3c82da0cb955aea7c0392c753c7c8c9b"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
