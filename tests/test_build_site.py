@@ -238,6 +238,17 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("wvm-current-512-nz257-f4", issue_9_html)
             self.assertIn("wvm-large-1024-nz129-f4", issue_9_html)
             self.assertIn("512²/Nz=513/fields=4", issue_9_html)
+            self.assertIn("Three-way native-control M4 reference", issue_9_html)
+            self.assertIn("0.620× WVM direct geometrically", issue_9_html)
+            self.assertIn("0.606×–0.640×", issue_9_html)
+            self.assertIn("Against fused split it is 0.691×", issue_9_html)
+            self.assertIn("0.684×–0.708×", issue_9_html)
+            self.assertIn("algorithm-resident memory is 0.656× WVM direct", issue_9_html)
+            self.assertIn("Persistent compiled-engine selection", issue_9_html)
+            self.assertIn("MATLAB-owned WVM-native boundary selection", issue_9_html)
+            self.assertIn("Component ledger", issue_9_html)
+            self.assertIn("Setup, placement, and memory", issue_9_html)
+            self.assertIn("No steady-state timed-loop allocation is permitted", issue_9_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )
@@ -350,7 +361,24 @@ class BuildSiteTests(unittest.TestCase):
             )
             self.assertIn("reference", reference_streaming_run_html)
             self.assertIn("streaming compact tile width=16", reference_streaming_run_html)
-            self.assertIn("Adoption decision not yet ready", decision_page.read_text(encoding="utf-8"))
+            native_bridge_run_page = (
+                output / "runs" / "20260828T175442514946Z-lyra" /
+                "index.html"
+            )
+            self.assertTrue(native_bridge_run_page.is_file())
+            native_bridge_run_html = native_bridge_run_page.read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("WVM direct/no-reorder pipeline", native_bridge_run_html)
+            self.assertIn("wvm-frequency-major-interleaved", native_bridge_run_html)
+            decision_html = decision_page.read_text(encoding="utf-8")
+            self.assertIn("M4 deployment decision recorded", decision_html)
+            self.assertIn("Persistent compiled spectral engine", decision_html)
+            self.assertIn("MATLAB + compiled core with WVM-native arrays", decision_html)
+            self.assertIn("0.620× WVM direct", decision_html)
+            self.assertIn("0.691× fused split", decision_html)
+            self.assertIn("general-Mac default recommendation", decision_html)
+            self.assertNotIn("Adoption decision not yet ready", decision_html)
             self.assertIn("predates the explicit placement contract", legacy_page.read_text(encoding="utf-8"))
             self.assertEqual((PUBLISHED / "m4-max-quick-20260827.json").read_bytes(), result_artifact.read_bytes())
             self.assertEqual((PUBLISHED / "m4-max-quick-20260827.csv").read_bytes(), samples_artifact.read_bytes())

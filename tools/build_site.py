@@ -3406,6 +3406,278 @@ def spectral_pipeline_large_f4_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+NATIVE_BRIDGE_INCREMENT = (
+    "synthetic-spectral-pipeline-three-way-native-control-reference-v1"
+)
+NATIVE_BRIDGE_CANDIDATES = (
+    "wvm-direct--outer-dynamic-16",
+    "plane-major-fused-split--outer-dynamic-16",
+    "streaming-pruned-tiled-16--outer-dynamic-16",
+)
+
+
+def native_bridge_stage_pair(provider: dict, candidate_id: str) -> tuple[dict, dict]:
+    if candidate_id == NATIVE_BRIDGE_CANDIDATES[0]:
+        scope = "primitive"
+        stage = "raw FFT"
+    else:
+        scope = "retained-operator-total"
+        stage = (
+            "streaming pruned compact split horizontal operator"
+            if candidate_id == NATIVE_BRIDGE_CANDIDATES[2]
+            else "full FFT fused compact split horizontal operator"
+        )
+    forward = stage_timing(provider, scope, stage, "forward")
+    inverse = stage_timing(provider, scope, stage, "inverse")
+    if forward is None or inverse is None:
+        raise ValueError(f"native bridge run lacks retained-horizontal timing: {candidate_id}")
+    return forward, inverse
+
+
+def native_bridge_movement_pair(provider: dict, candidate_id: str) -> tuple[dict, dict]:
+    if candidate_id == NATIVE_BRIDGE_CANDIDATES[0]:
+        stages = (
+            "logical retained provider-order view",
+            "rebuild zero-padded inverse spectrum",
+        )
+    elif candidate_id == NATIVE_BRIDGE_CANDIDATES[1]:
+        stages = (
+            "fused retained selection and split pack",
+            "fused split embed into zeroed plane-major spectrum",
+        )
+    else:
+        stages = (
+            "plane-major compact staging and blocked split transpose",
+            "blocked split load, compact staging, embed, and zero fill",
+        )
+    forward = stage_timing(provider, "adapter-component", stages[0], "forward")
+    inverse = stage_timing(provider, "adapter-component", stages[1], "inverse")
+    if forward is None or inverse is None:
+        raise ValueError(f"native bridge run lacks movement timing: {candidate_id}")
+    return forward, inverse
+
+
+def native_bridge_cells(
+    bundles: list[PublishedBundle],
+) -> dict[tuple[str, str, int], dict]:
+    cells: dict[tuple[str, str, int], dict] = {}
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") == NATIVE_BRIDGE_INCREMENT
+        and bundle.publication["status"] == "reference"
+    ]
+    for bundle in cohort:
+        candidate_id = bundle.publication.get("campaignCandidateId")
+        if candidate_id not in NATIVE_BRIDGE_CANDIDATES:
+            continue
+        provider = spectral_pipeline_provider(bundle)
+        horizontal_forward, horizontal_inverse = native_bridge_stage_pair(
+            provider, candidate_id,
+        )
+        movement_forward, movement_inverse = native_bridge_movement_pair(
+            provider, candidate_id,
+        )
+        vertical_forward = stage_timing(
+            provider, "primitive", "raw vertical MM", "forward",
+        )
+        vertical_inverse = stage_timing(
+            provider, "primitive", "raw vertical MM", "inverse",
+        )
+        modal = stage_timing(provider, "component", "mode-keyed modal work", "modal")
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "synthetic antialiased spectral pipeline", "round-trip",
+        )
+        if vertical_forward is None or vertical_inverse is None or modal is None or total is None:
+            raise ValueError(f"native bridge run lacks a required component: {candidate_id}")
+        planning_seconds = sum(
+            float(item["medianSeconds"])
+            for item in provider["timings"]
+            if item["scope"] == "setup-component"
+            and "planning" in item["stage"].lower()
+        )
+        memory = provider["memory"]
+        cells[(
+            candidate_id,
+            bundle.result["run"]["profile"],
+            int(bundle.publication["campaignRound"]),
+        )] = {
+            "runId": bundle.result["run"]["id"],
+            "total": float(total["medianSeconds"]),
+            "horizontalForward": float(horizontal_forward["medianSeconds"]),
+            "horizontalInverse": float(horizontal_inverse["medianSeconds"]),
+            "verticalForward": float(vertical_forward["medianSeconds"]),
+            "verticalInverse": float(vertical_inverse["medianSeconds"]),
+            "movementForward": float(movement_forward["medianSeconds"]),
+            "movementInverse": float(movement_inverse["medianSeconds"]),
+            "modal": float(modal["medianSeconds"]),
+            "setup": float(provider["setup"]["totalSeconds"]),
+            "planning": planning_seconds,
+            "resident": float(memory["algorithmResidentBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+            "scratch": float(memory["scratchBytes"]),
+            "error": float(maximum_correctness_error(provider) or math.inf),
+            "forwardPlacement": provider["executionContract"]["forward"]["nativePlacement"],
+            "inversePlacement": provider["executionContract"]["inverse"]["nativePlacement"],
+            "outputRepresentation": provider["executionContract"]["forward"]
+            ["nativeOutputRepresentationId"],
+        }
+    return cells
+
+
+def native_bridge_pair_summary(
+    cells: dict[tuple[str, str, int], dict],
+    numerator_id: str,
+    denominator_id: str,
+) -> dict:
+    profiles = sorted({profile for _, profile, _ in cells})
+    profile_ratios: dict[str, list[float]] = {}
+    median_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    observed_ratios: list[float] = []
+    for profile in profiles:
+        rounds = sorted(
+            round_number for candidate, candidate_profile, round_number in cells
+            if candidate == denominator_id and candidate_profile == profile
+            and (numerator_id, profile, round_number) in cells
+        )
+        if not rounds:
+            continue
+        numerator = [cells[(numerator_id, profile, round_number)] for round_number in rounds]
+        denominator = [cells[(denominator_id, profile, round_number)] for round_number in rounds]
+        profile_ratios[profile] = [
+            left["total"] / right["total"]
+            for left, right in zip(numerator, denominator)
+        ]
+        median_ratios.append(
+            statistics.median(item["total"] for item in numerator)
+            / statistics.median(item["total"] for item in denominator)
+        )
+        resident_ratios.append(
+            statistics.median(item["resident"] for item in numerator)
+            / statistics.median(item["resident"] for item in denominator)
+        )
+        observed_ratios.append(
+            statistics.median(item["observed"] for item in numerator)
+            / statistics.median(item["observed"] for item in denominator)
+        )
+    if not median_ratios:
+        return {}
+    return {
+        "geometricTime": math.exp(
+            sum(math.log(value) for value in median_ratios) / len(median_ratios)
+        ),
+        "maximumTime": max(median_ratios),
+        "interval": spectral_pipeline_bootstrap(profile_ratios),
+        "geometricResident": math.exp(
+            sum(math.log(value) for value in resident_ratios) / len(resident_ratios)
+        ),
+        "geometricObserved": math.exp(
+            sum(math.log(value) for value in observed_ratios) / len(observed_ratios)
+        ),
+    }
+
+
+def spectral_pipeline_native_bridge_synthesis(bundles: list[PublishedBundle]) -> str:
+    cells = native_bridge_cells(bundles)
+    expected_cells = 3 * 3 * 3
+    if len(cells) != expected_cells:
+        return ""
+    profiles = sorted({profile for _, profile, _ in cells})
+    tile_to_wvm = native_bridge_pair_summary(
+        cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[0],
+    )
+    tile_to_fused = native_bridge_pair_summary(
+        cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[1],
+    )
+    labels = {
+        NATIVE_BRIDGE_CANDIDATES[0]: "WVM direct",
+        NATIVE_BRIDGE_CANDIDATES[1]: "Fused split",
+        NATIVE_BRIDGE_CANDIDATES[2]: "Streaming tile 16",
+    }
+    total_rows: list[str] = []
+    component_rows: list[str] = []
+    contract_rows: list[str] = []
+    for profile in profiles:
+        medians = {
+            candidate_id: {
+                key: statistics.median(
+                    item[key] for (candidate, candidate_profile, _), item in cells.items()
+                    if candidate == candidate_id and candidate_profile == profile
+                )
+                for key in (
+                    "total", "horizontalForward", "horizontalInverse",
+                    "verticalForward", "verticalInverse", "movementForward",
+                    "movementInverse", "modal", "setup", "planning", "resident",
+                    "observed", "scratch", "error",
+                )
+            }
+            for candidate_id in NATIVE_BRIDGE_CANDIDATES
+        }
+        total_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            + "".join(
+                f'<td class="numeric">{format_ms(medians[candidate]["total"])}</td>'
+                for candidate in NATIVE_BRIDGE_CANDIDATES
+            )
+            + f'<td class="numeric">{medians[NATIVE_BRIDGE_CANDIDATES[2]]["total"] / medians[NATIVE_BRIDGE_CANDIDATES[0]]["total"]:.3f}×</td>'
+            + f'<td class="numeric">{medians[NATIVE_BRIDGE_CANDIDATES[2]]["total"] / medians[NATIVE_BRIDGE_CANDIDATES[1]]["total"]:.3f}×</td>'
+            + "</tr>"
+        )
+        for candidate_id in NATIVE_BRIDGE_CANDIDATES:
+            item = medians[candidate_id]
+            representative = next(
+                value for (candidate, candidate_profile, _), value in cells.items()
+                if candidate == candidate_id and candidate_profile == profile
+            )
+            component_rows.append(
+                "<tr>"
+                f'<th scope="row">{escaped(profile)}<br><span class="muted">{escaped(labels[candidate_id])}</span></th>'
+                f'<td class="numeric">{format_ms(item["horizontalForward"])} / {format_ms(item["horizontalInverse"])}</td>'
+                f'<td class="numeric">{format_ms(item["verticalForward"])} / {format_ms(item["verticalInverse"])}</td>'
+                f'<td class="numeric">{format_ms(item["movementForward"])} / {format_ms(item["movementInverse"])}</td>'
+                f'<td class="numeric">{format_ms(item["modal"])}</td>'
+                f'<td class="numeric"><strong>{format_ms(item["total"])}</strong></td>'
+                "</tr>"
+            )
+            contract_rows.append(
+                "<tr>"
+                f'<th scope="row">{escaped(profile)}<br><span class="muted">{escaped(labels[candidate_id])}</span></th>'
+                f'<td class="numeric">{format_ms(item["setup"])}<br><span class="muted">planning {format_ms(item["planning"])}</span></td>'
+                f'<td>{escaped(representative["forwardPlacement"])} / {escaped(representative["inversePlacement"])}</td>'
+                f'<td>{escaped(representative["outputRepresentation"])}</td>'
+                f'<td class="numeric">{format_bytes(int(item["resident"]))}<br><span class="muted">scratch {format_bytes(int(item["scratch"]))}</span></td>'
+                f'<td class="numeric">{format_bytes(int(item["observed"]))}</td>'
+                f'<td class="numeric">{item["error"]:.3e}</td>'
+                "</tr>"
+            )
+    return f"""
+      <h3>Three-way native-control M4 reference</h3>
+      <p>This final same-commit campaign asks two deployment questions. For a persistent compiled engine, all three representations are eligible. For a MATLAB-owned compiled core, MATLAB-visible WVM frequency-major interleaved arrays remain authoritative, so only WVM direct is eligible. The latter is therefore the best measured native-boundary algorithm, not the fastest unrestricted pipeline.</p>
+      <p>Streaming tile 16 is {tile_to_wvm["geometricTime"]:.3f}× WVM direct geometrically in authoritative total time, with a stratified paired-bootstrap 95% interval of {tile_to_wvm["interval"][0]:.3f}×–{tile_to_wvm["interval"][1]:.3f}× and a {tile_to_wvm["maximumTime"]:.3f}× worst profile. Against fused split it is {tile_to_fused["geometricTime"]:.3f}× ({tile_to_fused["interval"][0]:.3f}×–{tile_to_fused["interval"][1]:.3f}×), with a {tile_to_fused["maximumTime"]:.3f}× worst profile. Its algorithm-resident memory is {tile_to_wvm["geometricResident"]:.3f}× WVM direct and {tile_to_fused["geometricResident"]:.3f}× fused split.</p>
+      <p><strong>Persistent compiled-engine selection:</strong> <code>{NATIVE_BRIDGE_CANDIDATES[2]}</code>. <strong>MATLAB-owned WVM-native boundary selection:</strong> <code>{NATIVE_BRIDGE_CANDIDATES[0]}</code>. One policy is used at all three sizes; no size-dependent dispatch or further tuning entered this campaign.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative three-round medians. Ratios below one favor streaming tile 16.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">WVM direct</th><th scope="col">Fused split</th><th scope="col">Streaming tile 16</th><th scope="col">Tile / WVM</th><th scope="col">Tile / fused</th></tr></thead>
+        <tbody>{"".join(total_rows)}</tbody>
+      </table></div>
+      <h4>Component ledger</h4>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three-round component medians in milliseconds. Paired values are forward / inverse. The horizontal column is raw FFT for WVM direct and the complete retained operator for the compact graphs. Components are diagnostic and do not sum to the uninstrumented total.</caption>
+        <thead><tr><th scope="col">Profile and graph</th><th scope="col">Horizontal transform</th><th scope="col">Raw vertical MM</th><th scope="col">Movement / rebuild</th><th scope="col">Modal work</th><th scope="col">Authoritative total</th></tr></thead>
+        <tbody>{"".join(component_rows)}</tbody>
+      </table></div>
+      <h4>Setup, placement, and memory</h4>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Setup and planning are outside steady-state totals. Placement is forward / inverse native placement. No steady-state timed-loop allocation is permitted.</caption>
+        <thead><tr><th scope="col">Profile and graph</th><th scope="col">Setup</th><th scope="col">Placement</th><th scope="col">Forward output representation</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{"".join(contract_rows)}</tbody>
+      </table></div>
+      <p class="method-note">The synthetic operator starts from ready real fields and ends with reconstructed real fields. It excludes the nonlinear flux calculation, time stepping, state management, and I/O. Cross-Mac replication and full WVM integration validation remain required before a general-Mac default recommendation.</p>
+    """
+
+
 def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
     pipeline = spectral_pipeline_bundles(bundles)
     original = [
@@ -3419,6 +3691,9 @@ def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
     large_f4 = spectral_pipeline_large_f4_synthesis(pipeline)
     if large_f4:
         sections.append(large_f4)
+    native_bridge = spectral_pipeline_native_bridge_synthesis(pipeline)
+    if native_bridge:
+        sections.append(native_bridge)
     return "".join(sections)
 
 
@@ -4174,22 +4449,66 @@ def build_decision_page(catalog: dict, bundles: list[PublishedBundle]) -> str:
             f"<td>{escaped(experiment['phase'])}</td><td>{escaped(counts)}</td>"
             "</tr>"
         )
-    readiness = (
-        "Reference evidence exists, but the decision remains open until the issue #11 adoption gates are evaluated."
-        if reference_bundles
-        else "No reference runs exist yet, so no adoption statistics or provider recommendation can be produced."
-    )
+    bridge_cells = native_bridge_cells(bundles)
+    bridge_complete = len(bridge_cells) == 3 * 3 * 3
+    if bridge_complete:
+        tile_to_wvm = native_bridge_pair_summary(
+            bridge_cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[0],
+        )
+        tile_to_fused = native_bridge_pair_summary(
+            bridge_cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[1],
+        )
+        maximum_error = max(item["error"] for item in bridge_cells.values())
+        heading = "M4 deployment decision recorded"
+        readiness = (
+            "The same reference campaign supports two boundary-specific selections. "
+            "Cross-Mac replication and full-model validation remain open before a "
+            "general-Mac default recommendation."
+        )
+        decision_sections = f"""
+        <section class="section" aria-labelledby="selection-heading">
+          <p class="eyebrow">M4 selections</p><h2 id="selection-heading">Choose by ownership boundary</h2>
+          <div class="table-scroll"><table>
+            <thead><tr><th scope="col">Deployment contract</th><th scope="col">Selected tuple</th><th scope="col">Interpretation</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Persistent compiled spectral engine</th><td><code>{NATIVE_BRIDGE_CANDIDATES[2]}</code><br>FFTW partial row/selected-column transform · compact radial split · grouped split dgemm · outer-dynamic-16</td><td>Fastest unrestricted complete synthetic operator and lowest algorithm-resident memory of the three finalists.</td></tr>
+              <tr><th scope="row">MATLAB + compiled core with WVM-native arrays</th><td><code>{NATIVE_BRIDGE_CANDIDATES[0]}</code><br>FFTW full WVM order · frequency-major interleaved · direct per-mode zgemm · outer-dynamic-16</td><td>Best measured eligible algorithm when MATLAB-visible WVM frequency-major interleaved arrays must remain authoritative; not the fastest unrestricted pipeline.</td></tr>
+            </tbody>
+          </table></div>
+          <p>Streaming tile 16 is {tile_to_wvm["geometricTime"]:.3f}× WVM direct geometrically in authoritative time (95% paired interval {tile_to_wvm["interval"][0]:.3f}×–{tile_to_wvm["interval"][1]:.3f}×; worst profile {tile_to_wvm["maximumTime"]:.3f}×). It is {tile_to_fused["geometricTime"]:.3f}× fused split ({tile_to_fused["interval"][0]:.3f}×–{tile_to_fused["interval"][1]:.3f}×; worst profile {tile_to_fused["maximumTime"]:.3f}×). Algorithm-resident memory is {tile_to_wvm["geometricResident"]:.3f}× WVM direct and {tile_to_fused["geometricResident"]:.3f}× fused split. Maximum correctness error is {maximum_error:.3e}.</p>
+          <p class="method-note">These are single-policy selections across 256²/Nz=129/F4, 512²/Nz=257/F4, and 1024²/Nz=129/F4. No size-dependent dispatch was allowed. See the <a href="../../experiments/issue-009-combined-spectral-pipeline/index.html">issue #9 experiment page</a> for totals, components, placement, setup, memory, and immutable runs.</p>
+        </section>
+        <section class="section" aria-labelledby="layers-heading">
+          <p class="eyebrow">Layered conclusion</p><h2 id="layers-heading">What each benchmark established</h2>
+          <ul>
+            <li><strong>Primitive horizontal transform:</strong> FFTW remains the Float64 full-transform provider baseline; vDSP's negative Float64 evidence remains visible rather than being generalized to Float32.</li>
+            <li><strong>Primitive vertical projection:</strong> grouped split real GEMMs with outer-dynamic-16 are the persistent compact-layout kernel; WVM direct zgemm remains the native interleaved control.</li>
+            <li><strong>Movement and representation:</strong> compact tile-16 staging preserves partial-column pruning without materializing the batch-sized full spectrum. Optional packing, not a mathematical gather requirement, is part of the selected algorithm.</li>
+            <li><strong>Complete pipeline:</strong> the uninstrumented ready-real-to-reconstructed-real total is authoritative. Component medians diagnose the result but are not summed.</li>
+          </ul>
+          <p>The benchmark explicitly excludes the nonlinear flux calculation, time integration, state management, and I/O. The recorded result is therefore a spectral-infrastructure decision for this M4, not a complete WVM performance claim.</p>
+        </section>
+        """
+    else:
+        heading = "Adoption decision not yet ready"
+        readiness = (
+            "Reference evidence exists, but the decision remains open until the issue #11 adoption gates are evaluated."
+            if reference_bundles
+            else "No reference runs exist yet, so no adoption statistics or provider recommendation can be produced."
+        )
+        decision_sections = ""
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Decision record · v1</p>
-      <h1>Adoption decision not yet ready</h1>
+      <h1>{escaped(heading)}</h1>
       <p class="lede">{escaped(readiness)}</p>
       <a class="button secondary" href="{REPOSITORY_URL}/issues/11">Open decision issue #11</a>
     </section>
+    {decision_sections}
     <section class="section" aria-labelledby="policy-heading">
       <p class="eyebrow">Evidence policy</p><h2 id="policy-heading">What enters the decision</h2>
       <p>Only reference runs contribute to adoption statistics. Preliminary, superseded, withdrawn, negative, and unsupported evidence stays linked from its experiment page with its explanation.</p>
-      <p>The final report will separate primitive FFT, primitive GEMM, movement/adapters, setup/memory, and uninstrumented pipeline conclusions.</p>
+      <p>The report separates primitive FFT, primitive GEMM, movement/adapters, setup/memory, and uninstrumented pipeline conclusions.</p>
     </section>
     <section class="section" aria-labelledby="evidence-heading">
       <p class="eyebrow">Current archive</p><h2 id="evidence-heading">Experiment status</h2>

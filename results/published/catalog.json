@@ -21098,6 +21098,789 @@
         "samplesSha256": "796406b991f357f7c387eae52577ddf11fffe0f30e812c61dc0f0029f8c0fac6"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T175442514946Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175442514946Z-lyra/result.json",
+        "samples": "runs/20260828T175442514946Z-lyra/samples.csv",
+        "resultSha256": "528d722439ad2fa3fb091ccc88b9f526001ae4f0c739b4114b3961ebf0ee40d1",
+        "samplesSha256": "dadf29d5e19d015cc27440bd20fb18e241ceb2205e4b6630c251b6bbefcbe526"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175445658929Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175445658929Z-lyra/result.json",
+        "samples": "runs/20260828T175445658929Z-lyra/samples.csv",
+        "resultSha256": "f60d0544360db9b6dfabfce589a0cff19bb2973537d6b402ee4cb1d8e791b137",
+        "samplesSha256": "b67e02951fb6bcb42c3f08ca5ee1346882bba72299da601a25de31580a7c0105"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175449131383Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175449131383Z-lyra/result.json",
+        "samples": "runs/20260828T175449131383Z-lyra/samples.csv",
+        "resultSha256": "125ea9266acc00d5979f272e62e60eeb5eebaa874272386fb42c937657326fee",
+        "samplesSha256": "1c0faf32516cc47066301c42c6bf7ed93b8ae16821b24cf4f84b34364725f2b0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175451586088Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175451586088Z-lyra/result.json",
+        "samples": "runs/20260828T175451586088Z-lyra/samples.csv",
+        "resultSha256": "b7e068fc9a89aa82d8604de24a75e326b577c862863aba001ae2d6a4024c6c50",
+        "samplesSha256": "fca591ee4aac2deea06e8c4c2dbf8ab14d0769ed87ac8881e650cc2101006980"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175521456591Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175521456591Z-lyra/result.json",
+        "samples": "runs/20260828T175521456591Z-lyra/samples.csv",
+        "resultSha256": "73a1547ad0ed2988493d91374686ab45659dc5d99deabd46ed3d90ea25be4aa8",
+        "samplesSha256": "69495c4d13cb5f1036dae0269d08cd78489207c612b20071d0656bcd7916c2d0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175552726161Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175552726161Z-lyra/result.json",
+        "samples": "runs/20260828T175552726161Z-lyra/samples.csv",
+        "resultSha256": "f8970191eb568fc9ef0b8cba8d038cb52dd1bea801e7bbbe18ae6ce28e63f42e",
+        "samplesSha256": "4e4026b41bfe2b7ccf06435b0654f250996054455a714333f909d4a5475d52bd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175616400518Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175616400518Z-lyra/result.json",
+        "samples": "runs/20260828T175616400518Z-lyra/samples.csv",
+        "resultSha256": "591527cb184c5ff789974b5adb1eba8a2dccbbf65e59561c16d646bab1b32829",
+        "samplesSha256": "fdb5e4bfb5a70a974884f6f18371d75b4338507ac9bec840e397b3f837bb14b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175708150717Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175708150717Z-lyra/result.json",
+        "samples": "runs/20260828T175708150717Z-lyra/samples.csv",
+        "resultSha256": "c7b929c4e3b3b80e8d6653e7b81c4843c82cc8056c6cf8be3c9c971309b38d83",
+        "samplesSha256": "689c56ffc523a5cb77413d7095e7e787977f7b7071c377c5ac3245e21f0b108d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175806907734Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175806907734Z-lyra/result.json",
+        "samples": "runs/20260828T175806907734Z-lyra/samples.csv",
+        "resultSha256": "ce8bdc7b4d788a9ef5c654c8e3c1aefad8ea85dd050fe479b28a1fb82a765e93",
+        "samplesSha256": "d4e66e1d835d5ab014ea593b4058c05d2f49eb1a5d364bf86d10a5c8f8fc843f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175855223496Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175855223496Z-lyra/result.json",
+        "samples": "runs/20260828T175855223496Z-lyra/samples.csv",
+        "resultSha256": "133c89de321db77cc0758027730a8fce45ad8f7c0efe74b67f4b3c54b6cf9f0d",
+        "samplesSha256": "eb90e5ff4795050adf1e9717c8995dc1219c4d9b31d7f4cd192e1b2bc18f33af"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175927704703Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175927704703Z-lyra/result.json",
+        "samples": "runs/20260828T175927704703Z-lyra/samples.csv",
+        "resultSha256": "e5b05da538990342701e1dbaa540278c4e85c9425cc6c8f556eabd924052c830",
+        "samplesSha256": "8496600f5c2857466eead829e54689301239ba28edc9e6446247b9e9c541c5a7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T175951734834Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T175951734834Z-lyra/result.json",
+        "samples": "runs/20260828T175951734834Z-lyra/samples.csv",
+        "resultSha256": "c94c4efd0b0d6879b129639117a0c314a9cf8e63e6eb79d2c6c7e5fe4bf92749",
+        "samplesSha256": "051bb38aad0dd29088f1fa84c85cc1e689c3b6f5816a3df19ab628f73d54edac"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180022101348Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180022101348Z-lyra/result.json",
+        "samples": "runs/20260828T180022101348Z-lyra/samples.csv",
+        "resultSha256": "91d6db8fb2fb467ac04eb5e7f5ced30d4c0cdcecbe0d5b63bf01c2d1e51f9dc2",
+        "samplesSha256": "f221365538a1482e4a76ac8c174a4538fe0ad34675066a28f0b7ce025a44532e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180121110014Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180121110014Z-lyra/result.json",
+        "samples": "runs/20260828T180121110014Z-lyra/samples.csv",
+        "resultSha256": "00faa124b9b56f3233908ab56f79230541b6475c45555740d42a3469bf93b5a7",
+        "samplesSha256": "964750c2641cdcf9457470fcbb38c7bac46a01ccf2a24886e36b57b7a586fa14"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180208543950Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180208543950Z-lyra/result.json",
+        "samples": "runs/20260828T180208543950Z-lyra/samples.csv",
+        "resultSha256": "1175e7359b7adc51a4c75ea250a12bac04ec55e5fab7ae5c448ee8075f6a4c0a",
+        "samplesSha256": "c851321fe4fc941c5892f6e4c50a98aedc6f513e63663ff0433c40b81669d6d3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180301194427Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180301194427Z-lyra/result.json",
+        "samples": "runs/20260828T180301194427Z-lyra/samples.csv",
+        "resultSha256": "32a49bf1d721e3f51d7baf4827019bb799adcd59c890abc951992b3d6e83df32",
+        "samplesSha256": "57ff73b8efd6d5ea0f0a257aa5c11a0439e040e6814e7dfff54a49ede5ec152a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180304818294Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180304818294Z-lyra/result.json",
+        "samples": "runs/20260828T180304818294Z-lyra/samples.csv",
+        "resultSha256": "847ab8e8d03e5884077ccb3fe30bd1754abbb0b6dd462f415aa81324d12c8c18",
+        "samplesSha256": "6f6826a0879ba8117e3a7caeb9f72a2bb9c9d32fdd68242b2952c2f5ff4da515"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180307313494Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180307313494Z-lyra/result.json",
+        "samples": "runs/20260828T180307313494Z-lyra/samples.csv",
+        "resultSha256": "34860b97c03d3d46845338a2839e73996a0a9ae1bdb30e391993a75549200e9a",
+        "samplesSha256": "d6b70bf3fbb56fa9db650b737b4e87370674e1e4eba63d1a5b40092d7cdb9e52"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180310427740Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180310427740Z-lyra/result.json",
+        "samples": "runs/20260828T180310427740Z-lyra/samples.csv",
+        "resultSha256": "5740f253077cea4bceef7531337bf74a44d00b6b7442537bb374d0c7363fb0c1",
+        "samplesSha256": "544d29a86e2380a4bf75d15ac2c7850ec788a0f3d51107183024425cb1443d24"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180357794309Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180357794309Z-lyra/result.json",
+        "samples": "runs/20260828T180357794309Z-lyra/samples.csv",
+        "resultSha256": "62463c80606821e351e8fcf09df039944d2d4471fd7dba6c8e206069e80a964c",
+        "samplesSha256": "b41d70f5c4a5bcfa7aa6363aeabd5da730e3a1bf1fb554b39b323ea824e6ff68"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180449881305Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180449881305Z-lyra/result.json",
+        "samples": "runs/20260828T180449881305Z-lyra/samples.csv",
+        "resultSha256": "0cc6d09063f685896d53f7ab9d9533f13edbb972565ac8bf64d987509c1e4c81",
+        "samplesSha256": "44060a7b536651a254767b51d03b487e830ecbdbecc019b1fd645960f46d40f6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180549135039Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180549135039Z-lyra/result.json",
+        "samples": "runs/20260828T180549135039Z-lyra/samples.csv",
+        "resultSha256": "fe7a0a63166785b714a3330131c23c0bf8d36cb6371f1ed86a5a42e45eb0d8b3",
+        "samplesSha256": "0e61dd8591578953dff176d97783f1e6685696c8f0e70a71349520234f21dee6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180551649631Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180551649631Z-lyra/result.json",
+        "samples": "runs/20260828T180551649631Z-lyra/samples.csv",
+        "resultSha256": "a2d09602d3cf48d191bbb0aa48b99926d5d7af8a0fad52ec4e4d5856c75bc2a8",
+        "samplesSha256": "fd8c813e2d7076061fda33637ac4aef7f11bc770c6b0191c6f22a9d14aa9466e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180554831002Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180554831002Z-lyra/result.json",
+        "samples": "runs/20260828T180554831002Z-lyra/samples.csv",
+        "resultSha256": "a0fa68b80bc3a65e7636a0a43eeca8e423c384a071ff91037e9f0dc8e02ea1a1",
+        "samplesSha256": "8b89fcdc2e19564ef03a974fd4c03100c37c7bbef84511885f66750dc68cbacd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180558484843Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180558484843Z-lyra/result.json",
+        "samples": "runs/20260828T180558484843Z-lyra/samples.csv",
+        "resultSha256": "d840ba084855f4e17cf590404866bc39149b7e6ad0b2c6d71aa08b7069dc8621",
+        "samplesSha256": "cc4f011bf5289410cc2d6515d8d36388004be0d10010921fa6ad2124bf59a321"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180622231719Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180622231719Z-lyra/result.json",
+        "samples": "runs/20260828T180622231719Z-lyra/samples.csv",
+        "resultSha256": "7dfb1460fa1a9d3822dd90e94dab70b80e3d57345ea1d49cd166a164e3085233",
+        "samplesSha256": "e571d46f7594fff85db3143a15e5723186f522af257de639555fdcd5486706d5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T180652380380Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-three-way-native-control-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round three-way M4 native-control reference campaign; correctness, paired-confidence, single-policy performance, and memory reporting gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T180652380380Z-lyra/result.json",
+        "samples": "runs/20260828T180652380380Z-lyra/samples.csv",
+        "resultSha256": "0693ca6e9b91abac5353a277149f3c33f2dc5314d5c9cb476095f9090657eafe",
+        "samplesSha256": "9d7945d7c8f3b9f65d9aa91909055c107eff26ee7baabdd3b471df2976fc6ab0"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

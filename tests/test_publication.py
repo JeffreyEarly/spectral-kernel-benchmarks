@@ -301,6 +301,71 @@ class PublicationValidationTests(unittest.TestCase):
                 memory["benchmarkHarnessBytes"],
             )
             self.assertGreater(memory["observedProcessHighWaterBytes"], 0)
+        native_bridge_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-three-way-native-control-reference-v1"
+        ]
+        self.assertEqual(27, len(native_bridge_reference))
+        self.assertTrue(all(
+            bundle.publication["status"] == "reference"
+            and not bundle.result["environment"]["gitDirty"]
+            for bundle in native_bridge_reference
+        ))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"]
+            for bundle in native_bridge_reference
+        })
+        self.assertEqual(
+            {
+                "wvm-direct--outer-dynamic-16",
+                "plane-major-fused-split--outer-dynamic-16",
+                "streaming-pruned-tiled-16--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in native_bridge_reference
+            },
+        )
+        self.assertEqual(
+            {
+                "wvm-current-256-nz129-f4",
+                "wvm-current-512-nz257-f4",
+                "wvm-large-1024-nz129-f4",
+            },
+            {
+                bundle.result["run"]["profile"]
+                for bundle in native_bridge_reference
+            },
+        )
+        self.assertEqual(
+            {"3f0c535887ab"},
+            {
+                bundle.result["environment"]["gitCommit"]
+                for bundle in native_bridge_reference
+            },
+        )
+        self.assertEqual(
+            {"issue-009-combined-spectral-pipeline"},
+            {
+                experiment
+                for bundle in native_bridge_reference
+                for experiment in bundle.publication["experiments"]
+            },
+        )
+        for bundle in native_bridge_reference:
+            provider = bundle.result["providers"][0]
+            memory = provider["memory"]
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                memory["algorithmResidentBytes"] +
+                memory["benchmarkHarnessBytes"],
+            )
+            self.assertGreater(memory["observedProcessHighWaterBytes"], 0)
+            self.assertEqual("out-of-place", provider["executionContract"]
+                             ["forward"]["nativePlacement"])
+            self.assertEqual("out-of-place", provider["executionContract"]
+                             ["inverse"]["nativePlacement"])
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
