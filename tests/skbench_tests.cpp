@@ -170,7 +170,7 @@ void requireAllocationFreePrunedSplitExecution(
 void requireAllocationFreeStreamingPrunedSplitExecution(
     const skbench::Workload& workload,
     const std::vector<skbench::RetainedMode>& modes,
-    std::size_t outerWorkers) {
+    std::size_t outerWorkers, std::size_t tileWidth = 1) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
     auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
@@ -180,7 +180,8 @@ void requireAllocationFreeStreamingPrunedSplitExecution(
     }
 
     skbench::FFTWStreamingPrunedSplitProvider provider(
-        workload, modes, skbench::FFTWPlanningMode::estimate, 1, outerWorkers);
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1,
+        outerWorkers, tileWidth);
     const auto execute = [&] {
         provider.forwardSplit(
             input.get(), retainedReal.get(), retainedImag.get());
@@ -727,6 +728,8 @@ int main() {
                 "pruned FFTW in-place capability contract");
         skbench::FFTWStreamingPrunedSplitProvider streamingPrunedProvider(
             workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2);
+        skbench::FFTWStreamingPrunedSplitProvider tiledStreamingPrunedProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2, 8);
         require(streamingPrunedProvider.activeKxCount() ==
                     prunedProvider.activeKxCount(),
                 "streaming pruned active-column count");
@@ -741,6 +744,20 @@ int main() {
                 "streaming pruned per-worker scratch accounting");
         require(!streamingPrunedProvider.completeHalfSpectrumMaterialized(),
                 "streaming pruned provider unexpectedly materializes a full spectrum");
+        require(tiledStreamingPrunedProvider.tileWidth() == 8,
+                "tiled streaming pruned width");
+        require(tiledStreamingPrunedProvider.fftScratchBytes() ==
+                    workload.halfRows() * sizeof(skbench::Complex),
+                "tiled streaming per-worker FFT scratch");
+        require(tiledStreamingPrunedProvider.compactTileBytes() ==
+                    2 * 8 * prunedModes.size() * sizeof(skbench::Complex),
+                "tiled streaming compact scratch accounting");
+        require(tiledStreamingPrunedProvider.scratchBytes() ==
+                    2 * workload.halfRows() * sizeof(skbench::Complex) +
+                    tiledStreamingPrunedProvider.compactTileBytes(),
+                "tiled streaming total scratch accounting");
+        require(!tiledStreamingPrunedProvider.completeHalfSpectrumMaterialized(),
+                "tiled streaming unexpectedly materializes a full spectrum");
 
         std::vector<skbench::Complex> prunedOracleSpectrum(workload.spectrumElements());
         std::vector<skbench::Complex> prunedEmbeddedSpectrum(workload.spectrumElements());
@@ -897,6 +914,25 @@ int main() {
                         prunedInverseActual.data(), prunedInverseOracle.data(),
                         prunedInverseActual.size()) < 1.0e-12,
                     "streaming pruned split inverse versus mode-keyed oracle");
+
+            tiledStreamingPrunedProvider.forwardSplit(
+                fixtureInput.data(), retainedSplitReal.data(),
+                retainedSplitImag.data());
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedSplitReal.data(), retainedOracleReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedSplitImag.data(), retainedOracleImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "tiled streaming forward versus mode-keyed oracle");
+            tiledStreamingPrunedProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "tiled streaming inverse versus mode-keyed oracle");
         }
 
         skbench::RunOptions prunedOptions;
@@ -1198,6 +1234,8 @@ int main() {
             requireAllocationFreePrunedSplitExecution(workload, prunedModes, 2);
             requireAllocationFreeStreamingPrunedSplitExecution(
                 workload, prunedModes, 2);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 8);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
@@ -1848,6 +1886,51 @@ int main() {
                         "streaming pipeline avoids batch-sized spectrum scratch");
             }
         }
+
+        skbench::RunOptions tiledPipelineOptions;
+        tiledPipelineOptions.kernel = "spectral-pipeline";
+        tiledPipelineOptions.boundaryPolicy =
+            "streaming-pruned-compact-split";
+        tiledPipelineOptions.streamingTileWidth = 8;
+        tiledPipelineOptions.profile = "smoke";
+        tiledPipelineOptions.verticalGemmFamily = "k2-grouped";
+        tiledPipelineOptions.verticalGemmSchedule = "serial";
+        tiledPipelineOptions.verticalGemmOuterWorkers = 1;
+        tiledPipelineOptions.fftwPlanning = "estimate";
+        tiledPipelineOptions.fftwInternalWorkers = 1;
+        tiledPipelineOptions.fftwOuterWorkers = 2;
+        tiledPipelineOptions.warmups = 1;
+        tiledPipelineOptions.samples = 2;
+        const auto tiledPipelineReport =
+            skbench::runBenchmark(tiledPipelineOptions);
+        require(tiledPipelineReport.status == "passed",
+                "tiled streaming pipeline smoke benchmark failed");
+        const auto& tiledPipelineProvider =
+            tiledPipelineReport.providers.front();
+        require(tiledPipelineProvider.scratchBytes ==
+                    2 * workload.halfRows() * sizeof(skbench::Complex) +
+                    2 * 8 * modes.size() * sizeof(skbench::Complex),
+                "tiled streaming pipeline scratch accounting");
+        require(std::any_of(
+                    tiledPipelineProvider.timings.begin(),
+                    tiledPipelineProvider.timings.end(),
+                    [](const skbench::TimingSeries& timing) {
+                        return timing.scope == "adapter-component" &&
+                            timing.stage ==
+                                "plane-major compact staging and blocked split transpose" &&
+                            timing.direction == "forward";
+                    }),
+                "tiled streaming forward adapter timing");
+        require(std::any_of(
+                    tiledPipelineProvider.timings.begin(),
+                    tiledPipelineProvider.timings.end(),
+                    [](const skbench::TimingSeries& timing) {
+                        return timing.scope == "adapter-component" &&
+                            timing.stage ==
+                                "blocked split load, compact staging, embed, and zero fill" &&
+                            timing.direction == "inverse";
+                    }),
+                "tiled streaming inverse adapter timing");
 
         if (skbench::test::allocationTrackingSupported()) {
             requireAllocationFreeVerticalExecution(

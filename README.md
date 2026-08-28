@@ -169,6 +169,15 @@ python3 tools/run_streaming_pruned_pipeline_sweep.py
 
 The screen covers only the fields=4 `256²/Nz=129`, `512²/Nz=257`, and `1024²/Nz=129` profiles. It advances only for a correct large-case time improvement or a material algorithm-resident memory reduction within the declared total-time bound. FFTW++ implicit and hybrid convolution work belongs to issue #17 and is not part of this runner.
 
+The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
+
+```sh
+python3 tools/run_streaming_pruned_locality_sweep.py --dry-run --allow-dirty-tree
+python3 tools/run_streaming_pruned_locality_sweep.py
+```
+
+The selection is uniform across all three workloads. A tiled candidate must retain at least a 10% geometric algorithm-resident-memory reduction relative to fused split and materially improve the two-large-case timing relative to direct streaming; the runner never defines a size-dependent dispatch rule. Individual exploratory runs select a tile with `--streaming-tile-width 4|8|16`.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries

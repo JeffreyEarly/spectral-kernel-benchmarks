@@ -467,7 +467,7 @@ public:
     FFTWStreamingPrunedSplitProvider(
         const Workload& workload, const std::vector<RetainedMode>& modes,
         FFTWPlanningMode planningMode, std::size_t internalWorkers,
-        std::size_t outerWorkers);
+        std::size_t outerWorkers, std::size_t tileWidth = 1);
     ~FFTWStreamingPrunedSplitProvider();
     FFTWStreamingPrunedSplitProvider(FFTWStreamingPrunedSplitProvider&&) noexcept;
     FFTWStreamingPrunedSplitProvider& operator=(
@@ -500,6 +500,9 @@ public:
     std::size_t omittedColumnTransformsPerDirection() const noexcept;
     std::size_t scratchBytes() const noexcept;
     std::size_t workerScratchBytes() const noexcept;
+    std::size_t fftScratchBytes() const noexcept;
+    std::size_t compactTileBytes() const noexcept;
+    std::size_t tileWidth() const noexcept;
     std::size_t planningBytes() const noexcept;
     std::size_t minimumAlignmentBytes() const noexcept;
     std::size_t internalWorkers() const noexcept;
@@ -774,6 +777,7 @@ struct RunOptions {
     std::string verticalGemmSchedule = "serial";
     std::size_t verticalGemmOuterWorkers = 1;
     std::string boundaryPolicy = "wvm-packed-split";
+    std::size_t streamingTileWidth = 1;
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

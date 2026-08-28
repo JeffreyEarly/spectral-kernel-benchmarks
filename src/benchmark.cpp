@@ -3377,9 +3377,12 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
     }
 
     if (options.boundaryPolicy == "streaming-pruned-compact-split") {
+        const auto streamingTileWidth = options.streamingTileWidth;
+        const auto tiledStreaming = streamingTileWidth > 1;
         FFTWStreamingPrunedSplitProvider fftw(
             workload, modes, fftwPlanningModeNamed(options.fftwPlanning),
-            fftwInternalWorkers, options.fftwOuterWorkers);
+            fftwInternalWorkers, options.fftwOuterWorkers,
+            streamingTileWidth);
         VerticalGemmProvider provider(
             workload, vertical, VerticalGemmLayout::split, verticalStrategy);
         if (!provider.supported()) throw std::runtime_error(provider.capability());
@@ -3417,8 +3420,12 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
 
         auto record = makeRecord(
             "pipeline-streaming-pruned-compact-split",
-            "streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1",
-            "worker-local-plane-spectrum-to-persistent-radial-compact-split");
+            tiledStreaming
+                ? "streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2"
+                : "streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1",
+            tiledStreaming
+                ? "worker-local-plane-spectrum-and-compact-tile-to-persistent-radial-compact-split"
+                : "worker-local-plane-spectrum-to-persistent-radial-compact-split");
         record.version = fftw.version() + " + Apple Accelerate";
         record.gemmCallsPerExecution = 2 * provider.gemmCallsPerExecution();
         record.opaquePlanningBytes = fftw.planningBytes();
@@ -3434,14 +3441,23 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
         record.planningConfiguration +=
             "; active kx columns=" + std::to_string(fftw.activeKxCount()) +
             "/" + std::to_string(fftw.fullKxCount()) +
+            "; streaming compact tile width=" +
+            std::to_string(fftw.tileWidth()) +
             "; one worker-local half-spectrum plane per outer worker" +
+            (tiledStreaming
+                 ? "; plane-major compact tile with 32-mode blocked transpose"
+                 : "; direct page-strided compact split write") +
             "; no batch-sized full half-spectrum";
         record.execution.forward = {
             "out-of-place", "out-of-place", false, true, false, false, false,
             "real-grid", "radial-compact-split-modal-after-real-diagonal-work",
             "real-grid", "radial-compact-split-modal-after-real-diagonal-work",
-            "real grid -> worker-local row spectrum -> selected column FFTs -> direct radial split -> grouped dgemm -> modal work",
-            "one full half-spectrum plane per outer worker; z/field plane index contiguous within each retained radial mode",
+            tiledStreaming
+                ? "real grid -> worker-local row spectrum -> plane-major compact tile -> blocked radial split transpose -> grouped dgemm -> modal work"
+                : "real grid -> worker-local row spectrum -> selected column FFTs -> direct radial split -> grouped dgemm -> modal work",
+            tiledStreaming
+                ? "one full half-spectrum plane plus one bounded plane-major compact tile per outer worker; z/field plane index contiguous within each retained radial mode"
+                : "one full half-spectrum plane per outer worker; z/field plane index contiguous within each retained radial mode",
             fftw.scratchBytes() / sizeof(Complex), 1,
             "worker-local FFT scratch, split physical, split forward-modal, and split post-work buffers do not overlap",
             provider.persistentBytes() + fftw.scratchBytes(), true};
@@ -3453,7 +3469,9 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
             record.execution.inverse.nativeInputRepresentationId;
         record.execution.inverse.adapterOutputRepresentationId = "real-grid";
         record.execution.inverse.physicalExtents =
-            "post-work split modal -> grouped dgemm -> per-plane split embed/selected-column synthesis/row reconstruction -> real grid";
+            tiledStreaming
+                ? "post-work split modal -> grouped dgemm -> blocked split-to-plane-major compact tile -> per-plane embed/selected-column synthesis/row reconstruction -> real grid"
+                : "post-work split modal -> grouped dgemm -> per-plane split embed/selected-column synthesis/row reconstruction -> real grid";
         record.execution.inverse.reusableWorkBytes = fftw.scratchBytes();
         record.ledger = {
             {"setup/planning", StageState::setupOnly,
@@ -3461,11 +3479,17 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
             {"raw forward FFT", StageState::fused,
              "row and selected-column FFT work streams directly into retained split output"},
             {"horizontal retention", StageState::fused,
-             "radial selection occurs while each worker-local plane is live"},
+             tiledStreaming
+                 ? "radial selection stages each live worker-local plane into a bounded plane-major compact tile"
+                 : "radial selection occurs while each worker-local plane is live"},
             {"representation conversion", StageState::fused,
-             "selected interleaved values are written directly to final compact split arrays"},
+             tiledStreaming
+                 ? "a cache-blocked compact transpose converts staged interleaved values into final split arrays"
+                 : "selected interleaved values are written directly to final compact split arrays"},
             {"permutation/packing", StageState::fused,
-             "radial mode ordering and split production are one streamed write"},
+             tiledStreaming
+                 ? "radial mode ordering, plane tiling, blocked transpose, and split production are one bounded adapter"
+                 : "radial mode ordering and split production are one streamed write"},
             {"raw forward vertical MM", StageState::executed,
              "two grouped dgemm calls per K-squared matrix group"},
             {"modal work", StageState::executed,
@@ -3473,7 +3497,9 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
             {"raw inverse vertical MM", StageState::executed,
              "two grouped dgemm calls per K-squared matrix group"},
             {"horizontal embedding", StageState::fused,
-             "compact split input is embedded into one zeroed worker-local plane at a time"},
+             tiledStreaming
+                 ? "compact split input is read contiguously into a blocked plane-major tile before embedding one zeroed worker-local plane at a time"
+                 : "compact split input is embedded into one zeroed worker-local plane at a time"},
             {"raw inverse FFT", StageState::fused,
              "selected-column synthesis and row reconstruction consume each embedded plane before reuse"},
             {"uninstrumented total", StageState::executed,
@@ -3488,9 +3514,10 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
         const auto selectedColumnBytes = bytes(
             activeColumnElements, sizeof(Complex));
         const auto rowBytes = report.fullRealBytes + report.fullSpectrumBytes;
-        const auto splitWriteBytes = 2 * report.retainedSpectrumBytes;
+        const auto splitWriteBytes =
+            (tiledStreaming ? 4 : 2) * report.retainedSpectrumBytes;
         const auto splitEmbedBytes = report.fullSpectrumBytes +
-            2 * report.retainedSpectrumBytes;
+            (tiledStreaming ? 4 : 2) * report.retainedSpectrumBytes;
         const auto forwardHorizontalBytes =
             rowBytes + 2 * selectedColumnBytes + splitWriteBytes;
         const auto inverseHorizontalBytes =
@@ -3518,7 +3545,11 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                    measure(warmups, sampleCount, [&] {
                        fftw.executeForwardColumnsDiagnostic();
                    })),
-            series("adapter-component", "streamed radial direct split write", "forward",
+            series("adapter-component",
+                   tiledStreaming
+                       ? "plane-major compact staging and blocked split transpose"
+                       : "streamed radial direct split write",
+                   "forward",
                    StageState::executed, splitWriteBytes,
                    measure(warmups, sampleCount, [&] {
                        fftw.writeForwardSplitDiagnostic(
@@ -3548,7 +3579,11 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
             series("primitive", "raw vertical MM", "inverse", StageState::executed,
                    verticalBytes,
                    measure(warmups, sampleCount, [&] { provider.executeInverse(); })),
-            series("adapter-component", "streamed split embed and zero fill", "inverse",
+            series("adapter-component",
+                   tiledStreaming
+                       ? "blocked split load, compact staging, embed, and zero fill"
+                       : "streamed split embed and zero fill",
+                   "inverse",
                    StageState::executed, splitEmbedBytes,
                    measure(warmups, sampleCount, [&] {
                        fftw.embedInverseSplitDiagnostic(

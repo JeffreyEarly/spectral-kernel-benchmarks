@@ -3,6 +3,7 @@
 #include <fftw3.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <climits>
 #include <condition_variable>
@@ -611,9 +612,10 @@ class FFTWStreamingPrunedSplitProvider::Impl {
 public:
     Impl(const Workload& workload, const std::vector<RetainedMode>& modes,
          FFTWPlanningMode planningMode, std::size_t internalWorkers,
-         std::size_t outerWorkers)
+         std::size_t outerWorkers, std::size_t tileWidth)
         : workload_(workload), modes_(modes), planningMode_(planningMode),
-          internalWorkers_(internalWorkers), outerWorkers_(outerWorkers) {
+          internalWorkers_(internalWorkers), outerWorkers_(outerWorkers),
+          tileWidth_(tileWidth) {
         static_assert(sizeof(Complex) == sizeof(fftw_complex));
         if (modes_.empty()) {
             throw std::invalid_argument(
@@ -626,6 +628,10 @@ public:
         if (outerWorkers_ == 0 || outerWorkers_ > workload_.planes()) {
             throw std::invalid_argument(
                 "Streaming pruned FFTW outer workers must lie in [1, plane count].");
+        }
+        if (tileWidth_ == 0 || tileWidth_ > maximumTileWidth_) {
+            throw std::invalid_argument(
+                "Streaming pruned FFTW tile width must lie in [1, 16].");
         }
         for (const auto& mode : modes_) {
             if (mode.storedKx >= workload_.nxHalf() ||
@@ -654,7 +660,13 @@ public:
         realSurrogate_ = static_cast<double*>(fftw_malloc(realPlaneBytes));
         scratch_ = static_cast<Complex*>(fftw_malloc(
             outerWorkers_ * spectrumPlaneBytes));
-        if (realSurrogate_ == nullptr || scratch_ == nullptr) {
+        if (tileWidth_ > 1) {
+            compactTile_ = static_cast<Complex*>(fftw_malloc(
+                outerWorkers_ * tileWidth_ * modes_.size() *
+                sizeof(Complex)));
+        }
+        if (realSurrogate_ == nullptr || scratch_ == nullptr ||
+            (tileWidth_ > 1 && compactTile_ == nullptr)) {
             releaseStorage();
             throw std::bad_alloc();
         }
@@ -747,9 +759,11 @@ public:
     FFTWPlanningMode planningMode_ = FFTWPlanningMode::measure;
     std::size_t internalWorkers_ = 1;
     std::size_t outerWorkers_ = 1;
+    std::size_t tileWidth_ = 1;
     std::size_t activeKxCount_ = 0;
     double* realSurrogate_ = nullptr;
     Complex* scratch_ = nullptr;
+    Complex* compactTile_ = nullptr;
     fftw_plan rowForward_ = nullptr;
     fftw_plan columnForward_ = nullptr;
     fftw_plan columnInverse_ = nullptr;
@@ -761,6 +775,9 @@ public:
     std::size_t planningBytes_ = 0;
 
 private:
+    static constexpr std::size_t maximumTileWidth_ = 16;
+    static constexpr std::size_t transposeBlockModes_ = 32;
+
     struct Context {
         Impl* provider;
         const double* realInput;
@@ -823,6 +840,10 @@ private:
         return scratch_ + worker * workload_.halfRows();
     }
 
+    Complex* workerCompactTile(std::size_t worker) noexcept {
+        return compactTile_ + worker * tileWidth_ * modes_.size();
+    }
+
     std::size_t beginPlane(std::size_t worker) const noexcept {
         return workload_.planes() * worker / outerWorkers_;
     }
@@ -843,6 +864,44 @@ private:
             const auto retained = plane + planes * modeIndex;
             retainedReal[retained] = scale * value.real;
             retainedImag[retained] = scale * value.imag;
+        }
+    }
+
+    void stageRetainedPlane(const Complex* scratch, Complex* staged,
+                            double scale) const noexcept {
+        const auto nxHalf = workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
+            const auto& mode = modes_[modeIndex];
+            auto value = scratch[mode.storedKx + nxHalf * mode.storedKy];
+            if (mode.conjugatesStoredValue) value = conjugate(value);
+            staged[modeIndex] = {scale * value.real, scale * value.imag};
+        }
+    }
+
+    void flushForwardTile(const Complex* tile, std::size_t planeBegin,
+                          std::size_t planeCount, double* retainedReal,
+                          double* retainedImag) const noexcept {
+        std::array<Complex, maximumTileWidth_ * transposeBlockModes_> block{};
+        const auto planes = workload_.planes();
+        for (std::size_t modeBegin = 0; modeBegin < modes_.size();
+             modeBegin += transposeBlockModes_) {
+            const auto modeCount = std::min(
+                transposeBlockModes_, modes_.size() - modeBegin);
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                const auto* source = tile + lane * modes_.size() + modeBegin;
+                for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                    block[offset * tileWidth_ + lane] = source[offset];
+                }
+            }
+            for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                const auto retained = planeBegin +
+                    planes * (modeBegin + offset);
+                const auto* source = block.data() + offset * tileWidth_;
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    retainedReal[retained + lane] = source[lane].real;
+                    retainedImag[retained + lane] = source[lane].imag;
+                }
+            }
         }
     }
 
@@ -868,21 +927,94 @@ private:
         }
     }
 
+    void loadInverseTile(Complex* tile, std::size_t planeBegin,
+                         std::size_t planeCount,
+                         const double* retainedReal,
+                         const double* retainedImag) const noexcept {
+        std::array<Complex, maximumTileWidth_ * transposeBlockModes_> block{};
+        const auto planes = workload_.planes();
+        for (std::size_t modeBegin = 0; modeBegin < modes_.size();
+             modeBegin += transposeBlockModes_) {
+            const auto modeCount = std::min(
+                transposeBlockModes_, modes_.size() - modeBegin);
+            for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                const auto retained = planeBegin +
+                    planes * (modeBegin + offset);
+                auto* destination = block.data() + offset * tileWidth_;
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    destination[lane] = {
+                        retainedReal[retained + lane],
+                        retainedImag[retained + lane]};
+                }
+            }
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                auto* destination = tile + lane * modes_.size() + modeBegin;
+                for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                    destination[offset] =
+                        block[offset * tileWidth_ + lane];
+                }
+            }
+        }
+    }
+
+    void embedStagedPlane(Complex* scratch,
+                          const Complex* staged) const noexcept {
+        const auto spectrumPlane = workload_.halfRows();
+        const auto nxHalf = workload_.nxHalf();
+        std::fill_n(scratch, spectrumPlane, Complex{});
+        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
+            const auto& mode = modes_[modeIndex];
+            auto stored = staged[modeIndex];
+            if (mode.conjugatesStoredValue) stored = conjugate(stored);
+            scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
+            if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                2 * mode.storedKy != workload_.ny) {
+                const auto conjugateKy =
+                    (workload_.ny - mode.storedKy) % workload_.ny;
+                scratch[nxHalf * conjugateKy] = conjugate(stored);
+            }
+        }
+    }
+
     static void forwardSplitShard(void* rawContext, std::size_t worker) {
         auto& context = *static_cast<Context*>(rawContext);
         auto& provider = *context.provider;
         auto* scratch = provider.workerScratch(worker);
         auto* nativeScratch = reinterpret_cast<fftw_complex*>(scratch);
-        for (std::size_t plane = provider.beginPlane(worker);
-             plane < provider.endPlane(worker); ++plane) {
-            auto* input = const_cast<double*>(context.realInput) +
-                plane * provider.workload_.realPlaneElements();
-            fftw_execute_dft_r2c(provider.rowForward_, input, nativeScratch);
-            fftw_execute_dft(
-                provider.columnForward_, nativeScratch, nativeScratch);
-            provider.writeRetainedPlane(
-                scratch, plane, context.retainedRealOutput,
-                context.retainedImagOutput, context.scale);
+        if (provider.tileWidth_ == 1) {
+            for (std::size_t plane = provider.beginPlane(worker);
+                 plane < provider.endPlane(worker); ++plane) {
+                auto* input = const_cast<double*>(context.realInput) +
+                    plane * provider.workload_.realPlaneElements();
+                fftw_execute_dft_r2c(provider.rowForward_, input, nativeScratch);
+                fftw_execute_dft(
+                    provider.columnForward_, nativeScratch, nativeScratch);
+                provider.writeRetainedPlane(
+                    scratch, plane, context.retainedRealOutput,
+                    context.retainedImagOutput, context.scale);
+            }
+            return;
+        }
+        auto* tile = provider.workerCompactTile(worker);
+        for (std::size_t planeBegin = provider.beginPlane(worker);
+             planeBegin < provider.endPlane(worker);
+             planeBegin += provider.tileWidth_) {
+            const auto planeCount = std::min(
+                provider.tileWidth_, provider.endPlane(worker) - planeBegin);
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                const auto plane = planeBegin + lane;
+                auto* input = const_cast<double*>(context.realInput) +
+                    plane * provider.workload_.realPlaneElements();
+                fftw_execute_dft_r2c(provider.rowForward_, input, nativeScratch);
+                fftw_execute_dft(
+                    provider.columnForward_, nativeScratch, nativeScratch);
+                provider.stageRetainedPlane(
+                    scratch, tile + lane * provider.modes_.size(),
+                    context.scale);
+            }
+            provider.flushForwardTile(
+                tile, planeBegin, planeCount, context.retainedRealOutput,
+                context.retainedImagOutput);
         }
     }
 
@@ -891,16 +1023,41 @@ private:
         auto& provider = *context.provider;
         auto* scratch = provider.workerScratch(worker);
         auto* nativeScratch = reinterpret_cast<fftw_complex*>(scratch);
-        for (std::size_t plane = provider.beginPlane(worker);
-             plane < provider.endPlane(worker); ++plane) {
-            provider.embedRetainedPlane(
-                scratch, plane, context.retainedRealInput,
+        if (provider.tileWidth_ == 1) {
+            for (std::size_t plane = provider.beginPlane(worker);
+                 plane < provider.endPlane(worker); ++plane) {
+                provider.embedRetainedPlane(
+                    scratch, plane, context.retainedRealInput,
+                    context.retainedImagInput);
+                fftw_execute_dft(
+                    provider.columnInverse_, nativeScratch, nativeScratch);
+                auto* output = context.realOutput +
+                    plane * provider.workload_.realPlaneElements();
+                fftw_execute_dft_c2r(
+                    provider.rowInverse_, nativeScratch, output);
+            }
+            return;
+        }
+        auto* tile = provider.workerCompactTile(worker);
+        for (std::size_t planeBegin = provider.beginPlane(worker);
+             planeBegin < provider.endPlane(worker);
+             planeBegin += provider.tileWidth_) {
+            const auto planeCount = std::min(
+                provider.tileWidth_, provider.endPlane(worker) - planeBegin);
+            provider.loadInverseTile(
+                tile, planeBegin, planeCount, context.retainedRealInput,
                 context.retainedImagInput);
-            fftw_execute_dft(
-                provider.columnInverse_, nativeScratch, nativeScratch);
-            auto* output = context.realOutput +
-                plane * provider.workload_.realPlaneElements();
-            fftw_execute_dft_c2r(provider.rowInverse_, nativeScratch, output);
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                provider.embedStagedPlane(
+                    scratch, tile + lane * provider.modes_.size());
+                fftw_execute_dft(
+                    provider.columnInverse_, nativeScratch, nativeScratch);
+                auto* output = context.realOutput +
+                    (planeBegin + lane) *
+                    provider.workload_.realPlaneElements();
+                fftw_execute_dft_c2r(
+                    provider.rowInverse_, nativeScratch, output);
+            }
         }
     }
 
@@ -935,6 +1092,26 @@ private:
         auto& context = *static_cast<Context*>(rawContext);
         auto& provider = *context.provider;
         const auto* scratch = provider.workerScratch(worker);
+        if (provider.tileWidth_ > 1) {
+            auto* tile = provider.workerCompactTile(worker);
+            for (std::size_t planeBegin = provider.beginPlane(worker);
+                 planeBegin < provider.endPlane(worker);
+                 planeBegin += provider.tileWidth_) {
+                const auto planeCount = std::min(
+                    provider.tileWidth_,
+                    provider.endPlane(worker) - planeBegin);
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    provider.stageRetainedPlane(
+                        scratch, tile + lane * provider.modes_.size(),
+                        context.scale);
+                }
+                provider.flushForwardTile(
+                    tile, planeBegin, planeCount,
+                    context.retainedRealOutput,
+                    context.retainedImagOutput);
+            }
+            return;
+        }
         for (std::size_t plane = provider.beginPlane(worker);
              plane < provider.endPlane(worker); ++plane) {
             provider.writeRetainedPlane(
@@ -948,6 +1125,25 @@ private:
         auto& context = *static_cast<Context*>(rawContext);
         auto& provider = *context.provider;
         auto* scratch = provider.workerScratch(worker);
+        if (provider.tileWidth_ > 1) {
+            auto* tile = provider.workerCompactTile(worker);
+            for (std::size_t planeBegin = provider.beginPlane(worker);
+                 planeBegin < provider.endPlane(worker);
+                 planeBegin += provider.tileWidth_) {
+                const auto planeCount = std::min(
+                    provider.tileWidth_,
+                    provider.endPlane(worker) - planeBegin);
+                provider.loadInverseTile(
+                    tile, planeBegin, planeCount,
+                    context.retainedRealInput,
+                    context.retainedImagInput);
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    provider.embedStagedPlane(
+                        scratch, tile + lane * provider.modes_.size());
+                }
+            }
+            return;
+        }
         for (std::size_t plane = provider.beginPlane(worker);
              plane < provider.endPlane(worker); ++plane) {
             provider.embedRetainedPlane(
@@ -988,17 +1184,20 @@ private:
     void releaseStorage() {
         if (realSurrogate_ != nullptr) fftw_free(realSurrogate_);
         if (scratch_ != nullptr) fftw_free(scratch_);
+        if (compactTile_ != nullptr) fftw_free(compactTile_);
         realSurrogate_ = nullptr;
         scratch_ = nullptr;
+        compactTile_ = nullptr;
     }
 };
 
 FFTWStreamingPrunedSplitProvider::FFTWStreamingPrunedSplitProvider(
     const Workload& workload, const std::vector<RetainedMode>& modes,
     FFTWPlanningMode planningMode, std::size_t internalWorkers,
-    std::size_t outerWorkers)
+    std::size_t outerWorkers, std::size_t tileWidth)
     : impl_(std::make_unique<Impl>(
-          workload, modes, planningMode, internalWorkers, outerWorkers)) {}
+          workload, modes, planningMode, internalWorkers, outerWorkers,
+          tileWidth)) {}
 
 FFTWStreamingPrunedSplitProvider::~FFTWStreamingPrunedSplitProvider() = default;
 FFTWStreamingPrunedSplitProvider::FFTWStreamingPrunedSplitProvider(
@@ -1065,7 +1264,20 @@ std::size_t FFTWStreamingPrunedSplitProvider::scratchBytes() const noexcept {
 }
 std::size_t
 FFTWStreamingPrunedSplitProvider::workerScratchBytes() const noexcept {
+    return fftScratchBytes() + compactTileBytes() / impl_->outerWorkers_;
+}
+std::size_t
+FFTWStreamingPrunedSplitProvider::fftScratchBytes() const noexcept {
     return impl_->workload_.halfRows() * sizeof(Complex);
+}
+std::size_t
+FFTWStreamingPrunedSplitProvider::compactTileBytes() const noexcept {
+    if (impl_->tileWidth_ == 1) return 0;
+    return impl_->outerWorkers_ * impl_->tileWidth_ * impl_->modes_.size() *
+        sizeof(Complex);
+}
+std::size_t FFTWStreamingPrunedSplitProvider::tileWidth() const noexcept {
+    return impl_->tileWidth_;
 }
 std::size_t FFTWStreamingPrunedSplitProvider::planningBytes() const noexcept {
     return impl_->planningBytes_;
