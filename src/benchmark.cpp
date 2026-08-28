@@ -333,10 +333,10 @@ ExecutionContract fftwExecutionContract(const Workload& workload, const FFTWProv
         ? "wvm-frequency-major-split-half-spectrum"
         : "wvm-frequency-major-interleaved-half-spectrum";
     const auto nativeSpectrumExtents = split
-        ? "two disjoint arrays " + spectrumExtents
+        ? "one contiguous allocation containing real then imaginary arrays, each " + spectrumExtents
         : spectrumExtents;
     const auto aliasing = split
-        ? "input and both output arrays are mutually disjoint; exact WVM-order split in-place planning is unsupported"
+        ? "input is disjoint from the contiguous [real][imaginary] output; the component separation is fixed at the full half-spectrum element count; exact WVM-order split in-place planning is unsupported"
         : (provider.minimumAlignmentBytes() > 1
             ? "input and output do not overlap; new-array execution uses the planning alignment classes"
             : "input and output do not overlap; FFTW_UNALIGNED accepts arbitrary scalar alignment");
@@ -378,7 +378,7 @@ ExecutionContract fftwExecutionContract(const Workload& workload, const FFTWProv
         0,
         provider.minimumAlignmentBytes(),
         split
-            ? "both split input arrays and output are mutually disjoint; multidimensional FFTW split c2r may destroy both inputs; exact WVM-order split in-place planning is unsupported"
+            ? "the contiguous [real][imaginary] input is disjoint from output and has the planning-time component separation; multidimensional FFTW split c2r may destroy both components; exact WVM-order split in-place planning is unsupported"
             : (provider.minimumAlignmentBytes() > 1
                 ? "input and output do not overlap and match planning alignment classes; multidimensional FFTW c2r may destroy its input"
                 : "input and output do not overlap; multidimensional FFTW c2r may destroy its input"),
@@ -810,55 +810,59 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         auto splitStrategy = fftwStrategy;
         splitStrategy.layout = FFTWDataLayout::split;
         FFTWProvider splitFftw(workload, splitStrategy);
-        FFTWArray<double> splitReal(workload.spectrumElements());
-        FFTWArray<double> splitImag(workload.spectrumElements());
-        FFTWArray<double> referenceSplitReal(workload.spectrumElements());
-        FFTWArray<double> referenceSplitImag(workload.spectrumElements());
-        FFTWArray<double> inverseSplitReal(workload.spectrumElements());
-        FFTWArray<double> inverseSplitImag(workload.spectrumElements());
+        const auto splitCount = workload.spectrumElements();
+        FFTWArray<double> splitStorage(2 * splitCount);
+        FFTWArray<double> referenceSplitStorage(2 * splitCount);
+        FFTWArray<double> inverseSplitStorage(2 * splitCount);
+        auto* splitReal = splitStorage.data();
+        auto* splitImag = splitStorage.data() + splitCount;
+        auto* referenceSplitReal = referenceSplitStorage.data();
+        auto* referenceSplitImag = referenceSplitStorage.data() + splitCount;
+        auto* inverseSplitReal = inverseSplitStorage.data();
+        auto* inverseSplitImag = inverseSplitStorage.data() + splitCount;
         std::vector<double> retainedSplitReal(retainedSpectrum.size());
         std::vector<double> retainedSplitImag(retainedSpectrum.size());
         std::vector<double> retainedReferenceReal(retainedSpectrum.size());
         std::vector<double> retainedReferenceImag(retainedSpectrum.size());
 
         interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(),
-                           referenceSplitReal.data(), referenceSplitImag.data());
+                           referenceSplitReal, referenceSplitImag);
         interleavedToSplit(retainedSpectrum.size(), retainedSpectrum.data(),
                            retainedReferenceReal.data(), retainedReferenceImag.data());
 
-        splitFftw.forwardSplit(input.data(), splitReal.data(), splitImag.data());
-        splitToInterleaved(referenceSpectrum.size(), splitReal.data(), splitImag.data(), workingSpectrum.data());
+        splitFftw.forwardSplit(input.data(), splitReal, splitImag);
+        splitToInterleaved(referenceSpectrum.size(), splitReal, splitImag, workingSpectrum.data());
         const auto splitForwardReferenceError = maximumRelativeError(
             workingSpectrum.data(), referenceSpectrum.data(), referenceSpectrum.size());
-        std::copy(referenceSplitReal.begin(), referenceSplitReal.end(), inverseSplitReal.begin());
-        std::copy(referenceSplitImag.begin(), referenceSplitImag.end(), inverseSplitImag.begin());
-        splitFftw.inverseSplit(inverseSplitReal.data(), inverseSplitImag.data(), output.data());
+        std::copy_n(referenceSplitReal, splitCount, inverseSplitReal);
+        std::copy_n(referenceSplitImag, splitCount, inverseSplitImag);
+        splitFftw.inverseSplit(inverseSplitReal, inverseSplitImag, output.data());
         const auto splitInverseReferenceError = maximumRelativeError(
             output.data(), referenceOutput.data(), referenceOutput.size());
         const auto splitRoundTripError = maximumRelativeError(
             output.data(), input.data(), input.size(), 1.0 / static_cast<double>(workload.nx * workload.ny));
 
-        gatherRetainedSplit(workload, modes, splitReal.data(), splitImag.data(),
+        gatherRetainedSplit(workload, modes, splitReal, splitImag,
                             retainedSplitReal.data(), retainedSplitImag.data());
         splitToInterleaved(retainedSpectrum.size(), retainedSplitReal.data(), retainedSplitImag.data(), retainedWorking.data());
         const auto splitRetainedForwardError = maximumRelativeError(
             retainedWorking.data(), retainedSpectrum.data(), retainedSpectrum.size());
 
         embedRetainedSplit(workload, modes, retainedReferenceReal.data(), retainedReferenceImag.data(),
-                           inverseSplitReal.data(), inverseSplitImag.data());
-        splitFftw.inverseSplit(inverseSplitReal.data(), inverseSplitImag.data(), output.data());
+                           inverseSplitReal, inverseSplitImag);
+        splitFftw.inverseSplit(inverseSplitReal, inverseSplitImag, output.data());
         embedRetained(workload, modes, retainedSpectrum.data(), inverseSpectrum.data());
         referenceFftw.inverse(inverseSpectrum.data(), fftwOutput.data());
         const auto splitRetainedInverseError = maximumRelativeError(output.data(), fftwOutput.data(), output.size());
 
-        splitToInterleaved(referenceSpectrum.size(), referenceSplitReal.data(), referenceSplitImag.data(), workingSpectrum.data());
+        splitToInterleaved(referenceSpectrum.size(), referenceSplitReal, referenceSplitImag, workingSpectrum.data());
         const auto splitToInterleavedError = maximumRelativeError(
             workingSpectrum.data(), referenceSpectrum.data(), referenceSpectrum.size());
-        interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), splitReal.data(), splitImag.data());
+        interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), splitReal, splitImag);
         const auto interleavedToSplitRealError = maximumRelativeError(
-            splitReal.data(), referenceSplitReal.data(), referenceSpectrum.size());
+            splitReal, referenceSplitReal, referenceSpectrum.size());
         const auto interleavedToSplitImagError = maximumRelativeError(
-            splitImag.data(), referenceSplitImag.data(), referenceSpectrum.size());
+            splitImag, referenceSplitImag, referenceSpectrum.size());
 
         ProviderRecord splitRecord;
         splitRecord.id = "fftw-split";
@@ -901,15 +905,15 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
 
         splitRecord.timings.push_back(series("primitive", "raw FFT", "forward", StageState::executed,
             report.fullRealBytes + report.fullSpectrumBytes,
-            measure(warmups, sampleCount, [&] { splitFftw.forwardSplit(input.data(), splitReal.data(), splitImag.data()); })));
+            measure(warmups, sampleCount, [&] { splitFftw.forwardSplit(input.data(), splitReal, splitImag); })));
         splitRecord.timings.push_back(series("primitive", "raw FFT", "inverse", StageState::executed,
             report.fullSpectrumBytes + report.fullRealBytes,
             measure(warmups, sampleCount,
                 [&] {
-                    std::copy(referenceSplitReal.begin(), referenceSplitReal.end(), inverseSplitReal.begin());
-                    std::copy(referenceSplitImag.begin(), referenceSplitImag.end(), inverseSplitImag.begin());
+                    std::copy_n(referenceSplitReal, splitCount, inverseSplitReal);
+                    std::copy_n(referenceSplitImag, splitCount, inverseSplitImag);
                 },
-                [&] { splitFftw.inverseSplit(inverseSplitReal.data(), inverseSplitImag.data(), output.data()); })));
+                [&] { splitFftw.inverseSplit(inverseSplitReal, inverseSplitImag, output.data()); })));
         splitRecord.timings.push_back(series(
             "diagnostic-component", "batch scheduler empty dispatch", "shared",
             splitFftw.outerWorkers() > 1 ? StageState::executed : StageState::elided, 0,
@@ -919,50 +923,50 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         splitRecord.timings.push_back(series("adapter-component", "split-to-interleaved conversion", "forward", StageState::executed,
             2 * report.fullSpectrumBytes,
             measure(warmups, sampleCount, [&] {
-                splitToInterleaved(referenceSpectrum.size(), referenceSplitReal.data(), referenceSplitImag.data(), workingSpectrum.data());
+                splitToInterleaved(referenceSpectrum.size(), referenceSplitReal, referenceSplitImag, workingSpectrum.data());
             })));
         splitRecord.timings.push_back(series("adapter-component", "interleaved-to-split conversion", "inverse", StageState::executed,
             2 * report.fullSpectrumBytes,
             measure(warmups, sampleCount, [&] {
-                interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), inverseSplitReal.data(), inverseSplitImag.data());
+                interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), inverseSplitReal, inverseSplitImag);
             })));
         splitRecord.timings.push_back(series("adapter-total", "WVM-compatible full-spectrum adapter", "forward", StageState::executed,
             report.fullRealBytes + 3 * report.fullSpectrumBytes,
             measure(warmups, sampleCount, [&] {
-                splitFftw.forwardSplit(input.data(), splitReal.data(), splitImag.data());
-                splitToInterleaved(referenceSpectrum.size(), splitReal.data(), splitImag.data(), workingSpectrum.data());
+                splitFftw.forwardSplit(input.data(), splitReal, splitImag);
+                splitToInterleaved(referenceSpectrum.size(), splitReal, splitImag, workingSpectrum.data());
             })));
         splitRecord.timings.push_back(series("adapter-total", "WVM-compatible full-spectrum adapter", "inverse", StageState::executed,
             3 * report.fullSpectrumBytes + report.fullRealBytes,
             measure(warmups, sampleCount, [&] {
-                interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), inverseSplitReal.data(), inverseSplitImag.data());
-                splitFftw.inverseSplit(inverseSplitReal.data(), inverseSplitImag.data(), output.data());
+                interleavedToSplit(referenceSpectrum.size(), referenceSpectrum.data(), inverseSplitReal, inverseSplitImag);
+                splitFftw.inverseSplit(inverseSplitReal, inverseSplitImag, output.data());
             })));
         splitRecord.timings.push_back(series("operator-component", "direct split horizontal retention", "forward", StageState::executed,
             report.fullSpectrumBytes + report.retainedSpectrumBytes,
             measure(warmups, sampleCount, [&] {
-                gatherRetainedSplit(workload, modes, referenceSplitReal.data(), referenceSplitImag.data(),
+                gatherRetainedSplit(workload, modes, referenceSplitReal, referenceSplitImag,
                                     retainedSplitReal.data(), retainedSplitImag.data());
             })));
         splitRecord.timings.push_back(series("operator-component", "direct split horizontal embedding", "inverse", StageState::executed,
             report.retainedSpectrumBytes + report.fullSpectrumBytes,
             measure(warmups, sampleCount, [&] {
                 embedRetainedSplit(workload, modes, retainedReferenceReal.data(), retainedReferenceImag.data(),
-                                   inverseSplitReal.data(), inverseSplitImag.data());
+                                   inverseSplitReal, inverseSplitImag);
             })));
         splitRecord.timings.push_back(series("uninstrumented-total", "persistent split retained horizontal operator", "forward", StageState::executed,
             report.fullRealBytes + report.fullSpectrumBytes + report.retainedSpectrumBytes,
             measure(warmups, sampleCount, [&] {
-                splitFftw.forwardSplit(input.data(), splitReal.data(), splitImag.data());
-                gatherRetainedSplit(workload, modes, splitReal.data(), splitImag.data(),
+                splitFftw.forwardSplit(input.data(), splitReal, splitImag);
+                gatherRetainedSplit(workload, modes, splitReal, splitImag,
                                     retainedSplitReal.data(), retainedSplitImag.data());
             })));
         splitRecord.timings.push_back(series("uninstrumented-total", "persistent split retained horizontal operator", "inverse", StageState::executed,
             report.retainedSpectrumBytes + report.fullSpectrumBytes + report.fullRealBytes,
             measure(warmups, sampleCount, [&] {
                 embedRetainedSplit(workload, modes, retainedReferenceReal.data(), retainedReferenceImag.data(),
-                                   inverseSplitReal.data(), inverseSplitImag.data());
-                splitFftw.inverseSplit(inverseSplitReal.data(), inverseSplitImag.data(), output.data());
+                                   inverseSplitReal, inverseSplitImag);
+                splitFftw.inverseSplit(inverseSplitReal, inverseSplitImag, output.data());
             })));
         splitRecord.timings.push_back(series("capability", "exact WVM-order split in-place", "shared", StageState::unsupported, 0));
         report.providers.push_back(std::move(splitRecord));

@@ -33,8 +33,9 @@ std::unique_ptr<Value, FreeDeleter<Value>> alignedBuffer(std::size_t count) {
 void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::FFTWStrategy strategy) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
-    auto spectrumReal = alignedBuffer<double>(workload.spectrumElements());
-    auto spectrumImag = alignedBuffer<double>(workload.spectrumElements());
+    auto splitSpectrum = alignedBuffer<double>(2 * workload.spectrumElements());
+    auto* spectrumReal = splitSpectrum.get();
+    auto* spectrumImag = splitSpectrum.get() + workload.spectrumElements();
     auto output = alignedBuffer<double>(workload.realElements());
     for (std::size_t index = 0; index < workload.realElements(); ++index) {
         input.get()[index] = static_cast<double>(index % 31) / 31.0;
@@ -46,8 +47,8 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
             provider.forward(input.get(), spectrum.get());
             provider.inverse(spectrum.get(), output.get());
         } else {
-            provider.forwardSplit(input.get(), spectrumReal.get(), spectrumImag.get());
-            provider.inverseSplit(spectrumReal.get(), spectrumImag.get(), output.get());
+            provider.forwardSplit(input.get(), spectrumReal, spectrumImag);
+            provider.inverseSplit(spectrumReal, spectrumImag, output.get());
         }
         if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
     }
@@ -58,8 +59,8 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
             provider.forward(input.get(), spectrum.get());
             provider.inverse(spectrum.get(), output.get());
         } else {
-            provider.forwardSplit(input.get(), spectrumReal.get(), spectrumImag.get());
-            provider.inverseSplit(spectrumReal.get(), spectrumImag.get(), output.get());
+            provider.forwardSplit(input.get(), spectrumReal, spectrumImag);
+            provider.inverseSplit(spectrumReal, spectrumImag, output.get());
         }
         if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
     }
@@ -233,27 +234,28 @@ int main() {
         referenceStrategy.layout = skbench::FFTWDataLayout::interleaved;
         skbench::FFTWProvider splitProvider(workload, splitStrategy);
         skbench::FFTWProvider referenceProvider(workload, referenceStrategy);
-        std::vector<double> splitReal(workload.spectrumElements());
-        std::vector<double> splitImag(workload.spectrumElements());
+        std::vector<double> splitStorage(2 * workload.spectrumElements());
+        auto* splitReal = splitStorage.data();
+        auto* splitImag = splitStorage.data() + workload.spectrumElements();
         std::vector<skbench::Complex> splitInterleaved(workload.spectrumElements());
         std::vector<skbench::Complex> referenceInterleaved(workload.spectrumElements());
-        splitProvider.forwardSplit(splitInput.data(), splitReal.data(), splitImag.data());
+        splitProvider.forwardSplit(splitInput.data(), splitReal, splitImag);
         referenceProvider.forward(splitInput.data(), referenceInterleaved.data());
-        skbench::splitToInterleaved(workload.spectrumElements(), splitReal.data(), splitImag.data(), splitInterleaved.data());
+        skbench::splitToInterleaved(workload.spectrumElements(), splitReal, splitImag, splitInterleaved.data());
         require(skbench::maximumRelativeError(splitInterleaved.data(), referenceInterleaved.data(), splitInterleaved.size()) < 1.0e-12,
                 "split FFTW forward equivalence");
 
         std::vector<double> convertedReal(workload.spectrumElements());
         std::vector<double> convertedImag(workload.spectrumElements());
         skbench::interleavedToSplit(workload.spectrumElements(), referenceInterleaved.data(), convertedReal.data(), convertedImag.data());
-        require(skbench::maximumRelativeError(convertedReal.data(), splitReal.data(), convertedReal.size()) < 1.0e-12,
+        require(skbench::maximumRelativeError(convertedReal.data(), splitReal, convertedReal.size()) < 1.0e-12,
                 "interleaved-to-split real conversion");
-        require(skbench::maximumRelativeError(convertedImag.data(), splitImag.data(), convertedImag.size()) < 1.0e-12,
+        require(skbench::maximumRelativeError(convertedImag.data(), splitImag, convertedImag.size()) < 1.0e-12,
                 "interleaved-to-split imaginary conversion");
 
         std::vector<double> splitInverse(workload.realElements());
         std::vector<double> referenceInverse(workload.realElements());
-        splitProvider.inverseSplit(splitReal.data(), splitImag.data(), splitInverse.data());
+        splitProvider.inverseSplit(splitReal, splitImag, splitInverse.data());
         referenceProvider.inverse(referenceInterleaved.data(), referenceInverse.data());
         require(skbench::maximumRelativeError(splitInverse.data(), referenceInverse.data(), splitInverse.size()) < 1.0e-12,
                 "split FFTW inverse equivalence");
@@ -262,6 +264,13 @@ int main() {
                 "split FFTW round trip");
         require(!splitProvider.splitInPlaceWvmOrderSupported(), "exact WVM-order split in-place unexpectedly supported");
         require(!splitProvider.splitInPlaceWvmOrderCapability().empty(), "split in-place capability explanation");
+        bool rejectedWrongSplitSeparation = false;
+        try {
+            splitProvider.forwardSplit(splitInput.data(), splitReal, splitImag + 1);
+        } catch (const std::invalid_argument&) {
+            rejectedWrongSplitSeparation = true;
+        }
+        require(rejectedWrongSplitSeparation, "split FFTW accepted a new-array separation that differs from planning");
         requireExactSplitInPlaceWvmOrderUnsupported(workload);
 
         skbench::RunOptions exhaustiveOptions = fftwOptions;
