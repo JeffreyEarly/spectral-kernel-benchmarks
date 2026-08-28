@@ -17564,6 +17564,1446 @@
         "samplesSha256": "4ff54deec9f831763999b8e0462039afc341f2b778e7d80bd4bc1d6b99ba9b0b"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T141113939782Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141113939782Z-lyra/result.json",
+        "samples": "runs/20260828T141113939782Z-lyra/samples.csv",
+        "resultSha256": "ceaf713d221d5110238e44f949776c787d345261240128a192461afa46edf691",
+        "samplesSha256": "55c0305aaea923fe2280a44d2ffaf1c9c6dfffa8e52460e3525cfd58ffa65be4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141114773353Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141114773353Z-lyra/result.json",
+        "samples": "runs/20260828T141114773353Z-lyra/samples.csv",
+        "resultSha256": "244c8f145975fdd19b2eb85f33fb21b9ea1fa71b07d65172e4c5edf3e9a2817b",
+        "samplesSha256": "7a36d72fbb394b93121111728cc29c8975d8ddd19e105c4cc0a44130d4b2a719"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141115405246Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141115405246Z-lyra/result.json",
+        "samples": "runs/20260828T141115405246Z-lyra/samples.csv",
+        "resultSha256": "d72ef8fb099486deba3ac994668ca1d7e2d4c849c1f9873648364caa93734de2",
+        "samplesSha256": "607585bb1374251230db554f08a147af65aa9f88f629a39ed1ee8988d858517f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141116225550Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141116225550Z-lyra/result.json",
+        "samples": "runs/20260828T141116225550Z-lyra/samples.csv",
+        "resultSha256": "64b9ee54cf08d26b56eb60cb9d78cbf9f3d9eb77e69dacad6dfd024589224bed",
+        "samplesSha256": "c7261b69157c9d2d356e6efff617e6f598b7cafeec6497a8f390309daea4abf2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141116959570Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141116959570Z-lyra/result.json",
+        "samples": "runs/20260828T141116959570Z-lyra/samples.csv",
+        "resultSha256": "6b56c3e0b170a5e2d30601104ed942f37af7c352c44214b09d8cc947c56dba68",
+        "samplesSha256": "529c36922abf43868b1a58376e8902628efd4b1f76469ac85fcadc8f4397f39d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141119039716Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141119039716Z-lyra/result.json",
+        "samples": "runs/20260828T141119039716Z-lyra/samples.csv",
+        "resultSha256": "f1ff88a5109df838403d71953acc65dd430b238e917647aac7981b2c76d48fe5",
+        "samplesSha256": "cadb5545571b98ef7f46f2b90d279e6815b732272324150ba9d6102d3fa7f0c6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141121095046Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141121095046Z-lyra/result.json",
+        "samples": "runs/20260828T141121095046Z-lyra/samples.csv",
+        "resultSha256": "33404cb2ff7efb58164994a4ef316b1746ea1db99a0109490ff0ffcd7df4fd4a",
+        "samplesSha256": "6ca5bd4cc152ebaa4a0abcff0890e6bfd7d456e4ba1902283f6dc705ad928044"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141130992777Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141130992777Z-lyra/result.json",
+        "samples": "runs/20260828T141130992777Z-lyra/samples.csv",
+        "resultSha256": "b67aee0716541e3e2e05062d7c1b0803fbd78040c91a221ae9e80faa7f70ada7",
+        "samplesSha256": "8ca92ffb99787089a006cb9842253d61ec15514be0ce6f8cd2391c54ea30eb02"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141137850387Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141137850387Z-lyra/result.json",
+        "samples": "runs/20260828T141137850387Z-lyra/samples.csv",
+        "resultSha256": "74b450ea796d6ba72160ca722328cbc51ac771429e47c339428d179d7aff3808",
+        "samplesSha256": "895c719a0150b57efe3eba5f66ed72ce11298bcf0533df60e1f7a671755fad90"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141144651389Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141144651389Z-lyra/result.json",
+        "samples": "runs/20260828T141144651389Z-lyra/samples.csv",
+        "resultSha256": "b009bf908f190dab3fcb6de50d65620e70fe0ace356ca7548d278d2e5d9736c8",
+        "samplesSha256": "5fedb8ec4070e7b758d5ca923a1b7604c460ab91091feaaac035e8afd4802e44"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141151023298Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141151023298Z-lyra/result.json",
+        "samples": "runs/20260828T141151023298Z-lyra/samples.csv",
+        "resultSha256": "375ebb16ad045afabebd4a6b268a997729b2ced3b1dae9756520b99fa2e88215",
+        "samplesSha256": "5b7447fe600be68e25bad559f9fd6c786b7cf3b5294ef9994499434d897c08da"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141159217771Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean preregistered one-round issue #9 screen used only to decide whether the selected fused-split graph advances to reference depth; the three-round reference cohort is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141159217771Z-lyra/result.json",
+        "samples": "runs/20260828T141159217771Z-lyra/samples.csv",
+        "resultSha256": "74f4d018cceb0aaf8ccdb3e13f69e57c6cbe731e1ae3cc6a83da52525817fac2",
+        "samplesSha256": "e2594ee324491ad2724bf99c0e9fe3689a47ba684429528ecdadd595a447dd2f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141216155376Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141216155376Z-lyra/result.json",
+        "samples": "runs/20260828T141216155376Z-lyra/samples.csv",
+        "resultSha256": "a4409c47c3d1f21e226e39d1d7261297ebdfb0010b59e53bd72d5907cdbd2a36",
+        "samplesSha256": "ee7eba1055149122ca804183dfe6f788fac0f462b74b3a50bc87d47f6f28f05a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141217464807Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141217464807Z-lyra/result.json",
+        "samples": "runs/20260828T141217464807Z-lyra/samples.csv",
+        "resultSha256": "a473acbcbcc89819233dedec2317a15954085283dc8c248a52e485e95810fc08",
+        "samplesSha256": "487afb72c959bc419a6aa72137778a8b0969d186639aefcf71a0c6b3a2177168"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141218317135Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141218317135Z-lyra/result.json",
+        "samples": "runs/20260828T141218317135Z-lyra/samples.csv",
+        "resultSha256": "7af53634fb376aaeb7852e9f9c40b7fc9de43d43b93b85ca1b0ca3bc7c1ea6b3",
+        "samplesSha256": "7e363b01f77382f282a18f2195d8d20401a8a62dcb76318be6e0cce89821ea2e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141219513285Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141219513285Z-lyra/result.json",
+        "samples": "runs/20260828T141219513285Z-lyra/samples.csv",
+        "resultSha256": "5f8f568db72e915adc994f6e37954ea88d216532e6c07c5ad7d8f9f5fb2d25cb",
+        "samplesSha256": "e74543c3a2baccec573cea2250833419a1e81b16924f67f52712dff7802a9c9a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141220507612Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141220507612Z-lyra/result.json",
+        "samples": "runs/20260828T141220507612Z-lyra/samples.csv",
+        "resultSha256": "5d73a2ae771e86f92f0ea191732fd07a01423d8bade331c2ee1d2c23b5e47844",
+        "samplesSha256": "2b192b193b1709a335017970b711260a324d84c54080c0ca7be8e6984d8c5cb4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141223579748Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141223579748Z-lyra/result.json",
+        "samples": "runs/20260828T141223579748Z-lyra/samples.csv",
+        "resultSha256": "e6b99fe5eaedba7a14a2014212dc20fa946a5c29b8c90b78dbceddb1588d83ec",
+        "samplesSha256": "43f0725b21f71af7bcb64b5d61ce7d27e0b2b242e99f360a97d7d7a510b004d8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141226647513Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141226647513Z-lyra/result.json",
+        "samples": "runs/20260828T141226647513Z-lyra/samples.csv",
+        "resultSha256": "cdaed01baf857ae08837ec661baa2027120ed4c0293e2e6a7fe9151727b611e3",
+        "samplesSha256": "9b947627098d1292d70a9d2a6a157ac6085cefa3d7963ddc16b3a52973181ba6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141242466056Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141242466056Z-lyra/result.json",
+        "samples": "runs/20260828T141242466056Z-lyra/samples.csv",
+        "resultSha256": "34cd14e1ea32e7d1a3fc341e839d09f34961e6a58f124686d5802bdf30051e1c",
+        "samplesSha256": "82036ef0990710ce7440c095e2a0226cd3ad18a5f08e1804bdba2ac3e9904bdf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141251735272Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141251735272Z-lyra/result.json",
+        "samples": "runs/20260828T141251735272Z-lyra/samples.csv",
+        "resultSha256": "be52b167943bbb05e26582fb9f6e1522d83f1eddd29cecc21b0f74bff96767f2",
+        "samplesSha256": "7c5f1cadfcb04364eabee259123eee4acce5429f8ff31f3e3cdda05b770f814a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141302012555Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141302012555Z-lyra/result.json",
+        "samples": "runs/20260828T141302012555Z-lyra/samples.csv",
+        "resultSha256": "4b8299925a58abd8a7f40e91c64d1472d49b07ebfe884bf2c2e5fb8bbdc2c4d7",
+        "samplesSha256": "3ad8d2168f07924e011f1d302f34c2a87f5e9b9692bee0fdcf8d66d3cd60208c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141311031248Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141311031248Z-lyra/result.json",
+        "samples": "runs/20260828T141311031248Z-lyra/samples.csv",
+        "resultSha256": "d656fe6f135945a3e454c1490222286667ed3bfd476515533c678e08a2aae898",
+        "samplesSha256": "22535d707553e03e8a0e766c3e5a2e355cce1d182a5f42ffdea2fb4351b6d508"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141323214185Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141323214185Z-lyra/result.json",
+        "samples": "runs/20260828T141323214185Z-lyra/samples.csv",
+        "resultSha256": "1be96def4df23fe735a486d30c5d29d4ebc6b490c29704d53f7d1e7bc51de6d1",
+        "samplesSha256": "116572a86632ba4f08f94b6582e1b9fbdbec07664aaf626a210eb8d07dcaec99"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141334633423Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141334633423Z-lyra/result.json",
+        "samples": "runs/20260828T141334633423Z-lyra/samples.csv",
+        "resultSha256": "f555b5e0377bc3112cf532bde394d142808e86770d359b05a7e7ff4876afc217",
+        "samplesSha256": "e3dc1e20675a1f5753ac46d68588f6ab4fd29a7351f1ad7df7ae76f788db76d1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141335641247Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141335641247Z-lyra/result.json",
+        "samples": "runs/20260828T141335641247Z-lyra/samples.csv",
+        "resultSha256": "42b033a7a61b6959be61ddd7981f0190bceb6aa21229967ec61a2c3b46e85eeb",
+        "samplesSha256": "c387294cef62e7fa50ee64c607d24c08bf96a1fad4d2c1d486023d614cf07c2b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141336825211Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141336825211Z-lyra/result.json",
+        "samples": "runs/20260828T141336825211Z-lyra/samples.csv",
+        "resultSha256": "1186daeb2e3f13cbd2d80d556203721962dd1f8738f953ef87b6a1acfc4466e4",
+        "samplesSha256": "d9d2e526380e0b2bfec5638a36a6b9f5b163691226df6e30844597f50534e9d5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141339778223Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141339778223Z-lyra/result.json",
+        "samples": "runs/20260828T141339778223Z-lyra/samples.csv",
+        "resultSha256": "0ebfd8b28431d555896fbd96a4a51d7eaafd02d247c9046d3cd559a35a46c9b8",
+        "samplesSha256": "7a9f290e4f33e8d6c4404086b8d8ecee984bc4d94733d52f94af77aed5f87a35"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141342848612Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141342848612Z-lyra/result.json",
+        "samples": "runs/20260828T141342848612Z-lyra/samples.csv",
+        "resultSha256": "60161cc6b5bafe51447c8b5f946a03d504a7b170b7a46e6b0fb7ea4ddcbd2811",
+        "samplesSha256": "6167fa74e3e937937fe36d228e8c5a98aab72394035a2651a426785bad4e6d34"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141352234292Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141352234292Z-lyra/result.json",
+        "samples": "runs/20260828T141352234292Z-lyra/samples.csv",
+        "resultSha256": "d95ea41ac28764e8f4569eca879c2a1e95537f17985f4a5b38ec78361c7d1ee3",
+        "samplesSha256": "30c3b3c5f8b31e5dd06431108757b1eae39f73b14331f79087f506c59b3b5b47"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141408016238Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141408016238Z-lyra/result.json",
+        "samples": "runs/20260828T141408016238Z-lyra/samples.csv",
+        "resultSha256": "75d5bb07fbebbd6b950631dfff1263bc99994692d3a9861699246644994ef9f8",
+        "samplesSha256": "ba5676d60f5469657623e81b513446640f2ed2c94f7728544315c7f2d3a1ac6d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141417037268Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141417037268Z-lyra/result.json",
+        "samples": "runs/20260828T141417037268Z-lyra/samples.csv",
+        "resultSha256": "f8a7edb726125c903b1561477675b13cfa514c5e0a20f3fff93b32f4bb750e8b",
+        "samplesSha256": "a045df89f75e6ca833e6c31e11bef8e47e5c9bcea10fd96de0c0df4559591e16"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141427292774Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141427292774Z-lyra/result.json",
+        "samples": "runs/20260828T141427292774Z-lyra/samples.csv",
+        "resultSha256": "276bbfc950c8710f51ad89f90206098ea0be9e58470296d5899d9e991c4983ac",
+        "samplesSha256": "4eb4272f3bb941915f293ef05ebe89cff4d085159eae274b62f5fd49470483bb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141438719230Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141438719230Z-lyra/result.json",
+        "samples": "runs/20260828T141438719230Z-lyra/samples.csv",
+        "resultSha256": "806da28a4bb4c1d817087ffc030f2f270826a0748d766929e279465d12eaec79",
+        "samplesSha256": "f0fd49613e655807f75c91e5c3bb48b3fb061063eb08f9e35be03499ddccf5ad"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141450806488Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141450806488Z-lyra/result.json",
+        "samples": "runs/20260828T141450806488Z-lyra/samples.csv",
+        "resultSha256": "34e2f11ad1a543ecacec7ee23aaac2f9dc1ccc87548f04f632d3247f2210ee23",
+        "samplesSha256": "4eae57e0a3b1e1c306990107ca60df9ff79216d98f1459e011761e7a09f1131f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141451653736Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141451653736Z-lyra/result.json",
+        "samples": "runs/20260828T141451653736Z-lyra/samples.csv",
+        "resultSha256": "899ffde5f54671514eb9218c9f6dba727cd28f1b032537dd61a165ad9d30f073",
+        "samplesSha256": "4df844ff211b1598cad5541a6cceed41ee59552e78ff9f6be7dd3c5eed3b4186"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141452940599Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141452940599Z-lyra/result.json",
+        "samples": "runs/20260828T141452940599Z-lyra/samples.csv",
+        "resultSha256": "5ed98d503cb751d569a47b08651f1d2e4e9a593e7d139b0498557446dc9bf589",
+        "samplesSha256": "d7cf796071d83b59f31c8b5914b8bdd3ae8a511bf9bb866885b6608eda08829d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141456017106Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141456017106Z-lyra/result.json",
+        "samples": "runs/20260828T141456017106Z-lyra/samples.csv",
+        "resultSha256": "6f36c1088574159839b2d446133f68449ae85a2312e676996453eca900fa206f",
+        "samplesSha256": "e8b7a00c113b3926d973233996e1063eee398e3b20629913704285938af6ece9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141458940094Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141458940094Z-lyra/result.json",
+        "samples": "runs/20260828T141458940094Z-lyra/samples.csv",
+        "resultSha256": "ce44ecfbb7f6822b59c5c7f15777741eeae498e519b4c53e6cb89c9bf411e68b",
+        "samplesSha256": "e97f27d40f78812efa4056a4fc2931bc387ad8ca5439978d7a685b6bda817cb8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141514807689Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141514807689Z-lyra/result.json",
+        "samples": "runs/20260828T141514807689Z-lyra/samples.csv",
+        "resultSha256": "34a382cf8d14ffc866eb9fed0fe9a36afeef70d0c050fb3d287bfb509272028a",
+        "samplesSha256": "ea724188e2f00f841f846773b793c36bbe9aa083873998b3012618619f5a7e0c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141524045018Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141524045018Z-lyra/result.json",
+        "samples": "runs/20260828T141524045018Z-lyra/samples.csv",
+        "resultSha256": "8a13796909e9a8bdf4290b0edf779bc9433602038266731727ec1852eb9d8483",
+        "samplesSha256": "35eda1c179daa77470a033619024273539c0fba3932fe00acc3bc4d1b2c82f57"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141534345675Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141534345675Z-lyra/result.json",
+        "samples": "runs/20260828T141534345675Z-lyra/samples.csv",
+        "resultSha256": "0b45722d06a67fe9436dceb96877ace45a115cf40e3e5c4e2d312ac507b00c0c",
+        "samplesSha256": "9602c6281988d5cca5e0d1b09c0593c2cdab93bf6c19d2031ec313c804c24ce8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141543384290Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141543384290Z-lyra/result.json",
+        "samples": "runs/20260828T141543384290Z-lyra/samples.csv",
+        "resultSha256": "40087533420cbd4b4762951cdb797891fda2f30a1d0c671570ffd46583a71518",
+        "samplesSha256": "c7f774d44eca2dfc80797edd40afb175c9325f165663c21a8fab4cb0110cc1f4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141555452572Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141555452572Z-lyra/result.json",
+        "samples": "runs/20260828T141555452572Z-lyra/samples.csv",
+        "resultSha256": "58ea1bb54db5485327b021d0fedc18185f341ca5be7bde46125c86bdbff7313c",
+        "samplesSha256": "02742b03647baa803354d4600479451249ee38514e6f8e487c2b6a43687211d3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141607367533Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141607367533Z-lyra/result.json",
+        "samples": "runs/20260828T141607367533Z-lyra/samples.csv",
+        "resultSha256": "b30920379aadfbf97c90895680693b0079e4d7827c5dffb69ae32c81153c316f",
+        "samplesSha256": "9cc2edf68625fbfc1ef1aeda6229515305748b0280cd99874f2a03f631aee944"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141608665953Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141608665953Z-lyra/result.json",
+        "samples": "runs/20260828T141608665953Z-lyra/samples.csv",
+        "resultSha256": "6b4e74d051f94ae74294e2bb00ba805f7f8cdf9834525262eb445179f16515f1",
+        "samplesSha256": "7f2e84a4115d6024b69ef17297613a87b4cd9420ed0b9d1d366965048a0d4bda"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141609521638Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141609521638Z-lyra/result.json",
+        "samples": "runs/20260828T141609521638Z-lyra/samples.csv",
+        "resultSha256": "f0cb7bc56261094931a85f356b900af9e95f268010870d38bfcf047f262039f6",
+        "samplesSha256": "e20624571da7dfb3340fcfe8621cb0cd4d01236ed35a6337f66127776bacc0f0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T141610711264Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated issue #9 reference cohort over all six production workloads; complete synthetic spectral round trip, zero steady-state allocation, and correctness within 1e-12. Cross-Mac replication and nonlinear WVM validation remain required.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T141610711264Z-lyra/result.json",
+        "samples": "runs/20260828T141610711264Z-lyra/samples.csv",
+        "resultSha256": "a4d3b896e6d7baab5091549a16ea5f13775a2952ef79794253a49802974f0bb3",
+        "samplesSha256": "19c57c2ad697a49bd7cfe93527996c0113d234442f564e4ae8801b6a451790bf"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -17823,7 +19263,7 @@
     {
       "id": "issue-009-combined-spectral-pipeline",
       "issue": 9,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Combined spectral pipeline",
       "question": "Which complete synthetic spectral-operator graph is fastest after composing the best horizontal, vertical, and ordering policies?",
       "baseline": "Compose reference candidates from issues #7, #8, and #13; provide primary evidence to issue #11.",

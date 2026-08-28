@@ -53,6 +53,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_6_page = output / "experiments" / "issue-006-vdsp-batching-scheduling" / "index.html"
             issue_7_page = output / "experiments" / "issue-007-retained-horizontal-algorithms" / "index.html"
             issue_8_page = output / "experiments" / "issue-008-vertical-projection-gemm" / "index.html"
+            issue_9_page = output / "experiments" / "issue-009-combined-spectral-pipeline" / "index.html"
             issue_12_page = output / "experiments" / "issue-012-pruned-horizontal-transforms" / "index.html"
             issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
@@ -63,9 +64,9 @@ class BuildSiteTests(unittest.TestCase):
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
-            self.assertIn("Raw horizontal transform", index)
+            self.assertIn("Raw FFT", index)
             self.assertIn("Raw vertical MM", index)
-            self.assertIn("Composed boundary", index)
+            self.assertIn("Synthetic antialiased spectral pipeline", index)
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
             self.assertTrue(split_run_page.is_file())
@@ -75,6 +76,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_6_page.is_file())
             self.assertTrue(issue_7_page.is_file())
             self.assertTrue(issue_8_page.is_file())
+            self.assertTrue(issue_9_page.is_file())
             self.assertTrue(issue_12_page.is_file())
             self.assertTrue(issue_13_page.is_file())
             self.assertTrue(float32_page.is_file())
@@ -201,6 +203,23 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("20260828T025900272351Z-lyra", issue_8_html)
             self.assertIn("20260828T030055673684Z-lyra", issue_8_html)
             self.assertIn("Every published scheduling run reports zero exactly equivalent adjacent matrix pairs.", issue_8_html)
+            issue_9_html = issue_9_page.read_text(encoding="utf-8")
+            self.assertIn("Synthetic antialiased spectral-pipeline campaign", issue_9_html)
+            self.assertIn("0.699× the WVM direct/no-reorder control", issue_9_html)
+            self.assertIn("0.694×–0.702×", issue_9_html)
+            self.assertIn("The M4 adoption-statistics gate passes", issue_9_html)
+            self.assertIn("explicitly excludes the WVM nonlinear flux calculation", issue_9_html)
+            self.assertIn("Raw FFT", issue_9_html)
+            self.assertIn("Raw vertical MM", issue_9_html)
+            self.assertIn("Movement / rebuild", issue_9_html)
+            self.assertIn("Modal work", issue_9_html)
+            self.assertIn("Uninstrumented total", issue_9_html)
+            pipeline_run_html = (
+                output / "runs" / "20260828T141610711264Z-lyra" / "index.html"
+            ).read_text(encoding="utf-8")
+            self.assertIn("Plane-major fused-split pipeline", pipeline_run_html)
+            self.assertIn("Synthetic antialiased spectral pipeline", pipeline_run_html)
+            self.assertIn("Mode-keyed modal work", pipeline_run_html)
             vertical_run_html = (output / "runs" / "20260828T015555382629Z-lyra" / "index.html").read_text(encoding="utf-8")
             self.assertIn("Raw vertical GEMM", vertical_run_html)
             self.assertIn("Accelerate split dgemm", vertical_run_html)

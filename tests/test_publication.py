@@ -36,6 +36,33 @@ class PublicationValidationTests(unittest.TestCase):
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
         self.assertEqual(11, len(catalog["experiments"]))
+        pipeline_screen = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-screen-v1"
+        ]
+        pipeline_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-reference-v1"
+        ]
+        self.assertEqual(12, len(pipeline_screen))
+        self.assertEqual(36, len(pipeline_reference))
+        self.assertTrue(all(bundle.publication["status"] == "preliminary" for bundle in pipeline_screen))
+        self.assertTrue(all(bundle.publication["status"] == "reference" for bundle in pipeline_reference))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"] for bundle in pipeline_reference
+        })
+        self.assertEqual(
+            {
+                "wvm-direct--outer-dynamic-16",
+                "plane-major-fused-split--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in pipeline_reference
+            },
+        )
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
