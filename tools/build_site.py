@@ -3118,6 +3118,15 @@ def spectral_pipeline_bootstrap(profile_ratios: dict[str, list[float]]) -> tuple
     return draws[int(0.025 * (len(draws) - 1))], draws[int(0.975 * (len(draws) - 1))]
 
 
+def paired_round_bootstrap(ratios: list[float], seed: int) -> tuple[float, float]:
+    generator = random.Random(seed)
+    draws = sorted(
+        statistics.median(generator.choices(ratios, k=len(ratios)))
+        for _ in range(20000)
+    )
+    return draws[int(0.025 * (len(draws) - 1))], draws[int(0.975 * (len(draws) - 1))]
+
+
 def spectral_pipeline_general_synthesis(bundles: list[PublishedBundle]) -> str:
     pipeline = spectral_pipeline_bundles(bundles)
     if not pipeline:
@@ -3535,7 +3544,11 @@ def streaming_pruned_pipeline_synthesis(
       </table></div>
       <p class="method-note">This is preliminary screen evidence, not a replacement for the issue #9 M4 decision. One uniform algorithm is evaluated across sizes; no size-dependent dispatch is proposed. Issue #17 implicit and hybrid dealiased convolutions remain outside this experiment.</p>
     """
-    return initial_screen + streaming_pruned_locality_synthesis(bundles)
+    return (
+        initial_screen
+        + streaming_pruned_locality_synthesis(bundles)
+        + streaming_pruned_reference_synthesis(bundles)
+    )
 
 
 def streaming_pruned_locality_synthesis(
@@ -3702,6 +3715,218 @@ def streaming_pruned_locality_synthesis(
         <tbody>{"".join(profile_rows)}</tbody>
       </table></div>
       <p class="method-note">These are clean one-round preliminary runs with one warmup and five samples per isolated process. The earlier direct-streaming result remains visible above. Tile selection is not reference inference; only a later rotated campaign may change the M4 adoption statistics.</p>
+    """
+
+
+def streaming_pruned_reference_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "streaming-pruned-compact-split-reference-v1"
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "plane-major-fused-split--outer-dynamic-16"
+    candidate_id = "streaming-pruned-tiled-16--outer-dynamic-16"
+    cells: dict[tuple[str, str, int], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in {baseline_id, candidate_id}:
+            continue
+        provider = spectral_pipeline_provider(bundle)
+        horizontal_stage = (
+            "full FFT fused compact split horizontal operator"
+            if candidate == baseline_id else
+            "streaming pruned compact split horizontal operator"
+        )
+
+        def required(scope: str, stage: str, direction: str) -> float:
+            item = stage_timing(provider, scope, stage, direction)
+            if item is None:
+                raise ValueError(
+                    f"reference provider {provider['id']} lacks {scope}/{stage}/{direction}"
+                )
+            return float(item["medianSeconds"])
+
+        memory = provider["memory"]
+        cells[(
+            candidate,
+            bundle.result["run"]["profile"],
+            int(bundle.publication.get("campaignRound", 1)),
+        )] = {
+            "horizontalForward": required(
+                "retained-operator-total", horizontal_stage, "forward",
+            ),
+            "horizontalInverse": required(
+                "retained-operator-total", horizontal_stage, "inverse",
+            ),
+            "verticalForward": required(
+                "primitive", "raw vertical MM", "forward",
+            ),
+            "modalWork": required(
+                "component", "mode-keyed modal work", "modal",
+            ),
+            "verticalInverse": required(
+                "primitive", "raw vertical MM", "inverse",
+            ),
+            "total": required(
+                "uninstrumented-total",
+                "synthetic antialiased spectral pipeline", "round-trip",
+            ),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "harness": float(memory["benchmarkHarnessBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "scratch": float(memory["scratchBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    profiles = [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    ]
+    profile_ratios: dict[str, list[float]] = {}
+    summary_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    observed_ratios: list[float] = []
+    total_rows: list[str] = []
+    component_rows: list[str] = []
+    memory_rows: list[str] = []
+    for profile_index, profile in enumerate(profiles):
+        rounds = [
+            round_number for round_number in (1, 2, 3)
+            if (baseline_id, profile, round_number) in cells
+            and (candidate_id, profile, round_number) in cells
+        ]
+        if len(rounds) != 3:
+            return ""
+        baseline = [cells[(baseline_id, profile, round_number)] for round_number in rounds]
+        candidate = [cells[(candidate_id, profile, round_number)] for round_number in rounds]
+        paired = [
+            candidate_item["total"] / baseline_item["total"]
+            for candidate_item, baseline_item in zip(candidate, baseline)
+        ]
+        profile_ratios[profile] = paired
+        total_ratio = (
+            statistics.median(item["total"] for item in candidate)
+            / statistics.median(item["total"] for item in baseline)
+        )
+        resident_ratio = (
+            statistics.median(item["resident"] for item in candidate)
+            / statistics.median(item["resident"] for item in baseline)
+        )
+        observed_ratio = (
+            statistics.median(item["observed"] for item in candidate)
+            / statistics.median(item["observed"] for item in baseline)
+        )
+        summary_ratios.append(total_ratio)
+        resident_ratios.append(resident_ratio)
+        observed_ratios.append(observed_ratio)
+        profile_interval = paired_round_bootstrap(paired, 129 + profile_index)
+        total_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(statistics.median(item["total"] for item in baseline))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(item["total"] for item in candidate))}</td>'
+            f'<td class="numeric"><strong>{total_ratio:.3f}×</strong></td>'
+            f'<td class="numeric">{profile_interval[0]:.3f}×–{profile_interval[1]:.3f}×</td>'
+            "</tr>"
+        )
+
+        def pair_component(key: str) -> tuple[float, float, float]:
+            baseline_value = statistics.median(item[key] for item in baseline)
+            candidate_value = statistics.median(item[key] for item in candidate)
+            return baseline_value, candidate_value, candidate_value / baseline_value
+
+        horizontal_forward = pair_component("horizontalForward")
+        horizontal_inverse = pair_component("horizontalInverse")
+        vertical_forward = pair_component("verticalForward")
+        vertical_inverse = pair_component("verticalInverse")
+        modal = pair_component("modalWork")
+        component_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(horizontal_forward[0])} / {format_ms(horizontal_forward[1])}<br>'
+            f'<span class="muted">{horizontal_forward[2]:.3f}×</span></td>'
+            f'<td class="numeric">{format_ms(horizontal_inverse[0])} / {format_ms(horizontal_inverse[1])}<br>'
+            f'<span class="muted">{horizontal_inverse[2]:.3f}×</span></td>'
+            f'<td class="numeric">{format_ms(vertical_forward[0])} / {format_ms(vertical_forward[1])}<br>'
+            f'<span class="muted">{vertical_forward[2]:.3f}×</span></td>'
+            f'<td class="numeric">{format_ms(modal[0])} / {format_ms(modal[1])}<br>'
+            f'<span class="muted">{modal[2]:.3f}×</span></td>'
+            f'<td class="numeric">{format_ms(vertical_inverse[0])} / {format_ms(vertical_inverse[1])}<br>'
+            f'<span class="muted">{vertical_inverse[2]:.3f}×</span></td>'
+            "</tr>"
+        )
+        memory_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["resident"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["resident"] for item in candidate)))}<br>'
+            f'<span class="muted">{resident_ratio:.3f}×</span></td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["scratch"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["scratch"] for item in candidate)))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["estimated"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["estimated"] for item in candidate)))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["observed"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["observed"] for item in candidate)))}<br>'
+            f'<span class="muted">{observed_ratio:.3f}×</span></td>'
+            "</tr>"
+        )
+
+    geometric_ratio = math.exp(
+        sum(math.log(value) for value in summary_ratios) / len(summary_ratios)
+    )
+    geometric_resident = math.exp(
+        sum(math.log(value) for value in resident_ratios) / len(resident_ratios)
+    )
+    geometric_observed = math.exp(
+        sum(math.log(value) for value in observed_ratios) / len(observed_ratios)
+    )
+    interval = spectral_pipeline_bootstrap(profile_ratios)
+    maximum_ratio = max(summary_ratios)
+    maximum_error = max(errors) if errors else math.inf
+    gate_passed = bool(
+        geometric_ratio <= 0.90
+        and maximum_ratio <= 1.03
+        and geometric_resident <= 0.90
+        and interval[1] < 1.0
+        and maximum_error <= 1.0e-12
+    )
+    conclusion = (
+        "The M4 fixed-policy reference gate passes. Tile-16 streaming compact split "
+        "supersedes fused split as the synthetic-pipeline winner; cross-Mac replication "
+        "and full-model validation remain required."
+        if gate_passed else
+        "The fixed-policy reference gate does not pass; fused split remains the M4 winner."
+    )
+    return f"""
+      <h3>Fixed tile-16 reference campaign</h3>
+      <p>After the append-only locality screen selected tile 16, this campaign froze that one policy before inference and compared it only with the same-commit fused-split control. Three independently planned processes per cell used three warmups and 21 measured samples. Candidate and profile order rotated by round; no size-dependent selection or dispatch was permitted.</p>
+      <p>Fixed tile-16 streaming is {geometric_ratio:.3f}× fused split geometrically in authoritative total time, with a stratified paired-bootstrap 95% interval of {interval[0]:.3f}×–{interval[1]:.3f}×. Its worst profile remains a win at {maximum_ratio:.3f}×. Algorithm-resident memory is {geometric_resident:.3f}× and observed process high water is {geometric_observed:.3f}×. Maximum correctness error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong></p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative uninstrumented totals. Each workload ratio uses the median of three process medians; intervals bootstrap the three paired round ratios.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Fused split (ms)</th><th scope="col">Tile 16 (ms)</th><th scope="col">Ratio</th><th scope="col">Paired 95% interval</th></tr></thead>
+        <tbody>{"".join(total_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Component medians are fused split / tile 16 with candidate/control below. They remain diagnostic and are not summed; the uninstrumented total above is authoritative.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Horizontal forward</th><th scope="col">Horizontal inverse</th><th scope="col">Raw vertical forward</th><th scope="col">Modal work</th><th scope="col">Raw vertical inverse</th></tr></thead>
+        <tbody>{"".join(component_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Memory is fused split / tile 16. Algorithm resident is the decision measure; scratch, conservative explicit peak, and observed process high water remain separate.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Algorithm resident</th><th scope="col">Scratch</th><th scope="col">Estimated explicit peak</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{"".join(memory_rows)}</tbody>
+      </table></div>
+      <p class="method-note">The speedup resides in the retained horizontal operator: vertical GEMM and modal-work medians are effectively unchanged. The macOS allocator interposer verifies zero steady-state allocation on the same clean source commit. Primitive full-FFT and primitive GEMM results remain separately published in their foundational experiments.</p>
     """
 
 

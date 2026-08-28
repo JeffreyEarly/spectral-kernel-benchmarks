@@ -292,7 +292,8 @@ class BuildSiteTests(unittest.TestCase):
             issue_16_html = issue_16_page.read_text(encoding="utf-8")
             self.assertIn("Streaming pruned-to-compact-split pipeline", issue_16_html)
             self.assertIn("worker-local-plane", issue_16_html)
-            self.assertIn("No reference run has been published", issue_16_html)
+            self.assertIn("18 reference run(s) currently contribute", issue_16_html)
+            self.assertNotIn("No reference run has been published", issue_16_html)
             self.assertIn("Streaming pruned-to-compact-split preliminary screen", issue_16_html)
             self.assertIn("0.952× geometrically", issue_16_html)
             self.assertIn("two large decision cases are 1.080×", issue_16_html)
@@ -307,6 +308,15 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Algorithm-resident memory remains 0.851×", issue_16_html)
             self.assertIn("1.026e-15", issue_16_html)
             self.assertIn("32-mode cache-blocked transpose", issue_16_html)
+            self.assertIn("Fixed tile-16 reference campaign", issue_16_html)
+            self.assertIn("0.752× fused split geometrically", issue_16_html)
+            self.assertIn("0.734×–0.771×", issue_16_html)
+            self.assertIn("worst profile remains a win at 0.865×", issue_16_html)
+            self.assertIn("Algorithm-resident memory is 0.851×", issue_16_html)
+            self.assertIn("observed process high water is 0.894×", issue_16_html)
+            self.assertIn("supersedes fused split as the synthetic-pipeline winner", issue_16_html)
+            self.assertIn("The speedup resides in the retained horizontal operator", issue_16_html)
+            self.assertIn("no size-dependent selection or dispatch was permitted", issue_16_html)
             streaming_run_page = (
                 output / "runs" / "20260828T153842645834Z-lyra" / "index.html"
             )
@@ -330,6 +340,16 @@ class BuildSiteTests(unittest.TestCase):
                 tiled_streaming_run_html,
             )
             self.assertIn("streaming compact tile width=16", tiled_streaming_run_html)
+            reference_streaming_run_page = (
+                output / "runs" / "20260828T165627728052Z-lyra" /
+                "index.html"
+            )
+            self.assertTrue(reference_streaming_run_page.is_file())
+            reference_streaming_run_html = reference_streaming_run_page.read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("reference", reference_streaming_run_html)
+            self.assertIn("streaming compact tile width=16", reference_streaming_run_html)
             self.assertIn("Adoption decision not yet ready", decision_page.read_text(encoding="utf-8"))
             self.assertIn("predates the explicit placement contract", legacy_page.read_text(encoding="utf-8"))
             self.assertEqual((PUBLISHED / "m4-max-quick-20260827.json").read_bytes(), result_artifact.read_bytes())

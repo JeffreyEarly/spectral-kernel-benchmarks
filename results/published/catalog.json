@@ -20594,6 +20594,510 @@
         "samplesSha256": "ca2de31d5d52173e3560b0e46c90b8020de9d2b93ecfc591f2911223717ae8db"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T164758010181Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T164758010181Z-lyra/result.json",
+        "samples": "runs/20260828T164758010181Z-lyra/samples.csv",
+        "resultSha256": "e08eca84cbca930049e4c6b18d44754334c49aa3c45291404a6fbc69d251d97e",
+        "samplesSha256": "545d30a1fb8fe28fccd939f09e5cd9caf838d9df7bba79ba6962510074c2e649"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T164801934312Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T164801934312Z-lyra/result.json",
+        "samples": "runs/20260828T164801934312Z-lyra/samples.csv",
+        "resultSha256": "dc50f94f56ff67e7272c212b390be7f26b518a54b3c93451fe0e8ee8ae2b1df7",
+        "samplesSha256": "50cc5537af1f7003a5614d63f7d0c65f8af5f723f1d4ffda2119aee53c3086e3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T164804789178Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T164804789178Z-lyra/result.json",
+        "samples": "runs/20260828T164804789178Z-lyra/samples.csv",
+        "resultSha256": "fa102b26d41f01a66e3a5742867dfa11a19e70ce8a039d3ce42ffa0b0370b749",
+        "samplesSha256": "a413102acfed60172034b196a8defd243af4506967e65cc94f9529e1ad416464"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T164837476457Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T164837476457Z-lyra/result.json",
+        "samples": "runs/20260828T164837476457Z-lyra/samples.csv",
+        "resultSha256": "d9c5985f1f73e37ea452b8b7ec121d7361bd4627436e2b7cc167ef461bf22cb3",
+        "samplesSha256": "e65ac1351d6c73203a06218b781a1e13759fefe5c35b947d6a82c5d108cbe811"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T164903606066Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T164903606066Z-lyra/result.json",
+        "samples": "runs/20260828T164903606066Z-lyra/samples.csv",
+        "resultSha256": "f1864d243ee962f901ca344075c47905435d26b41613ccc0edb3975b1a997948",
+        "samplesSha256": "dfeaa09ce1bb7ed078f3eed9235f5a7e160f5a3f7dc1f12b3168f7def560c1e1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165007984548Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165007984548Z-lyra/result.json",
+        "samples": "runs/20260828T165007984548Z-lyra/samples.csv",
+        "resultSha256": "efce4b0f8d72437a6ae2ea7266924daa68163c46f2fd8f48fb9a0a0a43689353",
+        "samplesSha256": "9741dc6c7d2ca00cc417aadce0095b94427c9f8c097ad0a35647373a4a170139"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165057917795Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165057917795Z-lyra/result.json",
+        "samples": "runs/20260828T165057917795Z-lyra/samples.csv",
+        "resultSha256": "a1e10838d98923bb122c2b239f653dd28e1c4fab83b129eb43d9106e4fed1a42",
+        "samplesSha256": "d9fc6bd71d2316668ec2c1ef6ae381e8b779fafaa865d8a7521cfcc4f8278579"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165123080179Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165123080179Z-lyra/result.json",
+        "samples": "runs/20260828T165123080179Z-lyra/samples.csv",
+        "resultSha256": "bf19cc7ecc8f92239f68e6274414c527b8124d83a855e0dc73dc3279e4e5cfe0",
+        "samplesSha256": "67b614eb435c59aa707a59708767fbaac584b116eddc593fc09ce9693c0e569d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165156265809Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165156265809Z-lyra/result.json",
+        "samples": "runs/20260828T165156265809Z-lyra/samples.csv",
+        "resultSha256": "4dbff1a51185af1c43a338eb82e0ca011ac091d180e3f937167ee17a28f421ec",
+        "samplesSha256": "e79e104ad5cd4f3cd28d209cd6c902b77d6b238c3120dff45e4fa4e967271a93"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165246693210Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165246693210Z-lyra/result.json",
+        "samples": "runs/20260828T165246693210Z-lyra/samples.csv",
+        "resultSha256": "e63d826d24a2d0230f79d31ae0465bb496b7431956981854346a9f91d288ef0f",
+        "samplesSha256": "3941654a7ce32212535abfb8eb18a493de92f2d69a83cf4a5b4ed0a232bd0bc0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165348359733Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165348359733Z-lyra/result.json",
+        "samples": "runs/20260828T165348359733Z-lyra/samples.csv",
+        "resultSha256": "e3e186d354862be301a411f8d84944427253b782784009bf95674d9b6ca98c5d",
+        "samplesSha256": "20bfdff546bbb1c9560c87050a5afe17dd1dd4d3cdb0d117392bae3fa182ae35"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165351292649Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165351292649Z-lyra/result.json",
+        "samples": "runs/20260828T165351292649Z-lyra/samples.csv",
+        "resultSha256": "04036f9aef74d0b1c9e4bde3d2f8bd8e8022b18fdb6915e540756b41e3d4ce01",
+        "samplesSha256": "5240a2d23e3918751051d6e7f5cba5c95cfd5c2946035d301ae803ba59984700"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165355233867Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165355233867Z-lyra/result.json",
+        "samples": "runs/20260828T165355233867Z-lyra/samples.csv",
+        "resultSha256": "2df8a7f24ae6a0c8bdf2aa8c5ae55e3b2a439d226eac1903ccf5ab1a4729dc53",
+        "samplesSha256": "b23916c88545f444b3d94e4a829a623177dd950b691cbd3f93256161eca0df87"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165456778899Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165456778899Z-lyra/result.json",
+        "samples": "runs/20260828T165456778899Z-lyra/samples.csv",
+        "resultSha256": "76e9abac151968ac0b401134c52dd2cd032f71a6421bede2eac8f9a6c9696746",
+        "samplesSha256": "26b46fa9fc367af2bd0264008ce50291862c65229ac524fc418a7f2f83e54379"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165547663183Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165547663183Z-lyra/result.json",
+        "samples": "runs/20260828T165547663183Z-lyra/samples.csv",
+        "resultSha256": "0c939c8cf3f703821ae8e2ea29ad07b50bfaff8ec9a88fd3cdb365b85b57ca7b",
+        "samplesSha256": "997b0118dea7e8ae855d260f28a16bc50da124df7c457ccd8ae593410ae5f28e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165551573811Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165551573811Z-lyra/result.json",
+        "samples": "runs/20260828T165551573811Z-lyra/samples.csv",
+        "resultSha256": "6867d18dd01881914b2ed563e5e4d80669cb3bc5d12179b3b3c177a012de0078",
+        "samplesSha256": "854bb4cbc5de6cf211a7b5ce6764f7bbd68751214ad0686e52b7a17e04f1b8fc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165554471855Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165554471855Z-lyra/result.json",
+        "samples": "runs/20260828T165554471855Z-lyra/samples.csv",
+        "resultSha256": "bd2390afb11f7108ac0805e7e5913cd91795bd2e125636a257d6c271a06749fd",
+        "samplesSha256": "650b3f923d34e4b9f12188b9728d32822bd9c6c856d2b23932554d326c68582c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T165627728052Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T165627728052Z-lyra/result.json",
+        "samples": "runs/20260828T165627728052Z-lyra/samples.csv",
+        "resultSha256": "e7461bbec623d95d90972f27ab324482fa80b293d879471c7e0c38c262cd9a3b",
+        "samplesSha256": "796406b991f357f7c387eae52577ddf11fffe0f30e812c61dc0f0029f8c0fac6"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

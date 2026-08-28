@@ -249,6 +249,58 @@ class PublicationValidationTests(unittest.TestCase):
                 memory["algorithmResidentBytes"] +
                 memory["benchmarkHarnessBytes"],
             )
+        streaming_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "streaming-pruned-compact-split-reference-v1"
+        ]
+        self.assertEqual(18, len(streaming_reference))
+        self.assertTrue(all(
+            bundle.publication["status"] == "reference"
+            and not bundle.result["environment"]["gitDirty"]
+            for bundle in streaming_reference
+        ))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"]
+            for bundle in streaming_reference
+        })
+        self.assertEqual(
+            {
+                "plane-major-fused-split--outer-dynamic-16",
+                "streaming-pruned-tiled-16--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in streaming_reference
+            },
+        )
+        self.assertEqual(
+            {
+                "wvm-current-256-nz129-f4",
+                "wvm-current-512-nz257-f4",
+                "wvm-large-1024-nz129-f4",
+            },
+            {
+                bundle.result["run"]["profile"]
+                for bundle in streaming_reference
+            },
+        )
+        self.assertEqual(
+            {"7c212a904353"},
+            {
+                bundle.result["environment"]["gitCommit"]
+                for bundle in streaming_reference
+            },
+        )
+        for bundle in streaming_reference:
+            provider = bundle.result["providers"][0]
+            memory = provider["memory"]
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                memory["algorithmResidentBytes"] +
+                memory["benchmarkHarnessBytes"],
+            )
+            self.assertGreater(memory["observedProcessHighWaterBytes"], 0)
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
