@@ -664,7 +664,13 @@ int main() {
                 "historical workload profile");
         require(skbench::profileNamed("wvm-current-512-nz257-f4").workload.planes() == 1028,
                 "current workload profile");
-        require(profileList.size() == 13, "unexpected profile count");
+        const auto largeProfile = skbench::profileNamed("wvm-large-1024-nz129-f4");
+        const auto largeModes = skbench::retainedHorizontalModes(largeProfile.workload);
+        require(largeModes.size() == 183037,
+                "large four-field retained-mode count");
+        require(skbench::squaredWavenumberGroups(largeModes).size() == 27779,
+                "large four-field squared-wavenumber group count");
+        require(profileList.size() == 14, "unexpected profile count");
 
         const auto prunedModes = skbench::retainedHorizontalModes(workload);
         skbench::FFTWPrunedProvider prunedProvider(
@@ -1729,6 +1735,18 @@ int main() {
             require(pipelineReport.spectralPipelineEstimatedExplicitPeakBytes >
                         pipelineReport.fullSpectrumBytes,
                     "spectral-pipeline explicit peak estimate");
+            require(provider.algorithmResidentBytes > provider.explicitPersistentBytes,
+                    "spectral-pipeline algorithm-resident memory");
+            require(provider.benchmarkHarnessBytes > 0,
+                    "spectral-pipeline benchmark-only memory");
+            require(provider.estimatedProcessPeakBytes ==
+                        pipelineReport.spectralPipelineEstimatedExplicitPeakBytes,
+                    "spectral-pipeline provider peak estimate");
+            require(provider.algorithmResidentBytes + provider.benchmarkHarnessBytes ==
+                        provider.estimatedProcessPeakBytes,
+                    "spectral-pipeline memory partition");
+            require(provider.observedProcessHighWaterBytes > 0,
+                    "spectral-pipeline observed process high-water memory");
         }
 
         if (skbench::test::allocationTrackingSupported()) {

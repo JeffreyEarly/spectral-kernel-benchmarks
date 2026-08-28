@@ -615,6 +615,10 @@ struct ProviderRecord {
     ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
     std::size_t scratchBytes = 0;
+    std::uint64_t algorithmResidentBytes = 0;
+    std::uint64_t benchmarkHarnessBytes = 0;
+    std::uint64_t estimatedProcessPeakBytes = 0;
+    std::uint64_t observedProcessHighWaterBytes = 0;
     bool opaqueProviderMemory = true;
     std::size_t opaquePlanningBytes = 0;
     double otherSetupSeconds = 0.0;

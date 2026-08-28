@@ -147,6 +147,17 @@ python3 tools/run_spectral_pipeline_sweep.py --phase reference \
 
 The one-round screen advances to the three-round reference campaign only when fused split is at least 5% faster geometrically than WVM direct, no workload is more than 10% slower, and every correctness metric passes. Reference-depth M4 adoption statistics require at least 10% geometric improvement, no workload regression above 3%, and a stratified 95% bootstrap interval excluding a tie. Cross-Mac replication remains a separate issue #11 gate.
 
+The append-only nonhydrostatic extension reruns a same-commit fields=4 cohort at `256²/Nz=129`, `512²/Nz=129`, `512²/Nz=257`, and `1024²/Nz=129`. Its screen is a correctness and memory-capability gate rather than a performance filter: if both graphs complete within the 50%-of-physical-memory preflight rule and all metrics remain within `1e-12`, all four workloads advance to three reference rounds even when the screen is a tie or regression.
+
+```sh
+python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase screen --dry-run --allow-dirty-tree
+python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase screen
+python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase reference \
+  --screen-analysis results/local/<large-f4-screen>/analysis.json
+```
+
+Pipeline memory reports distinguish explicit algorithm-resident storage, benchmark/oracle overhead, the conservative explicit process-peak estimate, and the isolated process high-water measurement. Lower algorithm memory is a result: a workload that only one graph can execute safely is published as a capacity outcome rather than forced through swap. The `512²/Nz=513/fields=4` and `1024²/Nz=257/fields=4` capacity cases remain deferred until benchmark-only storage can be reduced without hiding production-resident buffers.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries

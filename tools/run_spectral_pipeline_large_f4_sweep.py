@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the bounded issue #9 synthetic antialiased spectral pipeline campaign."""
+"""Run the memory-aware issue #9 large four-field pipeline campaign."""
 
 from __future__ import annotations
 
@@ -7,51 +7,37 @@ import argparse
 import json
 import math
 import os
-import random
 import statistics
 import subprocess
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from run_fftw_native_order_sweep import REFERENCE_PROFILES, rotated
-from run_spectral_boundary_sweep import estimated_explicit_peak_bytes as boundary_peak
-from run_vertical_gemm_sweep import (
-    PROFILE_SHAPES,
-    gibibytes,
-    git_source_state,
-    sysctl_uint64,
+from run_fftw_native_order_sweep import rotated
+from run_spectral_pipeline_sweep import (
+    BASELINE_ID,
+    CANDIDATE_ID,
+    Candidate,
+    candidate_matrix,
+    command_for,
+    estimated_explicit_peak_bytes,
+    geometric_mean,
+    maximum_correctness_error,
+    provider_record,
+    provider_timing,
+    stratified_geometric_bootstrap,
 )
+from run_vertical_gemm_sweep import gibibytes, git_source_state, sysctl_uint64
 
 
-BASELINE_ID = "wvm-direct--outer-dynamic-16"
-CANDIDATE_ID = "plane-major-fused-split--outer-dynamic-16"
-
-
-@dataclass(frozen=True)
-class Candidate:
-    id: str
-    policy: str
-    primary_provider: str
-    role: str
-
-
-def candidate_matrix() -> list[Candidate]:
-    return [
-        Candidate(
-            BASELINE_ID,
-            "wvm-direct",
-            "pipeline-wvm-direct",
-            "production-layout-control",
-        ),
-        Candidate(
-            CANDIDATE_ID,
-            "plane-major-fused-split",
-            "pipeline-plane-major-fused-split",
-            "selected-issue13-optimization-candidate",
-        ),
-    ]
+COHORT_ID = "large-f4-v1"
+PROFILES = (
+    "wvm-current-256-nz129-f4",
+    "wvm-historical-512-nz129-f4",
+    "wvm-current-512-nz257-f4",
+    "wvm-large-1024-nz129-f4",
+)
 
 
 def load_screen_analysis(path: Path | None) -> dict | None:
@@ -61,8 +47,8 @@ def load_screen_analysis(path: Path | None) -> dict | None:
         analysis = json.load(stream)
     if analysis.get("schema") != "spectral-kernel-pipeline-analysis-v1":
         raise ValueError("--screen-analysis has the wrong schema")
-    if analysis.get("phase") != "screen":
-        raise ValueError("--screen-analysis must describe the screen phase")
+    if analysis.get("phase") != "screen" or analysis.get("cohortId") != COHORT_ID:
+        raise ValueError("--screen-analysis must describe the large-f4-v1 screen")
     return analysis
 
 
@@ -72,85 +58,39 @@ def select_candidates(phase: str, screen_analysis: dict | None) -> list[Candidat
             raise ValueError("reference phase requires --screen-analysis")
         if not screen_analysis.get("advanceToReference", False):
             raise ValueError(
-                "the selected optimization candidate did not satisfy the preregistered screen gate"
+                "the four-field screen did not satisfy the correctness/capability gate"
             )
     return candidate_matrix()
 
 
-def provider_record(candidate: Candidate, result: dict) -> dict:
-    return next(
-        provider for provider in result["providers"]
-        if provider["id"] == candidate.primary_provider
+def required_memory(provider: dict) -> dict[str, int]:
+    memory = provider.get("memory", {})
+    keys = (
+        "algorithmResidentBytes",
+        "benchmarkHarnessBytes",
+        "estimatedProcessPeakBytes",
+        "observedProcessHighWaterBytes",
     )
-
-
-def provider_timing(provider: dict) -> float:
-    matches = [
-        timing for timing in provider["timings"]
-        if timing["scope"] == "uninstrumented-total"
-        and timing["stage"] == "synthetic antialiased spectral pipeline"
-        and timing["direction"] == "round-trip"
-    ]
-    if len(matches) != 1:
+    missing = [key for key in keys if int(memory.get(key, 0)) <= 0]
+    if missing:
         raise ValueError(
-            f"provider {provider['id']} lacks one synthetic-pipeline round-trip timing"
+            f"provider {provider['id']} lacks positive memory fields: {', '.join(missing)}"
         )
-    return float(matches[0]["medianSeconds"])
-
-
-def maximum_correctness_error(provider: dict) -> float:
-    metrics = provider.get("correctness", [])
-    if not metrics or not all(metric.get("passed", False) for metric in metrics):
-        return math.inf
-    return max(float(metric["maximumRelativeError"]) for metric in metrics)
-
-
-def geometric_mean(values: list[float]) -> float:
-    if not values or any(value <= 0.0 for value in values):
-        raise ValueError("geometric mean requires positive values")
-    return math.exp(sum(math.log(value) for value in values) / len(values))
-
-
-def percentile(values: list[float], probability: float) -> float:
-    ordered = sorted(values)
-    position = probability * (len(ordered) - 1)
-    lower = math.floor(position)
-    upper = math.ceil(position)
-    if lower == upper:
-        return ordered[lower]
-    weight = position - lower
-    return ordered[lower] * (1.0 - weight) + ordered[upper] * weight
-
-
-def stratified_geometric_bootstrap(
-    profile_ratios: dict[str, list[float]],
-    seed: int = 129,
-    resamples: int = 20000,
-) -> tuple[float, float]:
-    generator = random.Random(seed)
-    profiles = sorted(profile_ratios)
-    draws: list[float] = []
-    for _ in range(resamples):
-        sampled = [
-            generator.choice(profile_ratios[profile])
-            for profile in profiles
-        ]
-        draws.append(geometric_mean(sampled))
-    return percentile(draws, 0.025), percentile(draws, 0.975)
+    return {key: int(memory[key]) for key in keys}
 
 
 def analyze(
     results: list[tuple[Candidate, int, dict]],
     phase: str = "screen",
 ) -> dict:
-    cells: dict[tuple[str, str], list[tuple[int, float]]] = {}
+    cells: dict[tuple[str, str], list[tuple[int, float, dict[str, int]]]] = {}
     maximum_error = 0.0
     all_correct = True
     for candidate, round_number, result in results:
         provider = provider_record(candidate, result)
         profile = result["run"]["profile"]
         cells.setdefault((candidate.id, profile), []).append(
-            (round_number, provider_timing(provider))
+            (round_number, provider_timing(provider), required_memory(provider))
         )
         error = maximum_correctness_error(provider)
         maximum_error = max(maximum_error, error)
@@ -159,45 +99,77 @@ def analyze(
     profiles = sorted({profile for _, profile in cells})
     profile_rows: list[dict] = []
     profile_round_ratios: dict[str, list[float]] = {}
-    complete = True
+    complete = set(profiles) == set(PROFILES)
     for profile in profiles:
-        baseline = dict(cells.get((BASELINE_ID, profile), []))
-        candidate = dict(cells.get((CANDIDATE_ID, profile), []))
-        shared_rounds = sorted(set(baseline) & set(candidate))
-        if not baseline or not candidate or len(shared_rounds) != len(baseline) or len(shared_rounds) != len(candidate):
+        baseline_entries = {entry[0]: entry[1:] for entry in cells.get((BASELINE_ID, profile), [])}
+        candidate_entries = {entry[0]: entry[1:] for entry in cells.get((CANDIDATE_ID, profile), [])}
+        shared_rounds = sorted(set(baseline_entries) & set(candidate_entries))
+        if (
+            not baseline_entries
+            or not candidate_entries
+            or len(shared_rounds) != len(baseline_entries)
+            or len(shared_rounds) != len(candidate_entries)
+        ):
             complete = False
             continue
-        round_ratios = [candidate[round_number] / baseline[round_number]
-                        for round_number in shared_rounds]
+        baseline_times = [baseline_entries[round_number][0] for round_number in shared_rounds]
+        candidate_times = [candidate_entries[round_number][0] for round_number in shared_rounds]
+        round_ratios = [
+            candidate_entries[round_number][0] / baseline_entries[round_number][0]
+            for round_number in shared_rounds
+        ]
         profile_round_ratios[profile] = round_ratios
+        memory_row: dict[str, dict[str, float]] = {}
+        for key in (
+            "algorithmResidentBytes",
+            "benchmarkHarnessBytes",
+            "estimatedProcessPeakBytes",
+            "observedProcessHighWaterBytes",
+        ):
+            baseline_value = statistics.median(
+                baseline_entries[round_number][1][key] for round_number in shared_rounds
+            )
+            candidate_value = statistics.median(
+                candidate_entries[round_number][1][key] for round_number in shared_rounds
+            )
+            memory_row[key] = {
+                "baselineBytes": baseline_value,
+                "candidateBytes": candidate_value,
+                "candidateToBaseline": candidate_value / baseline_value,
+            }
         profile_rows.append({
             "profile": profile,
-            "baselineSeconds": statistics.median(baseline.values()),
-            "candidateSeconds": statistics.median(candidate.values()),
+            "baselineSeconds": statistics.median(baseline_times),
+            "candidateSeconds": statistics.median(candidate_times),
             "candidateToBaseline": (
-                statistics.median(candidate.values()) /
-                statistics.median(baseline.values())
+                statistics.median(candidate_times) / statistics.median(baseline_times)
             ),
             "roundRatios": round_ratios,
+            "memory": memory_row,
         })
 
-    complete = complete and len(profiles) == len(REFERENCE_PROFILES)
-    ratios = [row["candidateToBaseline"] for row in profile_rows]
-    geometric_ratio = geometric_mean(ratios) if ratios else None
-    maximum_ratio = max(ratios) if ratios else None
-    screen_improvement = bool(
-        complete and geometric_ratio is not None and geometric_ratio <= 0.95
-    )
-    screen_regression = bool(
-        complete and maximum_ratio is not None and maximum_ratio <= 1.10
-    )
-    advance = bool(screen_improvement and screen_regression and all_correct)
+    timing_ratios = [row["candidateToBaseline"] for row in profile_rows]
+    geometric_ratio = geometric_mean(timing_ratios) if timing_ratios else None
+    maximum_ratio = max(timing_ratios) if timing_ratios else None
+    resident_ratios = [
+        row["memory"]["algorithmResidentBytes"]["candidateToBaseline"]
+        for row in profile_rows
+    ]
+    observed_ratios = [
+        row["memory"]["observedProcessHighWaterBytes"]["candidateToBaseline"]
+        for row in profile_rows
+    ]
+    geometric_resident_ratio = geometric_mean(resident_ratios) if resident_ratios else None
+    geometric_observed_ratio = geometric_mean(observed_ratios) if observed_ratios else None
 
+    screen_correctness = bool(complete and all_correct)
+    advance = screen_correctness
     confidence_interval = None
     improvement_gate = None
     regression_gate = None
     confidence_gate = None
     adoption_gate = None
+    classification = None
     if phase == "reference" and complete and profile_round_ratios:
         lower, upper = stratified_geometric_bootstrap(profile_round_ratios)
         confidence_interval = {"lower": lower, "upper": upper}
@@ -207,10 +179,23 @@ def analyze(
         adoption_gate = bool(
             improvement_gate and regression_gate and confidence_gate and all_correct
         )
+        timing_tie = bool(
+            (0.95 <= geometric_ratio <= 1.05) or (lower <= 1.0 <= upper)
+        )
+        memory_advantage = bool(
+            geometric_resident_ratio is not None and geometric_resident_ratio <= 0.95
+        )
+        if adoption_gate:
+            classification = "fused-split-performance-win"
+        elif timing_tie and memory_advantage:
+            classification = "tie-with-memory-advantage"
+        else:
+            classification = "size-specific-dispatch"
 
     return {
         "schema": "spectral-kernel-pipeline-analysis-v1",
         "phase": phase,
+        "cohortId": COHORT_ID,
         "baselineCandidateId": BASELINE_ID,
         "optimizationCandidateId": CANDIDATE_ID,
         "completeProductionMatrix": complete,
@@ -218,13 +203,14 @@ def analyze(
         "maximumCorrectnessError": maximum_error,
         "geometricCandidateToBaseline": geometric_ratio,
         "maximumProfileCandidateToBaseline": maximum_ratio,
+        "geometricAlgorithmResidentCandidateToBaseline": geometric_resident_ratio,
+        "geometricObservedHighWaterCandidateToBaseline": geometric_observed_ratio,
         "profiles": profile_rows,
         "screenGate": {
-            "geometricRatioAtMost": 0.95,
-            "maximumProfileRatioAtMost": 1.10,
-            "improvementPassed": screen_improvement,
-            "regressionPassed": screen_regression,
-            "correctnessPassed": all_correct,
+            "policy": "correctness-and-capability-only",
+            "completeFourFieldCohort": complete,
+            "correctnessPassed": screen_correctness,
+            "performanceDoesNotGateReferenceCollection": True,
         },
         "advanceToReference": advance,
         "referenceGate": {
@@ -234,59 +220,11 @@ def analyze(
             "improvementPassed": improvement_gate,
             "regressionPassed": regression_gate,
             "confidenceExcludesTie": confidence_gate,
-            "m4AdoptionStatisticsPassed": adoption_gate,
+            "m4NonhydrostaticAdoptionStatisticsPassed": adoption_gate,
+            "classification": classification,
             "crossMacReplicationStillRequired": True,
         },
     }
-
-
-def estimated_explicit_peak_bytes(profile: str, policy: str) -> int:
-    nx, nz, fields, nkl, _ = PROFILE_SHAPES[profile]
-    nj = 2 * (nz - 1) // 3
-    physical = nz * nkl * fields * 16
-    modal = nj * nkl * fields * 16
-    weights = nj * nkl * fields * 8
-    correctness_buffers = 2 * physical + 3 * modal + weights
-    real_grid = nx * nx * nz * fields * 8
-    full_spectrum = nx * (nx // 2 + 1) * nz * fields * 16
-    # The pipeline keeps one additional full transform view and ready real output
-    # live while the boundary-only harness can release compact correctness views.
-    pipeline_liveness_adjustment = max(
-        0, full_spectrum + real_grid - physical - 2 * modal,
-    )
-    return (
-        boundary_peak(profile, policy) + correctness_buffers + real_grid
-        + pipeline_liveness_adjustment
-    )
-
-
-def command_for(
-    executable: Path,
-    candidate: Candidate,
-    profile: str,
-    warmups: int,
-    samples: int,
-    seed: int,
-    result_path: Path,
-) -> list[str]:
-    return [
-        str(executable), "run",
-        "--kernel", "spectral-pipeline",
-        "--boundary-policy", candidate.policy,
-        "--profile", profile,
-        "--fftw-planning", "measure",
-        "--fftw-alignment", "unaligned",
-        "--fftw-wisdom", "cold",
-        "--fftw-internal-workers", "1",
-        "--fftw-outer-workers", "12",
-        "--vertical-gemm-family", "k2-grouped",
-        "--vertical-gemm-schedule", "outer-dynamic",
-        "--vertical-gemm-outer-workers", "16",
-        "--warmups", str(warmups),
-        "--samples", str(samples),
-        "--seed", str(seed),
-        "--output", str(result_path),
-    ]
 
 
 def main() -> int:
@@ -299,7 +237,6 @@ def main() -> int:
         default=repository_root / "build/release/skbench",
     )
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--profiles", nargs="*")
     parser.add_argument("--screen-analysis", type=Path)
     parser.add_argument("--rounds", type=int)
     parser.add_argument("--warmups", type=int)
@@ -312,10 +249,6 @@ def main() -> int:
     parser.add_argument("--continue-on-error", action="store_true")
     arguments = parser.parse_args()
 
-    profiles = arguments.profiles or list(REFERENCE_PROFILES)
-    unknown_profiles = sorted(set(profiles) - set(REFERENCE_PROFILES))
-    if unknown_profiles:
-        parser.error(f"unknown profile: {', '.join(unknown_profiles)}")
     try:
         screen_analysis = load_screen_analysis(arguments.screen_analysis)
         candidates = select_candidates(arguments.phase, screen_analysis)
@@ -324,14 +257,14 @@ def main() -> int:
 
     if arguments.phase == "screen":
         rounds = arguments.rounds or 1
-        warmups = arguments.warmups or 2
-        samples = arguments.samples or 9
-        increment_id = "synthetic-spectral-pipeline-screen-v1"
+        warmups = arguments.warmups or 1
+        samples = arguments.samples or 5
+        increment_id = "synthetic-spectral-pipeline-large-f4-screen-v1"
     else:
         rounds = arguments.rounds or 3
         warmups = arguments.warmups or 3
         samples = arguments.samples or 21
-        increment_id = "synthetic-spectral-pipeline-reference-v1"
+        increment_id = "synthetic-spectral-pipeline-large-f4-reference-v1"
     if min(rounds, warmups, samples) < 1:
         parser.error("--rounds, --warmups, and --samples must be positive")
     if not 0.0 < arguments.max_memory_fraction <= 1.0:
@@ -348,7 +281,7 @@ def main() -> int:
     estimated_peaks = {
         candidate.id: {
             profile: estimated_explicit_peak_bytes(profile, candidate.policy)
-            for profile in profiles
+            for profile in PROFILES
         }
         for candidate in candidates
     }
@@ -366,15 +299,15 @@ def main() -> int:
             )
             parser.error(
                 f"estimated explicit peak exceeds {arguments.max_memory_fraction:.0%} of "
-                f"{gibibytes(physical_memory)} physical memory: {details}; "
-                "use --allow-memory-risk to override"
+                f"{gibibytes(physical_memory)} physical memory: {details}"
             )
 
     output = arguments.output or (
         repository_root / "results/local" /
-        f"issue9-spectral-pipeline-{arguments.phase}-{timestamp}"
+        f"issue9-spectral-pipeline-large-f4-{arguments.phase}-{timestamp}"
     )
     commands: list[tuple[str, int, str, Candidate, list[str], Path]] = []
+    profiles = list(PROFILES)
     for round_index in range(rounds):
         round_candidates = rotated(candidates, round_index)
         round_profiles = (
@@ -399,7 +332,7 @@ def main() -> int:
             print(f"VECLIB_MAXIMUM_THREADS=1 {' '.join(command)}")
         print(
             f"Planned {len(commands)} isolated run(s): {rounds} round(s), "
-            f"{len(profiles)} profile(s), {len(candidates)} candidate(s)."
+            f"{len(profiles)} four-field profile(s), {len(candidates)} candidate(s)."
         )
         return 0
 
@@ -409,55 +342,51 @@ def main() -> int:
         "experimentId": "issue-009-combined-spectral-pipeline",
         "incrementId": increment_id,
         "phase": arguments.phase,
+        "cohortId": COHORT_ID,
         "createdAtUtc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "question": (
-            "Does the issue #13 plane-major fused-split representation remain faster "
-            "than the WVM direct/no-reorder control through one complete synthetic "
-            "antialiased spectral round trip with deterministic modal work?"
+            "Does the fused compact-split graph remain faster or provide a material "
+            "memory advantage for nonhydrostatic four-field workloads from 256^2 to 1024^2?"
         ),
         "baseline": (
-            "WVM frequency-major interleaved FFTW, direct per-frequency complex vertical "
-            "projection, provider-order modal view, explicit inverse-spectrum rebuild, "
-            "and the same mode-keyed real diagonal modal operator."
+            "The same issue #9 WVM direct/no-reorder production-layout graph, rerun in "
+            "every round and workload on the same clean commit."
         ),
         "changedVariables": [
-            "WVM frequency-major interleaved versus plane-major compact split representation",
-            "direct per-frequency zgemm versus fused retention and grouped split dgemm",
-            "elided provider-order access versus fused selection, split conversion, and embedding",
+            "WVM full frequency-major interleaved versus compact plane-major split representation",
+            "horizontal and vertical resolution within an all-fields=4 cohort",
         ],
         "controlledVariables": [
             "Float64 radial horizontal two-thirds retention and Nj=floor(2*(Nz-1)/3)",
-            "deterministic real-diagonal-mode-keyed-v1 modal work",
-            "FFTW 3.3.11 MEASURE, unaligned, cold, internal-1/outer-12",
-            "K-squared matrices, outer-dynamic-16, VECLIB_MAXIMUM_THREADS=1, fixtures, seed, and workloads",
+            "real-diagonal-mode-keyed-v1 modal work",
+            "FFTW MEASURE/unaligned/cold internal-1/outer-12",
+            "K-squared vertical matrices, outer-dynamic-16, and VECLIB_MAXIMUM_THREADS=1",
         ],
         "timedOperation": (
-            "One uninstrumented ready-real-input to reconstructed-real-output invocation: "
-            "horizontal forward and retention, vertical forward, modal work, vertical inverse, "
-            "horizontal embedding, and inverse FFT."
+            "One uninstrumented ready-real-input to reconstructed-real-output synthetic "
+            "antialiased spectral round trip."
         ),
         "componentLedger": [
-            "raw forward and inverse FFT",
-            "retention, representation conversion, packing, zero fill, and embedding",
-            "raw forward and inverse vertical MM",
+            "raw forward/inverse FFT",
+            "retention, conversion, packing, zero fill, and embedding",
+            "raw forward/inverse vertical MM",
             "mode-keyed modal work",
-            "setup, allocation, memory, placement, and liveness",
+            "algorithm-resident, benchmark-only, estimated-peak, and observed-high-water memory",
         ],
         "excludedWork": [
             "WVM nonlinear flux, time integration, state management, I/O, and full-model claims",
-            "fixture generation, correctness oracle, planning, and allocation from steady-state totals",
+            "512^2 x Nz=513 x fields=4 and 1024^2 x Nz=257 x fields=4 capacity cases",
         ],
         "allocationPolicy": "Zero allocations in every timed steady-state graph.",
         "screenGate": (
-            "Advance both graphs to reference depth only if the fused-split candidate is at "
-            "least 5% faster geometrically, no workload is more than 10% slower, and all "
-            "correctness metrics pass within 1e-12."
+            "Advance all four profiles to reference depth when both graphs complete, all "
+            "correctness metrics pass within 1e-12, and preflight respects the 50% memory rule; "
+            "screen performance does not gate reference collection."
         ),
         "referenceGate": (
-            "M4 adoption statistics pass only if the candidate is at least 10% faster "
-            "geometrically, no workload regresses by more than 3%, the stratified 95% "
-            "bootstrap interval excludes a tie, and correctness remains within 1e-12. "
-            "Cross-Mac replication remains separately required."
+            "Classify the four-field cohort as a fused-split performance win, tie with memory "
+            "advantage, or size-specific dispatch using the existing 10% geometric, 3% "
+            "maximum-regression, confidence, correctness, and memory evidence."
         ),
         "referenceProtocol": {
             "independentlyPlannedProcesses": rounds,
@@ -470,6 +399,7 @@ def main() -> int:
         "candidates": [asdict(candidate) for candidate in candidates],
         "threadEnvironment": {"VECLIB_MAXIMUM_THREADS": "1"},
         "physicalMemoryBytes": physical_memory,
+        "maximumMemoryFraction": arguments.max_memory_fraction,
         "estimatedExplicitPeakBytes": estimated_peaks,
         "sourceTreeGitCommit": source_commit,
         "sourceTreeDirty": source_dirty,
@@ -531,12 +461,6 @@ def main() -> int:
                 completed_results.append((candidate, round_number, result))
             else:
                 completed = subprocess.CompletedProcess(command, 1)
-                print(
-                    f"invalid evidence for {stem}: status={result['status']}, "
-                    f"source={source_commit} dirty={source_dirty}, "
-                    f"binary={embedded_commit} dirty={embedded_dirty}",
-                    file=sys.stderr,
-                )
         manifest["runs"].append(entry)
         with (output / "manifest.json").open("w", encoding="utf-8") as stream:
             json.dump(manifest, stream, indent=2)

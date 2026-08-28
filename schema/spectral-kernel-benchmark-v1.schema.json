@@ -112,7 +112,8 @@
             "modalSpectrum": {"type": "integer", "minimum": 0},
             "verticalMatrixFamilySource": {"type": "integer", "minimum": 0},
             "verticalBenchmarkEstimatedExplicitPeak": {"type": "integer", "minimum": 0},
-            "orderingPackingEstimatedExplicitPeak": {"type": "integer", "minimum": 0}
+            "orderingPackingEstimatedExplicitPeak": {"type": "integer", "minimum": 0},
+            "spectralPipelineEstimatedExplicitPeak": {"type": "integer", "minimum": 0}
           }
         },
         "permutationHashes": {"type": "object"}
@@ -205,6 +206,19 @@
               "wisdomBytes": {"type": "integer", "minimum": 0},
               "timeLimitSeconds": {"type": "number", "minimum": 0},
               "budgetExhausted": {"type": "boolean"}
+            }
+          },
+          "memory": {
+            "type": "object",
+            "required": ["persistentBytes", "scratchBytes", "opaqueProviderMemory"],
+            "properties": {
+              "persistentBytes": {"type": "integer", "minimum": 0},
+              "scratchBytes": {"type": "integer", "minimum": 0},
+              "algorithmResidentBytes": {"type": "integer", "minimum": 0},
+              "benchmarkHarnessBytes": {"type": "integer", "minimum": 0},
+              "estimatedProcessPeakBytes": {"type": "integer", "minimum": 0},
+              "observedProcessHighWaterBytes": {"type": "integer", "minimum": 0},
+              "opaqueProviderMemory": {"type": "boolean"}
             }
           },
           "componentLedger": {

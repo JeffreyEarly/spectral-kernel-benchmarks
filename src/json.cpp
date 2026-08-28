@@ -211,7 +211,16 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"wisdomBytes\":" << provider.wisdomBytes;
         stream << ",\"timeLimitSeconds\":"; number(stream, provider.planningTimeLimitSeconds);
         stream << ",\"budgetExhausted\":" << (provider.planningBudgetExhausted ? "true" : "false") << "}";
-        stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes << ",\"scratchBytes\":" << provider.scratchBytes << ",\"opaqueProviderMemory\":" << (provider.opaqueProviderMemory ? "true" : "false") << "}";
+        stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes
+               << ",\"scratchBytes\":" << provider.scratchBytes;
+        if (provider.estimatedProcessPeakBytes != 0) {
+            stream << ",\"algorithmResidentBytes\":" << provider.algorithmResidentBytes
+                   << ",\"benchmarkHarnessBytes\":" << provider.benchmarkHarnessBytes
+                   << ",\"estimatedProcessPeakBytes\":" << provider.estimatedProcessPeakBytes
+                   << ",\"observedProcessHighWaterBytes\":" << provider.observedProcessHighWaterBytes;
+        }
+        stream << ",\"opaqueProviderMemory\":"
+               << (provider.opaqueProviderMemory ? "true" : "false") << "}";
         stream << ",\"componentLedger\":[";
         for (std::size_t ledgerIndex = 0; ledgerIndex < provider.ledger.size(); ++ledgerIndex) {
             if (ledgerIndex != 0) stream << ',';

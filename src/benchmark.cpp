@@ -20,6 +20,7 @@
 #include <utility>
 
 #include <sys/utsname.h>
+#include <sys/resource.h>
 #include <unistd.h>
 
 #if defined(__APPLE__)
@@ -48,6 +49,16 @@ std::uint64_t bytes(std::size_t count, std::size_t elementSize) {
         throw std::overflow_error("byte count overflow");
     }
     return static_cast<std::uint64_t>(count) * static_cast<std::uint64_t>(elementSize);
+}
+
+std::uint64_t processHighWaterBytes() noexcept {
+    rusage usage{};
+    if (getrusage(RUSAGE_SELF, &usage) != 0 || usage.ru_maxrss < 0) return 0;
+#if defined(__APPLE__)
+    return static_cast<std::uint64_t>(usage.ru_maxrss);
+#else
+    return static_cast<std::uint64_t>(usage.ru_maxrss) * 1024;
+#endif
 }
 
 template <typename Value>
@@ -1038,7 +1049,8 @@ std::vector<Profile> profiles() {
         {"wvm-current-256-nz129-f4", "Current WVM 256-cubed-class workload, four fields.", {256, 256, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 15},
         {"wvm-current-512-nz257-f1", "Current WVM 512-cubed-class workload, one field.", {512, 512, 257, 1, 1.0, 1.0, true}, totalWorkers, 3, 20},
         {"wvm-current-512-nz257-f3", "Current WVM 512-cubed-class workload, three fields.", {512, 512, 257, 3, 1.0, 1.0, true}, totalWorkers, 3, 20},
-        {"wvm-current-512-nz257-f4", "Current WVM 512-cubed-class workload, four fields.", {512, 512, 257, 4, 1.0, 1.0, true}, totalWorkers, 3, 20}};
+        {"wvm-current-512-nz257-f4", "Current WVM 512-cubed-class workload, four fields.", {512, 512, 257, 4, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-large-1024-nz129-f4", "Large-horizontal nonhydrostatic decision workload, four fields.", {1024, 1024, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 20}};
 }
 
 Profile profileNamed(std::string_view name) {
@@ -3351,6 +3363,13 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
             report.verticalMatrixFamilySourceBytes + record.explicitPersistentBytes +
             2 * report.fullSpectrumBytes + 2 * report.fullRealBytes +
             2 * report.retainedSpectrumBytes + 2 * report.modalSpectrumBytes;
+        record.algorithmResidentBytes = record.explicitPersistentBytes +
+            report.fullRealBytes + record.scratchBytes;
+        record.estimatedProcessPeakBytes =
+            report.spectralPipelineEstimatedExplicitPeakBytes;
+        record.benchmarkHarnessBytes = record.estimatedProcessPeakBytes -
+            record.algorithmResidentBytes;
+        record.observedProcessHighWaterBytes = processHighWaterBytes();
         report.providers.push_back(std::move(record));
         report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
         return report;
@@ -3566,6 +3585,13 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
         report.verticalMatrixFamilySourceBytes + record.explicitPersistentBytes +
         2 * report.fullSpectrumBytes + 2 * report.fullRealBytes +
         2 * report.retainedSpectrumBytes + 2 * report.modalSpectrumBytes;
+    record.algorithmResidentBytes = record.explicitPersistentBytes +
+        report.fullRealBytes + record.scratchBytes;
+    record.estimatedProcessPeakBytes =
+        report.spectralPipelineEstimatedExplicitPeakBytes;
+    record.benchmarkHarnessBytes = record.estimatedProcessPeakBytes -
+        record.algorithmResidentBytes;
+    record.observedProcessHighWaterBytes = processHighWaterBytes();
     report.providers.push_back(std::move(record));
     report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
     return report;

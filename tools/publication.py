@@ -111,6 +111,33 @@ def _validate_result(path: Path, result: dict, run_id: str, grandfathered: bool)
                     allowed_placements.add("out-of-place-view")
                 if contract[placement_key] not in allowed_placements:
                     raise ValueError(f"{context}.executionContract.{direction}.{placement_key}: invalid placement")
+        memory = provider.get("memory", {})
+        memory_aware_keys = (
+            "algorithmResidentBytes",
+            "benchmarkHarnessBytes",
+            "estimatedProcessPeakBytes",
+            "observedProcessHighWaterBytes",
+        )
+        if any(key in memory for key in memory_aware_keys):
+            _require_keys(memory, memory_aware_keys, f"{context}.memory")
+            for key in memory_aware_keys:
+                if not isinstance(memory[key], int) or memory[key] <= 0:
+                    raise ValueError(f"{context}.memory.{key}: expected a positive integer")
+            if (
+                memory["algorithmResidentBytes"] + memory["benchmarkHarnessBytes"]
+                != memory["estimatedProcessPeakBytes"]
+            ):
+                raise ValueError(
+                    f"{context}.memory: algorithm-resident plus benchmark-harness "
+                    "bytes must equal the estimated process peak"
+                )
+            reported_peak = result["workload"].get("bytes", {}).get(
+                "spectralPipelineEstimatedExplicitPeak"
+            )
+            if reported_peak and reported_peak != memory["estimatedProcessPeakBytes"]:
+                raise ValueError(
+                    f"{context}.memory: provider and workload spectral-pipeline peaks differ"
+                )
 
 
 def _validate_samples(path: Path, run_id: str) -> None:

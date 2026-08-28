@@ -3024,6 +3024,18 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
             "spectralPipelineEstimatedExplicitPeak"
         )
         peak_text = format_bytes(explicit_peak) if explicit_peak is not None else "not reported"
+        memory = provider["memory"]
+        algorithm_resident = memory.get("algorithmResidentBytes")
+        benchmark_harness = memory.get("benchmarkHarnessBytes")
+        observed_peak = memory.get("observedProcessHighWaterBytes")
+        memory_text = (
+            f"algorithm {format_bytes(algorithm_resident)}<br>"
+            f'<span class="muted">harness {format_bytes(benchmark_harness)}; '
+            f'observed {format_bytes(observed_peak)}; estimated {peak_text}</span>'
+            if algorithm_resident and benchmark_harness and observed_peak else
+            f'{format_bytes(memory["persistentBytes"])}<br>'
+            f'<span class="muted">legacy estimated peak {peak_text}</span>'
+        )
         round_number = publication.get("campaignRound", "—")
         run_id = result["run"]["id"]
         rows.append(
@@ -3037,7 +3049,7 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'<td class="numeric">{movement}</td>'
             f'<td class="numeric">{modal}</td>'
             f'<td class="numeric"><strong>{total}</strong></td>'
-            f'<td class="numeric">{format_bytes(provider["memory"]["persistentBytes"])}<br><span class="muted">peak {peak_text}</span></td>'
+            f'<td class="numeric">{memory_text}</td>'
             f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
             "</tr>"
         )
@@ -3045,7 +3057,7 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return (
         '<div class="table-scroll"><table class="experiment-evidence-table">'
-        '<caption>Component medians in milliseconds are forward / inverse. Modal work and the uninstrumented total are single round-trip values. Component medians are diagnostic and are not summed; the uninstrumented total is authoritative.</caption>'
+        '<caption>Component medians in milliseconds are forward / inverse. Modal work and the uninstrumented total are single round-trip values. Component medians are diagnostic and are not summed; the uninstrumented total is authoritative. New memory-aware runs separate algorithm-resident storage, benchmark-only overhead, conservative estimated peak, and observed process high water; older immutable runs retain their original memory fields.</caption>'
         '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm graph</th>'
         '<th scope="col">Raw FFT</th><th scope="col">Raw vertical MM</th><th scope="col">Movement / rebuild</th>'
         '<th scope="col">Modal work</th><th scope="col">Uninstrumented total</th><th scope="col">Memory</th><th scope="col">Max error</th></tr></thead>'
@@ -3066,7 +3078,7 @@ def spectral_pipeline_bootstrap(profile_ratios: dict[str, list[float]]) -> tuple
     return draws[int(0.025 * (len(draws) - 1))], draws[int(0.975 * (len(draws) - 1))]
 
 
-def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
+def spectral_pipeline_general_synthesis(bundles: list[PublishedBundle]) -> str:
     pipeline = spectral_pipeline_bundles(bundles)
     if not pipeline:
         return ""
@@ -3182,6 +3194,179 @@ def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
       </table></div>
       <p class="method-note">Raw FFT, raw forward and inverse vertical MM, representation movement, modal work, setup, and memory remain separately reported below. Component medians are diagnostic; the uninstrumented total is authoritative because cache effects and fused work prevent additive interpretation.</p>
     """
+
+
+def spectral_pipeline_large_f4_synthesis(bundles: list[PublishedBundle]) -> str:
+    pipeline = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId", "").startswith(
+            "synthetic-spectral-pipeline-large-f4-"
+        )
+    ]
+    if not pipeline:
+        return ""
+    reference = [bundle for bundle in pipeline if bundle.publication["status"] == "reference"]
+    candidates = reference or pipeline
+    latest_increment = max(
+        {bundle.publication.get("incrementId", "") for bundle in candidates},
+        key=lambda increment: max(
+            bundle.result["environment"]["timestampUtc"]
+            for bundle in candidates
+            if bundle.publication.get("incrementId", "") == increment
+        ),
+    )
+    cohort = [
+        bundle for bundle in candidates
+        if bundle.publication.get("incrementId", "") == latest_increment
+    ]
+    baseline_id = "wvm-direct--outer-dynamic-16"
+    candidate_id = "plane-major-fused-split--outer-dynamic-16"
+    cells: dict[tuple[str, str, int], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        provider = spectral_pipeline_provider(bundle)
+        campaign_candidate = bundle.publication.get("campaignCandidateId") or (
+            baseline_id if provider["id"] == "pipeline-wvm-direct" else candidate_id
+        )
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "synthetic antialiased spectral pipeline", "round-trip",
+        )
+        memory = provider["memory"]
+        if total is None or not all(memory.get(key) for key in (
+            "algorithmResidentBytes", "benchmarkHarnessBytes",
+            "estimatedProcessPeakBytes", "observedProcessHighWaterBytes",
+        )):
+            continue
+        cells[(
+            campaign_candidate,
+            bundle.result["run"]["profile"],
+            int(bundle.publication.get("campaignRound", 1)),
+        )] = {
+            "seconds": float(total["medianSeconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "harness": float(memory["benchmarkHarnessBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    profiles = sorted({profile for _, profile, _ in cells})
+    ratios: list[float] = []
+    resident_ratios: list[float] = []
+    observed_ratios: list[float] = []
+    profile_round_ratios: dict[str, list[float]] = {}
+    rows: list[str] = []
+    for profile in profiles:
+        rounds = sorted(
+            round_number for candidate, candidate_profile, round_number in cells
+            if candidate == baseline_id
+            and candidate_profile == profile
+            and (candidate_id, profile, round_number) in cells
+        )
+        if not rounds:
+            continue
+        baseline = [cells[(baseline_id, profile, round_number)] for round_number in rounds]
+        candidate = [cells[(candidate_id, profile, round_number)] for round_number in rounds]
+        time_ratio = (
+            statistics.median(item["seconds"] for item in candidate) /
+            statistics.median(item["seconds"] for item in baseline)
+        )
+        resident_ratio = (
+            statistics.median(item["resident"] for item in candidate) /
+            statistics.median(item["resident"] for item in baseline)
+        )
+        observed_ratio = (
+            statistics.median(item["observed"] for item in candidate) /
+            statistics.median(item["observed"] for item in baseline)
+        )
+        profile_round_ratios[profile] = [
+            candidate_item["seconds"] / baseline_item["seconds"]
+            for candidate_item, baseline_item in zip(candidate, baseline)
+        ]
+        ratios.append(time_ratio)
+        resident_ratios.append(resident_ratio)
+        observed_ratios.append(observed_ratio)
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(statistics.median(item["seconds"] for item in baseline))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(item["seconds"] for item in candidate))}</td>'
+            f'<td class="numeric">{time_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["resident"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["resident"] for item in candidate)))}<br>'
+            f'<span class="muted">candidate/control {resident_ratio:.3f}×</span></td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["observed"] for item in baseline)))} / '
+            f'{format_bytes(int(statistics.median(item["observed"] for item in candidate)))}<br>'
+            f'<span class="muted">candidate/control {observed_ratio:.3f}×</span></td>'
+            f'<td class="numeric">{len(rounds)}</td>'
+            "</tr>"
+        )
+    if not ratios:
+        return ""
+    geometric_ratio = math.exp(sum(math.log(value) for value in ratios) / len(ratios))
+    resident_geometric = math.exp(
+        sum(math.log(value) for value in resident_ratios) / len(resident_ratios)
+    )
+    observed_geometric = math.exp(
+        sum(math.log(value) for value in observed_ratios) / len(observed_ratios)
+    )
+    maximum_ratio = max(ratios)
+    maximum_error = max(errors) if errors else math.inf
+    is_reference = bool(reference)
+    interval = spectral_pipeline_bootstrap(profile_round_ratios) if is_reference else None
+    if is_reference:
+        adoption = bool(
+            geometric_ratio <= 0.90 and maximum_ratio <= 1.03
+            and interval is not None and interval[1] < 1.0
+            and maximum_error <= 1.0e-12
+        )
+        tie = bool(
+            0.95 <= geometric_ratio <= 1.05
+            or (interval is not None and interval[0] <= 1.0 <= interval[1])
+        )
+        if adoption:
+            classification = "fused-split performance win"
+        elif tie and resident_geometric <= 0.95:
+            classification = "timing tie with a fused-split memory advantage"
+        else:
+            classification = "size-specific dispatch"
+        confidence = (
+            f" The stratified paired-bootstrap 95% interval is "
+            f"{interval[0]:.3f}×–{interval[1]:.3f}×."
+        )
+    else:
+        classification = "preliminary correctness/capability screen"
+        confidence = " Confidence and the final classification are deferred to reference depth."
+    return f"""
+      <h3>Large four-field nonhydrostatic cohort</h3>
+      <p>This append-only increment does not replace the six-workload mixed-field result above. It reruns fields=4 workloads from 256² through 1024² on one clean commit and treats memory capacity as an algorithm result. Algorithm-resident storage includes the ready input/output boundary, provider matrices and operands, transform/modal buffers, weights, and required scratch. Benchmark-only oracle storage remains separate, while observed process high water captures opaque libraries and setup peaks.</p>
+      <p>The latest {"reference" if is_reference else "screen"} cohort uses <code>{escaped(latest_increment)}</code>. Fused split is {geometric_ratio:.3f}× the WVM control geometrically in time, with a {maximum_ratio:.3f}× worst workload. Its algorithm-resident ratio is {resident_geometric:.3f}× and observed high-water ratio is {observed_geometric:.3f}×. Maximum correctness error is {maximum_error:.3e}.{confidence} Classification: <strong>{escaped(classification)}</strong>.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative round-trip time and memory. Memory columns are WVM control / fused split; ratios below one favor fused split.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">WVM direct (ms)</th><th scope="col">Fused split (ms)</th><th scope="col">Time ratio</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th><th scope="col">Rounds</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">The 512²/Nz=513/fields=4 and 1024²/Nz=257/fields=4 capacity cases remain deferred. An algorithm that alone satisfies the declared memory rule will be reported as a capacity result, not assigned a fabricated speed ratio.</p>
+    """
+
+
+def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
+    pipeline = spectral_pipeline_bundles(bundles)
+    original = [
+        bundle for bundle in pipeline
+        if bundle.publication.get("incrementId", "") in {
+            "synthetic-spectral-pipeline-screen-v1",
+            "synthetic-spectral-pipeline-reference-v1",
+        }
+    ]
+    sections = [spectral_pipeline_general_synthesis(original or pipeline)]
+    large_f4 = spectral_pipeline_large_f4_synthesis(pipeline)
+    if large_f4:
+        sections.append(large_f4)
+    return "".join(sections)
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:

@@ -29,6 +29,7 @@ PROFILE_SHAPES = {
     "wvm-current-512-nz257-f1": (512, 257, 1, 45_765, 7_486),
     "wvm-current-512-nz257-f3": (512, 257, 3, 45_765, 7_486),
     "wvm-current-512-nz257-f4": (512, 257, 4, 45_765, 7_486),
+    "wvm-large-1024-nz129-f4": (1024, 129, 4, 183_037, 27_779),
 }
 
 PREFLIGHT_BOOKKEEPING_RESERVE_BYTES = 2 * 1024**2
