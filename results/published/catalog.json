@@ -3650,6 +3650,138 @@
         "samplesSha256": "d481e76656b8ab385c0c59764d7d646453f96e49bd01e7bc0c21540cd6f97ad0"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T015546738587Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015546738587Z-lyra/result.json",
+        "samples": "runs/20260828T015546738587Z-lyra/samples.csv",
+        "resultSha256": "b53b47860827cb4c6ec7da8e4c251d920d3b2a35d646b3a88e94b5322010a918",
+        "samplesSha256": "6b09822aa9dc1b59e26d896c8036fa4a80deade855d2071b34a789f72f4267eb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T015547210170Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015547210170Z-lyra/result.json",
+        "samples": "runs/20260828T015547210170Z-lyra/samples.csv",
+        "resultSha256": "ccbfe3124bfd1f3b51133cd6963c6b8d68e1af20837b789d6ed45e4c8891a020",
+        "samplesSha256": "9b38b101e654a457febbe79e3bc31f7dc345ef89e48c9f22f8067681547a95f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T015547538847Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015547538847Z-lyra/result.json",
+        "samples": "runs/20260828T015547538847Z-lyra/samples.csv",
+        "resultSha256": "3761fa133cd82fc24fd207d36d5fd932fe5b2ccda0cc3d5278f0a426058b29d7",
+        "samplesSha256": "1964e92cc90de6b57a8af60057c92eff4a2200245d990efd464e845c27840f14"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T015547868522Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015547868522Z-lyra/result.json",
+        "samples": "runs/20260828T015547868522Z-lyra/samples.csv",
+        "resultSha256": "7a63fe8394c269b5712ab6ae4077ad562776014e6e68c7bdc10009b212093f38",
+        "samplesSha256": "cf0a3b70a4a0a04d226af0c2e0cbc77bd15009752500f8e1a993819d6e0410bf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T015552315776Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015552315776Z-lyra/result.json",
+        "samples": "runs/20260828T015552315776Z-lyra/samples.csv",
+        "resultSha256": "e9910cabbd321a0258dd9b0f417525a5c60ae854ddef2fd109fe0b17a5cf812a",
+        "samplesSha256": "66cc03996cbce3808b35cab0132f17fc06ea33d3ae4bf31459275cadaae9a6d2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T015555382629Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded common-matrix Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; preliminary until grouped matrices, fields 1/4, Nz=257, packing, and reference-depth machine-state sampling are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T015555382629Z-lyra/result.json",
+        "samples": "runs/20260828T015555382629Z-lyra/samples.csv",
+        "resultSha256": "0cc9447a5de3150897253b1a6cdbe6fd49f4474c0144211799d2a47f31b4b91b",
+        "samplesSha256": "f42b76c568cea2089559b24345e1f4bf5a843000d0c628043c520014129b7bb1"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -3868,7 +4000,7 @@
     {
       "id": "issue-008-vertical-projection-gemm",
       "issue": 8,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Vertical projection and split-complex GEMM",
       "question": "Which primitive and split-complex GEMM strategy is fastest for the antialiased vertical projection independently of horizontal layout?",
       "baseline": "Establish the vertical-kernel baseline used by issue #13 and issue #9.",

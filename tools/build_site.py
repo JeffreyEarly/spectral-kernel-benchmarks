@@ -381,7 +381,9 @@ def provider_details(result: dict) -> str:
         setup = provider["setup"]
         planning = provider["planning"]
         correctness = "".join(
-            f'<li><span>{escaped(item["name"])}</span><strong>{format_error(item["maximumRelativeError"])}</strong><span class="status {"passed" if item["passed"] else "failed"}">{"passed" if item["passed"] else "failed"}</span></li>'
+            f'<li><span>{escaped(item["name"])}</span><strong>max {format_error(item["maximumRelativeError"])}'
+            + (f' · L2 {format_error(item["relativeL2Error"])}' if item.get("relativeL2Error") is not None else "")
+            + f'</strong><span class="status {"passed" if item["passed"] else "failed"}">{"passed" if item["passed"] else "failed"}</span></li>'
             for item in provider["correctness"]
         )
         cards.append(f"""
