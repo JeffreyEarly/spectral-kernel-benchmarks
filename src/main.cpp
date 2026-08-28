@@ -13,7 +13,7 @@ void usage(std::ostream& output) {
     output << "Usage:\n"
            << "  skbench list\n"
            << "  skbench validate [--profile NAME]\n"
-           << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing] [--profile NAME] [--providers both|fftw] [--workers N]\n"
+           << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing|spectral-boundary] [--profile NAME] [--providers both|fftw] [--workers N]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-spectrum-order wvm|plane-major]\n"
@@ -25,6 +25,7 @@ void usage(std::ostream& output) {
            << "              [--vertical-gemm-family common|k2-grouped]\n"
            << "              [--vertical-gemm-schedule serial|outer-static|outer-dynamic]\n"
            << "              [--vertical-gemm-outer-workers N]\n"
+           << "              [--boundary-policy NAME]\n"
            << "              [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
@@ -50,6 +51,13 @@ void list() {
               << "  pruned-horizontal\n"
               << "  vertical-gemm\n"
               << "  ordering-packing\n"
+              << "  spectral-boundary\n"
+              << "spectral boundary policies:\n"
+              << "  wvm-direct\n"
+              << "  wvm-packed-split\n"
+              << "  pruned-compact-interleaved\n"
+              << "  plane-major-fused-split\n"
+              << "  plane-major-view\n"
               << "vertical GEMM matrix families:\n"
               << "  common\n"
               << "  k2-grouped\n"
@@ -162,6 +170,7 @@ int main(int argc, char** argv) {
                 else if (key == "--vertical-gemm-family") options.verticalGemmFamily = requireValue(argc, argv, index);
                 else if (key == "--vertical-gemm-schedule") options.verticalGemmSchedule = requireValue(argc, argv, index);
                 else if (key == "--vertical-gemm-outer-workers") options.verticalGemmOuterWorkers = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--boundary-policy") options.boundaryPolicy = requireValue(argc, argv, index);
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));

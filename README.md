@@ -116,12 +116,21 @@ These bounded increments publish primitive complex and split-real GEMM times, fo
 
 The next increment adds a no-reorder competitor to the same run. It reads retained frequency blocks directly from WVM storage, issues one complex GEMM per retained frequency with all fields as columns, keeps modal coefficients in a persistent zero-padded frequency-major representation, and reconstructs directly into persistent zero-padded WVM storage. No radial gather, transpose, split conversion, or reverse scatter is executed. Initial zero fills are setup-only, and Hermitian-boundary repair is fused into the direct kernel. The report preserves separate primitive, movement, one-shot, reuse, setup, memory, byte, and GEMM-call-count records for both algorithms. All timed steady-state paths are out-of-place and allocation-free. Raw FFT execution, modal physics, nonlinear flux, provider-native horizontal fusion, tiled pack-and-GEMM, and 512-class scaling remain excluded from this bounded comparison.
 
+`--kernel spectral-boundary` is the first issue #13 increment that includes horizontal execution. Each isolated run selects one complete representation policy: WVM direct/no-reorder, historical WVM gather-to-split, partial-column-pruned compact interleaved, plane-major fused retained split, or a plane-major retained index view consumed by strided vertical GEMV. The logical forward boundary is horizontal transform and retention followed by the grouped vertical projection; the inverse is the grouped vertical reconstruction followed by horizontal embedding and inverse transformation. Modal work and the nonlinear flux calculation remain excluded.
+
+Raw horizontal transform, raw vertical MM, retention/conversion/packing, inverse zero fill and embedding, setup, memory, and uninstrumented composed totals are all reported separately. Component medians remain diagnostic rather than additive. Multidimensional FFTW inverse transforms may destroy their spectrum input, so WVM-direct and plane-major-view totals rebuild their full zero-padded inverse view on every timed call. This is a real composed-boundary cost; the earlier horizontal-only retained-view result correctly excluded it by taking a ready disposable view as its input. Every policy is out-of-place at the transform boundary and performs zero steady-state allocations.
+
 ```sh
 python3 tools/run_ordering_packing_sweep.py --dry-run --allow-dirty-tree
 python3 tools/run_ordering_packing_sweep.py
 python3 tools/run_retained_horizontal_closeout_sweep.py --phase screen --dry-run --allow-dirty-tree
 python3 tools/run_retained_horizontal_closeout_sweep.py --phase screen
+python3 tools/run_spectral_boundary_sweep.py --phase screen --dry-run --allow-dirty-tree
+python3 tools/run_spectral_boundary_sweep.py --phase screen
+python3 tools/run_spectral_boundary_sweep.py --phase reference --screen-analysis results/local/<screen>/analysis.json --dry-run
 ```
+
+The bounded screen crosses the six issue #7 production profiles with dynamic-16 and static-12 issue #8 schedulers. A non-control policy advances only when its complete-matrix geometric ratio to the workload-direction best is at most 1.05 and it wins at least one cell; the best fused-split representation bridge may advance at 1.10. Dynamic-16 WVM direct and packed-split controls remain at reference depth. Reference selection for issue #9 keeps at most three candidates within 3% of the best geometric ratio and rejects any candidate with a workload-direction cell more than 10% behind its best measured peer.
 
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 

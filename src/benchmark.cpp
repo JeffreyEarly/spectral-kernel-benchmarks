@@ -268,6 +268,69 @@ std::vector<Complex> gatherVerticalProbes(const Complex* values, std::size_t row
     return result;
 }
 
+std::size_t planeMajorModalIndex(const Workload& workload, std::size_t frequency,
+                                 std::size_t j, std::size_t field) {
+    return frequency + workload.halfRows() *
+        (j + workload.retainedVerticalModes() * field);
+}
+
+void compactModalToPlaneMajor(const Workload& workload,
+                              const std::vector<RetainedMode>& modes,
+                              const Complex* compact, Complex* planeMajor) {
+    const auto count = workload.halfRows() * workload.retainedVerticalModes() * workload.fields;
+    std::fill_n(planeMajor, count, Complex{});
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        const auto frequency = mode.storedKx + workload.nxHalf() * mode.storedKy;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                auto value = compact[modalSpectrumIndex(workload, modeIndex, j, field)];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                planeMajor[planeMajorModalIndex(workload, frequency, j, field)] = value;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != workload.ny) {
+                    const auto conjugateFrequency = workload.nxHalf() *
+                        ((workload.ny - mode.storedKy) % workload.ny);
+                    planeMajor[planeMajorModalIndex(
+                        workload, conjugateFrequency, j, field)] = conjugate(value);
+                }
+            }
+        }
+    }
+}
+
+void planeMajorModalToCompact(const Workload& workload,
+                              const std::vector<RetainedMode>& modes,
+                              const Complex* planeMajor, Complex* compact) {
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        const auto frequency = mode.storedKx + workload.nxHalf() * mode.storedKy;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                auto value = planeMajor[planeMajorModalIndex(workload, frequency, j, field)];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                compact[modalSpectrumIndex(workload, modeIndex, j, field)] = value;
+            }
+        }
+    }
+}
+
+void planeMajorPhysicalToCompact(const Workload& workload,
+                                 const std::vector<RetainedMode>& modes,
+                                 const Complex* planeMajor, Complex* compact) {
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t z = 0; z < workload.nz; ++z) {
+                auto value = planeMajor[planeMajorSpectrumIndex(
+                    workload, mode.storedKx, mode.storedKy, z, field)];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                compact[retainedSpectrumIndex(workload, modeIndex, z, field)] = value;
+            }
+        }
+    }
+}
+
 std::size_t adjacentEquivalentVerticalGroupPairs(const GroupedVerticalOperators& operators) {
     if (operators.groups.size() < 2) return 0;
     const auto matrixElements = operators.nz * operators.nj;
@@ -1911,6 +1974,993 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
     return report;
 }
 
+BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options) {
+    static const std::vector<std::string> policies{
+        "wvm-direct", "wvm-packed-split", "pruned-compact-interleaved",
+        "plane-major-fused-split", "plane-major-view"};
+    if (std::find(policies.begin(), policies.end(), options.boundaryPolicy) == policies.end()) {
+        throw std::invalid_argument(
+            "boundary-policy must be wvm-direct, wvm-packed-split, "
+            "pruned-compact-interleaved, plane-major-fused-split, or plane-major-view.");
+    }
+    if (options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument(
+            "spectral-boundary requires --vertical-gemm-family k2-grouped.");
+    }
+    if (options.workers != 0) {
+        throw std::invalid_argument(
+            "spectral-boundary uses independent FFT and vertical worker controls; omit --workers.");
+    }
+
+    const auto selected = profileNamed(options.profile);
+    const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
+    const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
+    if (sampleCount == 0) {
+        throw std::invalid_argument("spectral-boundary requires at least one sample.");
+    }
+    const VerticalGemmStrategy verticalStrategy{
+        verticalGemmScheduleNamed(options.verticalGemmSchedule),
+        options.verticalGemmOuterWorkers};
+    if (verticalStrategy.schedule == VerticalGemmSchedule::serial &&
+        verticalStrategy.outerWorkers != 1) {
+        throw std::invalid_argument(
+            "spectral-boundary serial vertical scheduling requires one outer worker.");
+    }
+
+    BenchmarkReport report;
+    report.profile = selected.name;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = sampleCount;
+    report.workload = selected.workload;
+    report.environment = environmentRecord();
+    report.runId = utcTimestamp(true) + "-" + report.environment.hostname;
+    const auto configuredThreads = configuredAccelerateThreads(report.environment);
+    if (verticalStrategy.outerWorkers > 1 && configuredThreads != 1) {
+        throw std::invalid_argument(
+            "spectral-boundary outer vertical scheduling requires VECLIB_MAXIMUM_THREADS=1.");
+    }
+
+    const auto& workload = report.workload;
+    const auto modes = retainedHorizontalModes(workload);
+    const auto fixtureStart = Clock::now();
+    auto vertical = squaredWavenumberVerticalFixture(workload, modes);
+    const auto fixtureGenerationSeconds =
+        std::chrono::duration<double>(Clock::now() - fixtureStart).count();
+    const auto columns = modes.size() * workload.fields;
+    const auto physicalElements = workload.nz * columns;
+    const auto modalElements = workload.retainedVerticalModes() * columns;
+    const auto fullModalElements =
+        workload.halfRows() * workload.retainedVerticalModes() * workload.fields;
+
+    report.retainedHorizontalModeCount = modes.size();
+    report.retainedModeOrderHash = modeOrderHash(modes);
+    report.wvmFullSpectrumOrderHash = wvmSpectrumOrderHash(workload);
+    report.fullRealBytes = bytes(workload.realElements(), sizeof(double));
+    report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
+    report.retainedSpectrumBytes = bytes(physicalElements, sizeof(Complex));
+    report.modalSpectrumBytes = bytes(modalElements, sizeof(Complex));
+    report.verticalMatrixFamilySourceBytes = bytes(
+        vertical.forward.size() + vertical.inverse.size(), sizeof(double));
+    report.verticalMatrixFamilyId = vertical.id;
+    report.verticalGroupCount = vertical.groups.size();
+    report.verticalGroupOrderHash = verticalModeGroupHash(vertical.groups);
+    std::vector<double> groupModes;
+    std::vector<double> groupColumns;
+    groupModes.reserve(vertical.groups.size());
+    groupColumns.reserve(vertical.groups.size());
+    for (const auto& group : vertical.groups) {
+        groupModes.push_back(static_cast<double>(group.modeCount));
+        groupColumns.push_back(static_cast<double>(group.modeCount * workload.fields));
+    }
+    report.minimumVerticalGroupModes = static_cast<std::size_t>(
+        *std::min_element(groupModes.begin(), groupModes.end()));
+    report.medianVerticalGroupModes = median(groupModes);
+    report.maximumVerticalGroupModes = static_cast<std::size_t>(
+        *std::max_element(groupModes.begin(), groupModes.end()));
+    report.minimumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::min_element(groupColumns.begin(), groupColumns.end()));
+    report.medianVerticalGroupColumns = median(groupColumns);
+    report.maximumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::max_element(groupColumns.begin(), groupColumns.end()));
+
+    const auto input = makeFixture(workload, FixtureKind::random, options.seed);
+    std::vector<Complex> referenceSpectrum(workload.spectrumElements());
+    std::vector<Complex> referenceRetained(physicalElements);
+    std::vector<double> referenceInverseOutput(workload.realElements());
+    std::vector<Complex> sparseModalInput(modalElements, Complex{});
+    const auto probes = verticalProbeColumns(columns);
+    const auto sparseValues = verticalComplexFixture(
+        probes.size() * workload.retainedVerticalModes(),
+        options.seed ^ UINT64_C(0xa4093822299f31d0));
+    for (std::size_t probe = 0; probe < probes.size(); ++probe) {
+        std::copy_n(
+            sparseValues.data() + probe * workload.retainedVerticalModes(),
+            workload.retainedVerticalModes(),
+            sparseModalInput.data() + probes[probe] * workload.retainedVerticalModes());
+    }
+
+    {
+        FFTWProvider reference(workload, FFTWStrategy{
+            FFTWPlanningMode::estimate, FFTWAlignmentStrategy::unaligned,
+            FFTWWisdomStrategy::cold, 1, 1, 0.0,
+            FFTWDataLayout::interleaved, FFTWSpectrumOrder::wvmFrequencyMajor});
+        reference.forward(input.data(), referenceSpectrum.data());
+        gatherRetained(
+            workload, modes, referenceSpectrum.data(), referenceRetained.data());
+    }
+    const auto forwardOracle = directVerticalForwardProbes(
+        vertical, workload, probes, referenceRetained.data());
+    const auto inverseOracle = directVerticalInverseProbes(
+        vertical, workload, probes, sparseModalInput.data());
+    std::vector<Complex> expectedInversePhysical(physicalElements, Complex{});
+    for (std::size_t probe = 0; probe < probes.size(); ++probe) {
+        std::copy_n(
+            inverseOracle.data() + probe * workload.nz, workload.nz,
+            expectedInversePhysical.data() + probes[probe] * workload.nz);
+    }
+    std::vector<Complex> expectedInverseSpectrum(workload.spectrumElements());
+    embedRetained(
+        workload, modes, expectedInversePhysical.data(),
+        expectedInverseSpectrum.data());
+    {
+        FFTWProvider reference(workload, FFTWStrategy{
+            FFTWPlanningMode::estimate, FFTWAlignmentStrategy::unaligned,
+            FFTWWisdomStrategy::cold, 1, 1, 0.0,
+            FFTWDataLayout::interleaved, FFTWSpectrumOrder::wvmFrequencyMajor});
+        reference.inverse(expectedInverseSpectrum.data(), referenceInverseOutput.data());
+    }
+
+    auto makeRecord = [&](std::string id, std::string algorithm,
+                          std::string representation) {
+        ProviderRecord record;
+        record.id = std::move(id);
+        record.version = "FFTW 3.3.11 + Apple Accelerate";
+        record.libraryIdentity =
+            "pinned FFTW 3.3.11 and /System/Library/Frameworks/Accelerate.framework";
+        record.algorithmId = std::move(algorithm);
+        record.nativeRepresentationId = std::move(representation);
+        record.modeOrderId = "logical-radial-retained-modes-keyed-by-k-l-j-field";
+        record.schedulingId = "horizontal-outer-workers-" +
+            std::to_string(options.fftwOuterWorkers) +
+            "-internal-workers-" +
+            std::to_string(options.fftwInternalWorkers == 0 ? 1 : options.fftwInternalWorkers) +
+            ";" + verticalGemmSchedulingId(verticalStrategy);
+        record.sourceIdentity =
+            "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz + Apple Accelerate system framework";
+        record.sourceSha256 =
+            "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
+        record.configureFlags =
+            "FFTW --host=aarch64-apple-darwin --enable-neon --enable-threads; Accelerate system framework";
+        record.compilerFlags = report.environment.compilerFlags;
+        record.planningConfiguration = vertical.id +
+            "; Float64; antialiased horizontal radial two-thirds retention; Nj=" +
+            std::to_string(workload.retainedVerticalModes()) +
+            "; modal work and nonlinear flux excluded";
+        record.workers = (options.fftwInternalWorkers == 0 ? 1 : options.fftwInternalWorkers) *
+            options.fftwOuterWorkers + configuredThreads * verticalStrategy.outerWorkers;
+        record.internalWorkers = options.fftwInternalWorkers == 0 ? 1 : options.fftwInternalWorkers;
+        record.outerWorkers = options.fftwOuterWorkers;
+        record.opaqueProviderMemory = true;
+        return record;
+    };
+
+    auto addCorrectness = [&](ProviderRecord& record,
+                              const std::vector<Complex>& horizontal,
+                              const std::vector<Complex>& forward,
+                              const std::vector<Complex>& inverse,
+                              const std::vector<double>& inverseOutput) {
+        const auto forwardProbes = gatherVerticalProbes(
+            forward.data(), workload.retainedVerticalModes(), probes);
+        const auto inverseProbes = gatherVerticalProbes(
+            inverse.data(), workload.nz, probes);
+        record.correctness = {
+            metric("retained horizontal coefficients versus mode-keyed FFTW oracle",
+                   horizontal.data(), referenceRetained.data(), horizontal.size()),
+            metric("forward vertical projection probes versus independent scalar oracle",
+                   forwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+            metric("inverse vertical projection probes versus independent scalar oracle",
+                   inverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+            metric("complete inverse boundary for sparse arbitrary modal input",
+                   maximumRelativeError(
+                       inverseOutput.data(), referenceInverseOutput.data(),
+                       inverseOutput.size()))};
+    };
+
+    if (options.boundaryPolicy == "wvm-direct") {
+        const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
+            ? 1 : options.fftwInternalWorkers;
+        FFTWProvider fftw(workload, FFTWStrategy{
+            fftwPlanningModeNamed(options.fftwPlanning),
+            fftwAlignmentStrategyNamed(options.fftwAlignment),
+            fftwWisdomStrategyNamed(options.fftwWisdom),
+            fftwInternalWorkers, options.fftwOuterWorkers,
+            options.fftwPlanningTimeLimitSeconds,
+            FFTWDataLayout::interleaved,
+            FFTWSpectrumOrder::wvmFrequencyMajor});
+        WvmDirectVerticalGemmProvider provider(
+            workload, modes, vertical, verticalStrategy);
+        if (!provider.supported()) throw std::runtime_error(provider.capability());
+
+        std::vector<Complex> fullSpectrum(workload.spectrumElements());
+        std::vector<Complex> fullModalOutput(provider.modalSpectrumElements());
+        std::vector<Complex> fullModalInput(provider.modalSpectrumElements());
+        std::vector<double> inverseOutput(workload.realElements());
+        std::vector<Complex> horizontal(physicalElements);
+        std::vector<Complex> forward(modalElements);
+        std::vector<Complex> inverse(physicalElements);
+        embedRetainedModal(
+            workload, modes, sparseModalInput.data(), fullModalInput.data());
+        provider.initializeModalOutput(fullModalOutput.data());
+        provider.initializeSpectrumOutput(fullSpectrum.data());
+        vertical.forward = {};
+        vertical.inverse = {};
+
+        fftw.forward(input.data(), fullSpectrum.data());
+        gatherRetained(
+            workload, modes, fullSpectrum.data(), horizontal.data());
+        provider.executeForward(fullSpectrum.data(), fullModalOutput.data());
+        gatherRetainedModal(
+            workload, modes, fullModalOutput.data(), forward.data());
+        provider.initializeSpectrumOutput(fullSpectrum.data());
+        provider.executeInverse(fullModalInput.data(), fullSpectrum.data());
+        gatherRetained(workload, modes, fullSpectrum.data(), inverse.data());
+        fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+
+        auto record = makeRecord(
+            "boundary-wvm-direct",
+            "full-wvm-order-fftw+direct-per-mode-zgemm-v1",
+            "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal-view");
+        record.version = fftw.version() + " + Apple Accelerate";
+        record.gemmCallsPerExecution = provider.gemmCallsPerExecution();
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.opaquePlanningBytes = fftw.planningBytes();
+        record.otherSetupSeconds = fftw.otherSetupSeconds() +
+            provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
+        record.allocationSeconds = fftw.allocationSeconds() + provider.allocationSeconds();
+        record.planningSeconds = fftw.planningSeconds();
+        record.wisdomGenerationSeconds = fftw.wisdomGenerationSeconds();
+        record.wisdomImportSeconds = fftw.wisdomImportSeconds();
+        record.planningTimeLimitSeconds = fftw.planningTimeLimitSeconds();
+        record.planningBudgetExhausted = fftw.planningBudgetExhausted();
+        record.wisdomBytes = fftw.wisdomBytes();
+        record.execution.forward = {
+            "out-of-place", "out-of-place", false, true, false, false, false,
+            "real-grid", "wvm-frequency-major-interleaved-modal-view",
+            "real-grid", "wvm-frequency-major-interleaved-modal-view",
+            "real grid -> full WVM half-spectrum -> retained frequency zgemm -> full modal view",
+            "frequency-major; z/j contiguous within each field and retained frequency",
+            provider.modalSpectrumElements() - modalElements, alignof(Complex),
+            "full spectrum and modal view do not overlap",
+            provider.modalSpectrumElements() * sizeof(Complex), true};
+        record.execution.inverse = record.execution.forward;
+        record.execution.inverse.destroysNativeInput = true;
+        record.execution.inverse.nativeInputRepresentationId =
+            "wvm-frequency-major-interleaved-modal-view";
+        record.execution.inverse.nativeOutputRepresentationId = "real-grid";
+        record.execution.inverse.adapterInputRepresentationId =
+            record.execution.inverse.nativeInputRepresentationId;
+        record.execution.inverse.adapterOutputRepresentationId = "real-grid";
+        record.execution.inverse.physicalExtents =
+            "full modal view -> retained frequency zgemm -> rebuilt zero-padded WVM spectrum -> real grid";
+        record.execution.inverse.paddingElements =
+            workload.spectrumElements() - physicalElements;
+        record.execution.inverse.reusableWorkBytes = report.fullSpectrumBytes;
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "FFTW plans, immutable expanded complex matrices, and persistent schedulers"},
+            {"raw forward FFT", StageState::executed, "full WVM-order FFTW r2c"},
+            {"horizontal retention", StageState::elided,
+             "retained frequencies remain an indexed view of the full spectrum"},
+            {"representation conversion", StageState::elided,
+             "interleaved WVM order persists across the boundary"},
+            {"permutation/packing", StageState::elided,
+             "no gather, transpose, radial ordering, or split conversion"},
+            {"raw forward vertical MM", StageState::executed,
+             "one small zgemm per retained frequency; fields share each call"},
+            {"modal work", StageState::unsupported,
+             "modal physics and nonlinear flux are outside this boundary experiment"},
+            {"raw inverse vertical MM", StageState::executed,
+             "one small zgemm per retained frequency; fields share each call"},
+            {"horizontal embedding", StageState::executed,
+             "full spectrum must be zeroed on every inverse because FFTW destroys it"},
+            {"raw inverse FFT", StageState::executed,
+             "full WVM-order FFTW c2r destroys the rebuilt spectrum"},
+            {"uninstrumented total", StageState::executed,
+             "horizontal and vertical boundary only; no modal work or nonlinear flux"}};
+        addCorrectness(record, horizontal, forward, inverse, inverseOutput);
+
+        const auto matrixBytes = provider.matrixBytesPerDirection();
+        const auto verticalBytes = matrixBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        record.timings = {
+            series("setup-shared-component", "logical matrix-family fixture generation", "shared",
+                   StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+                   {fixtureGenerationSeconds}),
+            series("setup-component", "FFTW planning", "shared", StageState::setupOnly,
+                   fftw.planningBytes(), {fftw.planningSeconds()}),
+            series("setup-component", "vertical matrix preparation", "shared",
+                   StageState::setupOnly, 2 * matrixBytes,
+                   {provider.matrixPreparationSeconds()}),
+            series("primitive", "raw FFT", "forward", StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                   })),
+            series("primitive", "raw FFT", "inverse", StageState::executed,
+                   report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               std::copy(referenceSpectrum.begin(), referenceSpectrum.end(),
+                                         fullSpectrum.begin());
+                           },
+                           [&] { fftw.inverse(fullSpectrum.data(), inverseOutput.data()); })),
+            series("adapter-component", "logical retained provider-order view", "forward",
+                   StageState::elided, 0),
+            series("primitive", "raw vertical MM", "forward", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeForward(fullSpectrum.data(), fullModalOutput.data());
+                   })),
+            series("primitive", "raw vertical MM", "inverse", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeInverse(fullModalInput.data(), fullSpectrum.data());
+                   })),
+            series("adapter-component", "rebuild zero-padded inverse spectrum", "inverse",
+                   StageState::executed, report.fullSpectrumBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.initializeSpectrumOutput(fullSpectrum.data());
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "forward",
+                   StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes + verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                       provider.executeForward(fullSpectrum.data(), fullModalOutput.data());
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "inverse",
+                   StageState::executed,
+                   report.fullSpectrumBytes + verticalBytes +
+                       report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.initializeSpectrumOutput(fullSpectrum.data());
+                       provider.executeInverse(fullModalInput.data(), fullSpectrum.data());
+                       fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+                   }))};
+        report.orderingPackingEstimatedExplicitPeakBytes =
+            report.verticalMatrixFamilySourceBytes + provider.persistentBytes() +
+            2 * report.fullSpectrumBytes +
+            bytes(2 * fullModalElements, sizeof(Complex)) + report.fullRealBytes;
+        report.providers.push_back(std::move(record));
+        report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
+        return report;
+    }
+
+    if (options.boundaryPolicy == "pruned-compact-interleaved") {
+        const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
+            ? 1 : options.fftwInternalWorkers;
+        FFTWPrunedProvider fftw(
+            workload, modes, fftwPlanningModeNamed(options.fftwPlanning),
+            fftwInternalWorkers, options.fftwOuterWorkers);
+        VerticalGemmProvider provider(
+            workload, vertical, VerticalGemmLayout::complexInterleaved,
+            verticalStrategy);
+        if (!provider.supported()) throw std::runtime_error(provider.capability());
+        provider.loadModalInput(sparseModalInput.data());
+        vertical.forward = {};
+        vertical.inverse = {};
+
+        std::vector<double> inverseOutput(workload.realElements());
+        std::vector<Complex> horizontal(physicalElements);
+        std::vector<Complex> forward(modalElements);
+        std::vector<Complex> inverse(physicalElements);
+
+        fftw.forward(input.data(), provider.interleavedPhysicalInputData());
+        std::copy_n(
+            provider.interleavedPhysicalInputData(), physicalElements,
+            horizontal.data());
+        provider.executeForward();
+        provider.copyForwardOutput(forward.data());
+        provider.executeInverse();
+        provider.copyInverseOutput(inverse.data());
+        fftw.inverse(provider.interleavedPhysicalOutputData(), inverseOutput.data());
+
+        auto record = makeRecord(
+            "boundary-pruned-compact-interleaved",
+            "partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1",
+            "radial-compact-interleaved-vertical-columns");
+        record.version = fftw.version() + " + Apple Accelerate";
+        record.gemmCallsPerExecution = provider.gemmCallsPerExecution();
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.scratchBytes = fftw.scratchBytes();
+        record.opaquePlanningBytes = fftw.planningBytes();
+        record.otherSetupSeconds = fftw.otherSetupSeconds() +
+            provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
+        record.allocationSeconds = fftw.allocationSeconds() + provider.allocationSeconds();
+        record.planningSeconds = fftw.planningSeconds();
+        record.execution.forward = {
+            "out-of-place", "out-of-place", false, true, false, false, false,
+            "real-grid", "radial-compact-interleaved-modal",
+            "real-grid", "radial-compact-interleaved-modal",
+            "real grid -> pruned internal row/column scratch -> retained [Nz][K] -> modal [Nj][K]",
+            "compact z/j-contiguous columns keyed by field+fields*mode",
+            0, std::max<std::size_t>(64, fftw.minimumAlignmentBytes()),
+            "pruned FFT scratch and compact vertical operands do not overlap",
+            fftw.scratchBytes() + provider.physicalElements() * sizeof(Complex), true};
+        record.execution.inverse = record.execution.forward;
+        record.execution.inverse.nativeInputRepresentationId =
+            "radial-compact-interleaved-modal";
+        record.execution.inverse.nativeOutputRepresentationId = "real-grid";
+        record.execution.inverse.adapterInputRepresentationId =
+            record.execution.inverse.nativeInputRepresentationId;
+        record.execution.inverse.adapterOutputRepresentationId = "real-grid";
+        record.execution.inverse.physicalExtents =
+            "modal [Nj][K] -> physical [Nz][K] -> pruned zero-padded scratch -> real grid";
+        record.execution.inverse.destroysNativeInput = false;
+        record.execution.inverse.reusableWorkBytes = fftw.scratchBytes();
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "separable pruned FFTW row/column plans, expanded complex grouped matrices, and persistent schedulers"},
+            {"raw forward FFT", StageState::executed,
+             "all row r2c transforms plus only retained-support column transforms"},
+            {"horizontal retention", StageState::executed,
+             "compact mode-keyed gather from internal pruned scratch"},
+            {"representation conversion", StageState::elided,
+             "compact interleaved output is the vertical zgemm input representation"},
+            {"permutation/packing", StageState::elided,
+             "no additional copy between compact horizontal output and vertical input"},
+            {"raw forward vertical MM", StageState::executed,
+             "one grouped zgemm per K-squared matrix group"},
+            {"modal work", StageState::unsupported,
+             "modal physics and nonlinear flux are outside this boundary experiment"},
+            {"raw inverse vertical MM", StageState::executed,
+             "one grouped zgemm per K-squared matrix group"},
+            {"horizontal embedding", StageState::executed,
+             "zero and embed compact coefficients into persistent pruned scratch"},
+            {"raw inverse FFT", StageState::executed,
+             "retained-support inverse columns plus all inverse rows"},
+            {"uninstrumented total", StageState::executed,
+             "horizontal and vertical boundary only; no modal work or nonlinear flux"}};
+        addCorrectness(record, horizontal, forward, inverse, inverseOutput);
+
+        const auto matrixBytes = provider.matrixBytesPerDirection();
+        const auto verticalBytes = matrixBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        const auto retainedMovementBytes = 2 * report.retainedSpectrumBytes;
+        const auto prunedScratchBytes = static_cast<std::uint64_t>(fftw.scratchBytes());
+        record.timings = {
+            series("setup-shared-component", "logical matrix-family fixture generation", "shared",
+                   StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+                   {fixtureGenerationSeconds}),
+            series("setup-component", "pruned FFTW planning", "shared",
+                   StageState::setupOnly, fftw.planningBytes(),
+                   {fftw.planningSeconds()}),
+            series("setup-component", "vertical matrix preparation", "shared",
+                   StageState::setupOnly, 2 * matrixBytes,
+                   {provider.matrixPreparationSeconds()}),
+            series("primitive-component", "pruned row FFT batch", "forward",
+                   StageState::executed, report.fullRealBytes + prunedScratchBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeForwardRows(input.data());
+                   })),
+            series("primitive-component", "retained-support column FFT batch", "forward",
+                   StageState::executed, 2 * prunedScratchBytes,
+                   measure(warmups, sampleCount,
+                           [&] { fftw.executeForwardRows(input.data()); },
+                           [&] { fftw.executeForwardColumns(); })),
+            series("primitive", "raw pruned FFT", "forward", StageState::executed,
+                   report.fullRealBytes + 3 * prunedScratchBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeForwardRows(input.data());
+                       fftw.executeForwardColumns();
+                   })),
+            series("adapter-component", "compact retained gather", "forward",
+                   StageState::executed, retainedMovementBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               fftw.executeForwardRows(input.data());
+                               fftw.executeForwardColumns();
+                           },
+                           [&] {
+                               fftw.gatherForward(
+                                   provider.interleavedPhysicalInputData());
+                           })),
+            series("primitive", "raw vertical MM", "forward", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeForward(); })),
+            series("primitive", "raw vertical MM", "inverse", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeInverse(); })),
+            series("adapter-component", "zero-pad and compact retained embed", "inverse",
+                   StageState::executed, prunedScratchBytes + retainedMovementBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.embedInverse(provider.interleavedPhysicalOutputData());
+                   })),
+            series("primitive-component", "retained-support inverse column FFT batch", "inverse",
+                   StageState::executed, 2 * prunedScratchBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               fftw.embedInverse(
+                                   provider.interleavedPhysicalOutputData());
+                           },
+                           [&] { fftw.executeInverseColumns(); })),
+            series("primitive-component", "pruned inverse row FFT batch", "inverse",
+                   StageState::executed, prunedScratchBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               fftw.embedInverse(
+                                   provider.interleavedPhysicalOutputData());
+                               fftw.executeInverseColumns();
+                           },
+                           [&] { fftw.executeInverseRows(inverseOutput.data()); })),
+            series("primitive", "raw pruned FFT", "inverse", StageState::executed,
+                   3 * prunedScratchBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               fftw.embedInverse(
+                                   provider.interleavedPhysicalOutputData());
+                           },
+                           [&] {
+                               fftw.executeInverseColumns();
+                               fftw.executeInverseRows(inverseOutput.data());
+                           })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "forward",
+                   StageState::executed,
+                   report.fullRealBytes + 3 * prunedScratchBytes +
+                       retainedMovementBytes + verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(
+                           input.data(), provider.interleavedPhysicalInputData());
+                       provider.executeForward();
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "inverse",
+                   StageState::executed,
+                   verticalBytes + prunedScratchBytes + retainedMovementBytes +
+                       3 * prunedScratchBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeInverse();
+                       fftw.inverse(
+                           provider.interleavedPhysicalOutputData(),
+                           inverseOutput.data());
+                   }))};
+        report.orderingPackingEstimatedExplicitPeakBytes =
+            report.verticalMatrixFamilySourceBytes + provider.persistentBytes() +
+            fftw.scratchBytes() + report.fullRealBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        report.providers.push_back(std::move(record));
+        report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
+        return report;
+    }
+
+    if (options.boundaryPolicy == "plane-major-view") {
+        const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
+            ? 1 : options.fftwInternalWorkers;
+        FFTWProvider fftw(workload, FFTWStrategy{
+            fftwPlanningModeNamed(options.fftwPlanning),
+            fftwAlignmentStrategyNamed(options.fftwAlignment),
+            fftwWisdomStrategyNamed(options.fftwWisdom),
+            fftwInternalWorkers, options.fftwOuterWorkers,
+            options.fftwPlanningTimeLimitSeconds,
+            FFTWDataLayout::interleaved,
+            FFTWSpectrumOrder::planeMajor});
+        PlaneMajorDirectVerticalGemmProvider provider(
+            workload, modes, vertical, verticalStrategy);
+        if (!provider.supported()) throw std::runtime_error(provider.capability());
+
+        std::vector<Complex> fullSpectrum(workload.spectrumElements());
+        std::vector<Complex> fullModalOutput(provider.modalSpectrumElements());
+        std::vector<Complex> fullModalInput(provider.modalSpectrumElements());
+        std::vector<double> inverseOutput(workload.realElements());
+        std::vector<Complex> horizontal(physicalElements);
+        std::vector<Complex> forward(modalElements);
+        std::vector<Complex> inverse(physicalElements);
+        compactModalToPlaneMajor(
+            workload, modes, sparseModalInput.data(), fullModalInput.data());
+        provider.initializeModalOutput(fullModalOutput.data());
+        provider.initializeSpectrumOutput(fullSpectrum.data());
+        vertical.forward = {};
+        vertical.inverse = {};
+
+        fftw.forward(input.data(), fullSpectrum.data());
+        planeMajorPhysicalToCompact(
+            workload, modes, fullSpectrum.data(), horizontal.data());
+        provider.executeForward(fullSpectrum.data(), fullModalOutput.data());
+        planeMajorModalToCompact(
+            workload, modes, fullModalOutput.data(), forward.data());
+        provider.initializeSpectrumOutput(fullSpectrum.data());
+        provider.executeInverse(fullModalInput.data(), fullSpectrum.data());
+        planeMajorPhysicalToCompact(
+            workload, modes, fullSpectrum.data(), inverse.data());
+        fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+
+        auto record = makeRecord(
+            "boundary-plane-major-view",
+            "full-plane-major-fftw+strided-retained-zgemv-view-v1",
+            "persistent-plane-major-interleaved-full-spectrum-and-modal-view");
+        record.version = fftw.version() + " + Apple Accelerate";
+        record.gemmCallsPerExecution = provider.gemvCallsPerExecution();
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.opaquePlanningBytes = fftw.planningBytes();
+        record.otherSetupSeconds = fftw.otherSetupSeconds() +
+            provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
+        record.allocationSeconds = fftw.allocationSeconds() + provider.allocationSeconds();
+        record.planningSeconds = fftw.planningSeconds();
+        record.wisdomGenerationSeconds = fftw.wisdomGenerationSeconds();
+        record.wisdomImportSeconds = fftw.wisdomImportSeconds();
+        record.planningTimeLimitSeconds = fftw.planningTimeLimitSeconds();
+        record.planningBudgetExhausted = fftw.planningBudgetExhausted();
+        record.wisdomBytes = fftw.wisdomBytes();
+        record.execution.forward = {
+            "out-of-place", "out-of-place", false, true, false, false, false,
+            "real-grid", "plane-major-interleaved-modal-index-view",
+            "real-grid", "plane-major-interleaved-modal-index-view",
+            "real grid -> full plane-major half-spectrum -> strided retained zgemv -> full modal view",
+            "frequency=1; z/j=halfRows; field=halfRows*Nz-or-Nj",
+            provider.modalSpectrumElements() - modalElements, alignof(Complex),
+            "full spectrum and modal view do not overlap",
+            provider.modalSpectrumElements() * sizeof(Complex), true};
+        record.execution.inverse = record.execution.forward;
+        record.execution.inverse.destroysNativeInput = true;
+        record.execution.inverse.nativeInputRepresentationId =
+            "plane-major-interleaved-modal-index-view";
+        record.execution.inverse.nativeOutputRepresentationId = "real-grid";
+        record.execution.inverse.adapterInputRepresentationId =
+            record.execution.inverse.nativeInputRepresentationId;
+        record.execution.inverse.adapterOutputRepresentationId = "real-grid";
+        record.execution.inverse.physicalExtents =
+            "full modal view -> strided retained zgemv -> rebuilt zero-padded plane-major spectrum -> real grid";
+        record.execution.inverse.paddingElements =
+            workload.spectrumElements() - physicalElements;
+        record.execution.inverse.reusableWorkBytes = report.fullSpectrumBytes;
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "plane-major FFTW plans, immutable expanded complex matrices, and persistent schedulers"},
+            {"raw forward FFT", StageState::executed,
+             "full plane-major FFTW r2c"},
+            {"horizontal retention", StageState::elided,
+             "retained frequencies remain an indexed view of the full spectrum"},
+            {"representation conversion", StageState::elided,
+             "plane-major interleaved storage persists across the boundary"},
+            {"permutation/packing", StageState::elided,
+             "no data movement; z/j operands are consumed with halfRows stride"},
+            {"raw forward vertical MM", StageState::executed,
+             "one strided zgemv per retained frequency and field"},
+            {"modal work", StageState::unsupported,
+             "modal physics and nonlinear flux are outside this boundary experiment"},
+            {"raw inverse vertical MM", StageState::executed,
+             "one strided zgemv per retained frequency and field"},
+            {"horizontal embedding", StageState::executed,
+             "full spectrum must be zeroed on every inverse because FFTW destroys it"},
+            {"raw inverse FFT", StageState::executed,
+             "full plane-major FFTW c2r destroys the rebuilt spectrum"},
+            {"uninstrumented total", StageState::executed,
+             "horizontal and vertical boundary only; no modal work or nonlinear flux"}};
+        addCorrectness(record, horizontal, forward, inverse, inverseOutput);
+
+        const auto matrixBytes = provider.matrixBytesPerDirection();
+        const auto verticalBytes = matrixBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        record.timings = {
+            series("setup-shared-component", "logical matrix-family fixture generation", "shared",
+                   StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+                   {fixtureGenerationSeconds}),
+            series("setup-component", "FFTW planning", "shared", StageState::setupOnly,
+                   fftw.planningBytes(), {fftw.planningSeconds()}),
+            series("setup-component", "vertical matrix preparation", "shared",
+                   StageState::setupOnly, 2 * matrixBytes,
+                   {provider.matrixPreparationSeconds()}),
+            series("primitive", "raw FFT", "forward", StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                   })),
+            series("primitive", "raw FFT", "inverse", StageState::executed,
+                   report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               wvmToPlaneMajor(
+                                   workload, referenceSpectrum.data(),
+                                   fullSpectrum.data());
+                           },
+                           [&] { fftw.inverse(fullSpectrum.data(), inverseOutput.data()); })),
+            series("adapter-component", "logical retained provider-order view", "forward",
+                   StageState::elided, 0),
+            series("primitive", "raw vertical MM", "forward", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeForward(
+                           fullSpectrum.data(), fullModalOutput.data());
+                   })),
+            series("primitive", "raw vertical MM", "inverse", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeInverse(
+                           fullModalInput.data(), fullSpectrum.data());
+                   })),
+            series("adapter-component", "rebuild zero-padded inverse view", "inverse",
+                   StageState::executed, report.fullSpectrumBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.initializeSpectrumOutput(fullSpectrum.data());
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "forward",
+                   StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes + verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                       provider.executeForward(
+                           fullSpectrum.data(), fullModalOutput.data());
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "inverse",
+                   StageState::executed,
+                   report.fullSpectrumBytes + verticalBytes +
+                       report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.initializeSpectrumOutput(fullSpectrum.data());
+                       provider.executeInverse(
+                           fullModalInput.data(), fullSpectrum.data());
+                       fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+                   }))};
+        report.orderingPackingEstimatedExplicitPeakBytes =
+            report.verticalMatrixFamilySourceBytes + provider.persistentBytes() +
+            2 * report.fullSpectrumBytes +
+            bytes(2 * fullModalElements, sizeof(Complex)) + report.fullRealBytes;
+        report.providers.push_back(std::move(record));
+        report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
+        return report;
+    }
+
+    if (options.boundaryPolicy == "wvm-packed-split" ||
+        options.boundaryPolicy == "plane-major-fused-split") {
+        const bool planeFused = options.boundaryPolicy == "plane-major-fused-split";
+        const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
+            ? 1 : options.fftwInternalWorkers;
+        FFTWProvider fftw(workload, FFTWStrategy{
+            fftwPlanningModeNamed(options.fftwPlanning),
+            fftwAlignmentStrategyNamed(options.fftwAlignment),
+            fftwWisdomStrategyNamed(options.fftwWisdom),
+            fftwInternalWorkers, options.fftwOuterWorkers,
+            options.fftwPlanningTimeLimitSeconds,
+            FFTWDataLayout::interleaved,
+            planeFused ? FFTWSpectrumOrder::planeMajor
+                       : FFTWSpectrumOrder::wvmFrequencyMajor});
+        VerticalGemmProvider provider(
+            workload, vertical, VerticalGemmLayout::split, verticalStrategy);
+        if (!provider.supported()) throw std::runtime_error(provider.capability());
+        provider.loadModalInput(sparseModalInput.data());
+        vertical.forward = {};
+        vertical.inverse = {};
+
+        std::vector<Complex> fullSpectrum(workload.spectrumElements());
+        std::vector<double> inverseOutput(workload.realElements());
+        std::vector<Complex> horizontal(physicalElements);
+        std::vector<Complex> forward(modalElements);
+        std::vector<Complex> inverse(physicalElements);
+
+        fftw.forward(input.data(), fullSpectrum.data());
+        if (planeFused) {
+            fftw.gatherRetainedToSplitOuter(
+                modes, fullSpectrum.data(),
+                provider.splitPhysicalInputRealData(),
+                provider.splitPhysicalInputImaginaryData());
+        } else {
+            provider.packPhysicalInputFromWvm(modes, fullSpectrum.data());
+        }
+        splitToInterleaved(
+            physicalElements, provider.splitPhysicalInputRealData(),
+            provider.splitPhysicalInputImaginaryData(), horizontal.data());
+        provider.executeForward();
+        provider.copyForwardOutput(forward.data());
+        provider.executeInverse();
+        provider.copyInverseOutput(inverse.data());
+        if (planeFused) {
+            fftw.embedRetainedFromSplitOuter(
+                modes, provider.splitPhysicalOutputRealData(),
+                provider.splitPhysicalOutputImaginaryData(),
+                fullSpectrum.data());
+        } else {
+            provider.embedPhysicalOutputToWvm(modes, fullSpectrum.data());
+        }
+        fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+
+        auto record = makeRecord(
+            planeFused ? "boundary-plane-major-fused-split"
+                       : "boundary-wvm-packed-split",
+            planeFused
+                ? "full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1"
+                : "full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1",
+            planeFused
+                ? "plane-major-full-interleaved-to-radial-compact-split"
+                : "wvm-frequency-major-full-interleaved-to-radial-compact-split");
+        record.version = fftw.version() + " + Apple Accelerate";
+        record.gemmCallsPerExecution = provider.gemmCallsPerExecution();
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.scratchBytes = 0;
+        record.opaquePlanningBytes = fftw.planningBytes();
+        record.otherSetupSeconds = fftw.otherSetupSeconds() +
+            provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
+        record.allocationSeconds = fftw.allocationSeconds() + provider.allocationSeconds();
+        record.planningSeconds = fftw.planningSeconds();
+        record.wisdomGenerationSeconds = fftw.wisdomGenerationSeconds();
+        record.wisdomImportSeconds = fftw.wisdomImportSeconds();
+        record.planningTimeLimitSeconds = fftw.planningTimeLimitSeconds();
+        record.planningBudgetExhausted = fftw.planningBudgetExhausted();
+        record.wisdomBytes = fftw.wisdomBytes();
+        record.execution.forward = {
+            "out-of-place", "out-of-place", false, true, false, false, false,
+            "real-grid", "radial-compact-split-modal",
+            "real-grid", "radial-compact-split-modal",
+            planeFused
+                ? "real grid -> full plane-major half-spectrum -> retained [Nz][K] -> modal [Nj][K]"
+                : "real grid -> full WVM half-spectrum -> retained [Nz][K] -> modal [Nj][K]",
+            planeFused
+                ? "plane-major full spectrum, then z/j contiguous compact columns"
+                : "WVM frequency-major, then z/j contiguous compact columns",
+            workload.spectrumElements() - physicalElements, 64,
+            "FFT, split vertical input, and split modal output are disjoint",
+            workload.spectrumElements() * sizeof(Complex), true};
+        record.execution.inverse = record.execution.forward;
+        record.execution.inverse.destroysNativeInput = true;
+        record.execution.inverse.nativeInputRepresentationId =
+            "radial-compact-split-modal";
+        record.execution.inverse.nativeOutputRepresentationId = "real-grid";
+        record.execution.inverse.adapterInputRepresentationId =
+            record.execution.inverse.nativeInputRepresentationId;
+        record.execution.inverse.adapterOutputRepresentationId = "real-grid";
+        record.execution.inverse.physicalExtents =
+            planeFused
+                ? "modal [Nj][K] -> physical [Nz][K] -> zero-padded plane-major half-spectrum -> real grid"
+                : "modal [Nj][K] -> physical [Nz][K] -> zero-padded WVM half-spectrum -> real grid";
+        record.execution.inverse.requiresPreservationCopyForRepeatedExecution = false;
+        record.execution.inverse.reusableWorkBytes = report.fullSpectrumBytes;
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "FFTW plans, grouped real matrix family, split operands, and persistent schedulers"},
+            {"raw forward FFT", StageState::executed,
+             planeFused ? "full plane-major FFTW r2c" : "full WVM-order FFTW r2c"},
+            {"horizontal retention", StageState::fused,
+             "retained selection is fused with radial split packing"},
+            {"representation conversion", StageState::fused,
+             "interleaved-to-split conversion is fused with retained selection"},
+            {"permutation/packing", StageState::executed,
+             planeFused
+                 ? "outer-sharded fused retained selection and split conversion"
+                 : "historical MATLAB-style WVM gather into radial contiguous vertical columns"},
+            {"raw forward vertical MM", StageState::executed,
+             "two grouped dgemm calls per K-squared matrix group"},
+            {"modal work", StageState::unsupported,
+             "modal physics and nonlinear flux are outside this boundary experiment"},
+            {"raw inverse vertical MM", StageState::executed,
+             "two grouped dgemm calls per K-squared matrix group"},
+            {"horizontal embedding", StageState::executed,
+             planeFused
+                 ? "outer-sharded fused split scatter into a zeroed plane-major spectrum"
+                 : "zero full WVM spectrum and scatter split retained coefficients"},
+            {"raw inverse FFT", StageState::executed,
+             planeFused
+                 ? "full plane-major FFTW c2r; FFTW destroys its spectrum input"
+                 : "full WVM-order FFTW c2r; FFTW destroys its spectrum input"},
+            {"uninstrumented total", StageState::executed,
+             "horizontal and vertical boundary only; no modal work or nonlinear flux"}};
+        addCorrectness(record, horizontal, forward, inverse, inverseOutput);
+
+        const auto matrixBytes = provider.matrixBytesPerDirection();
+        const auto verticalBytes = 2 * matrixBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        const auto packBytes = 2 * report.retainedSpectrumBytes;
+        const auto embedBytes = report.fullSpectrumBytes +
+            2 * report.retainedSpectrumBytes;
+        record.timings = {
+            series("setup-shared-component", "logical matrix-family fixture generation", "shared",
+                   StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+                   {fixtureGenerationSeconds}),
+            series("setup-component", "FFTW planning", "shared", StageState::setupOnly,
+                   fftw.planningBytes(), {fftw.planningSeconds()}),
+            series("setup-component", "vertical matrix preparation", "shared",
+                   StageState::setupOnly, 2 * matrixBytes,
+                   {provider.matrixPreparationSeconds()}),
+            series("primitive", "raw FFT", "forward", StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                   })),
+            series("primitive", "raw FFT", "inverse", StageState::executed,
+                   report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount,
+                           [&] {
+                               if (planeFused) {
+                                   wvmToPlaneMajor(
+                                       workload, referenceSpectrum.data(),
+                                       fullSpectrum.data());
+                               } else {
+                                   std::copy(referenceSpectrum.begin(), referenceSpectrum.end(),
+                                             fullSpectrum.begin());
+                               }
+                           },
+                           [&] { fftw.inverse(fullSpectrum.data(), inverseOutput.data()); })),
+            series("adapter-component",
+                   planeFused ? "fused retained selection and split pack"
+                              : "WVM retained gather and radial split pack",
+                   "forward",
+                   StageState::executed, packBytes,
+                   measure(warmups, sampleCount, [&] {
+                           if (planeFused) {
+                               fftw.gatherRetainedToSplitOuter(
+                                   modes, fullSpectrum.data(),
+                                   provider.splitPhysicalInputRealData(),
+                                   provider.splitPhysicalInputImaginaryData());
+                           } else {
+                               provider.packPhysicalInputFromWvm(
+                                   modes, referenceSpectrum.data());
+                           }
+                   })),
+            series("primitive", "raw vertical MM", "forward", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeForward(); })),
+            series("primitive", "raw vertical MM", "inverse", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeInverse(); })),
+            series("adapter-component",
+                   planeFused ? "fused split embed into zeroed plane-major spectrum"
+                              : "zero-pad and WVM retained embed",
+                   "inverse",
+                   StageState::executed, embedBytes,
+                   measure(warmups, sampleCount, [&] {
+                       if (planeFused) {
+                           fftw.embedRetainedFromSplitOuter(
+                               modes, provider.splitPhysicalOutputRealData(),
+                               provider.splitPhysicalOutputImaginaryData(),
+                               fullSpectrum.data());
+                       } else {
+                           provider.embedPhysicalOutputToWvm(
+                               modes, fullSpectrum.data());
+                       }
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "forward",
+                   StageState::executed,
+                   report.fullRealBytes + report.fullSpectrumBytes + packBytes + verticalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forward(input.data(), fullSpectrum.data());
+                       if (planeFused) {
+                           fftw.gatherRetainedToSplitOuter(
+                               modes, fullSpectrum.data(),
+                               provider.splitPhysicalInputRealData(),
+                               provider.splitPhysicalInputImaginaryData());
+                       } else {
+                           provider.packPhysicalInputFromWvm(
+                               modes, fullSpectrum.data());
+                       }
+                       provider.executeForward();
+                   })),
+            series("uninstrumented-total", "composed horizontal-vertical boundary", "inverse",
+                   StageState::executed,
+                   verticalBytes + embedBytes + report.fullSpectrumBytes + report.fullRealBytes,
+                   measure(warmups, sampleCount, [&] {
+                       provider.executeInverse();
+                       if (planeFused) {
+                           fftw.embedRetainedFromSplitOuter(
+                               modes, provider.splitPhysicalOutputRealData(),
+                               provider.splitPhysicalOutputImaginaryData(),
+                               fullSpectrum.data());
+                       } else {
+                           provider.embedPhysicalOutputToWvm(
+                               modes, fullSpectrum.data());
+                       }
+                       fftw.inverse(fullSpectrum.data(), inverseOutput.data());
+                   }))};
+        report.orderingPackingEstimatedExplicitPeakBytes =
+            report.verticalMatrixFamilySourceBytes + provider.persistentBytes() +
+            2 * report.fullSpectrumBytes + report.fullRealBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        report.providers.push_back(std::move(record));
+        report.status = correctnessPassed(report.providers.front()) ? "passed" : "failed";
+        return report;
+    }
+
+    throw std::logic_error(
+        "The requested spectral-boundary policy is registered but not implemented.");
+}
+
 ValidationReport validateBenchmark(std::string_view profileName) {
     const auto requested = profileNamed(profileName);
     Workload workload = requested.name == "smoke" ? requested.workload : Workload{8, 8, 7, 2, 1.0, 1.0, true};
@@ -2392,9 +3442,11 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     if (options.kernel == "pruned-horizontal") return runPrunedHorizontalBenchmark(options);
     if (options.kernel == "vertical-gemm") return runVerticalGemmBenchmark(options);
     if (options.kernel == "ordering-packing") return runOrderingPackingBenchmark(options);
+    if (options.kernel == "spectral-boundary") return runSpectralBoundaryBenchmark(options);
     if (options.kernel != "fft") {
         throw std::invalid_argument(
-            "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', or 'ordering-packing'.");
+            "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', "
+            "'ordering-packing', or 'spectral-boundary'.");
     }
     auto selected = profileNamed(options.profile);
     if (options.providers != "both" && options.providers != "fftw") {

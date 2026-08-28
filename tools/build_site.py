@@ -1664,7 +1664,7 @@ def ordering_packing_crossover(provider: dict, direction: str) -> tuple[int | No
     return crossover, final_speedup
 
 
-def ordering_packing_evidence_table(bundles: list[PublishedBundle]) -> str:
+def ordering_packing_legacy_evidence_table(bundles: list[PublishedBundle]) -> str:
     rows: list[str] = []
     for bundle in sorted(
         bundles,
@@ -1761,7 +1761,7 @@ def ordering_packing_evidence_table(bundles: list[PublishedBundle]) -> str:
     """
 
 
-def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
+def ordering_packing_legacy_synthesis(bundles: list[PublishedBundle]) -> str:
     if not bundles:
         return ""
     latest_commit = max(
@@ -1914,6 +1914,237 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
       <p>{baseline_conclusion}</p>
       {no_reorder_section}
     """
+
+
+def spectral_boundary_bundles(
+    bundles: list[PublishedBundle],
+) -> list[PublishedBundle]:
+    return [
+        bundle for bundle in bundles
+        if any(
+            provider["id"].startswith("boundary-")
+            for provider in bundle.result["providers"]
+        )
+    ]
+
+
+def ordering_packing_boundary_evidence_table(
+    bundles: list[PublishedBundle],
+) -> str:
+    rows: list[str] = []
+    for bundle in sorted(
+        spectral_boundary_bundles(bundles),
+        key=lambda item: (
+            item.result["workload"]["Nx"],
+            item.result["workload"]["Nz"],
+            item.result["workload"]["fields"],
+            item.result["providers"][0]["id"],
+            item.result["providers"][0]["schedulingId"],
+            item.result["run"]["id"],
+        ),
+    ):
+        result = bundle.result
+        workload = result["workload"]
+        run = result["run"]
+        provider = next(
+            item for item in result["providers"]
+            if item["id"].startswith("boundary-")
+        )
+        raw_fft_forward = (
+            stage_timing(provider, "primitive", "raw FFT", "forward")
+            or stage_timing(provider, "primitive", "raw pruned FFT", "forward")
+        )
+        raw_fft_inverse = (
+            stage_timing(provider, "primitive", "raw FFT", "inverse")
+            or stage_timing(provider, "primitive", "raw pruned FFT", "inverse")
+        )
+        raw_vertical_forward = stage_timing(
+            provider, "primitive", "raw vertical MM", "forward"
+        )
+        raw_vertical_inverse = stage_timing(
+            provider, "primitive", "raw vertical MM", "inverse"
+        )
+        movement_forward = timing(provider, "adapter-component", "forward")
+        movement_inverse = timing(provider, "adapter-component", "inverse")
+        total_forward = timing(provider, "uninstrumented-total", "forward")
+        total_inverse = timing(provider, "uninstrumented-total", "inverse")
+        required = (
+            raw_fft_forward,
+            raw_fft_inverse,
+            raw_vertical_forward,
+            raw_vertical_inverse,
+            movement_forward,
+            movement_inverse,
+            total_forward,
+            total_inverse,
+        )
+        if any(item is None for item in required):
+            raise ValueError(f"Incomplete spectral-boundary evidence in {run['id']}")
+
+        def movement(item: dict) -> str:
+            if item["state"] == "elided":
+                return "elided"
+            return (
+                f'{timing_with_interval(item)}<br><span class="muted">'
+                f'{format_bytes(item["bytesMoved"])}</span>'
+            )
+
+        peak = int(
+            workload.get("bytes", {}).get("orderingPackingEstimatedExplicitPeak", 0)
+        )
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run["id"])}/index.html">'
+            f'{escaped(run["id"])}</a><br><span class="muted">'
+            f'{publication_badge(bundle.publication["status"])}</span></td>'
+            f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>='
+            f'{workload["Nz"]}, fields={workload["fields"]}</span></td>'
+            f'<td>{escaped(provider["id"].removeprefix("boundary-"))}<br>'
+            f'<span class="muted">{escaped(provider["schedulingId"])}</span></td>'
+            f'<td class="numeric">{timing_with_interval(raw_fft_forward)} / '
+            f'{timing_with_interval(raw_fft_inverse)}</td>'
+            f'<td class="numeric">{timing_with_interval(raw_vertical_forward)} / '
+            f'{timing_with_interval(raw_vertical_inverse)}</td>'
+            f'<td class="numeric">{movement(movement_forward)} / '
+            f'{movement(movement_inverse)}</td>'
+            f'<td class="numeric">{timing_with_interval(total_forward)} / '
+            f'{timing_with_interval(total_inverse)}</td>'
+            f'<td class="numeric">{format_bytes(provider["memory"]["persistentBytes"])}'
+            f'<br><span class="muted">peak {format_bytes(peak) if peak else "not reported"}</span></td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))} / '
+            f'{format_error(maximum_l2_error(provider))}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return f"""
+      <h3>Composed horizontal-to-vertical boundary evidence</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Forward / inverse medians with deterministic percentile-bootstrap 95% intervals. Raw horizontal transform, raw vertical MM, data movement, and the uninstrumented composed boundary remain separate. Movement may be elided or fused; component medians are diagnostic and are not summed to reconstruct the authoritative total. Full-spectrum inverse views include their required per-execution zero-padding rebuild.</caption>
+        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Policy and schedule</th><th scope="col">Raw horizontal ms</th><th scope="col">Raw vertical ms</th><th scope="col">Movement ms and bytes</th><th scope="col">Composed total ms</th><th scope="col">Memory</th><th scope="col">Max / L2 error</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+    """
+
+
+def ordering_packing_boundary_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    boundary = spectral_boundary_bundles(bundles)
+    if not boundary:
+        return ""
+    latest_increment = max(
+        {
+            bundle.publication.get("incrementId", "")
+            for bundle in boundary
+        },
+        key=lambda increment: max(
+            bundle.result["environment"]["timestampUtc"]
+            for bundle in boundary
+            if bundle.publication.get("incrementId", "") == increment
+        ),
+    )
+    cohort = [
+        bundle for bundle in boundary
+        if bundle.publication.get("incrementId", "") == latest_increment
+    ]
+    cells: dict[tuple[str, str, str], list[float]] = {}
+    policy_labels: dict[str, str] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        provider = next(
+            item for item in bundle.result["providers"]
+            if item["id"].startswith("boundary-")
+        )
+        candidate = f'{provider["id"]};{provider["schedulingId"]}'
+        policy_labels[candidate] = (
+            f'{provider["id"].removeprefix("boundary-")} '
+            f'({provider["schedulingId"]})'
+        )
+        profile = bundle.result["run"]["profile"]
+        for direction in ("forward", "inverse"):
+            total = timing(provider, "uninstrumented-total", direction)
+            if total is not None:
+                cells.setdefault((candidate, profile, direction), []).append(
+                    float(total["medianSeconds"])
+                )
+        errors.extend(
+            float(metric[name])
+            for metric in provider["correctness"]
+            for name in ("maximumRelativeError", "relativeL2Error")
+            if metric.get(name) is not None
+        )
+    candidates = sorted({candidate for candidate, _, _ in cells})
+    profiles = sorted({profile for _, profile, _ in cells})
+    summaries: list[tuple[float, int, str, float]] = []
+    for candidate in candidates:
+        ratios: list[float] = []
+        wins = 0
+        for profile in profiles:
+            for direction in ("forward", "inverse"):
+                values = cells.get((candidate, profile, direction), [])
+                peers = [
+                    statistics.median(peer_values)
+                    for (peer, peer_profile, peer_direction), peer_values in cells.items()
+                    if peer_profile == profile and peer_direction == direction
+                ]
+                if not values or not peers:
+                    continue
+                ratio = statistics.median(values) / min(peers)
+                ratios.append(ratio)
+                wins += ratio <= 1.0 + 1.0e-12
+        if ratios:
+            summaries.append((
+                math.exp(sum(math.log(value) for value in ratios) / len(ratios)),
+                wins,
+                candidate,
+                max(ratios),
+            ))
+    summaries.sort()
+    summary_text = "; ".join(
+        f"{escaped(policy_labels[candidate])}: {geometric:.3f}× geometric to the cell best, "
+        f"{wins}/{2 * len(profiles)} wins, maximum {maximum:.3f}×"
+        for geometric, wins, candidate, maximum in summaries
+    )
+    status_text = (
+        "Reference runs are present and may feed the preregistered issue #9 selection."
+        if any(bundle.publication["status"] == "reference" for bundle in cohort)
+        else "This cohort remains preliminary; it describes the bounded screen and does not yet select issue #9 inputs."
+    )
+    return f"""
+      <h3>Composed representation-crossover increment</h3>
+      <p>This increment composes the issue #7 horizontal survivors with issue #8 grouped vertical kernels. It compares WVM direct/no-reorder, historical WVM gather-to-split, pruned compact interleaved, plane-major fused split, and plane-major retained-view graphs. The mathematical boundary is horizontal forward followed by vertical forward, or vertical inverse followed by horizontal inverse. Modal work and the nonlinear flux calculation remain explicitly excluded.</p>
+      <p>The authoritative totals include every per-execution movement required by each graph. In particular, direct full-spectrum inverse policies rebuild their disposable zero-padded FFTW input on every call; the earlier horizontal-only retained-view result assumed that ready view as an input and remains valid for its narrower question. Primitive FFT, primitive vertical MM, movement, setup, memory, and total timings remain separately published.</p>
+      <p>For the latest increment across {len(profiles)} workload profile(s): {summary_text}. The largest correctness error is {format_error(max(errors))}. {escaped(status_text)}</p>
+    """
+
+
+def ordering_packing_evidence_table(bundles: list[PublishedBundle]) -> str:
+    legacy = [
+        bundle for bundle in bundles
+        if any(
+            provider["id"].startswith("ordering-")
+            for provider in bundle.result["providers"]
+        )
+    ]
+    return (
+        ordering_packing_legacy_evidence_table(legacy)
+        + ordering_packing_boundary_evidence_table(bundles)
+    )
+
+
+def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
+    legacy = [
+        bundle for bundle in bundles
+        if any(
+            provider["id"].startswith("ordering-")
+            for provider in bundle.result["providers"]
+        )
+    ]
+    return (
+        ordering_packing_legacy_synthesis(legacy)
+        + ordering_packing_boundary_synthesis(bundles)
+    )
 
 
 def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:

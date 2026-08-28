@@ -173,6 +173,18 @@ public:
     void executeInverseReal();
     void executeInverseImaginary();
     void executeSchedulerNoop();
+    Complex* interleavedPhysicalInputData();
+    Complex* interleavedModalInputData();
+    const Complex* interleavedModalOutputData() const;
+    const Complex* interleavedPhysicalOutputData() const;
+    double* splitPhysicalInputRealData();
+    double* splitPhysicalInputImaginaryData();
+    double* splitModalInputRealData();
+    double* splitModalInputImaginaryData();
+    const double* splitModalOutputRealData() const;
+    const double* splitModalOutputImaginaryData() const;
+    const double* splitPhysicalOutputRealData() const;
+    const double* splitPhysicalOutputImaginaryData() const;
     void copyForwardOutput(Complex* output) const;
     void copyInverseOutput(Complex* output) const;
     void embedPhysicalOutputToWvm(const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const;
@@ -203,6 +215,43 @@ public:
     void executeSchedulerNoop();
     std::size_t modalSpectrumElements() const noexcept;
     std::size_t gemmCallsPerExecution() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    VerticalGemmStrategy strategy() const noexcept;
+    std::size_t persistentBytes() const noexcept;
+    std::size_t schedulerPersistentBytes() const noexcept;
+    std::size_t matrixBytesPerDirection() const noexcept;
+    double allocationSeconds() const noexcept;
+    double matrixPreparationSeconds() const noexcept;
+    double schedulerSetupSeconds() const noexcept;
+    bool hasOpaqueSchedulerMemory() const noexcept;
+    std::string libraryIdentity() const;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
+class PlaneMajorDirectVerticalGemmProvider {
+public:
+    PlaneMajorDirectVerticalGemmProvider(const Workload& workload,
+                                         const std::vector<RetainedMode>& modes,
+                                         const GroupedVerticalOperators& operators,
+                                         VerticalGemmStrategy strategy);
+    ~PlaneMajorDirectVerticalGemmProvider();
+    PlaneMajorDirectVerticalGemmProvider(PlaneMajorDirectVerticalGemmProvider&&) noexcept;
+    PlaneMajorDirectVerticalGemmProvider& operator=(PlaneMajorDirectVerticalGemmProvider&&) noexcept;
+    PlaneMajorDirectVerticalGemmProvider(const PlaneMajorDirectVerticalGemmProvider&) = delete;
+    PlaneMajorDirectVerticalGemmProvider& operator=(const PlaneMajorDirectVerticalGemmProvider&) = delete;
+
+    bool supported() const noexcept;
+    std::string capability() const;
+    void initializeModalOutput(Complex* fullModalSpectrum) const;
+    void initializeSpectrumOutput(Complex* fullSpectrum) const;
+    void executeForward(const Complex* fullSpectrum, Complex* fullModalSpectrum);
+    void executeInverse(const Complex* fullModalSpectrum, Complex* fullSpectrum);
+    void executeSchedulerNoop();
+    std::size_t modalSpectrumElements() const noexcept;
+    std::size_t gemvCallsPerExecution() const noexcept;
     std::size_t outerWorkers() const noexcept;
     VerticalGemmStrategy strategy() const noexcept;
     std::size_t persistentBytes() const noexcept;
@@ -651,6 +700,7 @@ struct RunOptions {
     std::string verticalGemmFamily = "common";
     std::string verticalGemmSchedule = "serial";
     std::size_t verticalGemmOuterWorkers = 1;
+    std::string boundaryPolicy = "wvm-packed-split";
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;
@@ -667,6 +717,7 @@ BenchmarkReport runBenchmark(const RunOptions& options);
 BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options);
 BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
 BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
+BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
 EnvironmentRecord environmentRecord();
 double median(std::vector<double> values);

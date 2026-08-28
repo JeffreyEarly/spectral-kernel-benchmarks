@@ -3,6 +3,7 @@
 
 #include <fftw3.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -401,6 +402,68 @@ void requireAllocationFreeDirectOrdering(
     }
     require(skbench::test::endAllocationTracking() == 0,
             "direct WVM-order steady-state execution allocated memory");
+}
+
+void requireAllocationFreePlaneMajorOrdering(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    const skbench::GroupedVerticalOperators& operators,
+    skbench::VerticalGemmStrategy strategy) {
+    const auto physicalCount = workload.nz * modes.size() * workload.fields;
+    const auto modalCount = operators.nj * modes.size() * workload.fields;
+    const auto fullModalCount = workload.halfRows() * operators.nj * workload.fields;
+    std::vector<skbench::Complex> physical(physicalCount);
+    std::vector<skbench::Complex> modal(modalCount);
+    std::vector<skbench::Complex> wvmInput(workload.spectrumElements());
+    std::vector<skbench::Complex> planeInput(workload.spectrumElements());
+    std::vector<skbench::Complex> planeOutput(workload.spectrumElements());
+    std::vector<skbench::Complex> planeModalInput(fullModalCount);
+    std::vector<skbench::Complex> planeModalOutput(fullModalCount);
+    for (std::size_t index = 0; index < physical.size(); ++index) {
+        physical[index] = {static_cast<double>(index % 31) / 31.0,
+                           -static_cast<double>(index % 29) / 29.0};
+    }
+    for (std::size_t index = 0; index < modal.size(); ++index) {
+        modal[index] = {static_cast<double>(index % 23) / 23.0,
+                        -static_cast<double>(index % 19) / 19.0};
+    }
+    skbench::embedRetained(workload, modes, physical.data(), wvmInput.data());
+    skbench::wvmToPlaneMajor(workload, wvmInput.data(), planeInput.data());
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        const auto frequency = mode.storedKx + workload.nxHalf() * mode.storedKy;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < operators.nj; ++j) {
+                auto value = modal[skbench::modalSpectrumIndex(
+                    workload, modeIndex, j, field)];
+                if (mode.conjugatesStoredValue) value = skbench::conjugate(value);
+                planeModalInput[frequency + workload.halfRows() *
+                    (j + operators.nj * field)] = value;
+            }
+        }
+    }
+
+    skbench::PlaneMajorDirectVerticalGemmProvider provider(
+        workload, modes, operators, strategy);
+    require(provider.supported(), "Accelerate plane-major view provider is unavailable");
+    provider.initializeModalOutput(planeModalOutput.data());
+    provider.initializeSpectrumOutput(planeOutput.data());
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.executeForward(planeInput.data(), planeModalOutput.data());
+        provider.initializeSpectrumOutput(planeOutput.data());
+        provider.executeInverse(planeModalInput.data(), planeOutput.data());
+        if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.executeForward(planeInput.data(), planeModalOutput.data());
+        provider.initializeSpectrumOutput(planeOutput.data());
+        provider.executeInverse(planeModalInput.data(), planeOutput.data());
+        if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "plane-major retained-view steady-state execution allocated memory");
 }
 
 void requireExactSplitInPlaceWvmOrderUnsupported(const skbench::Workload& workload) {
@@ -1407,6 +1470,65 @@ int main() {
             }
         }
 
+        for (const std::string boundaryPolicy : {
+                 "wvm-direct", "wvm-packed-split",
+                 "pruned-compact-interleaved", "plane-major-fused-split",
+                 "plane-major-view"}) {
+            skbench::RunOptions boundaryOptions;
+            boundaryOptions.kernel = "spectral-boundary";
+            boundaryOptions.boundaryPolicy = boundaryPolicy;
+            boundaryOptions.profile = "smoke";
+            boundaryOptions.verticalGemmFamily = "k2-grouped";
+            boundaryOptions.verticalGemmSchedule = "serial";
+            boundaryOptions.verticalGemmOuterWorkers = 1;
+            boundaryOptions.fftwPlanning = "estimate";
+            boundaryOptions.fftwInternalWorkers = 1;
+            boundaryOptions.fftwOuterWorkers = 2;
+            boundaryOptions.warmups = 1;
+            boundaryOptions.samples = 2;
+            const auto boundaryReport = skbench::runBenchmark(boundaryOptions);
+            require(boundaryReport.status == "passed",
+                    "spectral-boundary smoke benchmark failed");
+            require(boundaryReport.providers.size() == 1,
+                    "spectral-boundary isolated provider count");
+            const auto& provider = boundaryReport.providers.front();
+            require(provider.correctness.size() == 4,
+                    "spectral-boundary correctness metric count");
+            require(std::all_of(
+                        provider.correctness.begin(), provider.correctness.end(),
+                        [](const skbench::CorrectnessMetric& item) {
+                            return item.passed;
+                        }),
+                    "spectral-boundary correctness");
+            bool foundForwardTotal = false;
+            bool foundInverseTotal = false;
+            bool foundForwardVertical = false;
+            bool foundInverseVertical = false;
+            for (const auto& timing : provider.timings) {
+                foundForwardTotal = foundForwardTotal ||
+                    (timing.scope == "uninstrumented-total" &&
+                     timing.direction == "forward" && timing.seconds.size() == 2);
+                foundInverseTotal = foundInverseTotal ||
+                    (timing.scope == "uninstrumented-total" &&
+                     timing.direction == "inverse" && timing.seconds.size() == 2);
+                foundForwardVertical = foundForwardVertical ||
+                    (timing.scope == "primitive" &&
+                     timing.stage == "raw vertical MM" &&
+                     timing.direction == "forward" && timing.seconds.size() == 2);
+                foundInverseVertical = foundInverseVertical ||
+                    (timing.scope == "primitive" &&
+                     timing.stage == "raw vertical MM" &&
+                     timing.direction == "inverse" && timing.seconds.size() == 2);
+            }
+            require(foundForwardTotal && foundInverseTotal,
+                    "spectral-boundary uninstrumented totals");
+            require(foundForwardVertical && foundInverseVertical,
+                    "spectral-boundary primitive vertical timings");
+            require(boundaryReport.orderingPackingEstimatedExplicitPeakBytes >
+                        boundaryReport.fullSpectrumBytes,
+                    "spectral-boundary explicit peak estimate");
+        }
+
         if (skbench::test::allocationTrackingSupported()) {
             requireAllocationFreeVerticalExecution(
                 workload, commonVertical, skbench::VerticalGemmLayout::complexInterleaved);
@@ -1434,6 +1556,8 @@ int main() {
             for (const auto schedule : {skbench::VerticalGemmSchedule::outerStatic,
                                         skbench::VerticalGemmSchedule::outerDynamic}) {
                 requireAllocationFreeDirectOrdering(
+                    workload, modes, groupedVertical, {schedule, 2});
+                requireAllocationFreePlaneMajorOrdering(
                     workload, modes, groupedVertical, {schedule, 2});
             }
         }

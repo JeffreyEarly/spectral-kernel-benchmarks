@@ -384,6 +384,13 @@ struct VerticalGemmProvider::Impl {
         }
     }
 
+    void requireInterleaved() const {
+        requireAvailable();
+        if (layout != VerticalGemmLayout::complexInterleaved) {
+            throw std::logic_error("Interleaved GEMM component requested from the split GEMM provider.");
+        }
+    }
+
     void validateRetainedModes(const std::vector<RetainedMode>& modes) const {
         if (modes.size() != horizontalModeCount) {
             throw std::invalid_argument("Retained-mode count does not match the vertical GEMM columns.");
@@ -732,6 +739,70 @@ void VerticalGemmProvider::executeSchedulerNoop() {
     }
 }
 
+Complex* VerticalGemmProvider::interleavedPhysicalInputData() {
+    impl_->requireInterleaved();
+    static_assert(sizeof(Complex) == sizeof(BlasComplex));
+    return reinterpret_cast<Complex*>(impl_->complexPhysicalInput.data());
+}
+
+Complex* VerticalGemmProvider::interleavedModalInputData() {
+    impl_->requireInterleaved();
+    static_assert(sizeof(Complex) == sizeof(BlasComplex));
+    return reinterpret_cast<Complex*>(impl_->complexModalInput.data());
+}
+
+const Complex* VerticalGemmProvider::interleavedModalOutputData() const {
+    impl_->requireInterleaved();
+    static_assert(sizeof(Complex) == sizeof(BlasComplex));
+    return reinterpret_cast<const Complex*>(impl_->complexModalOutput.data());
+}
+
+const Complex* VerticalGemmProvider::interleavedPhysicalOutputData() const {
+    impl_->requireInterleaved();
+    static_assert(sizeof(Complex) == sizeof(BlasComplex));
+    return reinterpret_cast<const Complex*>(impl_->complexPhysicalOutput.data());
+}
+
+double* VerticalGemmProvider::splitPhysicalInputRealData() {
+    impl_->requireSplit();
+    return impl_->physicalInputReal.data();
+}
+
+double* VerticalGemmProvider::splitPhysicalInputImaginaryData() {
+    impl_->requireSplit();
+    return impl_->physicalInputImaginary.data();
+}
+
+double* VerticalGemmProvider::splitModalInputRealData() {
+    impl_->requireSplit();
+    return impl_->modalInputReal.data();
+}
+
+double* VerticalGemmProvider::splitModalInputImaginaryData() {
+    impl_->requireSplit();
+    return impl_->modalInputImaginary.data();
+}
+
+const double* VerticalGemmProvider::splitModalOutputRealData() const {
+    impl_->requireSplit();
+    return impl_->modalOutputReal.data();
+}
+
+const double* VerticalGemmProvider::splitModalOutputImaginaryData() const {
+    impl_->requireSplit();
+    return impl_->modalOutputImaginary.data();
+}
+
+const double* VerticalGemmProvider::splitPhysicalOutputRealData() const {
+    impl_->requireSplit();
+    return impl_->physicalOutputReal.data();
+}
+
+const double* VerticalGemmProvider::splitPhysicalOutputImaginaryData() const {
+    impl_->requireSplit();
+    return impl_->physicalOutputImaginary.data();
+}
+
 void VerticalGemmProvider::copyForwardOutput(Complex* output) const {
     impl_->requireAvailable();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
@@ -1070,6 +1141,336 @@ void WvmDirectVerticalGemmProvider::executeSchedulerNoop() {
     if (impl_->strategy.schedule != VerticalGemmSchedule::serial) {
         impl_->executor->run(nullptr, &noopGroup);
     }
+}
+
+struct PlaneMajorDirectVerticalGemmProvider::Impl {
+    struct ExecutionContext {
+        Impl* self = nullptr;
+        const Complex* input = nullptr;
+        Complex* output = nullptr;
+    };
+
+    Workload workload;
+    std::size_t modalSpectrumCount = 0;
+    std::size_t matrixElementsPerGroup = 0;
+    std::size_t spectrumPlane = 0;
+    VerticalGemmStrategy strategy;
+    bool available = SKBENCH_HAVE_ACCELERATE != 0;
+    std::string capabilityText;
+    double allocationTime = 0.0;
+    double preparationTime = 0.0;
+    double schedulerSetupTime = 0.0;
+    std::vector<RetainedMode> modes;
+    std::vector<std::size_t> modeGroupIndices;
+    std::vector<std::size_t> frequencyOffsets;
+    std::unique_ptr<PersistentGroupExecutor> executor;
+    AlignedBuffer<BlasComplex> complexForwardMatrix;
+    AlignedBuffer<BlasComplex> complexInverseMatrix;
+    int nz = 0;
+    int nj = 0;
+
+    Impl(const Workload& inputWorkload, const std::vector<RetainedMode>& inputModes,
+         const GroupedVerticalOperators& operators, VerticalGemmStrategy inputStrategy)
+        : workload(inputWorkload), strategy(inputStrategy), modes(inputModes) {
+        if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
+            throw std::invalid_argument(
+                "Plane-major direct vertical GEMV operator dimensions do not match the workload.");
+        }
+        if (modes.empty() || operators.groups.empty() || workload.fields == 0) {
+            throw std::invalid_argument(
+                "Plane-major direct vertical GEMV requires modes, groups, and fields.");
+        }
+        if (strategy.outerWorkers == 0) {
+            throw std::invalid_argument("Plane-major direct vertical GEMV workers must be positive.");
+        }
+        if (strategy.schedule == VerticalGemmSchedule::serial && strategy.outerWorkers != 1) {
+            throw std::invalid_argument(
+                "The serial plane-major direct vertical GEMV schedule requires one outer worker.");
+        }
+
+        matrixElementsPerGroup = checkedProduct(operators.nz, operators.nj, "plane-major matrix");
+        const auto familyElements = checkedProduct(
+            operators.groups.size(), matrixElementsPerGroup, "plane-major matrix family");
+        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
+            throw std::invalid_argument(
+                "Plane-major vertical GEMV matrix-family storage does not match its groups and dimensions.");
+        }
+
+        std::size_t expectedFirstMode = 0;
+        modeGroupIndices.resize(modes.size());
+        for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
+            const auto& group = operators.groups[groupIndex];
+            if (group.modeCount == 0 || group.firstMode != expectedFirstMode ||
+                group.firstMode + group.modeCount > modes.size()) {
+                throw std::invalid_argument(
+                    "Plane-major vertical GEMV groups must be contiguous and cover the modes.");
+            }
+            std::fill_n(modeGroupIndices.begin() + static_cast<std::ptrdiff_t>(group.firstMode),
+                        group.modeCount, groupIndex);
+            expectedFirstMode += group.modeCount;
+        }
+        if (expectedFirstMode != modes.size()) {
+            throw std::invalid_argument("Plane-major vertical GEMV groups do not cover every mode.");
+        }
+
+        spectrumPlane = workload.halfRows();
+        frequencyOffsets.reserve(modes.size());
+        std::vector<std::size_t> storedFrequencies;
+        storedFrequencies.reserve(modes.size());
+        for (const auto& mode : modes) {
+            const auto frequency = mode.storedKx + workload.nxHalf() * mode.storedKy;
+            frequencyOffsets.push_back(frequency);
+            storedFrequencies.push_back(frequency);
+        }
+        std::sort(storedFrequencies.begin(), storedFrequencies.end());
+        if (std::adjacent_find(storedFrequencies.begin(), storedFrequencies.end()) !=
+            storedFrequencies.end()) {
+            throw std::invalid_argument(
+                "Plane-major direct vertical GEMV requires unique stored frequencies.");
+        }
+
+        modalSpectrumCount = checkedProduct(
+            spectrumPlane,
+            checkedProduct(operators.nj, workload.fields, "plane-major modal planes"),
+            "plane-major modal spectrum");
+        nz = checkedBlasDimension(workload.nz, "Nz");
+        nj = checkedBlasDimension(operators.nj, "Nj");
+        checkedBlasDimension(spectrumPlane, "plane-major stride");
+
+        if (!available) {
+            capabilityText = "unsupported: Accelerate BLAS is available only on Apple platforms";
+            return;
+        }
+
+        const auto allocationStart = Clock::now();
+        complexForwardMatrix.allocate(familyElements);
+        complexInverseMatrix.allocate(familyElements);
+        allocationTime = elapsedSeconds(allocationStart);
+
+        const auto preparationStart = Clock::now();
+        for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
+            const auto offset = groupIndex * matrixElementsPerGroup;
+            for (std::size_t z = 0; z < operators.nz; ++z) {
+                for (std::size_t j = 0; j < operators.nj; ++j) {
+                    complexForwardMatrix.data()[offset + j + operators.nj * z] =
+                        {operators.forward[offset + j * operators.nz + z], 0.0};
+                    complexInverseMatrix.data()[offset + z + operators.nz * j] =
+                        {operators.inverse[offset + z * operators.nj + j], 0.0};
+                }
+            }
+        }
+        preparationTime = elapsedSeconds(preparationStart);
+
+        const auto schedulerStart = Clock::now();
+        std::vector<int> modeWeights(modes.size(), checkedBlasDimension(workload.fields, "fields"));
+        executor = std::make_unique<PersistentGroupExecutor>(
+            std::move(modeWeights), strategy.outerWorkers, strategy.schedule);
+        strategy.outerWorkers = executor->workerCount();
+        schedulerSetupTime = elapsedSeconds(schedulerStart);
+        capabilityText = "supported: plane-major retained view with strided per-field zgemv; " +
+            std::string(verticalGemmScheduleName(strategy.schedule)) + "; outer workers=" +
+            std::to_string(strategy.outerWorkers);
+    }
+
+    void requireAvailable() const {
+        if (!available) throw std::runtime_error(capabilityText);
+    }
+
+    std::size_t persistentBytes() const noexcept {
+        return complexForwardMatrix.bytes() + complexInverseMatrix.bytes() +
+            modes.size() * sizeof(RetainedMode) +
+            modeGroupIndices.size() * sizeof(std::size_t) +
+            frequencyOffsets.size() * sizeof(std::size_t) +
+            (executor == nullptr ? 0 : executor->explicitBytes());
+    }
+
+    std::size_t modalIndex(std::size_t frequency, std::size_t j, std::size_t field) const {
+        return frequency + spectrumPlane * (j + workload.retainedVerticalModes() * field);
+    }
+
+    void repairModalBoundaries(Complex* output) const {
+        for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+            const auto& mode = modes[modeIndex];
+            if (mode.storedKx != 0 || mode.storedKy == 0 || 2 * mode.storedKy == workload.ny) {
+                continue;
+            }
+            const auto source = frequencyOffsets[modeIndex];
+            const auto target = workload.nxHalf() * ((workload.ny - mode.storedKy) % workload.ny);
+            for (std::size_t field = 0; field < workload.fields; ++field) {
+                for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                    output[modalIndex(target, j, field)] = conjugate(output[modalIndex(source, j, field)]);
+                }
+            }
+        }
+    }
+
+    void repairSpectrumBoundaries(Complex* output) const {
+        for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+            const auto& mode = modes[modeIndex];
+            if (mode.storedKx != 0 || mode.storedKy == 0 || 2 * mode.storedKy == workload.ny) {
+                continue;
+            }
+            const auto source = frequencyOffsets[modeIndex];
+            const auto target = workload.nxHalf() * ((workload.ny - mode.storedKy) % workload.ny);
+            for (std::size_t field = 0; field < workload.fields; ++field) {
+                for (std::size_t z = 0; z < workload.nz; ++z) {
+                    const auto sourceIndex = source + spectrumPlane * (z + workload.nz * field);
+                    const auto targetIndex = target + spectrumPlane * (z + workload.nz * field);
+                    output[targetIndex] = conjugate(output[sourceIndex]);
+                }
+            }
+        }
+    }
+
+#if SKBENCH_HAVE_ACCELERATE
+    void forwardMode(std::size_t modeIndex, const Complex* input, Complex* output) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = modeGroupIndices[modeIndex] * matrixElementsPerGroup;
+        const auto frequency = frequencyOffsets[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            const auto inputOffset = frequency + spectrumPlane * workload.nz * field;
+            const auto outputOffset = modalIndex(frequency, 0, field);
+            cblas_zgemv(CblasColMajor, CblasNoTrans, nj, nz,
+                        &alpha, complexForwardMatrix.data() + matrixOffset, nj,
+                        reinterpret_cast<const BlasComplex*>(input + inputOffset),
+                        checkedBlasDimension(spectrumPlane, "plane-major input stride"),
+                        &beta, reinterpret_cast<BlasComplex*>(output + outputOffset),
+                        checkedBlasDimension(spectrumPlane, "plane-major output stride"));
+        }
+    }
+
+    void inverseMode(std::size_t modeIndex, const Complex* input, Complex* output) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = modeGroupIndices[modeIndex] * matrixElementsPerGroup;
+        const auto frequency = frequencyOffsets[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            const auto inputOffset = modalIndex(frequency, 0, field);
+            const auto outputOffset = frequency + spectrumPlane * workload.nz * field;
+            cblas_zgemv(CblasColMajor, CblasNoTrans, nz, nj,
+                        &alpha, complexInverseMatrix.data() + matrixOffset, nz,
+                        reinterpret_cast<const BlasComplex*>(input + inputOffset),
+                        checkedBlasDimension(spectrumPlane, "plane-major input stride"),
+                        &beta, reinterpret_cast<BlasComplex*>(output + outputOffset),
+                        checkedBlasDimension(spectrumPlane, "plane-major output stride"));
+        }
+    }
+
+    static void forwardTask(void* opaque, std::size_t modeIndex) {
+        auto* context = static_cast<ExecutionContext*>(opaque);
+        context->self->forwardMode(modeIndex, context->input, context->output);
+    }
+
+    static void inverseTask(void* opaque, std::size_t modeIndex) {
+        auto* context = static_cast<ExecutionContext*>(opaque);
+        context->self->inverseMode(modeIndex, context->input, context->output);
+    }
+#endif
+};
+
+PlaneMajorDirectVerticalGemmProvider::PlaneMajorDirectVerticalGemmProvider(
+    const Workload& workload, const std::vector<RetainedMode>& modes,
+    const GroupedVerticalOperators& operators, VerticalGemmStrategy strategy)
+    : impl_(std::make_unique<Impl>(workload, modes, operators, strategy)) {}
+
+PlaneMajorDirectVerticalGemmProvider::~PlaneMajorDirectVerticalGemmProvider() = default;
+PlaneMajorDirectVerticalGemmProvider::PlaneMajorDirectVerticalGemmProvider(
+    PlaneMajorDirectVerticalGemmProvider&&) noexcept = default;
+PlaneMajorDirectVerticalGemmProvider& PlaneMajorDirectVerticalGemmProvider::operator=(
+    PlaneMajorDirectVerticalGemmProvider&&) noexcept = default;
+
+bool PlaneMajorDirectVerticalGemmProvider::supported() const noexcept { return impl_->available; }
+std::string PlaneMajorDirectVerticalGemmProvider::capability() const { return impl_->capabilityText; }
+
+void PlaneMajorDirectVerticalGemmProvider::initializeModalOutput(Complex* output) const {
+    impl_->requireAvailable();
+    std::fill_n(output, impl_->modalSpectrumCount, Complex{});
+}
+
+void PlaneMajorDirectVerticalGemmProvider::initializeSpectrumOutput(Complex* output) const {
+    impl_->requireAvailable();
+    std::fill_n(output, impl_->workload.spectrumElements(), Complex{});
+}
+
+void PlaneMajorDirectVerticalGemmProvider::executeForward(
+    const Complex* fullSpectrum, Complex* fullModalSpectrum) {
+    impl_->requireAvailable();
+#if SKBENCH_HAVE_ACCELERATE
+    Impl::ExecutionContext context{impl_.get(), fullSpectrum, fullModalSpectrum};
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t mode = 0; mode < impl_->modes.size(); ++mode) {
+            impl_->forwardMode(mode, fullSpectrum, fullModalSpectrum);
+        }
+    } else {
+        impl_->executor->run(&context, &Impl::forwardTask);
+    }
+    impl_->repairModalBoundaries(fullModalSpectrum);
+#endif
+}
+
+void PlaneMajorDirectVerticalGemmProvider::executeInverse(
+    const Complex* fullModalSpectrum, Complex* fullSpectrum) {
+    impl_->requireAvailable();
+#if SKBENCH_HAVE_ACCELERATE
+    Impl::ExecutionContext context{impl_.get(), fullModalSpectrum, fullSpectrum};
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t mode = 0; mode < impl_->modes.size(); ++mode) {
+            impl_->inverseMode(mode, fullModalSpectrum, fullSpectrum);
+        }
+    } else {
+        impl_->executor->run(&context, &Impl::inverseTask);
+    }
+    impl_->repairSpectrumBoundaries(fullSpectrum);
+#endif
+}
+
+void PlaneMajorDirectVerticalGemmProvider::executeSchedulerNoop() {
+    impl_->requireAvailable();
+    if (impl_->strategy.schedule != VerticalGemmSchedule::serial) {
+        impl_->executor->run(nullptr, &noopGroup);
+    }
+}
+
+std::size_t PlaneMajorDirectVerticalGemmProvider::modalSpectrumElements() const noexcept {
+    return impl_->modalSpectrumCount;
+}
+std::size_t PlaneMajorDirectVerticalGemmProvider::gemvCallsPerExecution() const noexcept {
+    return impl_->modes.size() * impl_->workload.fields;
+}
+std::size_t PlaneMajorDirectVerticalGemmProvider::outerWorkers() const noexcept {
+    return impl_->strategy.outerWorkers;
+}
+VerticalGemmStrategy PlaneMajorDirectVerticalGemmProvider::strategy() const noexcept {
+    return impl_->strategy;
+}
+std::size_t PlaneMajorDirectVerticalGemmProvider::persistentBytes() const noexcept {
+    return impl_->persistentBytes();
+}
+std::size_t PlaneMajorDirectVerticalGemmProvider::schedulerPersistentBytes() const noexcept {
+    return impl_->executor == nullptr ? 0 : impl_->executor->explicitBytes();
+}
+std::size_t PlaneMajorDirectVerticalGemmProvider::matrixBytesPerDirection() const noexcept {
+    return impl_->complexForwardMatrix.bytes();
+}
+double PlaneMajorDirectVerticalGemmProvider::allocationSeconds() const noexcept {
+    return impl_->allocationTime;
+}
+double PlaneMajorDirectVerticalGemmProvider::matrixPreparationSeconds() const noexcept {
+    return impl_->preparationTime;
+}
+double PlaneMajorDirectVerticalGemmProvider::schedulerSetupSeconds() const noexcept {
+    return impl_->schedulerSetupTime;
+}
+bool PlaneMajorDirectVerticalGemmProvider::hasOpaqueSchedulerMemory() const noexcept {
+    return impl_->strategy.outerWorkers > 1;
+}
+std::string PlaneMajorDirectVerticalGemmProvider::libraryIdentity() const {
+#if SKBENCH_HAVE_ACCELERATE
+    return "/System/Library/Frameworks/Accelerate.framework";
+#else
+    return "unavailable";
+#endif
 }
 
 } // namespace skbench
