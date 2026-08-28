@@ -22580,10 +22580,10 @@
       "downstreamIssues": [],
       "definition": {
         "unitOfWork": "The append-only experiment contains two declared operators: the original four-input/4-or-12-output independent-product convolution and a WVM-derived 15-input/4-output horizontal advection map, -(U*qx + V*qy + W*qz), for four targets.",
-        "candidates": "Original explicit and pinned FFTW++ independent-product paths; then explicit serial streaming, explicit persistent four-target scheduling, FFTW++ serial 6-to-1 streaming, a 15-to-4 all-target topology, and four persistent FFTW++ 6-to-1 applications.",
-        "workloads": "Float64 256 squared and 512 squared independent-product screens plus a WVM-derived four-field cohort at 256 squared, 512 squared, and 1024 squared. Vertical resolution identifies the production profile but vertical work is excluded from the horizontal timed boundary.",
-        "controlledVariables": "Input coefficients, radial two-thirds disk, declared expression map, FFTW build, planning effort, precision, oracle, and sampling. Each increment fixes its scheduling topology across all sizes.",
-        "changedVariables": "Explicit full-grid versus implicit/hybrid residue transforms, independent outputs versus reduced advective expressions, input/output topology, shared-advector lifetime, and persistent target scheduling.",
+        "candidates": "Original explicit and pinned FFTW++ independent-product paths; then explicit serial streaming, explicit persistent four-target scheduling, FFTW++ serial 6-to-1 streaming, a 15-to-4 all-target topology, and four persistent FFTW++ 6-to-1 applications. Reference depth freezes the matched four-worker explicit and FFTW++ finalists in separate processes.",
+        "workloads": "Float64 256 squared and 512 squared independent-product screens plus a WVM-derived four-field cohort at 256 squared, 512 squared, and 1024 squared. Reference depth uses three rotated process rounds per WVM-derived workload. Vertical resolution identifies the production profile but vertical work is excluded from the horizontal timed boundary.",
+        "controlledVariables": "Input coefficients, radial two-thirds disk, declared expression map, FFTW build, planning effort, precision, oracle, and sampling. Each increment fixes its scheduling topology across all sizes; the reference campaign also fixes three warmups, 21 samples, isolated finalist-only processes, and rotated candidate/profile order.",
+        "changedVariables": "Explicit full-grid versus implicit/hybrid residue transforms, independent outputs versus reduced advective expressions, input/output topology, shared-advector lifetime, and persistent target scheduling. Reference inference changes only the two frozen transform policies.",
         "timedBoundary": "Ready compact retained spectra to ready compact retained outputs, including embedding, transform, multiplication or fused reduction, retention, and declared persistent dispatch. Explicit primitive components remain separate where the algorithm exposes them.",
         "excludedWork": "Vertical reconstruction/projection, phase evolution, coefficient-space accumulation, the complete nonlinear flux, time integration, I/O, and model state management.",
         "allocationPolicy": "All plans, provider buffers, compact adapters, worker pools, and output arrays are persistent; the macOS allocator interposer verifies zero application allocations across warmed original and WVM-derived paths."
@@ -22592,7 +22592,7 @@
         "oracle": "Independent explicitly padded FFTW calculations compared in a centered mode-keyed radial Hermitian representation. The WVM-derived map checks all four target spectra independently.",
         "tolerance": "Float64 maximum scale-normalized and relative L2 errors at most 1e-12.",
         "capabilityHandling": "Crashes, unsupported output cardinalities, invalid residue/input permutations, and negative speed-memory tradeoffs remain visible; no silent fallback is called an FFTW++ result.",
-        "canSupport": "Promotion of one fixed horizontal dealiased-convolution topology to rotated reference depth and later full-model integration work.",
+        "canSupport": "A reference M4 conclusion for one fixed horizontal dealiased-convolution topology and promotion to later full-model integration work.",
         "cannotSupport": "A claim about the complete WVM nonlinear flux, vertical costs, Float32, a full timestep, or a general-Mac default."
       },
       "requiredTables": [
@@ -22605,7 +22605,9 @@
         "1024 squared memory projection",
         "WVM-derived expression topology and source audit",
         "matched serial and persistent four-target totals",
-        "per-resolution speed and persistent-memory ratios"
+        "per-resolution speed and persistent-memory ratios",
+        "rotated round ratios and paired confidence intervals",
+        "finalist-only planning, placement, and observed-memory ledgers"
       ]
     }
   ]

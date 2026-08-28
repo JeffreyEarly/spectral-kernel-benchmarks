@@ -199,6 +199,15 @@ python3 tools/run_dealiased_convolution_wvm_sweep.py
 
 The fixed screen spans 256², 512², and 1024² with four target workers. Its matched baseline reconstructs the shared advectors once before dispatching four explicit target calculations. `--convolution-centered-m N` is a feasibility/tuning control for the all-target FFTW++ topology; it is not a workload-size dispatch mechanism. The default all-target policy uses `m=N`, while the low-memory and parallel-target candidates retain optimizer-selected implicit/hybrid parameters. Correctness is checked before timing conclusions, including FFTW++ residue choices that may reorder application inputs.
 
+The reference campaign freezes only the two four-worker finalists and runs each in its own process. `--convolution-candidate explicit-parallel` and `--convolution-candidate fftwpp-parallel` suppress all non-finalist providers; an independent explicit oracle is destroyed and FFTW wisdom is cleared before the selected candidate is planned. Three rounds rotate both candidate and profile order, with three warmups and 21 samples per process:
+
+```sh
+python3 tools/run_dealiased_convolution_wvm_reference.py --dry-run --allow-dirty-tree
+python3 tools/run_dealiased_convolution_wvm_reference.py
+```
+
+The runner first executes the same-commit allocator-interposer test. Its preregistered reference gate requires correctness within $$10^{-12}$$, valid out-of-place adapter and input-lifetime contracts, at least 10% geometric time improvement, no profile above 1.03× the control, a stratified paired-bootstrap 95% interval excluding a tie, and at least 20% geometric algorithm-resident-memory reduction. Passing this campaign establishes a reference horizontal-kernel result on the measured M4; it still does not measure the complete nonlinear flux or authorize a general-Mac default.
+
 The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
 
 ```sh

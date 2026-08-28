@@ -4212,6 +4212,156 @@ def streaming_pruned_reference_synthesis(
     """
 
 
+def dealiased_convolution_reference_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+        "wvm-derived-horizontal-advection-reference-v1"
+        and bundle.publication.get("status") == "reference"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "explicit-parallel"
+    candidate_id = "fftwpp-parallel"
+    cells: dict[tuple[str, str, int], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        campaign_candidate = bundle.publication.get("campaignCandidateId")
+        round_number = bundle.publication.get("campaignRound")
+        if campaign_candidate not in {baseline_id, candidate_id}:
+            continue
+        if not isinstance(round_number, int):
+            continue
+        provider = bundle.result["providers"][0]
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "WVM-like four-target horizontal advection", "forward",
+        )
+        if total is None:
+            continue
+        memory = provider["memory"]
+        cells[(
+            campaign_candidate, bundle.result["run"]["profile"], round_number,
+        )] = {
+            "total": float(total["medianSeconds"]),
+            "planning": float(provider["planning"]["seconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "harness": float(memory["benchmarkHarnessBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    profiles = sorted({profile for _, profile, _ in cells})
+    if len(profiles) != 3:
+        return ""
+    rows: list[str] = []
+    memory_rows: list[str] = []
+    profile_ratios: dict[str, list[float]] = {}
+    summary_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    for profile_index, profile in enumerate(profiles):
+        baseline = {
+            round_number: cells[(baseline_id, profile, round_number)]
+            for round_number in range(1, 4)
+            if (baseline_id, profile, round_number) in cells
+        }
+        candidate = {
+            round_number: cells[(candidate_id, profile, round_number)]
+            for round_number in range(1, 4)
+            if (candidate_id, profile, round_number) in cells
+        }
+        if len(baseline) != 3 or len(candidate) != 3:
+            return ""
+        ratios = [
+            candidate[round_number]["total"] /
+            baseline[round_number]["total"]
+            for round_number in range(1, 4)
+        ]
+        profile_ratios[profile] = ratios
+        baseline_total = statistics.median(
+            baseline[round_number]["total"] for round_number in range(1, 4)
+        )
+        candidate_total = statistics.median(
+            candidate[round_number]["total"] for round_number in range(1, 4)
+        )
+        ratio = candidate_total / baseline_total
+        summary_ratios.append(ratio)
+        lower, upper = paired_round_bootstrap(ratios, 129 + profile_index)
+        baseline_resident = statistics.median(
+            baseline[round_number]["resident"] for round_number in range(1, 4)
+        )
+        candidate_resident = statistics.median(
+            candidate[round_number]["resident"] for round_number in range(1, 4)
+        )
+        resident_ratio = candidate_resident / baseline_resident
+        resident_ratios.append(resident_ratio)
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(baseline_total)}</td>'
+            f'<td class="numeric">{format_ms(candidate_total)}</td>'
+            f'<td class="numeric">{ratio:.3f}×</td>'
+            f'<td class="numeric">{lower:.3f}×–{upper:.3f}×</td>'
+            f'<td class="numeric">{format_ms(statistics.median(baseline[round_number]["planning"] for round_number in range(1, 4)))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(candidate[round_number]["planning"] for round_number in range(1, 4)))}</td>'
+            "</tr>"
+        )
+        memory_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_bytes(int(baseline_resident))}</td>'
+            f'<td class="numeric">{format_bytes(int(candidate_resident))}</td>'
+            f'<td class="numeric">{resident_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(baseline[round_number]["harness"] for round_number in range(1, 4))))} / '
+            f'{format_bytes(int(statistics.median(candidate[round_number]["harness"] for round_number in range(1, 4))))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(baseline[round_number]["observed"] for round_number in range(1, 4))))} / '
+            f'{format_bytes(int(statistics.median(candidate[round_number]["observed"] for round_number in range(1, 4))))}</td>'
+            "</tr>"
+        )
+
+    geometric_time = math.exp(statistics.fmean(
+        math.log(value) for value in summary_ratios
+    ))
+    geometric_resident = math.exp(statistics.fmean(
+        math.log(value) for value in resident_ratios
+    ))
+    lower, upper = spectral_pipeline_bootstrap(profile_ratios)
+    maximum_ratio = max(summary_ratios)
+    maximum_error = max(errors) if errors else math.inf
+    gate_passed = bool(
+        geometric_time <= 0.90 and maximum_ratio <= 1.03
+        and upper < 1.0 and geometric_resident <= 0.80
+        and maximum_error <= 1.0e-12
+    )
+    conclusion = (
+        "The fixed FFTW++ four-target policy passes the M4 horizontal-kernel "
+        "reference gate. Full-flux integration and cross-Mac replication remain required."
+        if gate_passed else
+        "The reference gate does not pass; the preliminary FFTW++ result is not promoted."
+    )
+    return f"""
+      <h3>Rotated finalist-only M4 reference campaign</h3>
+      <p>Each finalist runs alone after an independent correctness oracle is destroyed and FFTW wisdom is cleared. Three process rounds rotate both candidate and workload order; every process uses three warmups and 21 samples. The authoritative boundary remains 15 ready compact spectra to four ready compact outputs.</p>
+      <p>FFTW++ is {geometric_time:.3f}× explicit FFTW geometrically, with a stratified paired-bootstrap 95% interval of {lower:.3f}×–{upper:.3f}× and a worst profile of {maximum_ratio:.3f}×. Counted algorithm-resident storage is {geometric_resident:.3f}× geometrically and maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong></p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Median authoritative totals and candidate/control inference. Planning is outside the timed boundary and shown separately.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Explicit FFTW (ms)</th><th scope="col">FFTW++ (ms)</th><th scope="col">Ratio</th><th scope="col">Paired 95% interval</th><th scope="col">Explicit planning (ms)</th><th scope="col">FFTW++ planning (ms)</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Memory is explicit / FFTW++ where paired. Algorithm resident is the preregistered decision measure; harness-only storage and process high water remain separate.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Explicit resident</th><th scope="col">FFTW++ resident</th><th scope="col">Ratio</th><th scope="col">Harness explicit / FFTW++</th><th scope="col">Observed high water explicit / FFTW++</th></tr></thead>
+        <tbody>{"".join(memory_rows)}</tbody>
+      </table></div>
+      <p class="method-note">The same-commit allocator interposer verifies zero steady-state application allocations. This reference conclusion covers only the isolated WVM-derived horizontal quadratic operator on the measured M4 Max. It does not include vertical transforms, coefficient accumulation, the complete nonlinear flux, Float32, or a general-Mac recommendation.</p>
+    """
+
+
 def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
     feasibility_rows: list[str] = []
     advection_rows: list[str] = []
@@ -4219,6 +4369,7 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
     advection_time_ratios: list[float] = []
     advection_memory_ratios: list[float] = []
     advection_errors: list[float] = []
+    reference_section = dealiased_convolution_reference_synthesis(bundles)
     ordered = sorted(
         bundles,
         key=lambda item: (
@@ -4320,7 +4471,7 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
             f'<td class="numeric">{format_error(error)}</td>'
             "</tr>"
         )
-    if not feasibility_rows and not advection_rows:
+    if not feasibility_rows and not advection_rows and not reference_section:
         return ""
     feasibility = ""
     projection = ""
@@ -4363,6 +4514,15 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
       </table></div>
       <p class="method-note">All five candidates use one topology uniformly across 256², 512², and 1024². The all-target FFTW++ path fixes the centered transform to <em>m=N</em>: optimizer-selected two-loop input rotation is not valid for this non-permutation-equivariant expression map. The allocator interposer verifies zero application allocations after warmup.</p>
         """
+    closing_note = (
+        "The reference campaign can motivate bounded full-model integration, but "
+        "it cannot establish complete WVM nonlinear-flux performance, Float32 "
+        "behavior, a full timestep result, or a general-Mac recommendation."
+        if reference_section else
+        "These results can promote a fixed topology into rotated reference depth. "
+        "They cannot establish complete WVM nonlinear-flux performance, Float32 "
+        "behavior, a full timestep result, or a general-Mac recommendation."
+    )
     return f"""
       <h2>Bounded feasibility synthesis</h2>
       <p>Each increment declares its mathematical expression map, topology, timed boundary, and exclusions. New WVM-derived evidence extends the original feasibility result without clobbering it.</p>
@@ -4370,7 +4530,8 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
       <p>The public FFTW++ optimizer is usable with four inputs and four outputs. A single twelve-output application (B &gt; A) crashes reproducibly during optimization, so the correct twelve-product candidate consists of three independently planned four-output applications and includes the required input restoration. That limitation remains visible rather than being silently treated as one fused call.</p>
       {projection}
       {advection_section}
-      <p class="method-note">These results can promote a fixed topology into rotated reference depth. They cannot establish complete WVM nonlinear-flux performance, Float32 behavior, a full timestep result, or a general-Mac recommendation.</p>
+      {reference_section}
+      <p class="method-note">{escaped(closing_note)}</p>
     """
 
 

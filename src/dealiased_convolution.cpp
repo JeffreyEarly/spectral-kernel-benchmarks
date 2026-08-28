@@ -18,6 +18,8 @@
 #include <thread>
 #include <vector>
 
+#include <sys/resource.h>
+
 #if SKBENCH_HAVE_FFTWPP
 #include "Complex.h"
 #include "convolve.h"
@@ -96,6 +98,15 @@ namespace {
 using Clock = std::chrono::steady_clock;
 
 #if SKBENCH_HAVE_FFTWPP
+std::uint64_t processHighWaterBytes() noexcept {
+    rusage usage{};
+    if (getrusage(RUSAGE_SELF, &usage) != 0 || usage.ru_maxrss < 0) return 0;
+#if defined(__APPLE__)
+    return static_cast<std::uint64_t>(usage.ru_maxrss);
+#else
+    return static_cast<std::uint64_t>(usage.ru_maxrss) * 1024;
+#endif
+}
 constexpr double tolerance = 1.0e-12;
 struct StoredMode {
     int k = 0;
@@ -485,12 +496,18 @@ public:
         release();
     }
     void execute(const std::vector<Complex>& compact) {
+        executeAdvectors(compact);
+        executeTargets(compact);
+    }
+    void executeAdvectors(const std::vector<Complex>& compact) {
         for (std::size_t field = 0; field < 3; ++field) {
             auto* spectrum = sharedSpectra_ + field * halfCount_;
             loadField(spectrum, compact, field);
             fftw_execute_dft_c2r(
                 inverse_, spectrum, advectors_ + field * realCount_);
         }
+    }
+    void executeTargets(const std::vector<Complex>& compact) {
         Context context{this, &compact};
         executor_.run(&executeTargetTask, &context);
     }
@@ -967,6 +984,198 @@ ExecutionContract advectiveConvolutionContract(std::size_t n,
     return contract;
 }
 
+BenchmarkReport runWvmAdvectiveFinalistBenchmark(const RunOptions& options) {
+    const auto selected = profileNamed(options.profile);
+    if (selected.workload.nx != selected.workload.ny)
+        throw std::invalid_argument(
+            "dealiased-convolution currently requires a square horizontal grid.");
+    if (options.convolutionCandidate != "explicit-parallel" &&
+        options.convolutionCandidate != "fftwpp-parallel")
+        throw std::invalid_argument(
+            "convolution-candidate must be all, explicit-parallel, or fftwpp-parallel.");
+
+    const auto n = selected.workload.nx;
+    const auto warmups = options.warmups ? options.warmups : 1;
+    const auto samples = options.samples ? options.samples : 5;
+    const auto modes = storedDisk(n);
+    const auto input = compactFixture(modes, 15, options.seed);
+    std::vector<Complex> expected;
+    {
+        ExplicitAdvectiveConvolution oracle(n, modes);
+        oracle.execute(input);
+        expected = oracle.output();
+    }
+    fftw_forget_wisdom();
+
+    BenchmarkReport report;
+    report.environment = environmentRecord();
+    auto id = report.environment.timestampUtc;
+    id.erase(std::remove_if(id.begin(), id.end(),
+                            [](char c) { return c == '-' || c == ':'; }),
+             id.end());
+    report.runId = id + "-issue17-ref-n" + std::to_string(n) + "-" +
+                   options.convolutionCandidate;
+    report.profile = options.profile;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = samples;
+    report.workload = {n, n, 1, 4, 1.0, 1.0, true};
+    report.retainedHorizontalModeCount = modes.size();
+    report.retainedModeOrderHash =
+        "centered-k-then-nonnegative-l-radial-disk-v1";
+    report.fullRealBytes = n * n * 15 * sizeof(double);
+    report.fullSpectrumBytes =
+        n * (n / 2 + 1) * 15 * sizeof(Complex);
+    report.retainedSpectrumBytes = modes.size() * 15 * sizeof(Complex);
+    const auto harnessBytes =
+        (input.size() + expected.size()) * sizeof(Complex);
+
+    if (options.convolutionCandidate == "explicit-parallel") {
+        const auto setupStart = Clock::now();
+        ExplicitParallelAdvectiveConvolution path(n, modes);
+        const auto setupSeconds =
+            std::chrono::duration<double>(Clock::now() - setupStart).count();
+        path.execute(input);
+        const auto metric = correctness(path.output(), expected);
+
+        ProviderRecord provider;
+        provider.id = "fftw-explicit-parallel-target-wvm-advection";
+        provider.version = "3.3.11";
+        provider.libraryIdentity = "FFTW 3.3.11 pthread build";
+        provider.algorithmId =
+            "explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4";
+        provider.nativeRepresentationId = "full-fftw-half-spectrum";
+        provider.modeOrderId = report.retainedModeOrderHash;
+        provider.schedulingId =
+            "persistent-outer-static-4-targets-shared-advectors";
+        provider.workers = 4;
+        provider.internalWorkers = 1;
+        provider.outerWorkers = 4;
+        provider.planningConfiguration = "FFTW_MEASURE|FFTW_UNALIGNED|cold";
+        provider.execution = advectiveConvolutionContract(
+            n, false, false,
+            "advectors-once-then-four-persistent-parallel-targets");
+        provider.explicitPersistentBytes = path.residentBytes();
+        provider.algorithmResidentBytes = path.residentBytes();
+        provider.benchmarkHarnessBytes = harnessBytes;
+        provider.estimatedProcessPeakBytes =
+            provider.algorithmResidentBytes + provider.benchmarkHarnessBytes;
+        provider.opaqueProviderMemory = true;
+        provider.planningSeconds = setupSeconds;
+        provider.correctness = {metric};
+        for (std::size_t target = 0; target < 4; ++target)
+            provider.correctness.push_back(correctnessTarget(
+                path.output(), expected, modes.size(), target));
+        provider.timings.push_back(timing(
+            "adapter-component", "shared advector embedding and inverse FFTs",
+            StageState::executed,
+            3 * (n * (n / 2 + 1) * sizeof(Complex) +
+                 n * n * sizeof(double)),
+            timed(warmups, samples, [] {},
+                  [&] { path.executeAdvectors(input); })));
+        provider.timings.push_back(timing(
+            "adapter-component", "parallel target transforms and reduction",
+            StageState::executed, path.residentBytes(),
+            timed(warmups, samples,
+                  [&] { path.executeAdvectors(input); },
+                  [&] { path.executeTargets(input); })));
+        provider.timings.push_back(timing(
+            "uninstrumented-total", "WVM-like four-target horizontal advection",
+            StageState::executed, path.residentBytes(),
+            timed(warmups, samples, [] {}, [&] { path.execute(input); })));
+        provider.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "two reusable cold FFTW_MEASURE plans and a persistent four-worker pool"},
+            {"shared advector stage", StageState::executed,
+             "three compact embeddings and inverse FFTs execute once"},
+            {"target stage", StageState::executed,
+             "four derivative transform-reduce-forward-retain tasks execute concurrently"},
+            {"scheduler", StageState::executed,
+             "persistent outer-static four-target dispatch is included"},
+            {"oracle", StageState::setupOnly,
+             "independent serial explicit FFTW oracle is destroyed before candidate setup"},
+            {"complete nonlinear WVM flux", StageState::unsupported,
+             "vertical transforms, phase, and coefficient projection remain excluded"}};
+        provider.observedProcessHighWaterBytes = processHighWaterBytes();
+        report.status = metric.passed ? "passed" : "failed";
+        report.providers = {std::move(provider)};
+        return report;
+    }
+
+    const auto setupStart = Clock::now();
+    ImplicitParallelAdvectiveConvolution path(n, modes);
+    const auto setupSeconds =
+        std::chrono::duration<double>(Clock::now() - setupStart).count();
+    path.execute(input);
+    const auto metric = correctness(path.output(), expected);
+
+    ProviderRecord provider;
+    provider.id = "fftwpp-parallel-target-wvm-advection";
+    provider.version = "3.04";
+    provider.libraryIdentity =
+        "FFTW++ public master pinned at " SKBENCH_FFTWPP_COMMIT;
+    provider.algorithmId =
+        "hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4";
+    provider.nativeRepresentationId = "centered-rectangular-hermitian";
+    provider.modeOrderId = report.retainedModeOrderHash;
+    provider.schedulingId =
+        "persistent-outer-static-4-target-applications";
+    provider.sourceIdentity =
+        "https://github.com/dealias/fftwpp/commit/" SKBENCH_FFTWPP_COMMIT;
+    provider.configureFlags =
+        "FFTWPP_SINGLE_THREAD=1; " + path.optimizerParameters();
+    provider.workers = 4;
+    provider.internalWorkers = 1;
+    provider.outerWorkers = 4;
+    provider.planningConfiguration = "FFTW_MEASURE|FFTW_UNALIGNED|cold";
+    provider.execution = advectiveConvolutionContract(
+        n, path.nativeInPlace(), true,
+        "four-independent-6-input-1-output-applications");
+    provider.explicitPersistentBytes = path.residentBytes();
+    provider.algorithmResidentBytes = path.residentBytes();
+    provider.benchmarkHarnessBytes = harnessBytes;
+    provider.estimatedProcessPeakBytes =
+        provider.algorithmResidentBytes + provider.benchmarkHarnessBytes;
+    provider.opaqueProviderMemory = true;
+    provider.planningSeconds = setupSeconds;
+    provider.correctness = {metric};
+    for (std::size_t target = 0; target < 4; ++target)
+        provider.correctness.push_back(correctnessTarget(
+            path.output(), expected, modes.size(), target));
+    provider.timings.push_back(timing(
+        "fused-primitive", "implicit hybrid transform-reduce-transform",
+        StageState::fused, path.residentBytes(),
+        timed(warmups, samples, [] {},
+              [&] { path.executeNativeSequence(input, false); })));
+    provider.timings.push_back(timing(
+        "uninstrumented-total", "WVM-like four-target horizontal advection",
+        StageState::executed, path.residentBytes(),
+        timed(warmups, samples, [] {}, [&] { path.execute(input); })));
+    provider.ledger = {
+        {"setup/planning", StageState::setupOnly,
+         "four persistent FFTW++ applications with cold reusable FFTW plans"},
+        {"input embedding", StageState::executed,
+         "each target receives three shared advectors and three target derivatives"},
+        {"inverse FFTs", StageState::fused,
+         "four concurrent six-inverse/one-forward implicit-hybrid applications"},
+        {"advective products", StageState::fused,
+         "four concurrent negative three-term dot products"},
+        {"forward FFTs", StageState::fused,
+         "inseparable FFTW++ implicit-hybrid stage"},
+        {"radial retention", StageState::executed,
+         "each worker writes one disjoint compact target"},
+        {"scheduler", StageState::executed,
+         "persistent outer-static four-target dispatch is included"},
+        {"oracle", StageState::setupOnly,
+         "independent serial explicit FFTW oracle is destroyed before candidate setup"},
+        {"complete nonlinear WVM flux", StageState::unsupported,
+         "vertical transforms, phase, and coefficient projection remain excluded"}};
+    provider.observedProcessHighWaterBytes = processHighWaterBytes();
+    report.status = metric.passed ? "passed" : "failed";
+    report.providers = {std::move(provider)};
+    return report;
+}
+
 BenchmarkReport runWvmAdvectiveConvolutionBenchmark(const RunOptions& options) {
     const auto selected = profileNamed(options.profile);
     if (selected.workload.nx != selected.workload.ny)
@@ -1276,8 +1485,14 @@ BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options) {
     (void)options;
     throw std::runtime_error("dealiased-convolution requires configuring with SKBENCH_ENABLE_FFTWPP=ON");
 #else
+    if (options.convolutionMap == "wvm-advection" &&
+        options.convolutionCandidate != "all")
+        return runWvmAdvectiveFinalistBenchmark(options);
     if (options.convolutionMap == "wvm-advection")
         return runWvmAdvectiveConvolutionBenchmark(options);
+    if (options.convolutionCandidate != "all")
+        throw std::invalid_argument(
+            "convolution-candidate is only supported by the wvm-advection map.");
     if (options.convolutionMap != "independent-products")
         throw std::invalid_argument(
             "convolution-map must be independent-products or wvm-advection.");
