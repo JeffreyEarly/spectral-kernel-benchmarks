@@ -1,0 +1,76 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,1313343840,0,0.087505333000000005
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,setup-component,FFTW planning,shared,setup-only,1626365952,0,0.038127124999999998
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,setup-component,vertical matrix preparation,shared,setup-only,1313343840,0,0.13464524999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,0,0.025289083
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,1,0.024641208000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,2,0.025244208000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,3,0.024727374999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,4,0.026119875000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,5,0.026078332999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,6,0.025287625000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,7,0.025478125000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,forward,executed,1626365952,8,0.024665541999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,0,0.032294125
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,1,0.034474584000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,2,0.032169250000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,3,0.032587749999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,4,0.032705708
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,5,0.03449675
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,6,0.034625083000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,7,0.033931292000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw FFT,inverse,executed,1626365952,8,0.030460207999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,0,0.036052915999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,1,0.035350333999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,2,0.035673499999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,3,0.035802667000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,4,0.035362249999999998
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,5,0.0358155
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,6,0.035852083
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,7,0.035371833999999998
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,WVM retained gather and radial split pack,forward,executed,566753760,8,0.035490208000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,0,0.011652167
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,1,0.011806624999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,2,0.011677875000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,3,0.011556624999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,4,0.011908167000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,5,0.011426333
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,6,0.011921167
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,7,0.011783
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,forward,executed,1783441920,8,0.011898709
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,0,0.011920666999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,1,0.012205666
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,2,0.012288334
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,3,0.012111334
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,4,0.011867084
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,5,0.012180458
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,6,0.011926625
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,7,0.012208958000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,primitive,raw vertical MM,inverse,executed,1783441920,8,0.012318041
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,0,0.039405542000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,1,0.039921040999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,2,0.040085625
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,3,0.039584874999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,4,0.039742958000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,5,0.039946792000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,6,0.039524249999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,7,0.039734708000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,adapter-component,zero-pad and WVM retained embed,inverse,executed,1381521888,8,0.040025334000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,0,0.073339125000000005
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,1,0.073269583999999999
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,2,0.073248083000000005
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,3,0.072972250000000002
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,4,0.074453583000000004
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,5,0.073324374999999997
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,6,0.073038500000000006
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,7,0.072873916999999996
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,3976561632,8,0.073309833000000005
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,0,0.084166291000000004
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,1,0.084186917
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,2,0.084023166999999996
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,3,0.084026291000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,4,0.084441875
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,5,0.086157250000000005
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,6,0.084204000000000001
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,7,0.085238458000000003
+20260828T133005915724Z-lyra,boundary-wvm-packed-split,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,4791329760,8,0.084005167000000006

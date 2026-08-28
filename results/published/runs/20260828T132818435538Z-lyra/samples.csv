@@ -1,0 +1,112 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.022985749999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,setup-component,pruned FFTW planning,shared,setup-only,543178752,0,0.021206415999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,setup-component,vertical matrix preparation,shared,setup-only,717549600,0,0.052835833999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,0,0.002402333
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,1,0.0023490410000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,2,0.0023457920000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,3,0.002348125
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,4,0.003477417
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,5,0.0023122920000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,6,0.002359042
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,7,0.0023456660000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned row FFT batch,forward,executed,543178752,8,0.0023367919999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,0,0.0036137090000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,1,0.0028932089999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,2,0.0028961669999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,3,0.0029155420000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,4,0.0028431250000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,5,0.0033861249999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,6,0.003091
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,7,0.002845916
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support column FFT batch,forward,executed,545292288,8,0.0033673330000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,0,0.0051882919999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,1,0.0057985409999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,2,0.005348958
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,3,0.0051870420000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,4,0.0051979579999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,5,0.0063559159999999996
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,6,0.0059659170000000003
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,7,0.0053353749999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,forward,executed,1088471040,8,0.0052350000000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,0,0.001770708
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,1,0.001774666
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,2,0.0025451250000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,3,0.0020945830000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,4,0.0017724590000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,5,0.0018850830000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,6,0.0021554579999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,7,0.0018358750000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,compact retained gather,forward,executed,188880768,8,0.0017601660000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,0,0.0068447919999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,1,0.0067157500000000004
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,2,0.0067385420000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,3,0.0068186669999999996
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,4,0.0066325409999999996
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,5,0.006643833
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,6,0.0066420840000000004
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,7,0.0068102500000000003
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,forward,executed,515443344,8,0.0067849579999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,0,0.0070548750000000004
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,1,0.0069382089999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,2,0.0070628749999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,3,0.0070320840000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,4,0.0069553339999999996
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,5,0.0070470000000000003
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,6,0.0069618329999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,7,0.0069143750000000004
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw vertical MM,inverse,executed,515443344,8,0.0070568339999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,0,0.0024104999999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,1,0.0030421670000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,2,0.0024746249999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,3,0.002342125
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,4,0.0033796249999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,5,0.0023902089999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,6,0.0030310419999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,7,0.0023695000000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,adapter-component,zero-pad and compact retained embed,inverse,executed,461526912,8,0.002469958
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,0,0.003414416
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,1,0.0026815839999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,2,0.002672167
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,3,0.0026723340000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,4,0.0026723749999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,5,0.0028088340000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,6,0.0026788329999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,7,0.002688916
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,retained-support inverse column FFT batch,inverse,executed,545292288,8,0.0026679999999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,0,0.0028324579999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,1,0.0027969589999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,2,0.0028624169999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,3,0.004111417
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,4,0.0028275829999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,5,0.0028077499999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,6,0.0037669999999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,7,0.0028470840000000002
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive-component,pruned inverse row FFT batch,inverse,executed,543178752,8,0.0028384579999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,0,0.0063521669999999997
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,1,0.0065659170000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,2,0.006513708
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,3,0.005517625
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,4,0.0054838329999999996
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,5,0.0073782919999999998
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,6,0.005510292
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,7,0.0054644170000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,primitive,raw pruned FFT,inverse,executed,1088471040,8,0.007485167
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,0,0.015384541999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,1,0.014484917
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,2,0.013775917
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,3,0.013570708000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,4,0.013722208
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,5,0.014794834
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,6,0.014519083
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,7,0.013670583
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1792795152,8,0.015148125
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,0,0.016495333000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,1,0.016233707999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,2,0.014790917000000001
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,3,0.015109790999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,4,0.014803583
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,5,0.014994083
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,6,0.015122791999999999
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,7,0.014762292
+20260828T132818435538Z-lyra,boundary-pruned-compact-interleaved,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,2065441296,8,0.016054124999999999

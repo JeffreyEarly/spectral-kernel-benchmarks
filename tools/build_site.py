@@ -155,18 +155,40 @@ def maximum_l2_error(provider: dict) -> float | None:
 
 def summary_timing_table(result: dict) -> str:
     providers = result["providers"]
-    scopes = SUMMARY_SCOPES
-    if any(
+    measurements: list[tuple[str, str, tuple[str, ...]]] = [
+        (label, scope, ()) for label, scope in SUMMARY_SCOPES
+    ]
+    if any(provider["id"].startswith("boundary-") for provider in providers):
+        measurements = [
+            ("Raw horizontal transform", "primitive", ("raw FFT", "raw pruned FFT")),
+            ("Raw vertical MM", "primitive", ("raw vertical MM",)),
+            ("Representation movement", "adapter-component", ()),
+            ("Composed boundary", "uninstrumented-total", ()),
+        ]
+    elif any(
         item["scope"] == "primitive" and item["stage"] == "raw vertical GEMM"
         for provider in providers
         for item in provider["timings"]
     ):
-        scopes = (("Raw vertical GEMM", "primitive"),)
+        measurements = [("Raw vertical GEMM", "primitive", ())]
     header = "".join(f'<th scope="col">{escaped(provider_name(provider))}</th>' for provider in providers)
     rows: list[str] = []
-    for label, scope in scopes:
+    for label, scope, stages in measurements:
         for direction in ("forward", "inverse"):
-            values = [timing(provider, scope, direction) for provider in providers]
+            values = []
+            for provider in providers:
+                if stages:
+                    item = next(
+                        (
+                            stage_timing(provider, scope, stage, direction)
+                            for stage in stages
+                            if stage_timing(provider, scope, stage, direction) is not None
+                        ),
+                        None,
+                    )
+                else:
+                    item = timing(provider, scope, direction)
+                values.append(item)
             finite = [float(item["medianSeconds"]) for item in values if item is not None]
             best = min(finite) if finite else None
             cells: list[str] = []
@@ -2077,6 +2099,7 @@ def ordering_packing_boundary_synthesis(
     candidates = sorted({candidate for candidate, _, _ in cells})
     profiles = sorted({profile for _, profile, _ in cells})
     summaries: list[tuple[float, int, str, float]] = []
+    paired_summaries: list[tuple[float, int, str, float]] = []
     for candidate in candidates:
         ratios: list[float] = []
         wins = 0
@@ -2100,7 +2123,39 @@ def ordering_packing_boundary_synthesis(
                 candidate,
                 max(ratios),
             ))
+        paired_ratios: list[float] = []
+        paired_wins = 0
+        for profile in profiles:
+            forward = cells.get((candidate, profile, "forward"), [])
+            inverse = cells.get((candidate, profile, "inverse"), [])
+            peer_totals = []
+            for peer in candidates:
+                peer_forward = cells.get((peer, profile, "forward"), [])
+                peer_inverse = cells.get((peer, profile, "inverse"), [])
+                if peer_forward and peer_inverse:
+                    peer_totals.append(
+                        statistics.median(peer_forward)
+                        + statistics.median(peer_inverse)
+                    )
+            if not forward or not inverse or not peer_totals:
+                continue
+            ratio = (
+                statistics.median(forward) + statistics.median(inverse)
+            ) / min(peer_totals)
+            paired_ratios.append(ratio)
+            paired_wins += ratio <= 1.0 + 1.0e-12
+        if paired_ratios:
+            paired_summaries.append((
+                math.exp(
+                    sum(math.log(value) for value in paired_ratios)
+                    / len(paired_ratios)
+                ),
+                paired_wins,
+                candidate,
+                max(paired_ratios),
+            ))
     summaries.sort()
+    paired_summaries.sort()
     summary_text = "; ".join(
         f"{escaped(policy_labels[candidate])}: {geometric:.3f}× geometric to the cell best, "
         f"{wins}/{2 * len(profiles)} wins, maximum {maximum:.3f}×"
@@ -2111,11 +2166,36 @@ def ordering_packing_boundary_synthesis(
         if any(bundle.publication["status"] == "reference" for bundle in cohort)
         else "This cohort remains preliminary; it describes the bounded screen and does not yet select issue #9 inputs."
     )
+    eligible_paired = [
+        item for item in paired_summaries if item[3] <= 1.10
+    ]
+    selected_paired: list[tuple[float, int, str, float]] = []
+    if eligible_paired:
+        best_paired = eligible_paired[0][0]
+        selected_paired = [
+            item for item in eligible_paired if item[0] <= 1.03 * best_paired
+        ][:3]
+    paired_text = "; ".join(
+        f"{escaped(policy_labels[candidate])}: {geometric:.3f}× geometric, "
+        f"{wins}/{len(profiles)} paired wins, maximum {maximum:.3f}×"
+        for geometric, wins, candidate, maximum in paired_summaries
+    )
+    selection_text = (
+        "The paired issue #9 gate selects "
+        + ", ".join(
+            escaped(policy_labels[candidate])
+            for _, _, candidate, _ in selected_paired
+        )
+        + "."
+        if selected_paired
+        else "No candidate passes the paired issue #9 gate."
+    )
     return f"""
       <h3>Composed representation-crossover increment</h3>
       <p>This increment composes the issue #7 horizontal survivors with issue #8 grouped vertical kernels. It compares WVM direct/no-reorder, historical WVM gather-to-split, pruned compact interleaved, plane-major fused split, and plane-major retained-view graphs. The mathematical boundary is horizontal forward followed by vertical forward, or vertical inverse followed by horizontal inverse. Modal work and the nonlinear flux calculation remain explicitly excluded.</p>
       <p>The authoritative totals include every per-execution movement required by each graph. In particular, direct full-spectrum inverse policies rebuild their disposable zero-padded FFTW input on every call; the earlier horizontal-only retained-view result assumed that ready view as an input and remains valid for its narrower question. Primitive FFT, primitive vertical MM, movement, setup, memory, and total timings remain separately published.</p>
       <p>For the latest increment across {len(profiles)} workload profile(s): {summary_text}. The largest correctness error is {format_error(max(errors))}. {escaped(status_text)}</p>
+      <p>Issue #9 consumes one complete forward-plus-inverse representation policy, so its selection pairs those medians within each workload before applying the unchanged 3% geometric and 10% worst-workload gates. Paired results: {paired_text}. {selection_text}</p>
     """
 
 

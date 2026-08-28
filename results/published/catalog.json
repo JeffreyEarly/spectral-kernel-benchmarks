@@ -14600,6 +14600,2970 @@
         "samplesSha256": "1f4b824cd42e70673d2995d5eb6981b67b801bd072a0152ada7191de3eb2a68d"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T132751712474Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132751712474Z-lyra/result.json",
+        "samples": "runs/20260828T132751712474Z-lyra/samples.csv",
+        "resultSha256": "8a9368405fe73fe4c6e2403f9c5d9008ef9a88681c9105a5c157e9a5355a01af",
+        "samplesSha256": "d22e9cbe6351c7fff119f72b0090dace2463c64a3dc6caebf7a76dc8aef4c723"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132752462213Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132752462213Z-lyra/result.json",
+        "samples": "runs/20260828T132752462213Z-lyra/samples.csv",
+        "resultSha256": "7878bf0904a9c32cf191433d195054549ab8d1844dcd3ec58206332f65326cc0",
+        "samplesSha256": "2f6717bde9d710c0935b073afd72a37df390bbebafed17a414e6679405985bf6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132753231630Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132753231630Z-lyra/result.json",
+        "samples": "runs/20260828T132753231630Z-lyra/samples.csv",
+        "resultSha256": "428e6c36d16433b49aa74c52c930499a6bc909c1fa001db985feb025bc51326d",
+        "samplesSha256": "a4ace9871fb8931dd80d9ec9d8a50fc4a783b8b0669364aa6cc0c70600a9d0a9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132753888254Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132753888254Z-lyra/result.json",
+        "samples": "runs/20260828T132753888254Z-lyra/samples.csv",
+        "resultSha256": "40457910fe86ba1bd594b7be72f7b8c89125005607d72534d96fb0fa9e4e2c96",
+        "samplesSha256": "08e5ce81462f99c5da48fa6c71a97b0b1ddecd516001fcf6f98d810e4f9c1fdd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132754551806Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132754551806Z-lyra/result.json",
+        "samples": "runs/20260828T132754551806Z-lyra/samples.csv",
+        "resultSha256": "b57e7deb5ae140d84432f1f7b08cc7ed3248a219728e0c26097d259abe01c3d9",
+        "samplesSha256": "02be8ac2c0d715dbd7d7ba675bb06427f7739033d1f09eed576fb90247907aa7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132755175669Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132755175669Z-lyra/result.json",
+        "samples": "runs/20260828T132755175669Z-lyra/samples.csv",
+        "resultSha256": "69ec258dd323f18177d159429de6960825b972de0802b64f3a89c6a12d8f3655",
+        "samplesSha256": "1e32817ad938c0afea6913b99805ca2e07c9bef2b225034251657b9e6c341b31"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132755812578Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132755812578Z-lyra/result.json",
+        "samples": "runs/20260828T132755812578Z-lyra/samples.csv",
+        "resultSha256": "008fefb7a1a3ab5f780cb14cfccce84b4add67686a3034d69ac3c7415ae5ef42",
+        "samplesSha256": "b9ba7c335dd186d0dbddf7059975162f53b3673346945261ffbf9e35ec5d1a86"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132756529117Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132756529117Z-lyra/result.json",
+        "samples": "runs/20260828T132756529117Z-lyra/samples.csv",
+        "resultSha256": "7fdeab96a6f56e74f7a7a94f71191ee23bd7323ec46ea24e18d75d527b452285",
+        "samplesSha256": "21b1f811bdc221f75507b00be7776e91f899baf84dd157eee5af96a1cb12042d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132757255438Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132757255438Z-lyra/result.json",
+        "samples": "runs/20260828T132757255438Z-lyra/samples.csv",
+        "resultSha256": "212a5707d4af26c1b4deb525c5d7cb59097d32d5536e0f5dca7a6df143a3231f",
+        "samplesSha256": "7391d8d948b52929f280308fcb2375b89ab2ed580ea7411958b0ab975f2084bc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132758168436Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132758168436Z-lyra/result.json",
+        "samples": "runs/20260828T132758168436Z-lyra/samples.csv",
+        "resultSha256": "bc91e57322fa6f9b0069e1fd764139fb0b6dc72b09f82b27b97ca478189a922e",
+        "samplesSha256": "a2855e730462bd0e3571aa114b3fbdeaa41f994c6f9ff00855676b776e93df3a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132759113488Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132759113488Z-lyra/result.json",
+        "samples": "runs/20260828T132759113488Z-lyra/samples.csv",
+        "resultSha256": "eab0dc4094fc1cfa2e9b7583783f1ae9aa0f74ed667881990152b9eadf547364",
+        "samplesSha256": "60fd51a656b1f66be7d5e4fa64429d254fe3139b19ddb33b2bc59547d433844d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132759824126Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132759824126Z-lyra/result.json",
+        "samples": "runs/20260828T132759824126Z-lyra/samples.csv",
+        "resultSha256": "3296cbec3da2cb3a38be584414f81cd77ae8520ba3d31c5a958ed0ad00d70969",
+        "samplesSha256": "6938db9c02cb3f1aa2118ab2b256bd1f74c9e2d85602fc9d8c4736918e19f301"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132800561075Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132800561075Z-lyra/result.json",
+        "samples": "runs/20260828T132800561075Z-lyra/samples.csv",
+        "resultSha256": "dd1c5fcf266e26bf50070587f97567a9f2ac84b1d319c4ebc8987c0f1c5eea81",
+        "samplesSha256": "555cee5dc72e3000b66a40c589c9a2d2da8bd455b5cd3a424156981843cef273"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132801420388Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132801420388Z-lyra/result.json",
+        "samples": "runs/20260828T132801420388Z-lyra/samples.csv",
+        "resultSha256": "f80b7637095b7d320748ed53a72870b68073ccacd4ff771e976ba86aafc1e8eb",
+        "samplesSha256": "983909dea03c618c3fa0152051f1f11618c64d5c720a9b48c30b91f992ed2cc1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132802281109Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132802281109Z-lyra/result.json",
+        "samples": "runs/20260828T132802281109Z-lyra/samples.csv",
+        "resultSha256": "b9f9d4aa4d4d2b8206d1a0c8b09f39b8f5b8c23ffb299c18d5c003f8dd9620ec",
+        "samplesSha256": "685c7e636e4999e6f2521ac2e382cfb00c638a72c62dddecf48069abf5a6826d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132803050734Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132803050734Z-lyra/result.json",
+        "samples": "runs/20260828T132803050734Z-lyra/samples.csv",
+        "resultSha256": "b5e86314e5fe63a5f5053b0e441690cd99cc1a38e5bdf25de61d0f0946f23af9",
+        "samplesSha256": "75a14e7ae25b3336b735ccbf0be4328c59522a929920a7088c51d34dfea52c04"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132803843988Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132803843988Z-lyra/result.json",
+        "samples": "runs/20260828T132803843988Z-lyra/samples.csv",
+        "resultSha256": "9b259f440c873203f6ce59b97747d6c104dc1b344e7bbe7d5ea83955e3bff4ad",
+        "samplesSha256": "78bdf87d1368f876391301f97d9950939cc6e86c63ba5790f9b5b5f561c08235"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132804804358Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132804804358Z-lyra/result.json",
+        "samples": "runs/20260828T132804804358Z-lyra/samples.csv",
+        "resultSha256": "dec0ffd5e4678cc4570a114abbcff79c735f574d37b6dd0ce1adb8bbc6da2051",
+        "samplesSha256": "c28bc1d7b02d3164637a541895f346ae8c0a0a5e01854675bd0a0a6908013a38"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132805762141Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132805762141Z-lyra/result.json",
+        "samples": "runs/20260828T132805762141Z-lyra/samples.csv",
+        "resultSha256": "7b44fdd398ddb525ed2107d3f709b02147677890845a3c2eaeef264def2a39e1",
+        "samplesSha256": "a4d1b985c1a5e54fbe8558f99e376fa95796d5a496b5d682229016d76adbd813"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132806899719Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132806899719Z-lyra/result.json",
+        "samples": "runs/20260828T132806899719Z-lyra/samples.csv",
+        "resultSha256": "f656b5b3157eacbfeceadd11c2d07030437e85ec0bce525a70c85c5fa8182ad3",
+        "samplesSha256": "f1cb2e7f35dd0a6caaad9ed969170b98d43d421c97e18240effc481a169ed99f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132808137967Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132808137967Z-lyra/result.json",
+        "samples": "runs/20260828T132808137967Z-lyra/samples.csv",
+        "resultSha256": "7b63289df8e26e6a42de63794837f6978afee8234b8b9b4ec2a1f09b6e740fda",
+        "samplesSha256": "1a2d4fb6dbe3ca9d571e3b6a22cee45903393013678adee704edab8e4c4afba6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132810013279Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132810013279Z-lyra/result.json",
+        "samples": "runs/20260828T132810013279Z-lyra/samples.csv",
+        "resultSha256": "b720633f424e4507df35f6c3c0f5659584946a91ac5f8c2ae66a109c6d2f3dea",
+        "samplesSha256": "0890df64da6495a34b9da97fc74f66b1cb85e63f35414640cb7d4aff439a7450"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132811912240Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132811912240Z-lyra/result.json",
+        "samples": "runs/20260828T132811912240Z-lyra/samples.csv",
+        "resultSha256": "40ca1422ae477e22ecb4365398b61bf5cea758b049bd0288a4ec63922cfc64e0",
+        "samplesSha256": "83fe6af67a8c9e3ee8119a35e2ab2212f7584895def4dbb72d2664e6d408e0dd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132814105978Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132814105978Z-lyra/result.json",
+        "samples": "runs/20260828T132814105978Z-lyra/samples.csv",
+        "resultSha256": "7fb919928554330f0990fc1abc1114106f931ca93d40aebfb59edebb2fbf8f50",
+        "samplesSha256": "41857bd2ad01318780be2cf2a64276bfc6e25506b41aedaf09458d6187bb3842"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132816348605Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132816348605Z-lyra/result.json",
+        "samples": "runs/20260828T132816348605Z-lyra/samples.csv",
+        "resultSha256": "41cea2af0ad2b2a6f78e1186c5fbccfa2fe0d2e88896ea3317ddf017f7112fbf",
+        "samplesSha256": "c178d3f531a4a1706e6c758d6d27799f86b6f7910c414e1c4b48533491d72a0a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132818435538Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132818435538Z-lyra/result.json",
+        "samples": "runs/20260828T132818435538Z-lyra/samples.csv",
+        "resultSha256": "02adfdebba27bb64f90961b01b63c7f277bbd5df74cd1f23367da279a13c87c9",
+        "samplesSha256": "380322e0d6f38bb89a4cf72917447e5c8f5d9d8a2c720aa1335ae0e989eaa8da"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132820593066Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132820593066Z-lyra/result.json",
+        "samples": "runs/20260828T132820593066Z-lyra/samples.csv",
+        "resultSha256": "fd99854ce096548a8e200fffd36282d49ca13b7a05d78bd3206aea47cb6a204e",
+        "samplesSha256": "6dd53dc664ff703cf0fc08b2fc8b62d7679226d771b997b9ddee676b26998e68"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132823096631Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132823096631Z-lyra/result.json",
+        "samples": "runs/20260828T132823096631Z-lyra/samples.csv",
+        "resultSha256": "0fbb70cc49b20e060c931442c5f956099157a01c8004dbe6d537014d1ac7b7c4",
+        "samplesSha256": "d82f806938feb054e331944471dc7b06a0b5fb429db945b3e7025da42d6bdd70"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132825555838Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132825555838Z-lyra/result.json",
+        "samples": "runs/20260828T132825555838Z-lyra/samples.csv",
+        "resultSha256": "dfcadc3e9f859a29dacd6c308de948b2c07b7a73cfd3ec4f9e9805b7d2f05392",
+        "samplesSha256": "2a4fe596824ac0a2db65e591c9225fdeac63d86f8501abf91c196f1c57b25806"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132828504724Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132828504724Z-lyra/result.json",
+        "samples": "runs/20260828T132828504724Z-lyra/samples.csv",
+        "resultSha256": "371def16d15c130c42a33ab6f122b14dcd4194deceacc960e4e7864dd888d0db",
+        "samplesSha256": "d2b2c532ba30d332b84882b8e3eabf9f91ce5b348c4c22346b7d6609cb0a8aab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132831721000Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132831721000Z-lyra/result.json",
+        "samples": "runs/20260828T132831721000Z-lyra/samples.csv",
+        "resultSha256": "d3dca86a8ed6ca464b23d7f93221da73bd46074c259e3572cd0fe3c37207776c",
+        "samplesSha256": "fdbd7ff2ddc3f6d3f5427718d14d75bb98cb334455e7b66c4b8a32ba9ef9f22e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132839956565Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132839956565Z-lyra/result.json",
+        "samples": "runs/20260828T132839956565Z-lyra/samples.csv",
+        "resultSha256": "8ce8504b8b81c84216e737593b27a5ba0a85b80660b5e66fc0299c1cfe7023fc",
+        "samplesSha256": "0f6e7b4bf3286d5964e503c0acb09fb94f9abbd88e227925987ad6fe15c3a8e3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132848378172Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132848378172Z-lyra/result.json",
+        "samples": "runs/20260828T132848378172Z-lyra/samples.csv",
+        "resultSha256": "6d28a2dae3f04b3554f5021975368bf6e6f506d69816121f82f1dfd1ceb45002",
+        "samplesSha256": "c18eeaa45730516692d75cdf899129e16c50994fe2c2d7f2bcd4b08f000b0275"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132854363866Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132854363866Z-lyra/result.json",
+        "samples": "runs/20260828T132854363866Z-lyra/samples.csv",
+        "resultSha256": "24e1a0beb8c5aaea19cc65449c73b4e23db8ad24aae2693bb595dd3f6ae80e60",
+        "samplesSha256": "4e6eec19a380c82221dbdf73229070dc1a6d86b9034058062f0eb5698d9f5dd7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132900539981Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132900539981Z-lyra/result.json",
+        "samples": "runs/20260828T132900539981Z-lyra/samples.csv",
+        "resultSha256": "8bb93d184542d53f7d6bb0ec48c78933c95754b50c463b3f155b7bb503db113d",
+        "samplesSha256": "d30d7a22056870a05a3dfc5071d3c80023e7cc06fb635d4ed6d697a1afacbd5a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132907397192Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132907397192Z-lyra/result.json",
+        "samples": "runs/20260828T132907397192Z-lyra/samples.csv",
+        "resultSha256": "06284a77fb31d54b65e177c195aaa88c80c1e7a9ca7fe5aed919792367cf73da",
+        "samplesSha256": "c4c3be35d3e836f2dd72b95856573a44d3025012164b742950c3da67772846bb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132914523679Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132914523679Z-lyra/result.json",
+        "samples": "runs/20260828T132914523679Z-lyra/samples.csv",
+        "resultSha256": "cc1035a33cc9def8f5f7f1196e920e09cd0178de2496df19054c5ab7f83b2b39",
+        "samplesSha256": "c04dc2b8a6814a76cbc029a803c1896ebcc75e48ca091ffd179f8eb8e3da4e88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132921456084Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132921456084Z-lyra/result.json",
+        "samples": "runs/20260828T132921456084Z-lyra/samples.csv",
+        "resultSha256": "f34dfe90b496b561e6cf71013622116287920c1899cca0ea7977e43a7668fe5d",
+        "samplesSha256": "31bc5c7da14cee6f1aa8ed5fc87ca39a4a3cfcac51fb57649bcd065dbf8e60a1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132928459593Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132928459593Z-lyra/result.json",
+        "samples": "runs/20260828T132928459593Z-lyra/samples.csv",
+        "resultSha256": "bfa41606530bec2683a110215d8f515dd5b8850251d21b2bee5bc856bf4332a5",
+        "samplesSha256": "02cff20befd97b2045ae533092360762481e2680eebbc61a04c47c0e6416e265"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132937472586Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132937472586Z-lyra/result.json",
+        "samples": "runs/20260828T132937472586Z-lyra/samples.csv",
+        "resultSha256": "36c51c1a321274578db36adbb4e104db625fb8d00e7fd8fb614931139c40ae34",
+        "samplesSha256": "33785485f498165146ef8c150c26cbc367a6f3295cb02df58b8e82e8ae39695b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132946745747Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132946745747Z-lyra/result.json",
+        "samples": "runs/20260828T132946745747Z-lyra/samples.csv",
+        "resultSha256": "14d890d650be479bb457520dc2bbd86f5a8cbee769bff59ffa73e217b78eebc4",
+        "samplesSha256": "412727043980524caeca36c3977367c7bb34d12e71954ee9b89796ac7b5a97f4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132952807273Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132952807273Z-lyra/result.json",
+        "samples": "runs/20260828T132952807273Z-lyra/samples.csv",
+        "resultSha256": "71803b036790995e98aa77d1efdc307bc8c2b176590d890472e2f6f4ef35e093",
+        "samplesSha256": "ba7f6e30de30f477a0cd25319cd572ef4dad2fb8a207585571115d53491aedaf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T132958947565Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T132958947565Z-lyra/result.json",
+        "samples": "runs/20260828T132958947565Z-lyra/samples.csv",
+        "resultSha256": "bf0e056bfd056bf0c9df9fc675d66bc5b67c0434865b9c4877a062ab655307c0",
+        "samplesSha256": "c092da0bf28243d5ad2d1c9c7dbd2d5a86b40a241e9ac90dcd98df49e1efa606"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133005915724Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133005915724Z-lyra/result.json",
+        "samples": "runs/20260828T133005915724Z-lyra/samples.csv",
+        "resultSha256": "9ea961a734967723f43369281d6f3d3bfd9bf9f3acfa4294c4bc8b61e56eefca",
+        "samplesSha256": "c6d83b488847979b8e28ead00662112d06a59367329d94b62a0e1b334ab660d0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133012969002Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133012969002Z-lyra/result.json",
+        "samples": "runs/20260828T133012969002Z-lyra/samples.csv",
+        "resultSha256": "251602a6cdbf1970d69b9e0bd6e933c2d8a288e339dcb0c8baffba990dadc726",
+        "samplesSha256": "7c8143e4109fd034c63984d07835c433fcf212efd5c2a274e51617ace2de236b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133020197604Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133020197604Z-lyra/result.json",
+        "samples": "runs/20260828T133020197604Z-lyra/samples.csv",
+        "resultSha256": "77d22b90ad3333402ff19575211a352d2e2317887078275b09a88c4ba727a67b",
+        "samplesSha256": "4c27c6966001330a4108a29ea2767be8de074f4c77552da8d5facb547763c73a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133027625745Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133027625745Z-lyra/result.json",
+        "samples": "runs/20260828T133027625745Z-lyra/samples.csv",
+        "resultSha256": "75fe7b913edb778bdafb55cc634faaefe6ef350de26b179d132cd16d2aa75a2f",
+        "samplesSha256": "b305140c79bb7018ef40a9ee86ad80ad9e0b7e2bdce9c4b51ea4994a2847d8b2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133036021849Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133036021849Z-lyra/result.json",
+        "samples": "runs/20260828T133036021849Z-lyra/samples.csv",
+        "resultSha256": "f220c874afae327ecdcc94fd30f4a81b34d0a902dc3bcbc3976605e022d1205d",
+        "samplesSha256": "2fd8ccd3974e37cfb709d3a813d8aabfa7455795b59eb512ad2e183de2637cda"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133044342952Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133044342952Z-lyra/result.json",
+        "samples": "runs/20260828T133044342952Z-lyra/samples.csv",
+        "resultSha256": "d9d1420f9bd6f6039bad2a6c5321661787dff92fb789bc8ae72e21c726c56d58",
+        "samplesSha256": "a21f5de24e764c88eecaa4c21745a5e6880329bca32522661c2d7a048e466a75"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133054201606Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133054201606Z-lyra/result.json",
+        "samples": "runs/20260828T133054201606Z-lyra/samples.csv",
+        "resultSha256": "a0f66062d6734cbb09db6384b2f7627210c4d3f99c5b4b2b133a32638785d525",
+        "samplesSha256": "680d8b32306fdd5d557cf994a84de1ed2c3af86170f269b36e2395b96f7d1f55"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133104979024Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133104979024Z-lyra/result.json",
+        "samples": "runs/20260828T133104979024Z-lyra/samples.csv",
+        "resultSha256": "62f295a379b7005c0f5e057d51ede5f462449dc0f9d632eee291932c6f10a7fd",
+        "samplesSha256": "8411fd31f2dd1efa1d9b97da60bc2b6f88ee781daf8a9fc8526ba96342e4c206"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133112378289Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133112378289Z-lyra/result.json",
+        "samples": "runs/20260828T133112378289Z-lyra/samples.csv",
+        "resultSha256": "cc735065b705e848d6e1137b82c4869bd96a4189c3f00e23eabbcfd2d0154216",
+        "samplesSha256": "788e950abf5b6a2a9f69189f264056cbebe5d104420ce7c1b3dff4ab2ffeed99"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133119928789Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133119928789Z-lyra/result.json",
+        "samples": "runs/20260828T133119928789Z-lyra/samples.csv",
+        "resultSha256": "f82fe997daf2d73b8014e35d66fb20ceece355266c0a00bab11f816a3e7e17b8",
+        "samplesSha256": "1081dece8164b8960f6c013a9c5d606afe202830a91a46bece3f26dec56581a6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133128770384Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133128770384Z-lyra/result.json",
+        "samples": "runs/20260828T133128770384Z-lyra/samples.csv",
+        "resultSha256": "393e33128860cba7724ec0d62dd6446e1c6aa6eeef7febf3919075f6bd7c6ffe",
+        "samplesSha256": "ce5f248fd3892d298114ff7d3ecb28a65a4dfd54001e6ff26ddac018c6b27adc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133137706760Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133137706760Z-lyra/result.json",
+        "samples": "runs/20260828T133137706760Z-lyra/samples.csv",
+        "resultSha256": "6c97b0c0ff86614bdf121c49c2293da5a0ea2597c50c9f4eb90214c481d4cb93",
+        "samplesSha256": "7367c211964394a850f5e7f2bcc5e881609024eeee78ec4f3db5751d3715e476"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133146914719Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using partial-column-pruned-fftw+compact-interleaved-k2-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133146914719Z-lyra/result.json",
+        "samples": "runs/20260828T133146914719Z-lyra/samples.csv",
+        "resultSha256": "796049633d2f0b3959384447c8a11f4a7a05b4331553c4e9b2bd38957cefe631",
+        "samplesSha256": "3e03d7e26a3b7fb7fa05daacb5b346a24149da97fb628b50488ae316431d0a6f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133156322895Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133156322895Z-lyra/result.json",
+        "samples": "runs/20260828T133156322895Z-lyra/samples.csv",
+        "resultSha256": "86da1ed85ba7dad683d3618dff858e321112f9c18b88c0c63af841b4c8e204e9",
+        "samplesSha256": "a278be3cb669101e9d876e68e06e73b51532e52c2c9e8ec40d0c21fa748970c9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133206230407Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133206230407Z-lyra/result.json",
+        "samples": "runs/20260828T133206230407Z-lyra/samples.csv",
+        "resultSha256": "fb4cde8e0d02ec126455126ac8a986e0ba93cedf4c7c048365ec2ada65c1fdcc",
+        "samplesSha256": "0fde64ce52d3bc705bd412a508f128dcf5d3f14e719c0de317dfe4c2fbba9abf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133216473050Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133216473050Z-lyra/result.json",
+        "samples": "runs/20260828T133216473050Z-lyra/samples.csv",
+        "resultSha256": "430ccc44376eafb483cc91882dcf80287940cd7f5a14caab637c1fee6ae40b38",
+        "samplesSha256": "3f1b22bdabcec8f2e2364a99eeaee081e2f280ba4fcd33a0ad3507a46c5e8d7e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133228700788Z-lyra",
+      "incrementId": "spectral-boundary-crossover-screen-v1",
+      "status": "preliminary",
+      "statusReason": "Clean one-round bounded screen used only for preregistered candidate advancement; three-round reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+strided-retained-zgemv-view-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133228700788Z-lyra/result.json",
+        "samples": "runs/20260828T133228700788Z-lyra/samples.csv",
+        "resultSha256": "e1a4af29e458f871a03f2ae6a4f3aae00edc5d835f539e52c398972ebdb043c5",
+        "samplesSha256": "bdd5ce3da45f3925239b32bee2c379e9de1d0d1c2a68683408a343c0220751a9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133252765245Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133252765245Z-lyra/result.json",
+        "samples": "runs/20260828T133252765245Z-lyra/samples.csv",
+        "resultSha256": "b14a87b9031042ff05624af546d917de4ad7466e8b77462cd4bb333e91773d68",
+        "samplesSha256": "a2d3eb3398a325cb977b035d53b68397f246de099183aaf72a8f4a6c147a3c0b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133253951250Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133253951250Z-lyra/result.json",
+        "samples": "runs/20260828T133253951250Z-lyra/samples.csv",
+        "resultSha256": "58888e7121110ff0a89b12107e1479b3e356b48a5beb333a566f37afb8321d1c",
+        "samplesSha256": "e541da5dd8970c5e306207b15f155ad6d42f2e755d48c8e03742e7a5ca07b95c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133254968021Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133254968021Z-lyra/result.json",
+        "samples": "runs/20260828T133254968021Z-lyra/samples.csv",
+        "resultSha256": "1264d48766d87f01bdfe39f80f2b54c923e251f3c20e79901353537af869399f",
+        "samplesSha256": "af6711d5daf98b31fb3473aea8399f5464def61afe38cf95d5e68fce506e5ebf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133256114663Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133256114663Z-lyra/result.json",
+        "samples": "runs/20260828T133256114663Z-lyra/samples.csv",
+        "resultSha256": "3c580f522a537ad1b41a232422e35cba7e4a72e415583fd9e276949d4e80ca9f",
+        "samplesSha256": "68422cff305b8d4f7ef7857c56a581506ad2cfa99f1ed9fb440640b654734315"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133257182790Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133257182790Z-lyra/result.json",
+        "samples": "runs/20260828T133257182790Z-lyra/samples.csv",
+        "resultSha256": "d65040c9e2beaf7014ac12ca38d75c7dfa0c142efb08afd209f8b0869f769862",
+        "samplesSha256": "de30a4a40f8d2282cca0d4bef86fab23abcab027c58e7b8343ccd54f7b897c88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133258550695Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133258550695Z-lyra/result.json",
+        "samples": "runs/20260828T133258550695Z-lyra/samples.csv",
+        "resultSha256": "1ce5043c41f45248f3d0cfcad619c493a03baa0ed39a871bf145f7870cf31210",
+        "samplesSha256": "6d3fcf10fcdc6eb14c97f80a6175abfe53c4b8b2eb29f25e16ba7ffd73c8f0ad"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133300156754Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133300156754Z-lyra/result.json",
+        "samples": "runs/20260828T133300156754Z-lyra/samples.csv",
+        "resultSha256": "4740d2f8b1b2d55689cdc3341ba49290e58d4e2bfaf165431f06f38b3bc14dbc",
+        "samplesSha256": "4db38a7ec0a974d9f2379e5d917359e06886d329ed3b8ae8933ece6f3da75848"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133302854295Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133302854295Z-lyra/result.json",
+        "samples": "runs/20260828T133302854295Z-lyra/samples.csv",
+        "resultSha256": "149fbdd9db55db729ec04706177456fdcfdb24c4d806416baf33c889df32ac91",
+        "samplesSha256": "f42659c2f938a666a0a9d83a6f2ef121222363f2c2312f3e393e1e780297e066"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133306326819Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133306326819Z-lyra/result.json",
+        "samples": "runs/20260828T133306326819Z-lyra/samples.csv",
+        "resultSha256": "da8554312b2b6b11ecc514c1c61355871cc2063008109701c0960d84ec1d5140",
+        "samplesSha256": "f3337e36af80f347e2391020a2221baec5d6930b464aa22ee3347fc0b01ae79f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133310343321Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133310343321Z-lyra/result.json",
+        "samples": "runs/20260828T133310343321Z-lyra/samples.csv",
+        "resultSha256": "9ca89402309a91e0d54a7e2ad6f7051c56a972a95c0bf122490f5c90ca2de00a",
+        "samplesSha256": "a2ae6d24da7268c811169f89a35defa9b1a6e64c28e9081d62d68fd4816d2888"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133324199672Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133324199672Z-lyra/result.json",
+        "samples": "runs/20260828T133324199672Z-lyra/samples.csv",
+        "resultSha256": "e690b562b4a01930341cb0f6d6e89da0c54709509f01f76299606ba3925e3d5b",
+        "samplesSha256": "c8ace654199ecace92be1a529a4599199521a6637e6cea4e261b8f7871ce2257"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133333534886Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133333534886Z-lyra/result.json",
+        "samples": "runs/20260828T133333534886Z-lyra/samples.csv",
+        "resultSha256": "e23846fbf49023cd8ad0bf8041a40134f437296ce93cfe36615e0a83702abf15",
+        "samplesSha256": "08e039b1dd2fa213f30df923961945cb28756dd699d914561760d86a3ce3bbdd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133344932322Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133344932322Z-lyra/result.json",
+        "samples": "runs/20260828T133344932322Z-lyra/samples.csv",
+        "resultSha256": "36ec6aa1408819e3db829712c282dad44bb450ec370757818bd048af9cd9fc25",
+        "samplesSha256": "a5f24397cd5b925500523e77cc7f2b3b41397a1116b709d1cc891368281bd472"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133353902803Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133353902803Z-lyra/result.json",
+        "samples": "runs/20260828T133353902803Z-lyra/samples.csv",
+        "resultSha256": "2d33d0c22ea3e92366a9cf3241e4ea7ffb9b723e26082d1283d8984ac131bf6d",
+        "samplesSha256": "6ae6da73690aaab10dfd5131898e7e5cce4168c0de9cd7343b2cbe8739c30f8a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133405026814Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133405026814Z-lyra/result.json",
+        "samples": "runs/20260828T133405026814Z-lyra/samples.csv",
+        "resultSha256": "b095fdc3474aeb79920523f54a7d62e085f860fe9b6034022596d96539c949df",
+        "samplesSha256": "5f9343c3e5f0a8b99221dbb685befed2c973bec1c915489c898eb9acd59d551d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133419000080Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133419000080Z-lyra/result.json",
+        "samples": "runs/20260828T133419000080Z-lyra/samples.csv",
+        "resultSha256": "4224e2667b2710260bf29975c6a0b1d706e3d771cc5147f1c7da69ce896a6439",
+        "samplesSha256": "87ef0afac5ec4b1afde64313075fd476db864d39a177a53a2ccc659f8540b0f6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133429581420Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133429581420Z-lyra/result.json",
+        "samples": "runs/20260828T133429581420Z-lyra/samples.csv",
+        "resultSha256": "c5ffb430899f3141daea16cc6e0b25d43091e44de030347df44d8df9a7527173",
+        "samplesSha256": "58150c03b685a5ad96175a9faf29c3005a91037ca1aa1978533d08b5343f44fa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133443507615Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133443507615Z-lyra/result.json",
+        "samples": "runs/20260828T133443507615Z-lyra/samples.csv",
+        "resultSha256": "61422de5e96cbabb1ad8a39e01c548a12abb9d0d0461b6e56bd9f92974755ffb",
+        "samplesSha256": "0798b4fe70c6c2c58cebaffac5fadc7755d91180b1837068d0ab2182a8943d6d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133459749282Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133459749282Z-lyra/result.json",
+        "samples": "runs/20260828T133459749282Z-lyra/samples.csv",
+        "resultSha256": "c919e29dccd23d910c42ac249a1e3ff9fa412cfb0c3cf304d477ff7ff79eedd6",
+        "samplesSha256": "c259e3485a661adf2e1437af0991d7e1b02850dc7575c8ba75945c16f70321be"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133501127962Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133501127962Z-lyra/result.json",
+        "samples": "runs/20260828T133501127962Z-lyra/samples.csv",
+        "resultSha256": "458621f332a04f8d780f4884b13014b62eaa0a023dd84e62a649a23be04c13f3",
+        "samplesSha256": "9ce5b87419a0401125bef25473468389bc5b0a8068ca1ad113773f6b74114878"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133502718936Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133502718936Z-lyra/result.json",
+        "samples": "runs/20260828T133502718936Z-lyra/samples.csv",
+        "resultSha256": "dc7833feaa1cc0da5b9cfa1bd6fbbfac0ed3ec8cd22a9712224701edaddb3da5",
+        "samplesSha256": "3651263e22265c0d393ac344ee3277707646c8a9a9df0fbe6de7d1e7af69c707"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133503781263Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133503781263Z-lyra/result.json",
+        "samples": "runs/20260828T133503781263Z-lyra/samples.csv",
+        "resultSha256": "7e16992c6747cd20db99ee5e61ee7233b0ded8bce0028a7dc206b31ba4e9e891",
+        "samplesSha256": "0055dddba0bb423111241d1adba04b9bea93974148e08ffb3a2f9bf31206c54f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133507281209Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133507281209Z-lyra/result.json",
+        "samples": "runs/20260828T133507281209Z-lyra/samples.csv",
+        "resultSha256": "1adb141bc27eefd05f5a074c0d9d106aa7799fce4017060653c80bef9a2155c7",
+        "samplesSha256": "7e6215e26f0bd711621a3b78c18e6cc08f2b7affb1165091ca30965304c3a4db"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133511295849Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133511295849Z-lyra/result.json",
+        "samples": "runs/20260828T133511295849Z-lyra/samples.csv",
+        "resultSha256": "ab5922d33ab1c2fced8fd52b1992a5dd8f44d17d4a938ba20c815250c72741e8",
+        "samplesSha256": "611cd9adf75f598dac5b6d5d2be6d08ad2e8c6693d9c9069fddf073fc90614b8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133513988271Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133513988271Z-lyra/result.json",
+        "samples": "runs/20260828T133513988271Z-lyra/samples.csv",
+        "resultSha256": "be19387619e127329643a3a865f0e25b2c638db0c3dc3c6247d23bffb7361142",
+        "samplesSha256": "fc7fe286057e6caff4303e03f6937bea05acd64b30d6fb515266e37364bc3196"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133523389895Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133523389895Z-lyra/result.json",
+        "samples": "runs/20260828T133523389895Z-lyra/samples.csv",
+        "resultSha256": "cdb97a7264640a15b332474cd44096792ee4f7eee237deda87a5262f57b1206c",
+        "samplesSha256": "f882359141e4ba22aef5ccbb7552ed3d041246aaabef791fc46c069499529813"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133534822826Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133534822826Z-lyra/result.json",
+        "samples": "runs/20260828T133534822826Z-lyra/samples.csv",
+        "resultSha256": "456dbbb6680ff0526f12b3d4ff5ded850eea278bd74e986b096b7de2f225b49b",
+        "samplesSha256": "770fc543d395d67c1e5eabd1064cbedee20432a6d7137672b60ce93b3a270886"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133548559806Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133548559806Z-lyra/result.json",
+        "samples": "runs/20260828T133548559806Z-lyra/samples.csv",
+        "resultSha256": "acdc3771a91cc203b984720995cd8f7c7a4b9157a20e54c06b9c08c45ab04461",
+        "samplesSha256": "ab4708e0ab2ba80730257b912d360c9160d78552b50361d1c11f4ca85e1d2b5c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133559606383Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133559606383Z-lyra/result.json",
+        "samples": "runs/20260828T133559606383Z-lyra/samples.csv",
+        "resultSha256": "000b8f07174ca3bf1179d7543b6961d657a68e10cd126df5b423c5370c3852ee",
+        "samplesSha256": "fa2324eecef0c453dc0b796456a707b9a7338039b3ed5ce5d06540132037969a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133613570004Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133613570004Z-lyra/result.json",
+        "samples": "runs/20260828T133613570004Z-lyra/samples.csv",
+        "resultSha256": "fc9fc1f6e7edb6b4368568ae47d60fc16cfc03c840b3c6311f2b537944c6534e",
+        "samplesSha256": "7a11b78543e02e1bc25ba7bb83c87f0d991b39fb56f2950fc0d734e0aeb711e5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133622556562Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133622556562Z-lyra/result.json",
+        "samples": "runs/20260828T133622556562Z-lyra/samples.csv",
+        "resultSha256": "1cbf8eddcd4a784bf76f755040ee61f736007bee13f63e17df46ab5cf0199094",
+        "samplesSha256": "5200370cafac8f36e2a0933019c13ecea11f57b7b693fc77d4d63f46bb247193"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133636403673Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133636403673Z-lyra/result.json",
+        "samples": "runs/20260828T133636403673Z-lyra/samples.csv",
+        "resultSha256": "be69332051d967a7a7a130f840788e2ecc523a40e83b5d7a716200b5307033ab",
+        "samplesSha256": "9d166dac64997a99bc85fa7474af86e2f50dd0ae9bec4bf6196b14cf1ed4a8c8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133652677387Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133652677387Z-lyra/result.json",
+        "samples": "runs/20260828T133652677387Z-lyra/samples.csv",
+        "resultSha256": "8383760d4678255ac8fc48a9f2f06da235519d651535406885751680c9ce5a2c",
+        "samplesSha256": "9fb1f571adec81c06965ac9f9283c727244f2a77ef9eb63f030b6269c1c3e152"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133703301423Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133703301423Z-lyra/result.json",
+        "samples": "runs/20260828T133703301423Z-lyra/samples.csv",
+        "resultSha256": "c22aa9ddac8bfd39dc0ea0670a2139d37af5c8903b0e37b70d087040dade5b2a",
+        "samplesSha256": "652ba6830a5591a3e2216355e43f1270e351c1ef597344e8c893d4d9963398d4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133704324182Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133704324182Z-lyra/result.json",
+        "samples": "runs/20260828T133704324182Z-lyra/samples.csv",
+        "resultSha256": "f3391e55fddac2bd4111f8832847d00acbedad420cf976e23d552c71f7567978",
+        "samplesSha256": "63007798beb9c1ef5ea921d42d2ba424df04eb7e4b39dfef7cbf2c9dd55ce3b1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133705481733Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133705481733Z-lyra/result.json",
+        "samples": "runs/20260828T133705481733Z-lyra/samples.csv",
+        "resultSha256": "58828f423da099646dffc5e198a7c286d13cbd1eb9ac74025e783e610a0be469",
+        "samplesSha256": "440876caedd7c2810ca5fe5220307275f1ba53e513c66081eb2e706e1d9aaf65"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133706686159Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133706686159Z-lyra/result.json",
+        "samples": "runs/20260828T133706686159Z-lyra/samples.csv",
+        "resultSha256": "67921cba659fad6a1a1efe96ff672725ce43c45fec5e4a4fc7018f877d61a9dc",
+        "samplesSha256": "34a66461a35558b9bd858de182a20a16f9002a90af30d4172790d327259a0dfe"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133710802447Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133710802447Z-lyra/result.json",
+        "samples": "runs/20260828T133710802447Z-lyra/samples.csv",
+        "resultSha256": "67bd9dbdc1eed208086731ec27b94c41153d592521179c68f2a814d700bc8e59",
+        "samplesSha256": "4fcdaa284c36345e0f76c10054dbfcd2c7f6c37b326068774cd6cb44317b7b39"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133713513232Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133713513232Z-lyra/result.json",
+        "samples": "runs/20260828T133713513232Z-lyra/samples.csv",
+        "resultSha256": "098d52fc5d65630da05d8f74c61e84faac9d875ad3f0401961e4e5787693c3fb",
+        "samplesSha256": "9ef28d0d5213a768664b0eefbe84e4435cf204fa6fd9fad83dda5a02ebe16306"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133717064626Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133717064626Z-lyra/result.json",
+        "samples": "runs/20260828T133717064626Z-lyra/samples.csv",
+        "resultSha256": "d927e8c98beaac4c624f60582deb0d6e2e021cedc3739438eeb16dc5cbf95302",
+        "samplesSha256": "790ac5991433c0b989927ac2bf7a8bf49d06f8321481b127479c83ca6d34634a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133728357085Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133728357085Z-lyra/result.json",
+        "samples": "runs/20260828T133728357085Z-lyra/samples.csv",
+        "resultSha256": "15b690d5ee3ba922ec82a65ac2e3265ec0122e5694f0adcfaed27bca4ba58284",
+        "samplesSha256": "7e92762e5b172c4baa71d4c5041d987452c572132c9fbcff6a32c198b15efd67"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133742026458Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133742026458Z-lyra/result.json",
+        "samples": "runs/20260828T133742026458Z-lyra/samples.csv",
+        "resultSha256": "4de49ae76b537945b66f78fb9642b5dc1aa94cdc491e594bd622b7cabc2c3355",
+        "samplesSha256": "028604e34a06b2dbb1915d346ba31d0387f35632356252c1e7638941d446538e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133751437411Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133751437411Z-lyra/result.json",
+        "samples": "runs/20260828T133751437411Z-lyra/samples.csv",
+        "resultSha256": "bd3bf26d81a25954f8c95e466ad8232784dae34dfc5a766dc3861f795a022302",
+        "samplesSha256": "b02a1b4362d1c7d9620a722aef7c52100298a6cafef7c89053b030678044e205"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133805857520Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133805857520Z-lyra/result.json",
+        "samples": "runs/20260828T133805857520Z-lyra/samples.csv",
+        "resultSha256": "1b33c784feca08ed4859e0cf6a42d8512805686aec66a539083519214a771a2b",
+        "samplesSha256": "d2f03bd32141aacfeab7e2cb88a488b2e4f5873a4012a2bfbb4f185de14d69ee"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133814850689Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133814850689Z-lyra/result.json",
+        "samples": "runs/20260828T133814850689Z-lyra/samples.csv",
+        "resultSha256": "ff4abba9e0ad7153dce00e6f3d6b60b32ad9ed3b50d628208bb8536ca84a1af4",
+        "samplesSha256": "421c82264087994877c86d0b225c63528f70e6667c721c20d39dcee7ef53c1ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133826074092Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133826074092Z-lyra/result.json",
+        "samples": "runs/20260828T133826074092Z-lyra/samples.csv",
+        "resultSha256": "bf2be36a49c263cfc8ac9d5a8d9f5aebb8a4cd6caf28a7dbb23e3222fec748ce",
+        "samplesSha256": "45bfc87447345f672e4998209b34a970178d5c5dffb3e09e6a6bc82af2e59431"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133842420428Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133842420428Z-lyra/result.json",
+        "samples": "runs/20260828T133842420428Z-lyra/samples.csv",
+        "resultSha256": "a1535dc04e5b1e32486f5bfc9dd0793f65d6895a490045f22b62be37460ae90a",
+        "samplesSha256": "9bdc6dfd7c4423af2cc8d20f3ab9cc2c39948809d9ab84618343ce1f4c17de99"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133853057342Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133853057342Z-lyra/result.json",
+        "samples": "runs/20260828T133853057342Z-lyra/samples.csv",
+        "resultSha256": "5d0812391d7797d3ee48aa53e30e0b8d075919f397974aefb8613d0365c28f10",
+        "samplesSha256": "ce674baff7580ad4da0ab10d1ddde51ec93cb1a2d0084e9229b033ad072b1ca1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133907145878Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133907145878Z-lyra/result.json",
+        "samples": "runs/20260828T133907145878Z-lyra/samples.csv",
+        "resultSha256": "0840fce48f92a3c2e3bf3ee61e81f36539a5dbccdf182155820a50dc9aefe84a",
+        "samplesSha256": "b8398ca547eb767db22b8c5ceece59752858167c5941a905816a8acc73402822"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133908307832Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133908307832Z-lyra/result.json",
+        "samples": "runs/20260828T133908307832Z-lyra/samples.csv",
+        "resultSha256": "7227ab49c6fde11e03809983115c91588297a850f1414a375b0ec528152b9880",
+        "samplesSha256": "f62bc8d1e3ee39783ffac82b9e74cf67c1fb09123b4873980b487b1fc0344608"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133909496421Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133909496421Z-lyra/result.json",
+        "samples": "runs/20260828T133909496421Z-lyra/samples.csv",
+        "resultSha256": "5b0c5644d4284f144ebeace1da188aba18db4834b60ff05af2a8394087a04f8a",
+        "samplesSha256": "bf7b66bf4d9d7892ed6acb20dfe76dd15b00b5a9c34cef750629eefb4b6f3093"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133910540453Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133910540453Z-lyra/result.json",
+        "samples": "runs/20260828T133910540453Z-lyra/samples.csv",
+        "resultSha256": "046ed44b9a05066588b0aa262f891da4a2082e347b38468eb1c1a49e80154c1b",
+        "samplesSha256": "66b5aa16af92052f8fc656a3719da279ad27b082c4be00ac4634d36c6b02349c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133912127764Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+direct-per-mode-zgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133912127764Z-lyra/result.json",
+        "samples": "runs/20260828T133912127764Z-lyra/samples.csv",
+        "resultSha256": "0b34e304d4f2f54bd922ac736b7d506d1a42020b413f9067395cc145e351a222",
+        "samplesSha256": "95a6c8acd002b3ab6cda4bb40a66a2427aad06f8790464457256b6653d07436b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T133913190016Z-lyra",
+      "incrementId": "spectral-boundary-crossover-reference-v1",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated reference cohort over six production workloads; zero steady-state allocation and all correctness metrics pass within 1e-12.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using full-wvm-order-fftw+radial-pack+split-k2-dgemm-v1 (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T133913190016Z-lyra/result.json",
+        "samples": "runs/20260828T133913190016Z-lyra/samples.csv",
+        "resultSha256": "4782577f12c340abafb432667f7ec807a0f9f25a88aa8703c056d27d74e64fe9",
+        "samplesSha256": "4ff54deec9f831763999b8e0462039afc341f2b778e7d80bd4bc1d6b99ba9b0b"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

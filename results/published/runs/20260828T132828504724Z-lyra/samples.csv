@@ -1,0 +1,68 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260828T132828504724Z-lyra,boundary-plane-major-view,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.023714791999999998
+20260828T132828504724Z-lyra,boundary-plane-major-view,setup-component,FFTW planning,shared,setup-only,543178752,0,0.019874666999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,setup-component,vertical matrix preparation,shared,setup-only,717549600,0,0.052098041999999997
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,0,0.0067286660000000003
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,1,0.0049359169999999997
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,2,0.0050224170000000004
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,3,0.0049790829999999996
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,4,0.004885833
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,5,0.0048959590000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,6,0.0060847499999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,7,0.0049177090000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,forward,executed,543178752,8,0.0050100420000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,0,0.0065096249999999998
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,1,0.0065099169999999996
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,2,0.0065085000000000004
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,3,0.0065105830000000003
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,4,0.0065178340000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,5,0.0068629169999999996
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,6,0.006517208
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,7,0.006528458
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw FFT,inverse,executed,543178752,8,0.006556625
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,logical retained provider-order view,forward,elided,0,,
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,0,0.023788709000000002
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,1,0.023863542000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,2,0.023083875
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,3,0.023118165999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,4,0.023947584000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,5,0.023197292000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,6,0.023171417
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,7,0.023966000000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,forward,executed,515443344,8,0.023508250000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,0,0.022485624999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,1,0.022919334
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,2,0.022589250000000002
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,3,0.022424875
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,4,0.023010708000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,5,0.022790042
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,6,0.022654041
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,7,0.022110958
+20260828T132828504724Z-lyra,boundary-plane-major-view,primitive,raw vertical MM,inverse,executed,515443344,8,0.022597584
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,0,0.00098662500000000009
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,1,0.00098395899999999996
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,2,0.00098662500000000009
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,3,0.00098395800000000005
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,4,0.00098658300000000008
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,5,0.00098395800000000005
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,6,0.00098658399999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,7,0.00099262500000000002
+20260828T132828504724Z-lyra,boundary-plane-major-view,adapter-component,rebuild zero-padded inverse view,inverse,executed,272646144,8,0.00098383299999999993
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,0,0.029752542
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,1,0.030889709000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,2,0.028840542
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,3,0.028238915999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,4,0.028592416999999998
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,5,0.028781292
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,6,0.028247417
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,7,0.028633833000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,forward,executed,1058622096,8,0.028801375000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,0,0.030285375
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,1,0.030535083000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,2,0.029835416999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,3,0.029218500000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,4,0.0299975
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,5,0.029657583000000001
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,6,0.032145666000000003
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,7,0.030893457999999999
+20260828T132828504724Z-lyra,boundary-plane-major-view,uninstrumented-total,composed horizontal-vertical boundary,inverse,executed,1331268240,8,0.029757333

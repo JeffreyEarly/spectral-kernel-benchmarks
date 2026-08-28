@@ -63,6 +63,9 @@ class BuildSiteTests(unittest.TestCase):
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
+            self.assertIn("Raw horizontal transform", index)
+            self.assertIn("Raw vertical MM", index)
+            self.assertIn("Composed boundary", index)
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
             self.assertTrue(split_run_page.is_file())
@@ -120,6 +123,14 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("fully pruned candidate therefore advances to issue #7", issue_12_html)
             self.assertIn("Empty dispatch", issue_12_html)
             self.assertIn("Scratch aggregate / max shard", issue_12_html)
+            issue_13_html = issue_13_page.read_text(encoding="utf-8")
+            self.assertIn("Composed representation-crossover increment", issue_13_html)
+            self.assertIn("Composed horizontal-to-vertical boundary evidence", issue_13_html)
+            self.assertIn("Full-spectrum inverse views include their required per-execution zero-padding rebuild", issue_13_html)
+            self.assertIn(
+                "modal work and the nonlinear flux calculation remain explicitly excluded",
+                issue_13_html.lower(),
+            )
             self.assertIn("Primitive FFT", issue_5_html)
             self.assertIn("Retained total", issue_5_html)
             self.assertIn("out-of-place-explicit-scratch", issue_5_html)
