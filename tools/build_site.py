@@ -1285,7 +1285,8 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         workload = result["workload"]
         scheduling_rows.append(
             "<tr>"
-            f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}</span></th>'
+            f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
+            f'fields={workload["fields"]}</span></th>'
             f'<td>{schedule}<br><span class="muted">{complex_provider["scheduling"]["outerWorkers"]} outer × 1 BLAS</span></td>'
             f'<td class="numeric">{medians[0]}<br><span class="muted">speedup {speedups[0]}</span></td>'
             f'<td class="numeric">{medians[1]}<br><span class="muted">speedup {speedups[1]}</span></td>'
@@ -1324,7 +1325,8 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
             workload = result["workload"]
             best_rows.append(
                 "<tr>"
-                f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}</span></th>'
+                f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
+                f'fields={workload["fields"]}</span></th>'
                 f'<td class="numeric">{best_cell(1, "forward")}</td>'
                 f'<td class="numeric">{best_cell(1, "inverse")}</td>'
                 f'<td class="numeric">{best_cell(2, "forward")}</td>'
@@ -1339,6 +1341,114 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
             )
             else "The adjacent-equality result varies across the published scheduling runs."
         )
+        complete_cohorts: list[tuple[str, list[str], list[tuple[dict, dict, dict, str]]]] = []
+        for commit in {record[0]["environment"]["gitCommit"] for record in grouped_records}:
+            commit_records = [
+                record for record in grouped_records
+                if record[0]["environment"]["gitCommit"] == commit
+            ]
+            complete_profiles: list[str] = []
+            for profile in {record[0]["run"]["profile"] for record in commit_records}:
+                profile_records = [
+                    record for record in commit_records
+                    if record[0]["run"]["profile"] == profile
+                    and record[1]["scheduling"]["internalWorkers"] == 1
+                ]
+                schedules = {
+                    (
+                        "serial"
+                        if record[1]["scheduling"]["outerWorkers"] == 1
+                        else "static-12"
+                        if "outer-static" in record[1]["algorithmId"]
+                        and record[1]["scheduling"]["outerWorkers"] == 12
+                        else "dynamic-16"
+                        if "outer-dynamic" in record[1]["algorithmId"]
+                        and record[1]["scheduling"]["outerWorkers"] == 16
+                        else "other"
+                    )
+                    for record in profile_records
+                }
+                if {"serial", "static-12", "dynamic-16"} <= schedules:
+                    complete_profiles.append(profile)
+            if complete_profiles:
+                complete_cohorts.append((commit, complete_profiles, commit_records))
+
+        portability_section = ""
+        if complete_cohorts:
+            _, portability_profiles, portability_records = max(
+                complete_cohorts,
+                key=lambda cohort: max(
+                    record[0]["environment"]["timestampUtc"] for record in cohort[2]
+                ),
+            )
+            winner_counts = {"static-12": 0, "dynamic-16": 0}
+            best_speedups: list[float] = []
+            candidate_speedups: list[float] = []
+            peak_bytes: list[int] = []
+            errors: list[float] = []
+            for profile in portability_profiles:
+                candidates = [
+                    record for record in portability_records
+                    if record[0]["run"]["profile"] == profile
+                    and record[1]["scheduling"]["internalWorkers"] == 1
+                ]
+                baseline = next(
+                    record for record in candidates
+                    if record[1]["scheduling"]["outerWorkers"] == 1
+                )
+                finalists = [
+                    record for record in candidates
+                    if (
+                        "outer-static" in record[1]["algorithmId"]
+                        and record[1]["scheduling"]["outerWorkers"] == 12
+                    )
+                    or (
+                        "outer-dynamic" in record[1]["algorithmId"]
+                        and record[1]["scheduling"]["outerWorkers"] == 16
+                    )
+                ]
+                for provider_index in (1, 2):
+                    for direction in ("forward", "inverse"):
+                        baseline_seconds = float(
+                            timing(baseline[provider_index], "primitive", direction)["medianSeconds"]
+                        )
+                        measurements = [
+                            (
+                                float(timing(record[provider_index], "primitive", direction)["medianSeconds"]),
+                                "static-12" if "outer-static" in record[1]["algorithmId"] else "dynamic-16",
+                            )
+                            for record in finalists
+                        ]
+                        winner_seconds, winner_name = min(measurements)
+                        winner_counts[winner_name] += 1
+                        best_speedups.append(baseline_seconds / winner_seconds)
+                        candidate_speedups.extend(
+                            baseline_seconds / candidate_seconds
+                            for candidate_seconds, _ in measurements
+                        )
+                peak_bytes.extend(
+                    int(record[0]["workload"].get("bytes", {}).get(
+                        "verticalBenchmarkEstimatedExplicitPeak", 0
+                    ))
+                    for record in candidates
+                )
+                errors.extend(
+                    float(metric[name])
+                    for record in candidates
+                    for provider in record[0]["providers"]
+                    for metric in provider["correctness"]
+                    for name in ("maximumRelativeError", "relativeL2Error")
+                    if metric.get(name) is not None
+                )
+            geometric_speedup = math.exp(
+                sum(math.log(value) for value in best_speedups) / len(best_speedups)
+            )
+            portability_section = f"""
+      <h4>Finalist portability across fields and vertical depth</h4>
+      <p>This increment asks whether the scheduling conclusion from the earlier fields=3 screens survives changes in field count and vertical depth. It holds Float64, the synthetic K²-grouped matrices, prearranged column order, one requested BLAS thread, warmups, samples, and source commit fixed; only the named workload and outer schedule change. The timed boundary remains the complete out-of-place group loop for raw forward or inverse vertical GEMM. Matrix construction, provider preparation, scheduler construction, correctness copies, horizontal gathering, and packing are excluded.</p>
+      <p>Across {len(portability_profiles)} newly completed profiles and 32 provider/direction cells, dynamic-16 is fastest in {winner_counts["dynamic-16"]} cells and static-12 in {winner_counts["static-12"]}. The best finalist improves on its same-commit serial baseline by {geometric_speedup:.2f}× geometrically, spanning {min(best_speedups):.2f}×–{max(best_speedups):.2f}×. Both finalists beat serial in {sum(value > 1.0 for value in candidate_speedups)} of {len(candidate_speedups)} individual comparisons. Reported explicit peaks span {format_bytes(min(peak_bytes))}–{format_bytes(max(peak_bytes))}; the largest observed correctness error is {format_error(max(errors))}.</p>
+      <p>This advances dynamic-16 as the default scheduling finalist for the ordering/packing crossover and combined-pipeline experiments, while retaining static-12 as a close alternative. It does not establish a machine-independent winner or include the upstream data movement owned by issue #13.</p>
+            """
         scheduling_section = f"""
       <h3>Persistent outer group scheduling</h3>
       <p>These candidates hold each Accelerate GEMM to one requested internal thread and distribute complete K² groups over persistent C++ workers. Weighted-static uses setup-time contiguous partitions balanced by group-column count; dynamic uses an allocation-free atomic next-group counter. Speedup is relative to the same-commit serial grouped run with one BLAS thread.</p>
@@ -1353,10 +1463,11 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         <thead><tr><th scope="col">Workload</th><th scope="col">Complex forward</th><th scope="col">Complex inverse</th><th scope="col">Split forward</th><th scope="col">Split inverse</th></tr></thead>
         <tbody>{''.join(best_rows)}</tbody>
       </table></div>
+      {portability_section}
       <p>The installed public Accelerate CBLAS headers expose no variable-size grouped GEMM batch API. {escaped(adjacent_scan_conclusion)} Nonadjacent merging would require the reordering or block-diagonal expansion deliberately left outside this primitive experiment.</p>
         """
     return common_section + grouped_section + scheduling_section + """
-      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition and scheduler construction are setup-only. Thread-stack memory remains opaque when persistent outer workers are used. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Fields 1/4, N<sub>z</sub>=257, third-party grouped APIs, blocking, and full reference-depth sampling remain open.</p>
+      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition and scheduler construction are setup-only. Thread-stack memory remains opaque when persistent outer workers are used. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. The named fields=1/3/4 and N<sub>z</sub>=65/129/257 profiles now have a preliminary finalist screen; machine-state repeats, third-party grouped APIs, blocking, and the packing crossover remain open.</p>
     """
 
 

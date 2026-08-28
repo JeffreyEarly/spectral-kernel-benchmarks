@@ -4530,6 +4530,534 @@
         "samplesSha256": "8d76e344a24dd4f48969a250a26077c919a96b7bae90dacb0583e7b69786f685"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T025900272351Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025900272351Z-lyra/result.json",
+        "samples": "runs/20260828T025900272351Z-lyra/samples.csv",
+        "resultSha256": "5696f24831f92af5c0ddef5fe24d8db887e2406d5bee6b6e84028f6ea2a3d373",
+        "samplesSha256": "a731f93e43a33cec7bf772820d5b6e797fa9a62ad3742dd5745ba510e9f69207"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025900999159Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025900999159Z-lyra/result.json",
+        "samples": "runs/20260828T025900999159Z-lyra/samples.csv",
+        "resultSha256": "20b88f26bb1346b3aeac35478f6bf016a8aafb5fa20f02211cc186ff563e57a7",
+        "samplesSha256": "fe3ec9f6e59172e88a4369b432cac31c5d31c33f2f9070e2d48bb6c08cc5240f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025901456511Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025901456511Z-lyra/result.json",
+        "samples": "runs/20260828T025901456511Z-lyra/samples.csv",
+        "resultSha256": "8ce6d62ea01a7354c7d919adf72ea09ae1f5deed1234104fc7091b9b0c48294f",
+        "samplesSha256": "e02750338a64b4beb5e3aeb31dd9bf0c441ee675ee6956d8241b9ff89bd6fb13"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025901912400Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025901912400Z-lyra/result.json",
+        "samples": "runs/20260828T025901912400Z-lyra/samples.csv",
+        "resultSha256": "a87a8ea810ac172119f8317779d4d445b02bb3bc175b45cc842c55fa2179f318",
+        "samplesSha256": "b08d1c37e5b396686e843935254707ea2b59559fe0baecd3144eb36b48dd07dd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025908878613Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025908878613Z-lyra/result.json",
+        "samples": "runs/20260828T025908878613Z-lyra/samples.csv",
+        "resultSha256": "1c1034c024bc307c36cc0b47ad21c6ad663f21b7aadc11e0dbf44841db8abc70",
+        "samplesSha256": "d5b5eda4a075872a7ab71b945e8ff73fe573425ba42566f047efcc4576080f0b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025913151461Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025913151461Z-lyra/result.json",
+        "samples": "runs/20260828T025913151461Z-lyra/samples.csv",
+        "resultSha256": "6a0f1712a97fa49f2a74a553f603b5b180363de811f28726f73555d421302f4d",
+        "samplesSha256": "4849b6aa04402801f01561ca47b4539b611f4aa80629ecaaba75185e1a8eb4fd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025917205881Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025917205881Z-lyra/result.json",
+        "samples": "runs/20260828T025917205881Z-lyra/samples.csv",
+        "resultSha256": "423a2738535b0623ec2c92be93cc66c145c408ed8b19a1ca1dfb0790ad5412d0",
+        "samplesSha256": "cbaef6b5be2a0feef88104711aa4b7e55307f8f5a73a9e1e8a168eebc109fba6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025918076422Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025918076422Z-lyra/result.json",
+        "samples": "runs/20260828T025918076422Z-lyra/samples.csv",
+        "resultSha256": "5021f94050f4623ee00fa9940e2243b972d5b33f0a7d60b021fccdc0b3ace7e5",
+        "samplesSha256": "8c9678d037d23f70f3dcd324c573412c327e4ad7acb7a3b59b168c6cf4a2060c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025918519676Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025918519676Z-lyra/result.json",
+        "samples": "runs/20260828T025918519676Z-lyra/samples.csv",
+        "resultSha256": "5832a52891f4bdf71f5fe537c2b7e37cfd019c5c698fac348d4db37cb2681e3c",
+        "samplesSha256": "6190c31f8c45b1e57749df723e516492f146f8e4f55fbcb5ffdacf1329fa7b74"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025918940830Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025918940830Z-lyra/result.json",
+        "samples": "runs/20260828T025918940830Z-lyra/samples.csv",
+        "resultSha256": "370e49867572238467bba684eed42ea3d90b17813c2d891fe1635a9b8a3413e5",
+        "samplesSha256": "90447f74167dcf59788f4dbad79a9ca6419fed5ce87efba124b7e51a8b33be8f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025920464531Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025920464531Z-lyra/result.json",
+        "samples": "runs/20260828T025920464531Z-lyra/samples.csv",
+        "resultSha256": "82e8188da7878aa6d470209cf834274daa721a1be0a19de39be92064338e708e",
+        "samplesSha256": "8f91b71118049cd3c19cb66146d23bc5b7d53bf53567eec4871e380c2b272ac6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025921364278Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025921364278Z-lyra/result.json",
+        "samples": "runs/20260828T025921364278Z-lyra/samples.csv",
+        "resultSha256": "6c4083619fa60885bbf903ea041c3d0f6dc1e7c291547b03d446b513d9dc7856",
+        "samplesSha256": "292a25a87ccb127dd06a4460e57722294048e9159e5e0a79dff296ffb4f5e098"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025922205820Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025922205820Z-lyra/result.json",
+        "samples": "runs/20260828T025922205820Z-lyra/samples.csv",
+        "resultSha256": "9e2f5aabd74d9a5108d29112b978155a7cf4ab228328ba4f2bb0d12f8d9014b4",
+        "samplesSha256": "0175f60db2177eda189af4dfefba52507da5853d79a8b32b90cefed853552458"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025924008869Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025924008869Z-lyra/result.json",
+        "samples": "runs/20260828T025924008869Z-lyra/samples.csv",
+        "resultSha256": "e9764fe1a1552a136a0295beeccf1a170e22ea1993bd3c2bedace63c8bf005dd",
+        "samplesSha256": "acfdf278f7af68aebe515e289e25420754737e535c6eb73220ee3fdea05c609e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025925109469Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025925109469Z-lyra/result.json",
+        "samples": "runs/20260828T025925109469Z-lyra/samples.csv",
+        "resultSha256": "1457f8f9c62481229982dd5259eacefe512aae64c493c92cb011bfbfd127380a",
+        "samplesSha256": "ec6ea01e853be637a832fbbd83628b668c34849832d1ca69c150c7ff5d14ae9b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025926153974Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025926153974Z-lyra/result.json",
+        "samples": "runs/20260828T025926153974Z-lyra/samples.csv",
+        "resultSha256": "d5aaaceef2196087e9359c4c5a0bb43f80b0eb987898fa24e86dc3118e01b28b",
+        "samplesSha256": "b31f8392715011c3ad9ff744e3b11ba9207b4d70009a01de5485902eb8acbece"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025936494029Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025936494029Z-lyra/result.json",
+        "samples": "runs/20260828T025936494029Z-lyra/samples.csv",
+        "resultSha256": "deb05e6b77b92347c249b662bd683d4ee23ba7f408015786f9b4e4673c794d00",
+        "samplesSha256": "6788037586e625d29926e2afdf1f44fcac5b34cd8222b51402418d96df24fd9f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025941705641Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025941705641Z-lyra/result.json",
+        "samples": "runs/20260828T025941705641Z-lyra/samples.csv",
+        "resultSha256": "ab37881c1c16bc37eca1d5b3d8b402264b0f8fa47d9b79778946d55fa1b1b25d",
+        "samplesSha256": "816108add9d19af3aff0af7e8cfc3ced6602646654909098409984d41a6ba58a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T025946563938Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T025946563938Z-lyra/result.json",
+        "samples": "runs/20260828T025946563938Z-lyra/samples.csv",
+        "resultSha256": "68229e7b599a0a11450d02641449ff5295c2c439ebda8ae8c79a6876505229cb",
+        "samplesSha256": "8fb7dcf743a734e4b02b5e9a9a4a15d32e624abef2dcbe86201f3f1a38af982b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T030004760048Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T030004760048Z-lyra/result.json",
+        "samples": "runs/20260828T030004760048Z-lyra/samples.csv",
+        "resultSha256": "dbffc9c41d3e1842ed3b7e94dd2b734ed170ba230fbba0324e5c0ae4450240bf",
+        "samplesSha256": "90eaf7d71a8721b5ce2c0640f837b5bbad79c57d9f35524911b527901abe65ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T030014343117Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T030014343117Z-lyra/result.json",
+        "samples": "runs/20260828T030014343117Z-lyra/samples.csv",
+        "resultSha256": "70ada1bbf8287314628c8540bbe76ee79f7199b9135c11520070466a19055b58",
+        "samplesSha256": "2a7fe5069e7f4d5b7c715a773d9e6b842a3fe26d281b42ff1a3c6492c459d6c6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T030023222231Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T030023222231Z-lyra/result.json",
+        "samples": "runs/20260828T030023222231Z-lyra/samples.csv",
+        "resultSha256": "9058d6c236b246a0a0c941db63a8627c5f0062eefa0251231cf20ef4e0bc7646",
+        "samplesSha256": "a867642259378e5df4c1d971f501a220dbac831f5bc077f5faee78a0c5382ac8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T030044151611Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T030044151611Z-lyra/result.json",
+        "samples": "runs/20260828T030044151611Z-lyra/samples.csv",
+        "resultSha256": "11f8b7ec66f4865648857685d4a0077977cbfddcf6db9650a7367db7d47170b7",
+        "samplesSha256": "843ee7bd722c898fc41d273d852fc661aea3ea7c63ffb8aa7eaf5ba408d9c035"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T030055673684Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped finalist portability sweep across the eight previously missing fields=1/3/4 and Nz=65/129/257 profiles; compares same-commit serial, static-12, and dynamic-16 at one requested BLAS thread, reports explicit peak estimates, excludes upstream gathering/packing, and remains preliminary pending machine-state repeats and issue #13.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T030055673684Z-lyra/result.json",
+        "samples": "runs/20260828T030055673684Z-lyra/samples.csv",
+        "resultSha256": "bd660cc045f6fb272b53e3cfd2484b1e0c7e400312db3cc7772db39b829f8afe",
+        "samplesSha256": "fa5c29bf4956eb12d43c4315e400f3df631505c60930f7ac8c7b60b29ddcfcb3"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
