@@ -4046,6 +4046,490 @@
         "samplesSha256": "3cef31c8921519aa2e8e0675bea3cdbc2451c7f1d04231d6e10555fe15a77729"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T022515136042Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022515136042Z-lyra/result.json",
+        "samples": "runs/20260828T022515136042Z-lyra/samples.csv",
+        "resultSha256": "af38f70b52a50fa383026b69000dc190c00b5d76e16b5461090e536e2f90a7af",
+        "samplesSha256": "5e49a7f697da4a5c62d014df28696ad8cc2ae975cbde46082861fbfb4f15cd16"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022515718630Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=2).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022515718630Z-lyra/result.json",
+        "samples": "runs/20260828T022515718630Z-lyra/samples.csv",
+        "resultSha256": "4ae11cc93a88923f5981d47665612de32e968fe4370f08e131a46d7c29b0b5c7",
+        "samplesSha256": "f83697f603d27d8c4031cf5d13619ca71c5563aa151c630e43259d25483cd8f9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022516167993Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=4).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022516167993Z-lyra/result.json",
+        "samples": "runs/20260828T022516167993Z-lyra/samples.csv",
+        "resultSha256": "167ef768df1bc747ef45462886b48bad0e832e85074a2455eca42a6bbe1c46fa",
+        "samplesSha256": "c408823a3dce0de13674ea84fad56e62aa08cf3b42c095230f46ff7c829fd6dd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022516572262Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=8).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022516572262Z-lyra/result.json",
+        "samples": "runs/20260828T022516572262Z-lyra/samples.csv",
+        "resultSha256": "9aa702cfa702bcbad0693cb3435f2977fced62cadabb3e8dd83df625c3e903d9",
+        "samplesSha256": "92610ed57ad12062e5b537418f30573066fb3902677f4f49021c33c69a1901a7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022516943583Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022516943583Z-lyra/result.json",
+        "samples": "runs/20260828T022516943583Z-lyra/samples.csv",
+        "resultSha256": "45bf7cc982cf29e5de9e50941b37b2c86d6491c64b92ed7272fd2f0d6b704344",
+        "samplesSha256": "18165ac17b58361c21039c54beb928e550a6389e03827e694915544809fe66d6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022517292844Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022517292844Z-lyra/result.json",
+        "samples": "runs/20260828T022517292844Z-lyra/samples.csv",
+        "resultSha256": "aa71c96a27fbea347f44f06fc0222c6b751a7db463cf57df786ed767012e791d",
+        "samplesSha256": "9c268068054da93e6886c6356c551ac0a14534b78f0ced3e20cd6e6302c2a2c2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022517646762Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=2).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022517646762Z-lyra/result.json",
+        "samples": "runs/20260828T022517646762Z-lyra/samples.csv",
+        "resultSha256": "176a9d0a173be075466cbdbe4bf67059f1c9a0e09dd5a0a0f5ee88db821e9a83",
+        "samplesSha256": "5d3333678314f7aa22cb0f8aaa6f6b3fc28684224ab74a245c7d9f85a8261d54"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022518109316Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=4).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022518109316Z-lyra/result.json",
+        "samples": "runs/20260828T022518109316Z-lyra/samples.csv",
+        "resultSha256": "9c08aa0344c4898572f8cc7577d59bac7ccc6cc337e1b398053daf0990cadc1e",
+        "samplesSha256": "b69ba9c06a4d1c13bfece61245e655a98da575303aa750aa0a1a3efa49252440"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022518514199Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=8).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022518514199Z-lyra/result.json",
+        "samples": "runs/20260828T022518514199Z-lyra/samples.csv",
+        "resultSha256": "b0bf1443f649f49f2a31e83c4cda082b7e1d46fbfe098473e59ccee964614df1",
+        "samplesSha256": "3deba8d61f1e1efe36aef68c3dba8a0e3c99443d229ec77b9fea9d7b241c13fc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022518879170Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022518879170Z-lyra/result.json",
+        "samples": "runs/20260828T022518879170Z-lyra/samples.csv",
+        "resultSha256": "e3565f07b812e8be3044802202f1047d07e3f5b8f153c2eb98d53790838912a6",
+        "samplesSha256": "190bd40cbc1bac80d163d424ad6284384489d9d9ff582d3e2dad5616ab87b3c0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022519242959Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022519242959Z-lyra/result.json",
+        "samples": "runs/20260828T022519242959Z-lyra/samples.csv",
+        "resultSha256": "18a06aa0e0ae2562bcafc895b5580d4632c8ad8b52059e404593b8c0c6ef4f41",
+        "samplesSha256": "192bb237216cbb038bce85bc844303b9210eb949e4d391447d889634a9b3405f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022519602905Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-serial-real-matrices-expanded (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022519602905Z-lyra/result.json",
+        "samples": "runs/20260828T022519602905Z-lyra/samples.csv",
+        "resultSha256": "eebfeadd469a29eaafb8da23242b6e32d6f5538ef66f2e0d4f95d841d17a3646",
+        "samplesSha256": "f31ffb136a5d897ef1bf41575a14bf22d7c2c906a97197c7256d14100cf6b4e0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022525454863Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=2).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022525454863Z-lyra/result.json",
+        "samples": "runs/20260828T022525454863Z-lyra/samples.csv",
+        "resultSha256": "ebd446d480be2f63e1f95a548f62e37e6c5fa8e46e6edfef66b2c157539a8012",
+        "samplesSha256": "190b66bd6778425bd80ddf2178643fab29b2a0dcff6970c4271a2e790e39c20a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022529683848Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=4).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022529683848Z-lyra/result.json",
+        "samples": "runs/20260828T022529683848Z-lyra/samples.csv",
+        "resultSha256": "f29b5f87316a58e667e463c945448d6ad64b315ebec337b8f974177167a3239c",
+        "samplesSha256": "27c28bf7229244888d33dcae1186f4cec75500508b36ce4d3895f735c2475f87"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022533614678Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=8).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022533614678Z-lyra/result.json",
+        "samples": "runs/20260828T022533614678Z-lyra/samples.csv",
+        "resultSha256": "b6e56c9a97a05c588290bed918903fca7a50f65dede78bc3ffe722c6586d1cfe",
+        "samplesSha256": "44ecffc55ad2f30bcb4121bceb3c232db626b5f2050830b8d7d88f4f07c1f741"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022537098571Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022537098571Z-lyra/result.json",
+        "samples": "runs/20260828T022537098571Z-lyra/samples.csv",
+        "resultSha256": "ef78a117d010fbded1fa823dda18447e18108475f0a88cababe0a7676feb485a",
+        "samplesSha256": "699540732041fb86183fca33769c2f8e6e01c7c955e4bc2f67ed69fe4b87cc47"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022540534940Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-static-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022540534940Z-lyra/result.json",
+        "samples": "runs/20260828T022540534940Z-lyra/samples.csv",
+        "resultSha256": "57d1aa455de4000bca8182bd3a02ddbc63c8aa60a1662f83769239ffed40a241",
+        "samplesSha256": "440d6144f20a6620106cd454b82131d471b87c8979e1ab9258eb3ffbb8ea8453"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022543898509Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=2).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022543898509Z-lyra/result.json",
+        "samples": "runs/20260828T022543898509Z-lyra/samples.csv",
+        "resultSha256": "32fe854a6c14962a3c28f1b77390385fbc0bf62a59e6884f7bda36f1a7d65071",
+        "samplesSha256": "e6df15bacd164e78bc415150a09b6362f2cda00b0ba0e5332826c36e8078c41f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022548277070Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=4).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022548277070Z-lyra/result.json",
+        "samples": "runs/20260828T022548277070Z-lyra/samples.csv",
+        "resultSha256": "106404e3d5acaf18c7706b5835a59eea6c2135402aa66b8a535883ea67106057",
+        "samplesSha256": "9153bf61adefc050155d4ad06cb26f48b18e42e9306a67284a73ec31aa175c14"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022552027438Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=8).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022552027438Z-lyra/result.json",
+        "samples": "runs/20260828T022552027438Z-lyra/samples.csv",
+        "resultSha256": "97bedffd56de9badc2ced851dcd9a219de2f98bb9358900536d2e223ab4b97d4",
+        "samplesSha256": "a61c74c080cafcfc61789c23355f717050c1e4ae641e92d861dd61b143f2a548"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022555419580Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022555419580Z-lyra/result.json",
+        "samples": "runs/20260828T022555419580Z-lyra/samples.csv",
+        "resultSha256": "832c2d465c0c1bd43d84933355bb9c04225e177cb10b79c3aa3604b6f01db2e5",
+        "samplesSha256": "450f2f949eeb5e21b1341feb202cc0ddf599d9c0fbdb2bd4829b69a18d12b57b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T022558741431Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary K-squared-grouped persistent outer-scheduling sweep for the representative fields=3, 256/Nz65 and 512/Nz129 workloads; BLAS was held at one requested thread, prearranged group order excludes gathering and packing, and reference status awaits fields 1/4, Nz=257, and machine-state repeats.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-zgemm-k2-group-outer-dynamic-real-matrices-expanded (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T022558741431Z-lyra/result.json",
+        "samples": "runs/20260828T022558741431Z-lyra/samples.csv",
+        "resultSha256": "5352b793706b75da16e2961f7b1bee978879c8d06d770ae1d535f21088bb21b4",
+        "samplesSha256": "8d76e344a24dd4f48969a250a26077c919a96b7bae90dacb0583e7b69786f685"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

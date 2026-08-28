@@ -1292,6 +1292,51 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         )
     scheduling_section = ""
     if scheduling_rows:
+        best_rows: list[str] = []
+        for profile in sorted({record[0]["run"]["profile"] for record in outer_records}):
+            candidates = [record for record in outer_records if record[0]["run"]["profile"] == profile]
+            result = candidates[0][0]
+            baselines = [
+                record for record in serial_grouped_records
+                if record[0]["run"]["profile"] == profile
+                and record[1]["scheduling"]["internalWorkers"] == 1
+                and record[0]["environment"]["gitCommit"] == result["environment"]["gitCommit"]
+            ]
+            if not baselines:
+                continue
+            baseline = max(baselines, key=lambda record: record[0]["environment"]["timestampUtc"])
+
+            def best_cell(provider_index: int, direction: str) -> str:
+                winner = min(
+                    candidates,
+                    key=lambda record: float(timing(record[provider_index], "primitive", direction)["medianSeconds"]),
+                )
+                provider = winner[provider_index]
+                candidate_timing = timing(provider, "primitive", direction)
+                baseline_timing = timing(baseline[provider_index], "primitive", direction)
+                schedule = "static" if "outer-static" in provider["algorithmId"] else "dynamic"
+                workers = provider["scheduling"]["outerWorkers"]
+                speedup = float(baseline_timing["medianSeconds"]) / float(candidate_timing["medianSeconds"])
+                return f'{format_ms(candidate_timing["medianSeconds"])} · {schedule}-{workers} · {speedup:.2f}×'
+
+            workload = result["workload"]
+            best_rows.append(
+                "<tr>"
+                f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}</span></th>'
+                f'<td class="numeric">{best_cell(1, "forward")}</td>'
+                f'<td class="numeric">{best_cell(1, "inverse")}</td>'
+                f'<td class="numeric">{best_cell(2, "forward")}</td>'
+                f'<td class="numeric">{best_cell(2, "inverse")}</td>'
+                "</tr>"
+            )
+        adjacent_scan_conclusion = (
+            "Every published scheduling run reports zero exactly equivalent adjacent matrix pairs."
+            if all(
+                "exactly equivalent adjacent matrix pairs=0" in record[1]["planning"]["configuration"]
+                for record in outer_records
+            )
+            else "The adjacent-equality result varies across the published scheduling runs."
+        )
         scheduling_section = f"""
       <h3>Persistent outer group scheduling</h3>
       <p>These candidates hold each Accelerate GEMM to one requested internal thread and distribute complete K² groups over persistent C++ workers. Weighted-static uses setup-time contiguous partitions balanced by group-column count; dynamic uses an allocation-free atomic next-group counter. Speedup is relative to the same-commit serial grouped run with one BLAS thread.</p>
@@ -1300,7 +1345,13 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         <thead><tr><th scope="col">Workload</th><th scope="col">Schedule</th><th scope="col">Complex time and speedup</th><th scope="col">Split time and speedup</th><th scope="col">Empty dispatch ms</th></tr></thead>
         <tbody>{''.join(scheduling_rows)}</tbody>
       </table></div>
-      <p>The installed public Accelerate CBLAS headers expose no variable-size grouped GEMM batch API. The setup-time equality scan also records whether adjacent synthetic matrix groups can be merged exactly; nonadjacent merging would require the reordering or block-diagonal expansion deliberately left outside this primitive experiment.</p>
+      <h4>Best observed candidates</h4>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Each cell is median milliseconds · schedule-worker count · speedup over the same-commit serial grouped baseline.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Complex forward</th><th scope="col">Complex inverse</th><th scope="col">Split forward</th><th scope="col">Split inverse</th></tr></thead>
+        <tbody>{''.join(best_rows)}</tbody>
+      </table></div>
+      <p>The installed public Accelerate CBLAS headers expose no variable-size grouped GEMM batch API. {escaped(adjacent_scan_conclusion)} Nonadjacent merging would require the reordering or block-diagonal expansion deliberately left outside this primitive experiment.</p>
         """
     return common_section + grouped_section + scheduling_section + """
       <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition and scheduler construction are setup-only. Thread-stack memory remains opaque when persistent outer workers are used. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Fields 1/4, N<sub>z</sub>=257, third-party grouped APIs, blocking, and full reference-depth sampling remain open.</p>
