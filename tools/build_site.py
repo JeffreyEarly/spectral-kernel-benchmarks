@@ -1035,7 +1035,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
         bundles,
         key=lambda item: (
             item.result["workload"]["Nx"],
-            "k2-group-loop" in item.result["providers"][0]["algorithmId"],
+            "k2-group-" in item.result["providers"][0]["algorithmId"],
             item.result["providers"][0]["workers"],
             item.result["run"]["id"],
         ),
@@ -1075,7 +1075,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
             split_provider, "setup-component", "matrix preparation", "shared"
         )
         grouping = workload.get("grouping", {})
-        grouped = "k2-group-loop" in complex_provider["algorithmId"]
+        grouped = "k2-group-" in complex_provider["algorithmId"]
         family = "K²-grouped synthetic" if grouped else "Common DCT-II"
         group_count = int(grouping.get("verticalGroupCount", 1))
         group_columns = grouping.get("verticalGroupColumns", {})
@@ -1092,7 +1092,9 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
             f'N<sub>j</sub>={workload["Nj"]}, fields={workload["fields"]}, K={workload["Nkl"] * workload["fields"]}</span></td>'
             f'<td>{family}<br><span class="muted">{group_description}</span></td>'
-            f'<td class="numeric">{complex_provider["workers"]}</td>'
+            f'<td>{escaped(complex_provider["schedulingId"])}<br><span class="muted">'
+            f'internal {complex_provider["scheduling"]["internalWorkers"]} × outer '
+            f'{complex_provider["scheduling"]["outerWorkers"]}</span></td>'
             f'<td class="numeric">{timing_with_interval(complex_forward)} / {timing_with_interval(complex_inverse)}<br>'
             f'<span class="muted">CV {coefficient_of_variation(complex_forward)} / {coefficient_of_variation(complex_inverse)}</span></td>'
             f'<td class="numeric">{timing_with_interval(split_forward)} / {timing_with_interval(split_inverse)}<br>'
@@ -1112,7 +1114,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
     return f"""
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Setup is logical family generation / complex preparation / split preparation. Persistent memory is complex / split. No packing or representation conversion is timed.</caption>
-        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Matrix family</th><th scope="col">VECLIB thread limit</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Setup ms</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
+        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Matrix family</th><th scope="col">Scheduling</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Setup ms</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
         <tbody>{''.join(rows)}</tbody>
       </table></div>
     """
@@ -1128,7 +1130,7 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
             (item for item in bundle.result["providers"] if item["id"] == "accelerate-split-dgemm"), None
         )
         if complex_provider is not None and split_provider is not None:
-            family = "grouped" if "k2-group-loop" in complex_provider["algorithmId"] else "common"
+            family = "grouped" if "k2-group-" in complex_provider["algorithmId"] else "common"
             records.append((bundle.result, complex_provider, split_provider, family))
     if not records:
         return ""
@@ -1173,9 +1175,13 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
     grouped_records = [record for record in records if record[3] == "grouped"]
+    serial_grouped_records = [
+        record for record in grouped_records
+        if record[1]["scheduling"]["outerWorkers"] == 1
+    ]
     grouped_rows: list[str] = []
     for grouped in sorted(
-        grouped_records,
+        serial_grouped_records,
         key=lambda record: (record[0]["workload"]["Nx"], record[1]["workers"]),
     ):
         result, complex_provider, split_provider, _ = grouped
@@ -1230,8 +1236,74 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         <tbody>{''.join(grouped_rows)}</tbody>
       </table></div>
     """
-    return common_section + grouped_section + """
-      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition is setup-only. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Fields 1/4, N<sub>z</sub>=257, alternative grouped/batched APIs, blocking, and full reference-depth sampling remain open.</p>
+
+    scheduling_rows: list[str] = []
+    outer_records = [
+        record for record in grouped_records
+        if record[1]["scheduling"]["outerWorkers"] > 1
+        and record[1]["scheduling"]["internalWorkers"] == 1
+    ]
+    for candidate in sorted(
+        outer_records,
+        key=lambda record: (
+            record[0]["workload"]["Nx"],
+            record[1]["algorithmId"],
+            record[1]["scheduling"]["outerWorkers"],
+        ),
+    ):
+        result, complex_provider, split_provider, _ = candidate
+        baselines = [
+            record for record in serial_grouped_records
+            if record[0]["run"]["profile"] == result["run"]["profile"]
+            and record[1]["scheduling"]["internalWorkers"] == 1
+            and record[0]["environment"]["gitCommit"] == result["environment"]["gitCommit"]
+        ]
+        if not baselines:
+            continue
+        baseline = max(baselines, key=lambda record: record[0]["environment"]["timestampUtc"])
+        speedups: list[str] = []
+        medians: list[str] = []
+        for provider_index in (1, 2):
+            provider_speedups: list[str] = []
+            provider_medians: list[str] = []
+            for direction in ("forward", "inverse"):
+                baseline_timing = timing(baseline[provider_index], "primitive", direction)
+                candidate_timing = timing(candidate[provider_index], "primitive", direction)
+                provider_speedups.append(
+                    f'{float(baseline_timing["medianSeconds"]) / float(candidate_timing["medianSeconds"]):.2f}×'
+                )
+                provider_medians.append(format_ms(candidate_timing["medianSeconds"]))
+            speedups.append(" / ".join(provider_speedups))
+            medians.append(" / ".join(provider_medians))
+        dispatch = stage_timing(
+            complex_provider, "primitive-diagnostic", "empty group dispatch", "shared"
+        )
+        algorithm = complex_provider["algorithmId"]
+        schedule = "outer-static" if "outer-static" in algorithm else "outer-dynamic"
+        workload = result["workload"]
+        scheduling_rows.append(
+            "<tr>"
+            f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}</span></th>'
+            f'<td>{schedule}<br><span class="muted">{complex_provider["scheduling"]["outerWorkers"]} outer × 1 BLAS</span></td>'
+            f'<td class="numeric">{medians[0]}<br><span class="muted">speedup {speedups[0]}</span></td>'
+            f'<td class="numeric">{medians[1]}<br><span class="muted">speedup {speedups[1]}</span></td>'
+            f'<td class="numeric">{format_ms(dispatch["medianSeconds"]) if dispatch else "—"}</td>'
+            "</tr>"
+        )
+    scheduling_section = ""
+    if scheduling_rows:
+        scheduling_section = f"""
+      <h3>Persistent outer group scheduling</h3>
+      <p>These candidates hold each Accelerate GEMM to one requested internal thread and distribute complete K² groups over persistent C++ workers. Weighted-static uses setup-time contiguous partitions balanced by group-column count; dynamic uses an allocation-free atomic next-group counter. Speedup is relative to the same-commit serial grouped run with one BLAS thread.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Candidate medians are forward / inverse milliseconds; speedups above one favor outer scheduling. Empty dispatch traverses the same group schedule without GEMM and is a non-additive diagnostic.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Schedule</th><th scope="col">Complex time and speedup</th><th scope="col">Split time and speedup</th><th scope="col">Empty dispatch ms</th></tr></thead>
+        <tbody>{''.join(scheduling_rows)}</tbody>
+      </table></div>
+      <p>The installed public Accelerate CBLAS headers expose no variable-size grouped GEMM batch API. The setup-time equality scan also records whether adjacent synthetic matrix groups can be merged exactly; nonadjacent merging would require the reordering or block-diagonal expansion deliberately left outside this primitive experiment.</p>
+        """
+    return common_section + grouped_section + scheduling_section + """
+      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition and scheduler construction are setup-only. Thread-stack memory remains opaque when persistent outer workers are used. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Fields 1/4, N<sub>z</sub>=257, third-party grouped APIs, blocking, and full reference-depth sampling remain open.</p>
     """
 
 

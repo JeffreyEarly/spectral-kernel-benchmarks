@@ -268,6 +268,26 @@ std::vector<Complex> gatherVerticalProbes(const Complex* values, std::size_t row
     return result;
 }
 
+std::size_t adjacentEquivalentVerticalGroupPairs(const GroupedVerticalOperators& operators) {
+    if (operators.groups.size() < 2) return 0;
+    const auto matrixElements = operators.nz * operators.nj;
+    std::size_t equivalent = 0;
+    for (std::size_t group = 1; group < operators.groups.size(); ++group) {
+        const auto previous = (group - 1) * matrixElements;
+        const auto current = group * matrixElements;
+        const bool forwardEqual = std::equal(
+            operators.forward.begin() + static_cast<std::ptrdiff_t>(previous),
+            operators.forward.begin() + static_cast<std::ptrdiff_t>(previous + matrixElements),
+            operators.forward.begin() + static_cast<std::ptrdiff_t>(current));
+        const bool inverseEqual = std::equal(
+            operators.inverse.begin() + static_cast<std::ptrdiff_t>(previous),
+            operators.inverse.begin() + static_cast<std::ptrdiff_t>(previous + matrixElements),
+            operators.inverse.begin() + static_cast<std::ptrdiff_t>(current));
+        if (forwardEqual && inverseEqual) ++equivalent;
+    }
+    return equivalent;
+}
+
 std::size_t configuredAccelerateThreads(const EnvironmentRecord& environment) {
     const char* value = std::getenv("VECLIB_MAXIMUM_THREADS");
     if (value == nullptr || *value == '\0') return std::max<std::size_t>(1, environment.totalCores);
@@ -288,6 +308,11 @@ std::string accelerateSchedulingId() {
     return value == nullptr || *value == '\0'
         ? "accelerate-system-default"
         : "accelerate-veclib-maximum-threads-" + std::string(value);
+}
+
+std::string verticalGemmSchedulingId(VerticalGemmStrategy strategy) {
+    return "vertical-gemm-" + std::string(verticalGemmScheduleName(strategy.schedule)) +
+        "-outer-workers-" + std::to_string(strategy.outerWorkers) + ";" + accelerateSchedulingId();
 }
 
 ExecutionContract verticalGemmExecutionContract(const VerticalGemmProvider& provider,
@@ -324,9 +349,13 @@ ExecutionContract verticalGemmExecutionContract(const VerticalGemmProvider& prov
     return contract;
 }
 
-std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout, std::size_t groupCount) {
+std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout, std::size_t groupCount,
+                                            VerticalGemmStrategy strategy,
+                                            std::size_t adjacentEquivalentPairs) {
     const auto split = layout == VerticalGemmLayout::split;
     const auto groupText = std::to_string(groupCount) + " contiguous matrix group(s)";
+    const auto scheduleText = std::string(verticalGemmScheduleName(strategy.schedule)) +
+        " over " + std::to_string(strategy.outerWorkers) + " outer worker(s)";
     return {
         {"setup/planning", StageState::setupOnly,
          split ? "transpose immutable real forward/inverse matrix families into BLAS column-major storage; " + groupText
@@ -336,12 +365,19 @@ std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout, std::size
         {"representation conversion", StageState::elided, "operands are pre-arranged before primitive timing"},
         {"permutation/packing", StageState::elided, "excluded from issue #8 primitive timing and owned by issue #13"},
         {"raw forward vertical MM", StageState::executed,
-         split ? "component-major loop of two cblas_dgemm calls per matrix group over split operands"
-               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex"},
+         split ? "two cblas_dgemm calls per matrix group over split operands; " + scheduleText
+               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex; " + scheduleText},
+        {"variable-size grouped BLAS batching", StageState::unsupported,
+         "the installed public Accelerate CBLAS headers expose no variable-size grouped GEMM batch API"},
+        {"exact group consolidation", StageState::unsupported,
+         groupCount == 1
+             ? "the common-matrix baseline is already one consolidated GEMM"
+             : std::to_string(adjacentEquivalentPairs) +
+                   " adjacent matrix pair(s) are exactly equal; nonadjacent consolidation requires reordering or block-diagonal expansion"},
         {"modal work", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"raw inverse vertical MM", StageState::executed,
-         split ? "component-major loop of two cblas_dgemm calls per matrix group over split operands"
-               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex"},
+         split ? "two cblas_dgemm calls per matrix group over split operands; " + scheduleText
+               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex; " + scheduleText},
         {"horizontal embedding", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"raw inverse FFT", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"uninstrumented total", StageState::unsupported, "complete spectral pipeline belongs to issue #9"}};
@@ -730,6 +766,14 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     if (options.verticalGemmFamily != "common" && options.verticalGemmFamily != "k2-grouped") {
         throw std::invalid_argument("vertical-gemm family must be either 'common' or 'k2-grouped'.");
     }
+    const VerticalGemmStrategy requestedStrategy{
+        verticalGemmScheduleNamed(options.verticalGemmSchedule), options.verticalGemmOuterWorkers};
+    if (requestedStrategy.schedule == VerticalGemmSchedule::serial && requestedStrategy.outerWorkers != 1) {
+        throw std::invalid_argument("vertical-gemm serial scheduling requires --vertical-gemm-outer-workers 1.");
+    }
+    if (requestedStrategy.schedule != VerticalGemmSchedule::serial && options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument("vertical-gemm outer scheduling is defined only for the k2-grouped family.");
+    }
 
     const auto selected = profileNamed(options.profile);
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
@@ -744,6 +788,11 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     report.workload = selected.workload;
     report.environment = environmentRecord();
     report.runId = utcTimestamp(true) + "-" + report.environment.hostname;
+    const auto configuredThreads = configuredAccelerateThreads(report.environment);
+    if (requestedStrategy.outerWorkers > 1 && configuredThreads != 1) {
+        throw std::invalid_argument(
+            "vertical-gemm outer scheduling requires VECLIB_MAXIMUM_THREADS=1 to avoid nested BLAS oversubscription.");
+    }
 
     const auto& workload = report.workload;
     const auto modes = retainedHorizontalModes(workload);
@@ -753,6 +802,9 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
             modes.size(), orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes()))
         : squaredWavenumberVerticalFixture(workload, modes);
     const auto fixtureGenerationSeconds = std::chrono::duration<double>(Clock::now() - fixtureStart).count();
+    const auto equivalenceScanStart = Clock::now();
+    const auto adjacentEquivalentPairs = adjacentEquivalentVerticalGroupPairs(vertical);
+    const auto equivalenceScanSeconds = std::chrono::duration<double>(Clock::now() - equivalenceScanStart).count();
     const auto columns = modes.size() * workload.fields;
     const auto physicalElements = workload.nz * columns;
     const auto modalElements = vertical.nj * columns;
@@ -789,8 +841,9 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     const auto forwardOracle = directVerticalForwardProbes(vertical, workload, probes, physicalInput.data());
     const auto inverseOracle = directVerticalInverseProbes(vertical, workload, probes, modalInput.data());
 
-    VerticalGemmProvider complexProvider(workload, vertical, VerticalGemmLayout::complexInterleaved);
-    VerticalGemmProvider splitProvider(workload, vertical, VerticalGemmLayout::split);
+    VerticalGemmProvider complexProvider(
+        workload, vertical, VerticalGemmLayout::complexInterleaved, requestedStrategy);
+    VerticalGemmProvider splitProvider(workload, vertical, VerticalGemmLayout::split, requestedStrategy);
     if (!complexProvider.supported() || !splitProvider.supported()) {
         throw std::runtime_error(!complexProvider.supported() ? complexProvider.capability() : splitProvider.capability());
     }
@@ -818,8 +871,6 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     const auto splitForwardProbes = gatherVerticalProbes(splitForward.data(), vertical.nj, probes);
     const auto splitInverseProbes = gatherVerticalProbes(splitInverse.data(), workload.nz, probes);
 
-    const auto configuredThreads = configuredAccelerateThreads(report.environment);
-    const auto schedulingId = accelerateSchedulingId();
     const auto physicalBytes = bytes(physicalElements, sizeof(Complex));
     const auto modalBytes = bytes(modalElements, sizeof(Complex));
 
@@ -836,6 +887,8 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         record.modeOrderId = options.verticalGemmFamily == "common"
             ? "vertical-contiguous;column=field+fields*radial-mode"
             : "vertical-contiguous;k2-group-contiguous;column=field+fields*radial-mode";
+        const auto providerStrategy = provider.strategy();
+        const auto schedulingId = verticalGemmSchedulingId(providerStrategy);
         record.schedulingId = schedulingId;
         record.sourceIdentity = "Apple Accelerate system framework";
         record.configureFlags = "system framework";
@@ -843,18 +896,22 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         record.planningConfiguration = vertical.id + "; column-major; K=" +
             std::to_string(columns) + "; groups=" + std::to_string(vertical.groups.size()) +
             "; GEMM calls per direction=" + std::to_string(provider.gemmCallsPerExecution()) +
+            "; public variable-size grouped BLAS batch API=unavailable" +
+            "; exactly equivalent adjacent matrix pairs=" + std::to_string(adjacentEquivalentPairs) +
+            "; nonadjacent consolidation=requires reordering or block-diagonal expansion" +
             "; " + schedulingId;
-        record.workers = configuredThreads;
+        record.workers = configuredThreads * provider.outerWorkers();
         record.internalWorkers = configuredThreads;
-        record.outerWorkers = 1;
+        record.outerWorkers = provider.outerWorkers();
         record.execution = verticalGemmExecutionContract(provider, workload);
         record.explicitPersistentBytes = provider.persistentBytes();
         record.scratchBytes = 0;
-        record.opaqueProviderMemory = false;
-        record.otherSetupSeconds = provider.matrixPreparationSeconds();
+        record.opaqueProviderMemory = provider.hasOpaqueSchedulerMemory();
+        record.otherSetupSeconds = provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
         record.allocationSeconds = provider.allocationSeconds();
         record.planningSeconds = 0.0;
-        record.ledger = verticalGemmLedger(provider.layout(), vertical.groups.size());
+        record.ledger = verticalGemmLedger(
+            provider.layout(), vertical.groups.size(), providerStrategy, adjacentEquivalentPairs);
         record.correctness = std::move(correctness);
 
         const auto matrixBytes = static_cast<std::uint64_t>(provider.matrixBytesPerDirection());
@@ -863,8 +920,14 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
             "setup-shared-component", "logical matrix-family fixture generation", "shared", StageState::setupOnly,
             report.verticalMatrixFamilySourceBytes, {fixtureGenerationSeconds}));
         record.timings.push_back(series(
+            "setup-shared-component", "adjacent matrix equivalence scan", "shared", StageState::setupOnly,
+            report.verticalMatrixFamilySourceBytes, {equivalenceScanSeconds}));
+        record.timings.push_back(series(
             "setup-component", "matrix preparation", "shared", StageState::setupOnly,
             2 * matrixBytes, {provider.matrixPreparationSeconds()}));
+        record.timings.push_back(series(
+            "setup-component", "persistent outer scheduler creation", "shared", StageState::setupOnly,
+            provider.schedulerPersistentBytes(), {provider.schedulerSetupSeconds()}));
         record.timings.push_back(series(
             "primitive", "raw vertical GEMM", "forward", StageState::executed,
             matrixReads + physicalBytes + modalBytes,
@@ -892,6 +955,13 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
                 measure(warmups, sampleCount, [&] { provider.executeInverseImaginary(); })));
         }
         record.timings.push_back(series(
+            "primitive-diagnostic", "empty group dispatch", "shared",
+            providerStrategy.schedule == VerticalGemmSchedule::serial
+                ? StageState::elided : StageState::executed,
+            0, providerStrategy.schedule == VerticalGemmSchedule::serial
+                ? std::vector<double>{}
+                : measure(warmups, sampleCount, [&] { provider.executeSchedulerNoop(); })));
+        record.timings.push_back(series(
             "adapter-component", "packing and representation conversion", "shared", StageState::elided, 0));
         return record;
     };
@@ -901,7 +971,7 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         "accelerate-zgemm",
         options.verticalGemmFamily == "common"
             ? "accelerate-zgemm-real-matrix-expanded-common"
-            : "accelerate-zgemm-k2-group-loop-real-matrices-expanded",
+            : "accelerate-zgemm-k2-group-" + options.verticalGemmSchedule + "-real-matrices-expanded",
         {
             metric("forward selected columns versus independent scalar oracle",
                    complexForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
@@ -917,7 +987,7 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         "accelerate-split-dgemm",
         options.verticalGemmFamily == "common"
             ? "accelerate-two-dgemm-split-common"
-            : "accelerate-two-dgemm-k2-group-loop-split",
+            : "accelerate-two-dgemm-k2-group-" + options.verticalGemmSchedule + "-split",
         {
             metric("forward selected columns versus independent scalar oracle",
                    splitForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),

@@ -109,12 +109,28 @@ enum class VerticalGemmLayout {
 
 std::string_view verticalGemmLayoutName(VerticalGemmLayout layout) noexcept;
 
+enum class VerticalGemmSchedule {
+    serial,
+    outerStatic,
+    outerDynamic
+};
+
+std::string_view verticalGemmScheduleName(VerticalGemmSchedule schedule) noexcept;
+VerticalGemmSchedule verticalGemmScheduleNamed(std::string_view name);
+
+struct VerticalGemmStrategy {
+    VerticalGemmSchedule schedule = VerticalGemmSchedule::serial;
+    std::size_t outerWorkers = 1;
+};
+
 class VerticalGemmProvider {
 public:
     VerticalGemmProvider(const Workload& workload, std::size_t horizontalModeCount,
                          const VerticalOperators& operators, VerticalGemmLayout layout);
     VerticalGemmProvider(const Workload& workload, const GroupedVerticalOperators& operators,
                          VerticalGemmLayout layout);
+    VerticalGemmProvider(const Workload& workload, const GroupedVerticalOperators& operators,
+                         VerticalGemmLayout layout, VerticalGemmStrategy strategy);
     ~VerticalGemmProvider();
     VerticalGemmProvider(VerticalGemmProvider&&) noexcept;
     VerticalGemmProvider& operator=(VerticalGemmProvider&&) noexcept;
@@ -129,11 +145,16 @@ public:
     std::size_t modalElements() const noexcept;
     std::size_t groupCount() const noexcept;
     std::size_t gemmCallsPerExecution() const noexcept;
+    VerticalGemmStrategy strategy() const noexcept;
+    std::size_t outerWorkers() const noexcept;
     std::size_t persistentBytes() const noexcept;
+    std::size_t schedulerPersistentBytes() const noexcept;
     std::size_t matrixBytesPerDirection() const noexcept;
     std::size_t minimumAlignmentBytes() const noexcept;
     double allocationSeconds() const noexcept;
     double matrixPreparationSeconds() const noexcept;
+    double schedulerSetupSeconds() const noexcept;
+    bool hasOpaqueSchedulerMemory() const noexcept;
     std::string libraryIdentity() const;
 
     void loadPhysicalInput(const Complex* input);
@@ -144,6 +165,7 @@ public:
     void executeForwardImaginary();
     void executeInverseReal();
     void executeInverseImaginary();
+    void executeSchedulerNoop();
     void copyForwardOutput(Complex* output) const;
     void copyInverseOutput(Complex* output) const;
 
@@ -483,6 +505,8 @@ struct RunOptions {
     std::string vdspStrategy = "in-place";
     std::string vdspBatchStrategy = "direct-persistent";
     std::string verticalGemmFamily = "common";
+    std::string verticalGemmSchedule = "serial";
+    std::size_t verticalGemmOuterWorkers = 1;
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

@@ -1,14 +1,19 @@
 #include "skbench/skbench.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <climits>
 #include <complex>
+#include <condition_variable>
 #include <cstdlib>
+#include <mutex>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #if SKBENCH_HAVE_ACCELERATE
 #define ACCELERATE_NEW_LAPACK
@@ -43,6 +48,137 @@ int checkedBlasDimension(std::size_t value, const char* label) {
     }
     return static_cast<int>(value);
 }
+
+class PersistentGroupExecutor {
+public:
+    using Task = void (*)(void*, std::size_t);
+
+    PersistentGroupExecutor(std::vector<int> groupWeights, std::size_t requestedWorkers,
+                            VerticalGemmSchedule schedule)
+        : groupCount_(groupWeights.size()),
+          workers_(std::max<std::size_t>(1, std::min(groupCount_, requestedWorkers))),
+          schedule_(schedule) {
+        if (groupCount_ == 0) throw std::invalid_argument("Grouped executor requires at least one group.");
+        if (schedule_ == VerticalGemmSchedule::serial) {
+            workers_ = 1;
+        } else if (schedule_ == VerticalGemmSchedule::outerStatic) {
+            staticBounds_.resize(workers_ + 1);
+            std::vector<std::size_t> prefix(groupCount_ + 1, 0);
+            for (std::size_t group = 0; group < groupCount_; ++group) {
+                prefix[group + 1] = prefix[group] + static_cast<std::size_t>(groupWeights[group]);
+            }
+            staticBounds_.front() = 0;
+            staticBounds_.back() = groupCount_;
+            for (std::size_t worker = 1; worker < workers_; ++worker) {
+                const auto minimum = staticBounds_[worker - 1] + 1;
+                const auto maximum = groupCount_ - (workers_ - worker);
+                const auto target = prefix.back() * worker / workers_;
+                const auto match = std::lower_bound(prefix.begin() + static_cast<std::ptrdiff_t>(minimum),
+                                                    prefix.begin() + static_cast<std::ptrdiff_t>(maximum + 1), target);
+                staticBounds_[worker] = static_cast<std::size_t>(std::distance(prefix.begin(), match));
+            }
+        }
+        threads_.reserve(workers_ - 1);
+        for (std::size_t worker = 1; worker < workers_; ++worker) {
+            threads_.emplace_back([this, worker] { workerLoop(worker); });
+        }
+    }
+
+    ~PersistentGroupExecutor() {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            stopping_ = true;
+            ++generation_;
+        }
+        start_.notify_all();
+        for (auto& thread : threads_) thread.join();
+    }
+
+    PersistentGroupExecutor(const PersistentGroupExecutor&) = delete;
+    PersistentGroupExecutor& operator=(const PersistentGroupExecutor&) = delete;
+
+    std::size_t workerCount() const noexcept { return workers_; }
+
+    std::size_t explicitBytes() const noexcept {
+        return threads_.capacity() * sizeof(std::thread) +
+            staticBounds_.capacity() * sizeof(std::size_t);
+    }
+
+    void run(void* context, Task task) {
+        if (workers_ == 1) {
+            runWorker(0, context, task);
+            return;
+        }
+        nextGroup_.store(0, std::memory_order_relaxed);
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            context_ = context;
+            task_ = task;
+            remaining_ = workers_ - 1;
+            ++generation_;
+        }
+        start_.notify_all();
+        runWorker(0, context, task);
+        std::unique_lock<std::mutex> lock(mutex_);
+        done_.wait(lock, [this] { return remaining_ == 0; });
+        context_ = nullptr;
+        task_ = nullptr;
+    }
+
+private:
+    void runWorker(std::size_t worker, void* context, Task task) {
+        if (schedule_ == VerticalGemmSchedule::outerDynamic) {
+            for (;;) {
+                const auto group = nextGroup_.fetch_add(1, std::memory_order_relaxed);
+                if (group >= groupCount_) return;
+                task(context, group);
+            }
+        }
+        const auto begin = schedule_ == VerticalGemmSchedule::outerStatic ? staticBounds_[worker] : 0;
+        const auto end = schedule_ == VerticalGemmSchedule::outerStatic ? staticBounds_[worker + 1] : groupCount_;
+        for (std::size_t group = begin; group < end; ++group) task(context, group);
+    }
+
+    void workerLoop(std::size_t worker) {
+        std::size_t observedGeneration = 0;
+        for (;;) {
+            void* context = nullptr;
+            Task task = nullptr;
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                start_.wait(lock, [this, observedGeneration] {
+                    return stopping_ || generation_ != observedGeneration;
+                });
+                if (stopping_) return;
+                observedGeneration = generation_;
+                context = context_;
+                task = task_;
+            }
+            runWorker(worker, context, task);
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if (--remaining_ == 0) done_.notify_one();
+            }
+        }
+    }
+
+    std::size_t groupCount_ = 0;
+    std::size_t workers_ = 1;
+    VerticalGemmSchedule schedule_ = VerticalGemmSchedule::serial;
+    std::vector<std::thread> threads_;
+    std::vector<std::size_t> staticBounds_;
+    std::atomic<std::size_t> nextGroup_{0};
+    std::mutex mutex_;
+    std::condition_variable start_;
+    std::condition_variable done_;
+    void* context_ = nullptr;
+    Task task_ = nullptr;
+    std::size_t generation_ = 0;
+    std::size_t remaining_ = 0;
+    bool stopping_ = false;
+};
+
+void noopGroup(void*, std::size_t) {}
 
 template <typename Value>
 class AlignedBuffer {
@@ -83,6 +219,22 @@ std::string_view verticalGemmLayoutName(VerticalGemmLayout layout) noexcept {
     return "unknown";
 }
 
+std::string_view verticalGemmScheduleName(VerticalGemmSchedule schedule) noexcept {
+    switch (schedule) {
+        case VerticalGemmSchedule::serial: return "serial";
+        case VerticalGemmSchedule::outerStatic: return "outer-static";
+        case VerticalGemmSchedule::outerDynamic: return "outer-dynamic";
+    }
+    return "unknown";
+}
+
+VerticalGemmSchedule verticalGemmScheduleNamed(std::string_view name) {
+    if (name == "serial") return VerticalGemmSchedule::serial;
+    if (name == "outer-static") return VerticalGemmSchedule::outerStatic;
+    if (name == "outer-dynamic") return VerticalGemmSchedule::outerDynamic;
+    throw std::invalid_argument("Unknown vertical GEMM schedule: " + std::string(name));
+}
+
 struct VerticalGemmProvider::Impl {
     Workload workload;
     std::size_t horizontalModeCount = 0;
@@ -91,13 +243,16 @@ struct VerticalGemmProvider::Impl {
     std::size_t modalCount = 0;
     std::size_t matrixElementsPerGroup = 0;
     VerticalGemmLayout layout = VerticalGemmLayout::complexInterleaved;
+    VerticalGemmStrategy strategy;
     bool available = SKBENCH_HAVE_ACCELERATE != 0;
     std::string capabilityText;
     double allocationTime = 0.0;
     double preparationTime = 0.0;
+    double schedulerSetupTime = 0.0;
     std::vector<VerticalModeGroup> groups;
     std::vector<int> groupColumns;
     std::vector<std::size_t> columnOffsets;
+    std::unique_ptr<PersistentGroupExecutor> executor;
 
     AlignedBuffer<BlasComplex> complexForwardMatrix;
     AlignedBuffer<BlasComplex> complexInverseMatrix;
@@ -121,13 +276,19 @@ struct VerticalGemmProvider::Impl {
     int nj = 0;
 
     Impl(const Workload& inputWorkload, const GroupedVerticalOperators& operators,
-         VerticalGemmLayout inputLayout)
-        : workload(inputWorkload), layout(inputLayout), groups(operators.groups) {
+         VerticalGemmLayout inputLayout, VerticalGemmStrategy inputStrategy)
+        : workload(inputWorkload), layout(inputLayout), strategy(inputStrategy), groups(operators.groups) {
         if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
             throw std::invalid_argument("Vertical GEMM operator dimensions do not match the workload.");
         }
         if (groups.empty() || workload.fields == 0) {
             throw std::invalid_argument("Vertical GEMM requires at least one horizontal mode and field.");
+        }
+        if (strategy.outerWorkers == 0) {
+            throw std::invalid_argument("Vertical GEMM outer workers must be positive.");
+        }
+        if (strategy.schedule == VerticalGemmSchedule::serial && strategy.outerWorkers != 1) {
+            throw std::invalid_argument("The serial vertical GEMM schedule requires exactly one outer worker.");
         }
         std::size_t expectedFirstMode = 0;
         groupColumns.reserve(groups.size());
@@ -202,7 +363,12 @@ struct VerticalGemmProvider::Impl {
             }
         }
         preparationTime = elapsedSeconds(preparationStart);
-        capabilityText = "supported";
+        const auto schedulerStart = Clock::now();
+        executor = std::make_unique<PersistentGroupExecutor>(groupColumns, strategy.outerWorkers, strategy.schedule);
+        strategy.outerWorkers = executor->workerCount();
+        schedulerSetupTime = elapsedSeconds(schedulerStart);
+        capabilityText = "supported: " + std::string(verticalGemmScheduleName(strategy.schedule)) +
+            "; outer workers=" + std::to_string(strategy.outerWorkers);
     }
 
     void requireAvailable() const {
@@ -224,8 +390,111 @@ struct VerticalGemmProvider::Impl {
             modalInputImaginary.bytes() + modalOutputReal.bytes() + modalOutputImaginary.bytes() +
             physicalOutputReal.bytes() + physicalOutputImaginary.bytes() +
             groups.size() * sizeof(VerticalModeGroup) + groupColumns.size() * sizeof(int) +
-            columnOffsets.size() * sizeof(std::size_t);
+            columnOffsets.size() * sizeof(std::size_t) +
+            (executor == nullptr ? 0 : executor->explicitBytes());
     }
+
+#if SKBENCH_HAVE_ACCELERATE
+    void forwardComplexGroup(std::size_t groupIndex) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nj, groupColumns[groupIndex], nz,
+                    &alpha, complexForwardMatrix.data() + matrixOffset, nj,
+                    complexPhysicalInput.data() + workload.nz * columnOffset, nz,
+                    &beta, complexModalOutput.data() + workload.retainedVerticalModes() * columnOffset, nj);
+    }
+
+    void inverseComplexGroup(std::size_t groupIndex) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nz, groupColumns[groupIndex], nj,
+                    &alpha, complexInverseMatrix.data() + matrixOffset, nz,
+                    complexModalInput.data() + workload.retainedVerticalModes() * columnOffset, nj,
+                    &beta, complexPhysicalOutput.data() + workload.nz * columnOffset, nz);
+    }
+
+    void forwardRealGroup(std::size_t groupIndex) {
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nj, groupColumns[groupIndex], nz, 1.0,
+                    realForwardMatrix.data() + matrixOffset, nj,
+                    physicalInputReal.data() + workload.nz * columnOffset, nz, 0.0,
+                    modalOutputReal.data() + workload.retainedVerticalModes() * columnOffset, nj);
+    }
+
+    void forwardImaginaryGroup(std::size_t groupIndex) {
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nj, groupColumns[groupIndex], nz, 1.0,
+                    realForwardMatrix.data() + matrixOffset, nj,
+                    physicalInputImaginary.data() + workload.nz * columnOffset, nz, 0.0,
+                    modalOutputImaginary.data() + workload.retainedVerticalModes() * columnOffset, nj);
+    }
+
+    void inverseRealGroup(std::size_t groupIndex) {
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nz, groupColumns[groupIndex], nj, 1.0,
+                    realInverseMatrix.data() + matrixOffset, nz,
+                    modalInputReal.data() + workload.retainedVerticalModes() * columnOffset, nj, 0.0,
+                    physicalOutputReal.data() + workload.nz * columnOffset, nz);
+    }
+
+    void inverseImaginaryGroup(std::size_t groupIndex) {
+        const auto matrixOffset = groupIndex * matrixElementsPerGroup;
+        const auto columnOffset = columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nz, groupColumns[groupIndex], nj, 1.0,
+                    realInverseMatrix.data() + matrixOffset, nz,
+                    modalInputImaginary.data() + workload.retainedVerticalModes() * columnOffset, nj, 0.0,
+                    physicalOutputImaginary.data() + workload.nz * columnOffset, nz);
+    }
+
+    static void forwardComplexTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->forwardComplexGroup(group);
+    }
+
+    static void inverseComplexTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->inverseComplexGroup(group);
+    }
+
+    static void forwardRealTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->forwardRealGroup(group);
+    }
+
+    static void forwardImaginaryTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->forwardImaginaryGroup(group);
+    }
+
+    static void inverseRealTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->inverseRealGroup(group);
+    }
+
+    static void inverseImaginaryTask(void* context, std::size_t group) {
+        static_cast<Impl*>(context)->inverseImaginaryGroup(group);
+    }
+
+    static void forwardSplitTask(void* context, std::size_t group) {
+        auto* self = static_cast<Impl*>(context);
+        self->forwardRealGroup(group);
+        self->forwardImaginaryGroup(group);
+    }
+
+    static void inverseSplitTask(void* context, std::size_t group) {
+        auto* self = static_cast<Impl*>(context);
+        self->inverseRealGroup(group);
+        self->inverseImaginaryGroup(group);
+    }
+#endif
 };
 
 VerticalGemmProvider::VerticalGemmProvider(const Workload& workload, std::size_t horizontalModeCount,
@@ -235,7 +504,12 @@ VerticalGemmProvider::VerticalGemmProvider(const Workload& workload, std::size_t
 VerticalGemmProvider::VerticalGemmProvider(const Workload& workload,
                                            const GroupedVerticalOperators& operators,
                                            VerticalGemmLayout layout)
-    : impl_(std::make_unique<Impl>(workload, operators, layout)) {}
+    : VerticalGemmProvider(workload, operators, layout, VerticalGemmStrategy{}) {}
+
+VerticalGemmProvider::VerticalGemmProvider(const Workload& workload,
+                                           const GroupedVerticalOperators& operators,
+                                           VerticalGemmLayout layout, VerticalGemmStrategy strategy)
+    : impl_(std::make_unique<Impl>(workload, operators, layout, strategy)) {}
 
 VerticalGemmProvider::~VerticalGemmProvider() = default;
 VerticalGemmProvider::VerticalGemmProvider(VerticalGemmProvider&&) noexcept = default;
@@ -251,7 +525,12 @@ std::size_t VerticalGemmProvider::groupCount() const noexcept { return impl_->gr
 std::size_t VerticalGemmProvider::gemmCallsPerExecution() const noexcept {
     return impl_->groups.size() * (impl_->layout == VerticalGemmLayout::split ? 2 : 1);
 }
+VerticalGemmStrategy VerticalGemmProvider::strategy() const noexcept { return impl_->strategy; }
+std::size_t VerticalGemmProvider::outerWorkers() const noexcept { return impl_->strategy.outerWorkers; }
 std::size_t VerticalGemmProvider::persistentBytes() const noexcept { return impl_->persistentBytes(); }
+std::size_t VerticalGemmProvider::schedulerPersistentBytes() const noexcept {
+    return impl_->executor == nullptr ? 0 : impl_->executor->explicitBytes();
+}
 std::size_t VerticalGemmProvider::matrixBytesPerDirection() const noexcept {
     const auto scalarBytes = impl_->layout == VerticalGemmLayout::complexInterleaved ? sizeof(BlasComplex) : sizeof(double);
     return impl_->groups.size() * impl_->matrixElementsPerGroup * scalarBytes;
@@ -259,6 +538,10 @@ std::size_t VerticalGemmProvider::matrixBytesPerDirection() const noexcept {
 std::size_t VerticalGemmProvider::minimumAlignmentBytes() const noexcept { return 64; }
 double VerticalGemmProvider::allocationSeconds() const noexcept { return impl_->allocationTime; }
 double VerticalGemmProvider::matrixPreparationSeconds() const noexcept { return impl_->preparationTime; }
+double VerticalGemmProvider::schedulerSetupSeconds() const noexcept { return impl_->schedulerSetupTime; }
+bool VerticalGemmProvider::hasOpaqueSchedulerMemory() const noexcept {
+    return impl_->strategy.outerWorkers > 1;
+}
 std::string VerticalGemmProvider::libraryIdentity() const {
 #if SKBENCH_HAVE_ACCELERATE
     return "/System/Library/Frameworks/Accelerate.framework";
@@ -299,20 +582,18 @@ void VerticalGemmProvider::executeForward() {
     impl_->requireAvailable();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
-        const BlasComplex alpha{1.0, 0.0};
-        const BlasComplex beta{0.0, 0.0};
-        for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-            const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-            const auto columnOffset = impl_->columnOffsets[groupIndex];
-            cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                        impl_->nj, impl_->groupColumns[groupIndex], impl_->nz,
-                        &alpha, impl_->complexForwardMatrix.data() + matrixOffset, impl_->nj,
-                        impl_->complexPhysicalInput.data() + impl_->workload.nz * columnOffset, impl_->nz,
-                        &beta, impl_->complexModalOutput.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+        if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+            for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->forwardComplexGroup(group);
+        } else {
+            impl_->executor->run(impl_.get(), &Impl::forwardComplexTask);
         }
     } else {
-        executeForwardReal();
-        executeForwardImaginary();
+        if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+            executeForwardReal();
+            executeForwardImaginary();
+        } else {
+            impl_->executor->run(impl_.get(), &Impl::forwardSplitTask);
+        }
     }
 #endif
 }
@@ -321,20 +602,18 @@ void VerticalGemmProvider::executeInverse() {
     impl_->requireAvailable();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
-        const BlasComplex alpha{1.0, 0.0};
-        const BlasComplex beta{0.0, 0.0};
-        for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-            const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-            const auto columnOffset = impl_->columnOffsets[groupIndex];
-            cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                        impl_->nz, impl_->groupColumns[groupIndex], impl_->nj,
-                        &alpha, impl_->complexInverseMatrix.data() + matrixOffset, impl_->nz,
-                        impl_->complexModalInput.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj,
-                        &beta, impl_->complexPhysicalOutput.data() + impl_->workload.nz * columnOffset, impl_->nz);
+        if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+            for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->inverseComplexGroup(group);
+        } else {
+            impl_->executor->run(impl_.get(), &Impl::inverseComplexTask);
         }
     } else {
-        executeInverseReal();
-        executeInverseImaginary();
+        if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+            executeInverseReal();
+            executeInverseImaginary();
+        } else {
+            impl_->executor->run(impl_.get(), &Impl::inverseSplitTask);
+        }
     }
 #endif
 }
@@ -342,14 +621,10 @@ void VerticalGemmProvider::executeInverse() {
 void VerticalGemmProvider::executeForwardReal() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-        const auto columnOffset = impl_->columnOffsets[groupIndex];
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nj, impl_->groupColumns[groupIndex], impl_->nz, 1.0,
-                    impl_->realForwardMatrix.data() + matrixOffset, impl_->nj,
-                    impl_->physicalInputReal.data() + impl_->workload.nz * columnOffset, impl_->nz, 0.0,
-                    impl_->modalOutputReal.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->forwardRealGroup(group);
+    } else {
+        impl_->executor->run(impl_.get(), &Impl::forwardRealTask);
     }
 #endif
 }
@@ -357,14 +632,10 @@ void VerticalGemmProvider::executeForwardReal() {
 void VerticalGemmProvider::executeForwardImaginary() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-        const auto columnOffset = impl_->columnOffsets[groupIndex];
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nj, impl_->groupColumns[groupIndex], impl_->nz, 1.0,
-                    impl_->realForwardMatrix.data() + matrixOffset, impl_->nj,
-                    impl_->physicalInputImaginary.data() + impl_->workload.nz * columnOffset, impl_->nz, 0.0,
-                    impl_->modalOutputImaginary.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->forwardImaginaryGroup(group);
+    } else {
+        impl_->executor->run(impl_.get(), &Impl::forwardImaginaryTask);
     }
 #endif
 }
@@ -372,14 +643,10 @@ void VerticalGemmProvider::executeForwardImaginary() {
 void VerticalGemmProvider::executeInverseReal() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-        const auto columnOffset = impl_->columnOffsets[groupIndex];
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nz, impl_->groupColumns[groupIndex], impl_->nj, 1.0,
-                    impl_->realInverseMatrix.data() + matrixOffset, impl_->nz,
-                    impl_->modalInputReal.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj, 0.0,
-                    impl_->physicalOutputReal.data() + impl_->workload.nz * columnOffset, impl_->nz);
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->inverseRealGroup(group);
+    } else {
+        impl_->executor->run(impl_.get(), &Impl::inverseRealTask);
     }
 #endif
 }
@@ -387,16 +654,19 @@ void VerticalGemmProvider::executeInverseReal() {
 void VerticalGemmProvider::executeInverseImaginary() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
-        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
-        const auto columnOffset = impl_->columnOffsets[groupIndex];
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nz, impl_->groupColumns[groupIndex], impl_->nj, 1.0,
-                    impl_->realInverseMatrix.data() + matrixOffset, impl_->nz,
-                    impl_->modalInputImaginary.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj, 0.0,
-                    impl_->physicalOutputImaginary.data() + impl_->workload.nz * columnOffset, impl_->nz);
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t group = 0; group < impl_->groups.size(); ++group) impl_->inverseImaginaryGroup(group);
+    } else {
+        impl_->executor->run(impl_.get(), &Impl::inverseImaginaryTask);
     }
 #endif
+}
+
+void VerticalGemmProvider::executeSchedulerNoop() {
+    impl_->requireAvailable();
+    if (impl_->strategy.schedule != VerticalGemmSchedule::serial) {
+        impl_->executor->run(nullptr, &noopGroup);
+    }
 }
 
 void VerticalGemmProvider::copyForwardOutput(Complex* output) const {

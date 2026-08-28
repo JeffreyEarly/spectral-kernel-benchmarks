@@ -61,6 +61,17 @@ def selected_profiles(values: list[str] | None) -> list[str]:
     return values
 
 
+def schedules(specification: str) -> list[str]:
+    allowed = {"serial", "outer-static", "outer-dynamic"}
+    values = [value.strip() for value in specification.split(",") if value.strip()]
+    unknown = sorted(set(values) - allowed)
+    if unknown:
+        raise ValueError(f"unknown vertical GEMM schedule: {', '.join(unknown)}")
+    if not values:
+        raise ValueError("at least one vertical GEMM schedule is required")
+    return list(dict.fromkeys(values))
+
+
 def main() -> int:
     repository_root = Path(__file__).resolve().parents[1]
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -83,6 +94,16 @@ def main() -> int:
         default="1,performance,total",
         help="Comma-separated VECLIB_MAXIMUM_THREADS limits or aliases",
     )
+    parser.add_argument(
+        "--schedules",
+        default="serial",
+        help="Comma-separated serial, outer-static, and outer-dynamic schedules",
+    )
+    parser.add_argument(
+        "--outer-workers",
+        default="performance,total",
+        help="Comma-separated outer worker counts or aliases for non-serial schedules",
+    )
     parser.add_argument("--warmups", type=int, default=2)
     parser.add_argument("--samples", type=int, default=9)
     parser.add_argument("--seed", type=int, default=129)
@@ -92,36 +113,53 @@ def main() -> int:
 
     profiles = selected_profiles(arguments.profiles)
     limits = thread_limits(arguments.thread_limits)
+    selected_schedules = schedules(arguments.schedules)
+    outer_workers = thread_limits(arguments.outer_workers)
+    if any(schedule != "serial" for schedule in selected_schedules):
+        if arguments.family != "k2-grouped":
+            parser.error("outer schedules require --family k2-grouped")
+        if any(limit != 1 for limit in limits):
+            parser.error("outer schedules require --thread-limits 1 to prevent nested BLAS threading")
     if arguments.warmups < 1 or arguments.samples < 1:
         parser.error("--warmups and --samples must be positive")
 
-    commands: list[tuple[str, int, list[str], Path]] = []
+    commands: list[tuple[str, int, str, int, list[str], Path]] = []
     for profile in profiles:
         for thread_limit in limits:
-            stem = f"{profile}--{arguments.family}--veclib-threads-{thread_limit}"
-            result_path = arguments.output / f"{stem}.json"
-            command = [
-                str(arguments.executable),
-                "run",
-                "--kernel",
-                "vertical-gemm",
-                "--profile",
-                profile,
-                "--vertical-gemm-family",
-                arguments.family,
-                "--warmups",
-                str(arguments.warmups),
-                "--samples",
-                str(arguments.samples),
-                "--seed",
-                str(arguments.seed),
-                "--output",
-                str(result_path),
-            ]
-            commands.append((stem, thread_limit, command, result_path))
+            for schedule in selected_schedules:
+                workers_for_schedule = [1] if schedule == "serial" else outer_workers
+                for workers in workers_for_schedule:
+                    stem = (
+                        f"{profile}--{arguments.family}--{schedule}--outer-{workers}"
+                        f"--veclib-threads-{thread_limit}"
+                    )
+                    result_path = arguments.output / f"{stem}.json"
+                    command = [
+                        str(arguments.executable),
+                        "run",
+                        "--kernel",
+                        "vertical-gemm",
+                        "--profile",
+                        profile,
+                        "--vertical-gemm-family",
+                        arguments.family,
+                        "--vertical-gemm-schedule",
+                        schedule,
+                        "--vertical-gemm-outer-workers",
+                        str(workers),
+                        "--warmups",
+                        str(arguments.warmups),
+                        "--samples",
+                        str(arguments.samples),
+                        "--seed",
+                        str(arguments.seed),
+                        "--output",
+                        str(result_path),
+                    ]
+                    commands.append((stem, thread_limit, schedule, workers, command, result_path))
 
     if arguments.dry_run:
-        for _, thread_limit, command, _ in commands:
+        for _, thread_limit, _, _, command, _ in commands:
             print(f"VECLIB_MAXIMUM_THREADS={thread_limit} {' '.join(command)}")
         print(f"Planned {len(commands)} isolated run(s); thread limits={limits}.")
         return 0
@@ -136,13 +174,15 @@ def main() -> int:
         "profiles": profiles,
         "threadEnvironment": "VECLIB_MAXIMUM_THREADS",
         "threadLimits": limits,
+        "schedules": selected_schedules,
+        "outerWorkers": outer_workers,
         "warmups": arguments.warmups,
         "samples": arguments.samples,
         "seed": arguments.seed,
         "runs": [],
     }
     failed = False
-    for index, (stem, thread_limit, command, result_path) in enumerate(commands, start=1):
+    for index, (stem, thread_limit, schedule, workers, command, result_path) in enumerate(commands, start=1):
         print(f"[{index}/{len(commands)}] {stem}", flush=True)
         log_path = arguments.output / f"{stem}.log"
         environment = os.environ.copy()
@@ -158,6 +198,8 @@ def main() -> int:
         entry = {
             "id": stem,
             "threadLimit": thread_limit,
+            "schedule": schedule,
+            "outerWorkers": workers,
             "environment": {"VECLIB_MAXIMUM_THREADS": str(thread_limit)},
             "command": command,
             "exitCode": completed.returncode,

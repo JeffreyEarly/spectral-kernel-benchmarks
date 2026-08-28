@@ -70,7 +70,8 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
 
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                                             const skbench::GroupedVerticalOperators& operators,
-                                            skbench::VerticalGemmLayout layout) {
+                                            skbench::VerticalGemmLayout layout,
+                                            skbench::VerticalGemmStrategy strategy = {}) {
     std::size_t horizontalModeCount = 0;
     for (const auto& group : operators.groups) horizontalModeCount += group.modeCount;
     const auto physicalCount = workload.nz * horizontalModeCount * workload.fields;
@@ -86,7 +87,7 @@ void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                         -static_cast<double>(index % 19) / 19.0};
     }
 
-    skbench::VerticalGemmProvider provider(workload, operators, layout);
+    skbench::VerticalGemmProvider provider(workload, operators, layout, strategy);
     require(provider.supported(), "Accelerate vertical GEMM provider is unavailable");
     provider.loadPhysicalInput(physical.data());
     provider.loadModalInput(modal.data());
@@ -511,6 +512,45 @@ int main() {
                     "vertical GEMM inverse equivalence");
         }
 
+        for (const auto schedule : {skbench::VerticalGemmSchedule::outerStatic,
+                                    skbench::VerticalGemmSchedule::outerDynamic}) {
+            require(!skbench::verticalGemmScheduleName(schedule).empty(), "vertical GEMM schedule name");
+            for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
+                                      skbench::VerticalGemmLayout::split}) {
+                skbench::VerticalGemmProvider serialProvider(
+                    workload, groupedVertical, layout, {skbench::VerticalGemmSchedule::serial, 1});
+                skbench::VerticalGemmProvider scheduledProvider(
+                    workload, groupedVertical, layout, {schedule, 2});
+                serialProvider.loadPhysicalInput(retained.data());
+                serialProvider.loadModalInput(modal.data());
+                scheduledProvider.loadPhysicalInput(retained.data());
+                scheduledProvider.loadModalInput(modal.data());
+                serialProvider.executeForward();
+                serialProvider.executeInverse();
+                scheduledProvider.executeForward();
+                scheduledProvider.executeInverse();
+                scheduledProvider.executeSchedulerNoop();
+                std::vector<skbench::Complex> serialForward(modal.size());
+                std::vector<skbench::Complex> serialInverse(physicalAgain.size());
+                std::vector<skbench::Complex> scheduledForward(modal.size());
+                std::vector<skbench::Complex> scheduledInverse(physicalAgain.size());
+                serialProvider.copyForwardOutput(serialForward.data());
+                serialProvider.copyInverseOutput(serialInverse.data());
+                scheduledProvider.copyForwardOutput(scheduledForward.data());
+                scheduledProvider.copyInverseOutput(scheduledInverse.data());
+                require(skbench::maximumRelativeError(
+                            scheduledForward.data(), serialForward.data(), serialForward.size()) == 0.0,
+                        "scheduled vertical GEMM forward equivalence");
+                require(skbench::maximumRelativeError(
+                            scheduledInverse.data(), serialInverse.data(), serialInverse.size()) == 0.0,
+                        "scheduled vertical GEMM inverse equivalence");
+                require(scheduledProvider.outerWorkers() == 2, "scheduled vertical GEMM worker count");
+                require(scheduledProvider.strategy().schedule == schedule, "scheduled vertical GEMM strategy");
+                require(scheduledProvider.schedulerPersistentBytes() > 0, "scheduler memory accounting");
+                require(scheduledProvider.hasOpaqueSchedulerMemory(), "scheduler opaque thread-stack accounting");
+            }
+        }
+
         skbench::RunOptions verticalOptions;
         verticalOptions.kernel = "vertical-gemm";
         verticalOptions.profile = "smoke";
@@ -567,7 +607,7 @@ int main() {
                     2 * groupedVertical.forward.size() * sizeof(double),
                 "grouped vertical GEMM source-matrix bytes");
         for (const auto& provider : groupedReport.providers) {
-            require(provider.algorithmId.find("k2-group-loop") != std::string::npos,
+            require(provider.algorithmId.find("k2-group-serial") != std::string::npos,
                     "grouped vertical GEMM algorithm identity");
             require(provider.correctness.size() == 4, "grouped vertical GEMM correctness count");
             for (const auto& correctness : provider.correctness) {
@@ -594,6 +634,15 @@ int main() {
                 workload, groupedVertical, skbench::VerticalGemmLayout::complexInterleaved);
             requireAllocationFreeVerticalExecution(
                 workload, groupedVertical, skbench::VerticalGemmLayout::split);
+            for (const auto schedule : {skbench::VerticalGemmSchedule::outerStatic,
+                                        skbench::VerticalGemmSchedule::outerDynamic}) {
+                requireAllocationFreeVerticalExecution(
+                    workload, groupedVertical, skbench::VerticalGemmLayout::complexInterleaved,
+                    {schedule, 2});
+                requireAllocationFreeVerticalExecution(
+                    workload, groupedVertical, skbench::VerticalGemmLayout::split,
+                    {schedule, 2});
+            }
         }
 
         std::cout << "skbench unit tests passed\n";
