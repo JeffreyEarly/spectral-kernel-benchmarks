@@ -20144,6 +20144,456 @@
         "samplesSha256": "39ce3fb36a2a5c2f774a822971a230f854ac5c1ac0e8886d4e81e35d35559adb"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T161510886568Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161510886568Z-lyra/result.json",
+        "samples": "runs/20260828T161510886568Z-lyra/samples.csv",
+        "resultSha256": "045ecf498ff09e05541750fcd23d42b46cfeb62a8d50464884accf5d9c7b7db7",
+        "samplesSha256": "ac913819bdeb66acd3d020474587c67f08a281ccb542302e43ba26206a5815ba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161512804322Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-direct-1--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161512804322Z-lyra/result.json",
+        "samples": "runs/20260828T161512804322Z-lyra/samples.csv",
+        "resultSha256": "2004e0a8bd450c3528f5d24e92caea1d5792720f10e667ff12c3af9d5be99ad0",
+        "samplesSha256": "44d84cf23dff35ef181533e77d0d1e3bcdf3fb9d60c4aaa1daf0977e634753a0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161514434357Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-4--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161514434357Z-lyra/result.json",
+        "samples": "runs/20260828T161514434357Z-lyra/samples.csv",
+        "resultSha256": "c47356c7239a175f4f05034c5e0c1c870a67ff0a8e2fed321f204db041ca50ca",
+        "samplesSha256": "9bae7d85ac0cdf3da637d1274fcfecf82f344f9e76832ff8250f9e3bbdcb663d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161516008259Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-8--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161516008259Z-lyra/result.json",
+        "samples": "runs/20260828T161516008259Z-lyra/samples.csv",
+        "resultSha256": "7fed9432ecce30cdfb3f2c1da5a9ef56198e91d860b125a0a365fcbf8a77e94c",
+        "samplesSha256": "243add96a262fc1d677df166cb1c4a2948dba814781a15ffb95604e4b0ef7d9d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161517593228Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161517593228Z-lyra/result.json",
+        "samples": "runs/20260828T161517593228Z-lyra/samples.csv",
+        "resultSha256": "29d0340740326ea67e830791ff0333398fb362b560e6def23f0ca6d50fdc924c",
+        "samplesSha256": "a1610f0d101d6acf6d529ddd63abcc83a2e5bf673b27a9c5e724ac2eac8c0411"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161519145150Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-direct-1--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161519145150Z-lyra/result.json",
+        "samples": "runs/20260828T161519145150Z-lyra/samples.csv",
+        "resultSha256": "c041dba396fe0cc8fd8515068aec52c38420b8ae1687abddb07eb0b88a75cb3f",
+        "samplesSha256": "4e3f194dbf532b3f66687862c801f11bb18875996b754bd9439569a9f2d9c449"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161534465447Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-4--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161534465447Z-lyra/result.json",
+        "samples": "runs/20260828T161534465447Z-lyra/samples.csv",
+        "resultSha256": "b9ae49ba9b8bdfa4c61d71d03f18f76d87f541a1958343716c7a485f7f20abe0",
+        "samplesSha256": "98acdbc678ec0f594456ec21f6fbb53859e185f7f6687633cd194cbb7a904b0e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161549085661Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-8--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161549085661Z-lyra/result.json",
+        "samples": "runs/20260828T161549085661Z-lyra/samples.csv",
+        "resultSha256": "86538730f11256da0ca29546c3b5f5e21320c3690f3f1b1159a0c448cb740ca1",
+        "samplesSha256": "b44629fbb74ff93d4886a892a3b168c55435b66bc36618ffc3c6494bf1f3fe53"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161603264862Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161603264862Z-lyra/result.json",
+        "samples": "runs/20260828T161603264862Z-lyra/samples.csv",
+        "resultSha256": "1ccc739981bdd8bb867429718454ec25349b4c319aea74bcbef715f60c2aab45",
+        "samplesSha256": "e617eacab7a29daa7dd84d48c5272f14384fd8f2c0056bb1b856ae4e696039bb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161617315037Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161617315037Z-lyra/result.json",
+        "samples": "runs/20260828T161617315037Z-lyra/samples.csv",
+        "resultSha256": "7df06a5beb9415e3afdb298d21ad9fc9f40439198a76e27bb5bb33918e4ed810",
+        "samplesSha256": "b20efff1e4692d22a2652db8cb70c562f206c37700e199d13172f78bf6222ebd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161633811941Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-4--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161633811941Z-lyra/result.json",
+        "samples": "runs/20260828T161633811941Z-lyra/samples.csv",
+        "resultSha256": "f95957deedaf70b2d9c42be9b47d08102ece32cbff428afbe868d5175f829703",
+        "samplesSha256": "e400f42cc72df2f239155a6e7444ba175a973a83806792b37aae3be3451652f8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161701184065Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-8--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161701184065Z-lyra/result.json",
+        "samples": "runs/20260828T161701184065Z-lyra/samples.csv",
+        "resultSha256": "c7cf18f3f3fad7ea3f59b5b7f70021d0544503526213d7b46b82e3faddd72c7f",
+        "samplesSha256": "778afc9832a030736ea6c88a5132bd5ab4f0f99b196a92f88d048191431aa740"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161727772904Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161727772904Z-lyra/result.json",
+        "samples": "runs/20260828T161727772904Z-lyra/samples.csv",
+        "resultSha256": "a7cd24a2cba5e818ac8d799b0b70475f2bb9eb10db7571513d74397bd70e2f99",
+        "samplesSha256": "96cef26085c58b734bc8837e066d224e3dda857959702d379f5bc68110f2015b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161754131590Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161754131590Z-lyra/result.json",
+        "samples": "runs/20260828T161754131590Z-lyra/samples.csv",
+        "resultSha256": "d0e7ad4f1622211068828385da21b6bbcb44226ee3f868729f7b507769af7f9f",
+        "samplesSha256": "606a1891fc7bfc27087d05e8e5d76ae552b28f9fc6e059d23dc9941e73aa9fed"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T161825088363Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-locality-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-direct-1--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 locality screen: all fixed tiles are correct within 1e-12; tile 16 is the uniform preliminary winner, materially improves both large cases, retains a 15% geometric algorithm-resident-memory reduction, and advances to separate reference depth.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T161825088363Z-lyra/result.json",
+        "samples": "runs/20260828T161825088363Z-lyra/samples.csv",
+        "resultSha256": "943a251080e2709a1a59111bb60c0335be2b98d7b58925b8c108abe8ccc2ef93",
+        "samplesSha256": "ca2de31d5d52173e3560b0e46c90b8020de9d2b93ecfc591f2911223717ae8db"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -20610,8 +21060,8 @@
       "issue": 16,
       "phase": "collecting",
       "title": "Streaming pruned-to-compact-split pipeline",
-      "question": "Can successful outer-sharded partial-column pruning stream directly into the winning compact radial split pipeline while reducing full-spectrum memory?",
-      "baseline": "Compare one uniform streaming candidate with the issue #9 plane-major fused-split winner using the issue #12 pruning topology.",
+      "question": "Can successful outer-sharded partial-column pruning reach the winning compact radial split pipeline with bounded scratch, good locality, and reduced full-spectrum memory?",
+      "baseline": "Compare successive uniform direct-streaming and bounded-compact-tile candidates with the issue #9 plane-major fused-split winner using the issue #12 pruning topology.",
       "priorExperiments": [
         "issue-012-pruned-horizontal-transforms",
         "issue-007-retained-horizontal-algorithms",
@@ -20620,11 +21070,11 @@
       "downstreamIssues": [],
       "definition": {
         "unitOfWork": "A complete synthetic antialiased spectral round trip using a streamed partial-column-pruned horizontal operator and the existing split vertical pipeline.",
-        "candidates": "The issue #9 plane-major full-FFT fused-split control and one worker-local-plane streaming-pruned direct-split candidate.",
+        "candidates": "The issue #9 plane-major full-FFT fused-split control, the original worker-local-plane direct-split candidate, and fixed bounded compact tiles that preserve one uniform policy across workloads.",
         "workloads": "Uniform Float64 fields=4 cases at 256 squared/Nz=129, 512 squared/Nz=257, and 1024 squared/Nz=129.",
         "controlledVariables": "Logical retained modes, fixtures, normalization, FFTW build and planning, worker topology, vertical kernel, modal work, oracle, and sampling.",
-        "changedVariables": "Batch-sized versus worker-local-plane spectrum lifetime, full versus selected column transforms, and fused full-spectrum selection versus direct compact split production.",
-        "timedBoundary": "Separate row, selected-column, direct-split movement, vertical-MM, modal, retained-horizontal, and authoritative allocation-free complete-pipeline timings.",
+        "changedVariables": "Batch-sized versus worker-local-plane spectrum lifetime, full versus selected column transforms, page-strided direct split access versus cache-blocked compact tiling, and tile width.",
+        "timedBoundary": "Separate row, selected-column, direct or staged split movement, vertical-MM, modal, retained-horizontal, and authoritative allocation-free complete-pipeline timings.",
         "excludedWork": "Custom butterflies, deeper within-column pruning, FFTW++ implicit/hybrid dealiasing, WVM nonlinear flux, and full-model claims.",
         "allocationPolicy": "Zero allocations in timed steady state; worker-local scratch, algorithm-resident, benchmark-only, estimated-peak, and observed memory are separate."
       },
@@ -20637,7 +21087,7 @@
       },
       "requiredTables": [
         "row and selected-column FFT work",
-        "direct split movement",
+        "direct and cache-blocked tiled split movement",
         "retained horizontal total",
         "raw vertical MM",
         "modal work",

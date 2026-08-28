@@ -299,6 +299,14 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Algorithm-resident memory is 0.832×", issue_16_html)
             self.assertIn("Maximum correctness error is 1.026e-15", issue_16_html)
             self.assertIn("advances on memory within the time bound", issue_16_html)
+            self.assertIn("Cache-local compact-tile optimization screen", issue_16_html)
+            self.assertIn("Tile 16 is the preregistered uniform winner", issue_16_html)
+            self.assertIn("0.704× fused split geometrically", issue_16_html)
+            self.assertIn("0.809× across the two large cases", issue_16_html)
+            self.assertIn("0.758× overall", issue_16_html)
+            self.assertIn("Algorithm-resident memory remains 0.851×", issue_16_html)
+            self.assertIn("1.026e-15", issue_16_html)
+            self.assertIn("32-mode cache-blocked transpose", issue_16_html)
             streaming_run_page = (
                 output / "runs" / "20260828T153842645834Z-lyra" / "index.html"
             )
@@ -308,6 +316,20 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("selected-kx complex column FFTs", streaming_run_html)
             self.assertIn("streamed radial direct split write", streaming_run_html)
             self.assertIn("one worker-local half-spectrum plane per outer worker", streaming_run_html)
+            tiled_streaming_run_page = (
+                output / "runs" / "20260828T161727772904Z-lyra" /
+                "index.html"
+            )
+            self.assertTrue(tiled_streaming_run_page.is_file())
+            tiled_streaming_run_html = tiled_streaming_run_page.read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("Streaming pruned compact-split pipeline", tiled_streaming_run_html)
+            self.assertIn(
+                "plane-major compact staging and blocked split transpose",
+                tiled_streaming_run_html,
+            )
+            self.assertIn("streaming compact tile width=16", tiled_streaming_run_html)
             self.assertIn("Adoption decision not yet ready", decision_page.read_text(encoding="utf-8"))
             self.assertIn("predates the explicit placement contract", legacy_page.read_text(encoding="utf-8"))
             self.assertEqual((PUBLISHED / "m4-max-quick-20260827.json").read_bytes(), result_artifact.read_bytes())

@@ -185,6 +185,70 @@ class PublicationValidationTests(unittest.TestCase):
                 bundle.result["workload"]["bytes"]
                 ["spectralPipelineEstimatedExplicitPeak"],
             )
+        streaming_locality_screen = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "streaming-pruned-compact-split-locality-screen-v1"
+        ]
+        self.assertEqual(15, len(streaming_locality_screen))
+        self.assertTrue(all(
+            bundle.publication["status"] == "preliminary"
+            and not bundle.result["environment"]["gitDirty"]
+            for bundle in streaming_locality_screen
+        ))
+        self.assertEqual(
+            {
+                "plane-major-fused-split--outer-dynamic-16",
+                "streaming-pruned-direct-1--outer-dynamic-16",
+                "streaming-pruned-tiled-4--outer-dynamic-16",
+                "streaming-pruned-tiled-8--outer-dynamic-16",
+                "streaming-pruned-tiled-16--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in streaming_locality_screen
+            },
+        )
+        self.assertEqual(
+            {
+                "wvm-current-256-nz129-f4",
+                "wvm-current-512-nz257-f4",
+                "wvm-large-1024-nz129-f4",
+            },
+            {
+                bundle.result["run"]["profile"]
+                for bundle in streaming_locality_screen
+            },
+        )
+        locality_candidates = [
+            bundle for bundle in streaming_locality_screen
+            if bundle.publication["campaignCandidateId"].startswith(
+                "streaming-pruned-tiled-"
+            )
+        ]
+        self.assertEqual(9, len(locality_candidates))
+        for bundle in locality_candidates:
+            provider = bundle.result["providers"][0]
+            memory = provider["memory"]
+            self.assertEqual(
+                "pipeline-streaming-pruned-compact-split",
+                provider["id"],
+            )
+            self.assertIn("compact-tile", provider["algorithmId"])
+            self.assertIn(
+                "plane-major compact tile with 32-mode blocked transpose",
+                provider["planning"]["configuration"],
+            )
+            self.assertGreater(memory["scratchBytes"], 0)
+            self.assertLess(
+                memory["scratchBytes"],
+                bundle.result["workload"]["bytes"]["fullSpectrum"],
+            )
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                memory["algorithmResidentBytes"] +
+                memory["benchmarkHarnessBytes"],
+            )
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==

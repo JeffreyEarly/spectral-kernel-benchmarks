@@ -3016,10 +3016,21 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
                 f"{milliseconds('adapter-component', 'rebuild zero-padded inverse spectrum', 'inverse')}"
             )
         elif provider["id"] == "pipeline-streaming-pruned-compact-split":
-            movement = (
-                f"{milliseconds('adapter-component', 'streamed radial direct split write', 'forward')} / "
-                f"{milliseconds('adapter-component', 'streamed split embed and zero fill', 'inverse')}"
+            tiled_forward = stage_timing(
+                provider, "adapter-component",
+                "plane-major compact staging and blocked split transpose",
+                "forward",
             )
+            if tiled_forward is None:
+                movement = (
+                    f"{milliseconds('adapter-component', 'streamed radial direct split write', 'forward')} / "
+                    f"{milliseconds('adapter-component', 'streamed split embed and zero fill', 'inverse')}"
+                )
+            else:
+                movement = (
+                    f"{format_ms(tiled_forward['medianSeconds'])} / "
+                    f"{milliseconds('adapter-component', 'blocked split load, compact staging, embed, and zero fill', 'inverse')}"
+                )
         else:
             movement = (
                 f"{milliseconds('adapter-component', 'fused retained selection and split pack', 'forward')} / "
@@ -3513,7 +3524,7 @@ def streaming_pruned_pipeline_synthesis(
         classification = "advances on memory within the time bound"
     else:
         classification = "negative preliminary screen"
-    return f"""
+    initial_screen = f"""
       <h3>Streaming pruned-to-compact-split preliminary screen</h3>
       <p>This non-blocking experiment asks whether issue #12's outer-12 partial-column pruning can survive the final issue #9 representation boundary. The candidate holds one half-spectrum plane per worker, executes every real row transform, skips inactive complex columns, writes retained values directly to compact radial split arrays, and reverses the process one plane at a time. No batch-sized candidate half-spectrum is materialized.</p>
       <p>Across the three uniform fields=4 workloads, the candidate/control complete-pipeline ratio is {geometric_ratio:.3f}× geometrically; the two large decision cases are {large_ratio:.3f}×. Algorithm-resident memory is {resident_ratio:.3f}×. Maximum correctness error is {maximum_error:.3e}. Classification: <strong>{escaped(classification)}</strong>.</p>
@@ -3523,6 +3534,174 @@ def streaming_pruned_pipeline_synthesis(
         <tbody>{"".join(rows)}</tbody>
       </table></div>
       <p class="method-note">This is preliminary screen evidence, not a replacement for the issue #9 M4 decision. One uniform algorithm is evaluated across sizes; no size-dependent dispatch is proposed. Issue #17 implicit and hybrid dealiased convolutions remain outside this experiment.</p>
+    """
+    return initial_screen + streaming_pruned_locality_synthesis(bundles)
+
+
+def streaming_pruned_locality_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "streaming-pruned-compact-split-locality-screen-v1"
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") == increment_id
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "plane-major-fused-split--outer-dynamic-16"
+    direct_id = "streaming-pruned-direct-1--outer-dynamic-16"
+    tiled_ids = [
+        f"streaming-pruned-tiled-{tile_width}--outer-dynamic-16"
+        for tile_width in (4, 8, 16)
+    ]
+    candidate_ids = [baseline_id, direct_id, *tiled_ids]
+    cells: dict[tuple[str, str], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in candidate_ids:
+            continue
+        provider = spectral_pipeline_provider(bundle)
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "synthetic antialiased spectral pipeline", "round-trip",
+        )
+        horizontal_stage = (
+            "full FFT fused compact split horizontal operator"
+            if candidate == baseline_id else
+            "streaming pruned compact split horizontal operator"
+        )
+        horizontal_forward = stage_timing(
+            provider, "retained-operator-total", horizontal_stage, "forward",
+        )
+        horizontal_inverse = stage_timing(
+            provider, "retained-operator-total", horizontal_stage, "inverse",
+        )
+        if total is None or horizontal_forward is None or horizontal_inverse is None:
+            continue
+        memory = provider["memory"]
+        cells[(candidate, bundle.result["run"]["profile"])] = {
+            "total": float(total["medianSeconds"]),
+            "horizontalForward": float(horizontal_forward["medianSeconds"]),
+            "horizontalInverse": float(horizontal_inverse["medianSeconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "scratch": float(memory["scratchBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    profiles = [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    ]
+    large_profiles = set(profiles[1:])
+    if any(
+        (candidate, profile) not in cells
+        for candidate in candidate_ids
+        for profile in profiles
+    ):
+        return ""
+
+    def geometric(values: list[float]) -> float:
+        return math.exp(sum(math.log(value) for value in values) / len(values))
+
+    summaries: dict[str, dict[str, float]] = {}
+    for candidate in candidate_ids:
+        summaries[candidate] = {
+            "allBaseline": geometric([
+                cells[(candidate, profile)]["total"] /
+                cells[(baseline_id, profile)]["total"]
+                for profile in profiles
+            ]),
+            "largeBaseline": geometric([
+                cells[(candidate, profile)]["total"] /
+                cells[(baseline_id, profile)]["total"]
+                for profile in profiles if profile in large_profiles
+            ]),
+            "allDirect": geometric([
+                cells[(candidate, profile)]["total"] /
+                cells[(direct_id, profile)]["total"]
+                for profile in profiles
+            ]),
+            "largeDirect": geometric([
+                cells[(candidate, profile)]["total"] /
+                cells[(direct_id, profile)]["total"]
+                for profile in profiles if profile in large_profiles
+            ]),
+            "resident": geometric([
+                cells[(candidate, profile)]["resident"] /
+                cells[(baseline_id, profile)]["resident"]
+                for profile in profiles
+            ]),
+        }
+    selected_id = min(
+        (
+            candidate for candidate in tiled_ids
+            if summaries[candidate]["resident"] <= 0.90
+        ),
+        key=lambda candidate: (
+            summaries[candidate]["largeBaseline"],
+            summaries[candidate]["allBaseline"],
+        ),
+    )
+    selected = summaries[selected_id]
+    selected_tile = selected_id.split("tiled-", 1)[1].split("--", 1)[0]
+    maximum_error = max(errors) if errors else math.inf
+    candidate_rows = []
+    for candidate in [direct_id, *tiled_ids]:
+        summary = summaries[candidate]
+        tile_label = (
+            "1 · direct" if candidate == direct_id
+            else candidate.split("tiled-", 1)[1].split("--", 1)[0]
+        )
+        candidate_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(tile_label)}</th>'
+            f'<td class="numeric">{summary["allBaseline"]:.3f}×</td>'
+            f'<td class="numeric">{summary["largeBaseline"]:.3f}×</td>'
+            f'<td class="numeric">{summary["allDirect"]:.3f}×</td>'
+            f'<td class="numeric">{summary["largeDirect"]:.3f}×</td>'
+            f'<td class="numeric">{summary["resident"]:.3f}×</td>'
+            "</tr>"
+        )
+    profile_rows = []
+    for profile in profiles:
+        baseline = cells[(baseline_id, profile)]
+        direct = cells[(direct_id, profile)]
+        selected_cell = cells[(selected_id, profile)]
+        profile_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(baseline["total"])} / '
+            f'{format_ms(direct["total"])} / '
+            f'<strong>{format_ms(selected_cell["total"])}</strong></td>'
+            f'<td class="numeric">{format_ms(selected_cell["horizontalForward"])} / '
+            f'{format_ms(selected_cell["horizontalInverse"])}</td>'
+            f'<td class="numeric">{format_bytes(int(selected_cell["resident"]))}<br>'
+            f'<span class="muted">{selected_cell["resident"] / baseline["resident"]:.3f}× fused split</span></td>'
+            f'<td class="numeric">{format_bytes(int(selected_cell["scratch"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(selected_cell["observed"]))}</td>'
+            "</tr>"
+        )
+    return f"""
+      <h3>Cache-local compact-tile optimization screen</h3>
+      <p>The direct streaming screen exposed page-strided split access as the large-size bottleneck. This append-only follow-up keeps one FFT half-spectrum plane per worker, stages only retained coefficients in a bounded plane-major compact tile, and uses a 32-mode cache-blocked transpose so final split writes and reads are contiguous. Fixed tile widths 4, 8, and 16 are evaluated as uniform policies; no workload-size dispatch is allowed.</p>
+      <p>Tile {escaped(selected_tile)} is the preregistered uniform winner. It is {selected["allBaseline"]:.3f}× fused split geometrically across all three workloads and {selected["largeBaseline"]:.3f}× across the two large cases. Relative to direct streaming it is {selected["allDirect"]:.3f}× overall and {selected["largeDirect"]:.3f}× on the large cases. Algorithm-resident memory remains {selected["resident"]:.3f}× fused split, and maximum correctness error is {maximum_error:.3e}. It therefore advances to a separate rotated reference campaign.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Uniform candidate geometric ratios; values below one are better. Memory is algorithm-resident storage relative to fused split.</caption>
+        <thead><tr><th scope="col">Tile width</th><th scope="col">All / fused</th><th scope="col">Large / fused</th><th scope="col">All / direct</th><th scope="col">Large / direct</th><th scope="col">Memory / fused</th></tr></thead>
+        <tbody>{"".join(candidate_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Fused split / direct streaming / selected tile-{escaped(selected_tile)} authoritative totals in milliseconds. Horizontal values are selected-tile forward / inverse.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Complete pipeline</th><th scope="col">Selected horizontal</th><th scope="col">Selected algorithm resident</th><th scope="col">Selected scratch</th><th scope="col">Selected observed high water</th></tr></thead>
+        <tbody>{"".join(profile_rows)}</tbody>
+      </table></div>
+      <p class="method-note">These are clean one-round preliminary runs with one warmup and five samples per isolated process. The earlier direct-streaming result remains visible above. Tile selection is not reference inference; only a later rotated campaign may change the M4 adoption statistics.</p>
     """
 
 
