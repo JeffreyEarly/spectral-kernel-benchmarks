@@ -75,7 +75,7 @@ if(SKBENCH_BUILD_TESTS)
 
     add_executable(skbench_tests tests/skbench_tests.cpp)
     target_compile_features(skbench_tests PRIVATE cxx_std_20)
-    target_link_libraries(skbench_tests PRIVATE skbench_core skbench_allocation_tracker)
+    target_link_libraries(skbench_tests PRIVATE skbench_core skbench_allocation_tracker skbench_fftw)
     add_test(NAME skbench-unit COMMAND skbench_tests)
     add_test(NAME skbench-cli-list COMMAND skbench list)
     add_test(NAME skbench-cli-validate COMMAND skbench validate --profile smoke)

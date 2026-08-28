@@ -173,6 +173,20 @@ FFTWWisdomStrategy fftwWisdomStrategyNamed(std::string_view name) {
     throw std::invalid_argument("Unknown FFTW wisdom strategy: " + std::string(name));
 }
 
+std::string_view fftwDataLayoutName(FFTWDataLayout layout) noexcept {
+    switch (layout) {
+        case FFTWDataLayout::interleaved: return "interleaved";
+        case FFTWDataLayout::split: return "split";
+    }
+    return "unknown";
+}
+
+FFTWDataLayout fftwDataLayoutNamed(std::string_view name) {
+    if (name == "interleaved") return FFTWDataLayout::interleaved;
+    if (name == "split") return FFTWDataLayout::split;
+    throw std::invalid_argument("Unknown FFTW data layout: " + std::string(name));
+}
+
 class FFTWProvider::Impl {
 public:
     struct PlanPair {
@@ -182,6 +196,8 @@ public:
         std::size_t planeCount = 0;
         int realAlignmentClass = 0;
         int spectrumAlignmentClass = 0;
+        int spectrumRealAlignmentClass = 0;
+        int spectrumImagAlignmentClass = 0;
     };
 
     Impl(const Workload& workload, FFTWStrategy strategy) : workload_(workload), strategy_(strategy) {
@@ -196,12 +212,20 @@ public:
         otherSetupSeconds_ = elapsedSeconds(setupStart);
 
         const auto realBytes = workload_.realElements() * sizeof(double);
-        const auto spectrumBytes = workload_.spectrumElements() * sizeof(Complex);
-        planningBytes_ = realBytes + spectrumBytes;
+        const auto spectrumComponentBytes = workload_.spectrumElements() * sizeof(double);
+        planningBytes_ = realBytes + 2 * spectrumComponentBytes;
         const auto allocationStart = Clock::now();
         realSurrogate_ = static_cast<double*>(fftw_malloc(realBytes));
-        spectrumSurrogate_ = static_cast<fftw_complex*>(fftw_malloc(spectrumBytes));
-        if (realSurrogate_ == nullptr || spectrumSurrogate_ == nullptr) {
+        if (strategy_.layout == FFTWDataLayout::interleaved) {
+            spectrumSurrogate_ = static_cast<fftw_complex*>(fftw_malloc(2 * spectrumComponentBytes));
+        } else {
+            spectrumRealSurrogate_ = static_cast<double*>(fftw_malloc(spectrumComponentBytes));
+            spectrumImagSurrogate_ = static_cast<double*>(fftw_malloc(spectrumComponentBytes));
+        }
+        const bool spectrumAllocationFailed = strategy_.layout == FFTWDataLayout::interleaved
+            ? spectrumSurrogate_ == nullptr
+            : spectrumRealSurrogate_ == nullptr || spectrumImagSurrogate_ == nullptr;
+        if (realSurrogate_ == nullptr || spectrumAllocationFailed) {
             releaseSurrogates();
             throw std::bad_alloc();
         }
@@ -263,14 +287,30 @@ public:
     }
 
     void forward(const double* input, Complex* output) {
+        requireLayout(FFTWDataLayout::interleaved);
         validateForwardAlignment(input, output);
-        ExecuteContext context{this, input, output, nullptr, nullptr, true};
+        ExecuteContext context{this, input, output, nullptr, nullptr, nullptr, nullptr, true};
         executor_->run(&executeShard, &context);
     }
 
     void inverse(Complex* input, double* output) {
+        requireLayout(FFTWDataLayout::interleaved);
         validateInverseAlignment(input, output);
-        ExecuteContext context{this, nullptr, nullptr, input, output, false};
+        ExecuteContext context{this, nullptr, nullptr, input, output, nullptr, nullptr, false};
+        executor_->run(&executeShard, &context);
+    }
+
+    void forwardSplit(const double* input, double* outputReal, double* outputImag) {
+        requireLayout(FFTWDataLayout::split);
+        validateForwardSplitAlignment(input, outputReal, outputImag);
+        ExecuteContext context{this, input, nullptr, nullptr, nullptr, outputReal, outputImag, true};
+        executor_->run(&executeShard, &context);
+    }
+
+    void inverseSplit(double* inputReal, double* inputImag, double* output) {
+        requireLayout(FFTWDataLayout::split);
+        validateInverseSplitAlignment(inputReal, inputImag, output);
+        ExecuteContext context{this, nullptr, nullptr, nullptr, output, inputReal, inputImag, false};
         executor_->run(&executeShard, &context);
     }
 
@@ -282,6 +322,8 @@ public:
     std::unique_ptr<PersistentIndexExecutor> executor_;
     double* realSurrogate_ = nullptr;
     fftw_complex* spectrumSurrogate_ = nullptr;
+    double* spectrumRealSurrogate_ = nullptr;
+    double* spectrumImagSurrogate_ = nullptr;
     std::string wisdom_;
     double otherSetupSeconds_ = 0.0;
     double allocationSeconds_ = 0.0;
@@ -299,8 +341,16 @@ private:
         Complex* forwardOutput;
         Complex* inverseInput;
         double* inverseOutput;
+        double* splitReal;
+        double* splitImag;
         bool forward;
     };
+
+    void requireLayout(FFTWDataLayout expected) const {
+        if (strategy_.layout != expected) {
+            throw std::logic_error("FFTW execution entry point does not match the planned data layout.");
+        }
+    }
 
     void validateStrategy() {
         if (strategy_.internalWorkers == 0 || strategy_.internalWorkers > static_cast<std::size_t>(INT_MAX)) {
@@ -328,19 +378,26 @@ private:
             plan.beginPlane = begin;
             plan.planeCount = end - begin;
             auto* real = realSurrogate_ + begin * workload_.realPlaneElements();
-            auto* spectrum = spectrumSurrogate_ + begin;
             plan.realAlignmentClass = fftw_alignment_of(real);
-            plan.spectrumAlignmentClass = fftw_alignment_of(reinterpret_cast<double*>(spectrum));
+            auto* spectrum = strategy_.layout == FFTWDataLayout::interleaved ? spectrumSurrogate_ + begin : nullptr;
+            auto* spectrumReal = strategy_.layout == FFTWDataLayout::split ? spectrumRealSurrogate_ + begin : nullptr;
+            auto* spectrumImag = strategy_.layout == FFTWDataLayout::split ? spectrumImagSurrogate_ + begin : nullptr;
+            if (strategy_.layout == FFTWDataLayout::interleaved) {
+                plan.spectrumAlignmentClass = fftw_alignment_of(reinterpret_cast<double*>(spectrum));
+            } else {
+                plan.spectrumRealAlignmentClass = fftw_alignment_of(spectrumReal);
+                plan.spectrumImagAlignmentClass = fftw_alignment_of(spectrumImag);
+            }
 
             const auto limit = observePlanningBudget && strategy_.planningTimeLimitSeconds > 0.0
                 ? strategy_.planningTimeLimitSeconds
                 : FFTW_NO_TIMELIMIT;
             fftw_set_timelimit(limit);
             const auto forwardStart = Clock::now();
-            plan.forward = makeForwardPlan(plan, real, spectrum, flags);
+            plan.forward = makeForwardPlan(plan, real, spectrum, spectrumReal, spectrumImag, flags);
             observeLimit(forwardStart, limit);
             const auto inverseStart = Clock::now();
-            plan.inverse = makeInversePlan(plan, spectrum, real, flags);
+            plan.inverse = makeInversePlan(plan, spectrum, spectrumReal, spectrumImag, real, flags);
             observeLimit(inverseStart, limit);
             if (plan.forward == nullptr || plan.inverse == nullptr) {
                 if (plan.forward != nullptr) fftw_destroy_plan(plan.forward);
@@ -353,7 +410,8 @@ private:
         return plans;
     }
 
-    fftw_plan makeForwardPlan(const PlanPair& shard, double* real, fftw_complex* spectrum, unsigned flags) const {
+    fftw_plan makeForwardPlan(const PlanPair& shard, double* real, fftw_complex* spectrum,
+                              double* spectrumReal, double* spectrumImag, unsigned flags) const {
         const auto planes = workload_.planes();
         const auto nxHalf = workload_.nxHalf();
         fftw_iodim64 dimensions[2] = {
@@ -364,14 +422,19 @@ private:
             fftw_iodim64 batches[2] = {
                 {static_cast<ptrdiff_t>(workload_.nz), static_cast<ptrdiff_t>(realPlane), 1},
                 {static_cast<ptrdiff_t>(workload_.fields), static_cast<ptrdiff_t>(realPlane * workload_.nz), static_cast<ptrdiff_t>(workload_.nz)}};
-            return fftw_plan_guru64_dft_r2c(2, dimensions, 2, batches, real, spectrum, flags);
+            return strategy_.layout == FFTWDataLayout::interleaved
+                ? fftw_plan_guru64_dft_r2c(2, dimensions, 2, batches, real, spectrum, flags)
+                : fftw_plan_guru64_split_dft_r2c(2, dimensions, 2, batches, real, spectrumReal, spectrumImag, flags);
         }
         fftw_iodim64 batch = {static_cast<ptrdiff_t>(shard.planeCount),
                               static_cast<ptrdiff_t>(workload_.realPlaneElements()), 1};
-        return fftw_plan_guru64_dft_r2c(2, dimensions, 1, &batch, real, spectrum, flags);
+        return strategy_.layout == FFTWDataLayout::interleaved
+            ? fftw_plan_guru64_dft_r2c(2, dimensions, 1, &batch, real, spectrum, flags)
+            : fftw_plan_guru64_split_dft_r2c(2, dimensions, 1, &batch, real, spectrumReal, spectrumImag, flags);
     }
 
-    fftw_plan makeInversePlan(const PlanPair& shard, fftw_complex* spectrum, double* real, unsigned flags) const {
+    fftw_plan makeInversePlan(const PlanPair& shard, fftw_complex* spectrum,
+                              double* spectrumReal, double* spectrumImag, double* real, unsigned flags) const {
         const auto planes = workload_.planes();
         const auto nxHalf = workload_.nxHalf();
         fftw_iodim64 dimensions[2] = {
@@ -382,11 +445,15 @@ private:
             fftw_iodim64 batches[2] = {
                 {static_cast<ptrdiff_t>(workload_.nz), 1, static_cast<ptrdiff_t>(realPlane)},
                 {static_cast<ptrdiff_t>(workload_.fields), static_cast<ptrdiff_t>(workload_.nz), static_cast<ptrdiff_t>(realPlane * workload_.nz)}};
-            return fftw_plan_guru64_dft_c2r(2, dimensions, 2, batches, spectrum, real, flags);
+            return strategy_.layout == FFTWDataLayout::interleaved
+                ? fftw_plan_guru64_dft_c2r(2, dimensions, 2, batches, spectrum, real, flags)
+                : fftw_plan_guru64_split_dft_c2r(2, dimensions, 2, batches, spectrumReal, spectrumImag, real, flags);
         }
         fftw_iodim64 batch = {static_cast<ptrdiff_t>(shard.planeCount), 1,
                               static_cast<ptrdiff_t>(workload_.realPlaneElements())};
-        return fftw_plan_guru64_dft_c2r(2, dimensions, 1, &batch, spectrum, real, flags);
+        return strategy_.layout == FFTWDataLayout::interleaved
+            ? fftw_plan_guru64_dft_c2r(2, dimensions, 1, &batch, spectrum, real, flags)
+            : fftw_plan_guru64_split_dft_c2r(2, dimensions, 1, &batch, spectrumReal, spectrumImag, real, flags);
     }
 
     void observeLimit(const Clock::time_point& start, double limit) {
@@ -395,17 +462,32 @@ private:
 
     static void executeShard(void* rawContext, std::size_t shardIndex) {
         auto& context = *static_cast<ExecuteContext*>(rawContext);
-        const auto& shard = context.provider->plans_[shardIndex];
+        auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
         if (context.forward) {
             auto* input = const_cast<double*>(context.forwardInput) +
-                shard.beginPlane * context.provider->workload_.realPlaneElements();
-            auto* output = reinterpret_cast<fftw_complex*>(context.forwardOutput) + shard.beginPlane;
-            fftw_execute_dft_r2c(shard.forward, input, output);
+                shard.beginPlane * provider.workload_.realPlaneElements();
+            if (provider.strategy_.layout == FFTWDataLayout::interleaved) {
+                auto* output = reinterpret_cast<fftw_complex*>(context.forwardOutput) + shard.beginPlane;
+                fftw_execute_dft_r2c(shard.forward, input, output);
+            } else {
+                fftw_execute_split_dft_r2c(shard.forward,
+                                           input,
+                                           context.splitReal + shard.beginPlane,
+                                           context.splitImag + shard.beginPlane);
+            }
         } else {
-            auto* input = reinterpret_cast<fftw_complex*>(context.inverseInput) + shard.beginPlane;
             auto* output = context.inverseOutput +
-                shard.beginPlane * context.provider->workload_.realPlaneElements();
-            fftw_execute_dft_c2r(shard.inverse, input, output);
+                shard.beginPlane * provider.workload_.realPlaneElements();
+            if (provider.strategy_.layout == FFTWDataLayout::interleaved) {
+                auto* input = reinterpret_cast<fftw_complex*>(context.inverseInput) + shard.beginPlane;
+                fftw_execute_dft_c2r(shard.inverse, input, output);
+            } else {
+                fftw_execute_split_dft_c2r(shard.inverse,
+                                           context.splitReal + shard.beginPlane,
+                                           context.splitImag + shard.beginPlane,
+                                           output);
+            }
         }
     }
 
@@ -435,6 +517,34 @@ private:
         }
     }
 
+    void validateForwardSplitAlignment(const double* input, double* outputReal, double* outputImag) const {
+        if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
+        for (const auto& shard : plans_) {
+            auto* real = const_cast<double*>(input) + shard.beginPlane * workload_.realPlaneElements();
+            auto* spectrumReal = outputReal + shard.beginPlane;
+            auto* spectrumImag = outputImag + shard.beginPlane;
+            if (fftw_alignment_of(real) != shard.realAlignmentClass ||
+                fftw_alignment_of(spectrumReal) != shard.spectrumRealAlignmentClass ||
+                fftw_alignment_of(spectrumImag) != shard.spectrumImagAlignmentClass) {
+                throw std::invalid_argument("Aligned split FFTW execution buffers do not match the planning alignment classes.");
+            }
+        }
+    }
+
+    void validateInverseSplitAlignment(double* inputReal, double* inputImag, double* output) const {
+        if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
+        for (const auto& shard : plans_) {
+            auto* spectrumReal = inputReal + shard.beginPlane;
+            auto* spectrumImag = inputImag + shard.beginPlane;
+            auto* real = output + shard.beginPlane * workload_.realPlaneElements();
+            if (fftw_alignment_of(spectrumReal) != shard.spectrumRealAlignmentClass ||
+                fftw_alignment_of(spectrumImag) != shard.spectrumImagAlignmentClass ||
+                fftw_alignment_of(real) != shard.realAlignmentClass) {
+                throw std::invalid_argument("Aligned split FFTW execution buffers do not match the planning alignment classes.");
+            }
+        }
+    }
+
     static void destroyPlans(std::vector<PlanPair>& plans) {
         for (auto& plan : plans) {
             if (plan.forward != nullptr) fftw_destroy_plan(plan.forward);
@@ -448,8 +558,12 @@ private:
     void releaseSurrogates() {
         if (realSurrogate_ != nullptr) fftw_free(realSurrogate_);
         if (spectrumSurrogate_ != nullptr) fftw_free(spectrumSurrogate_);
+        if (spectrumRealSurrogate_ != nullptr) fftw_free(spectrumRealSurrogate_);
+        if (spectrumImagSurrogate_ != nullptr) fftw_free(spectrumImagSurrogate_);
         realSurrogate_ = nullptr;
         spectrumSurrogate_ = nullptr;
+        spectrumRealSurrogate_ = nullptr;
+        spectrumImagSurrogate_ = nullptr;
     }
 };
 
@@ -466,7 +580,17 @@ FFTWProvider& FFTWProvider::operator=(FFTWProvider&&) noexcept = default;
 
 void FFTWProvider::forward(const double* input, Complex* wvmSpectrum) { impl_->forward(input, wvmSpectrum); }
 void FFTWProvider::inverse(Complex* wvmSpectrum, double* output) { impl_->inverse(wvmSpectrum, output); }
+void FFTWProvider::forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag) {
+    impl_->forwardSplit(input, wvmSpectrumReal, wvmSpectrumImag);
+}
+void FFTWProvider::inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output) {
+    impl_->inverseSplit(wvmSpectrumReal, wvmSpectrumImag, output);
+}
 void FFTWProvider::executeSchedulerNoop() { impl_->schedulerNoop(); }
+bool FFTWProvider::splitInPlaceWvmOrderSupported() const noexcept { return false; }
+std::string FFTWProvider::splitInPlaceWvmOrderCapability() const {
+    return "unsupported: one padded x-fastest real grid cannot alias two disjoint WVM-frequency-major split arrays under the exact guru64 stride contract; both forward and inverse planners return null";
+}
 double FFTWProvider::otherSetupSeconds() const noexcept { return impl_->otherSetupSeconds_; }
 double FFTWProvider::allocationSeconds() const noexcept { return impl_->allocationSeconds_; }
 double FFTWProvider::planningSeconds() const noexcept { return impl_->planningSeconds_; }

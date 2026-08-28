@@ -217,6 +217,60 @@ void embedRetained(const Workload& workload, const std::vector<RetainedMode>& mo
     }
 }
 
+void interleavedToSplit(std::size_t count, const Complex* interleaved, double* real, double* imag) {
+    for (std::size_t index = 0; index < count; ++index) {
+        real[index] = interleaved[index].real;
+        imag[index] = interleaved[index].imag;
+    }
+}
+
+void splitToInterleaved(std::size_t count, const double* real, const double* imag, Complex* interleaved) {
+    for (std::size_t index = 0; index < count; ++index) {
+        interleaved[index] = {real[index], imag[index]};
+    }
+}
+
+void gatherRetainedSplit(const Workload& workload, const std::vector<RetainedMode>& modes,
+                         const double* fullReal, const double* fullImag,
+                         double* retainedReal, double* retainedImag) {
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t z = 0; z < workload.nz; ++z) {
+                const auto fullIndex = wvmSpectrumIndex(workload, mode.storedKx, mode.storedKy, z, field);
+                const auto retainedIndex = retainedSpectrumIndex(workload, modeIndex, z, field);
+                retainedReal[retainedIndex] = fullReal[fullIndex];
+                retainedImag[retainedIndex] = mode.conjugatesStoredValue ? -fullImag[fullIndex] : fullImag[fullIndex];
+            }
+        }
+    }
+}
+
+void embedRetainedSplit(const Workload& workload, const std::vector<RetainedMode>& modes,
+                        const double* retainedReal, const double* retainedImag,
+                        double* fullReal, double* fullImag) {
+    std::fill_n(fullReal, workload.spectrumElements(), 0.0);
+    std::fill_n(fullImag, workload.spectrumElements(), 0.0);
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t z = 0; z < workload.nz; ++z) {
+                const auto retainedIndex = retainedSpectrumIndex(workload, modeIndex, z, field);
+                const auto storedIndex = wvmSpectrumIndex(workload, mode.storedKx, mode.storedKy, z, field);
+                const auto storedImag = mode.conjugatesStoredValue ? -retainedImag[retainedIndex] : retainedImag[retainedIndex];
+                fullReal[storedIndex] = retainedReal[retainedIndex];
+                fullImag[storedIndex] = storedImag;
+                if (mode.storedKx == 0 && mode.storedKy != 0 && 2 * mode.storedKy != workload.ny) {
+                    const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+                    const auto conjugateIndex = wvmSpectrumIndex(workload, 0, conjugateKy, z, field);
+                    fullReal[conjugateIndex] = retainedReal[retainedIndex];
+                    fullImag[conjugateIndex] = -storedImag;
+                }
+            }
+        }
+    }
+}
+
 void wvmToPlaneMajor(const Workload& workload, const Complex* wvmSpectrum, Complex* planeMajorSpectrum) {
     for (std::size_t field = 0; field < workload.fields; ++field) {
         for (std::size_t z = 0; z < workload.nz; ++z) {

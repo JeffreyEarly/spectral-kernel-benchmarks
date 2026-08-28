@@ -15,6 +15,7 @@ void usage(std::ostream& output) {
            << "  skbench validate [--profile NAME]\n"
            << "  skbench run [--profile NAME] [--providers both|fftw] [--workers N]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
+           << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-alignment aligned|unaligned] [--fftw-wisdom cold|generated-import]\n"
            << "              [--fftw-internal-workers N] [--fftw-outer-workers N]\n"
            << "              [--fftw-planning-time-limit SECONDS]\n"
@@ -48,6 +49,10 @@ void list() {
               << "FFTW wisdom strategies:\n"
               << "  cold\n"
               << "  generated-import\n"
+              << "FFTW data layouts:\n"
+              << "  interleaved\n"
+              << "  split\n"
+              << "  paired\n"
               << "vDSP strategies:\n"
               << "  in-place\n"
               << "  in-place-explicit-scratch\n"
@@ -116,6 +121,7 @@ int main(int argc, char** argv) {
                 const std::string_view key = argv[index];
                 if (key == "--profile") options.profile = requireValue(argc, argv, index);
                 else if (key == "--providers") options.providers = requireValue(argc, argv, index);
+                else if (key == "--fftw-layout") options.fftwLayout = requireValue(argc, argv, index);
                 else if (key == "--fftw-planning") options.fftwPlanning = requireValue(argc, argv, index);
                 else if (key == "--fftw-alignment") options.fftwAlignment = requireValue(argc, argv, index);
                 else if (key == "--fftw-wisdom") options.fftwWisdom = requireValue(argc, argv, index);

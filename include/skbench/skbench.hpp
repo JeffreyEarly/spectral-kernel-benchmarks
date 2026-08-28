@@ -55,6 +55,14 @@ std::size_t modalSpectrumIndex(const Workload& workload, std::size_t mode, std::
 
 void gatherRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* fullSpectrum, Complex* retainedSpectrum);
 void embedRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* retainedSpectrum, Complex* fullSpectrum);
+void interleavedToSplit(std::size_t count, const Complex* interleaved, double* real, double* imag);
+void splitToInterleaved(std::size_t count, const double* real, const double* imag, Complex* interleaved);
+void gatherRetainedSplit(const Workload& workload, const std::vector<RetainedMode>& modes,
+                         const double* fullReal, const double* fullImag,
+                         double* retainedReal, double* retainedImag);
+void embedRetainedSplit(const Workload& workload, const std::vector<RetainedMode>& modes,
+                        const double* retainedReal, const double* retainedImag,
+                        double* fullReal, double* fullImag);
 void wvmToPlaneMajor(const Workload& workload, const Complex* wvmSpectrum, Complex* planeMajorSpectrum);
 void planeMajorToWvm(const Workload& workload, const Complex* planeMajorSpectrum, Complex* wvmSpectrum);
 std::string modeOrderHash(const std::vector<RetainedMode>& modes);
@@ -113,6 +121,14 @@ enum class FFTWWisdomStrategy {
 std::string_view fftwWisdomStrategyName(FFTWWisdomStrategy strategy) noexcept;
 FFTWWisdomStrategy fftwWisdomStrategyNamed(std::string_view name);
 
+enum class FFTWDataLayout {
+    interleaved,
+    split
+};
+
+std::string_view fftwDataLayoutName(FFTWDataLayout layout) noexcept;
+FFTWDataLayout fftwDataLayoutNamed(std::string_view name);
+
 struct FFTWStrategy {
     FFTWPlanningMode planningMode = FFTWPlanningMode::measure;
     FFTWAlignmentStrategy alignment = FFTWAlignmentStrategy::unaligned;
@@ -120,6 +136,7 @@ struct FFTWStrategy {
     std::size_t internalWorkers = 1;
     std::size_t outerWorkers = 1;
     double planningTimeLimitSeconds = 0.0;
+    FFTWDataLayout layout = FFTWDataLayout::interleaved;
 };
 
 class FFTWProvider {
@@ -134,7 +151,11 @@ public:
 
     void forward(const double* input, Complex* wvmSpectrum);
     void inverse(Complex* wvmSpectrum, double* output);
+    void forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag);
+    void inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output);
     void executeSchedulerNoop();
+    bool splitInPlaceWvmOrderSupported() const noexcept;
+    std::string splitInPlaceWvmOrderCapability() const;
     double otherSetupSeconds() const noexcept;
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;
@@ -366,6 +387,7 @@ Profile profileNamed(std::string_view name);
 struct RunOptions {
     std::string profile = "quick";
     std::string providers = "both";
+    std::string fftwLayout = "interleaved";
     std::string fftwPlanning = "measure";
     std::string fftwAlignment = "unaligned";
     std::string fftwWisdom = "cold";
