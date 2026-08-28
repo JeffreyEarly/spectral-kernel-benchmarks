@@ -46,6 +46,7 @@ class BuildSiteTests(unittest.TestCase):
             index = (output / "index.html").read_text(encoding="utf-8")
             legacy_page = output / "runs" / "m4-max-quick-20260827.html"
             canonical_page = output / "runs" / "20260827T185428Z-lyra" / "index.html"
+            split_run_page = output / "runs" / "20260828T012502664620Z-lyra" / "index.html"
             issue_3_page = output / "experiments" / "issue-003-fftw-production-baseline" / "index.html"
             issue_4_page = output / "experiments" / "issue-004-fftw-strategy-sweep" / "index.html"
             issue_5_page = output / "experiments" / "issue-005-vdsp-native-baseline" / "index.html"
@@ -60,6 +61,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("preliminary", index)
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
+            self.assertTrue(split_run_page.is_file())
             self.assertTrue(issue_3_page.is_file())
             self.assertTrue(issue_4_page.is_file())
             self.assertTrue(issue_5_page.is_file())
@@ -71,12 +73,25 @@ class BuildSiteTests(unittest.TestCase):
             issue_4_html = issue_4_page.read_text(encoding="utf-8")
             self.assertIn("Reproducible Pareto screen", issue_4_html)
             self.assertIn("deterministic percentile-bootstrap 95% intervals", issue_4_html)
-            self.assertIn("infeasible within planning budget", issue_4_html)
+            self.assertIn("infeasible within its planning budget", issue_4_html)
             self.assertIn("wvm-guru64-measure-unaligned-cold", issue_4_html)
             self.assertIn("20260827T223146704900Z-lyra", issue_4_html)
-            self.assertIn("13 workload-candidates are Pareto", issue_4_html)
-            self.assertIn("33 are dominated", issue_4_html)
-            self.assertIn("6 are marked infeasible", issue_4_html)
+            self.assertIn("7 workload-candidates are Pareto", issue_4_html)
+            self.assertIn("3 are dominated", issue_4_html)
+            self.assertIn("0 are marked infeasible", issue_4_html)
+            self.assertIn("Paired split-versus-interleaved increment", issue_4_html)
+            self.assertIn("Split-layout diagnostic", issue_4_html)
+            self.assertIn("Raw CV interleaved / split", issue_4_html)
+            self.assertIn("Planning memory", issue_4_html)
+            self.assertIn("1.217× forward and 1.166× inverse", issue_4_html)
+            self.assertIn("Append-only interleaved strategy archive", issue_4_html)
+            self.assertIn("wvm-guru64-split-measure-aligned-cold", issue_4_html)
+            self.assertIn("20260828T012502664620Z-lyra", issue_4_html)
+            self.assertIn("one contiguous allocation with a fixed [real][imaginary] component separation", issue_4_html)
+            split_run_html = split_run_page.read_text(encoding="utf-8")
+            self.assertIn("FFTW split", split_run_html)
+            self.assertIn("wvm-frequency-major-split-half-spectrum", split_run_html)
+            self.assertIn("exact WVM-order split in-place", split_run_html)
             issue_5_html = issue_5_page.read_text(encoding="utf-8")
             self.assertIn("No reference run has been published", issue_5_html)
             self.assertIn("Primitive FFT", issue_5_html)

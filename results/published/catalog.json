@@ -3410,6 +3410,246 @@
         "samplesSha256": "780dcaffb8b1029fc6357324a3a301578fc8f47254d8f8c03369ab517abcba69"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T012354903059Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-split-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012354903059Z-lyra/result.json",
+        "samples": "runs/20260828T012354903059Z-lyra/samples.csv",
+        "resultSha256": "e3999fe069c96034e267715d75055be2a823fee94c5e1195ccc5e2b0569e5edb",
+        "samplesSha256": "63fbdde9875f89fa49950ab323fee78c9f0fa2aa671377920179efa78986f65b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012356394242Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012356394242Z-lyra/result.json",
+        "samples": "runs/20260828T012356394242Z-lyra/samples.csv",
+        "resultSha256": "eb81bfdcbb3ff951ffaee6ba4e7b387e08809f5b648443b58f81536c23e44bf4",
+        "samplesSha256": "deecb7d910cf24ce0c9f8417ff06dfe2b5c45e6624e9b0357f64e44cb5113966"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012357957161Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012357957161Z-lyra/result.json",
+        "samples": "runs/20260828T012357957161Z-lyra/samples.csv",
+        "resultSha256": "f4feb8c3a0f4073327ce5153a3c5023037d1e19d0f0c214c781d2767ec58e479",
+        "samplesSha256": "3a446540c2a60f6601b2a01a1df5d554c71911ae57a16d9665d4514c666030fa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012359619312Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012359619312Z-lyra/result.json",
+        "samples": "runs/20260828T012359619312Z-lyra/samples.csv",
+        "resultSha256": "ec6f4c4d52a79cd13d0cc3b925baba5b4be96cfab198572dafdaa558a96199c8",
+        "samplesSha256": "9c5164608591a5cd202908b3b51eeea736c700b7f3cc1b26055097a5c72ebe43"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012401448433Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-split-measure-aligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012401448433Z-lyra/result.json",
+        "samples": "runs/20260828T012401448433Z-lyra/samples.csv",
+        "resultSha256": "d40a820d0f022bd4db48318454393a2209a7efafde37ec109d6488931c030d61",
+        "samplesSha256": "604c3f96b1753cdc270e1f7884f1c664484f6eff6c3b2c9de8fb47133326e80e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012412820847Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-split-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012412820847Z-lyra/result.json",
+        "samples": "runs/20260828T012412820847Z-lyra/samples.csv",
+        "resultSha256": "69d8021cadcd3409da67652281b1d73315ec00110289b0353860c5e020af0cba",
+        "samplesSha256": "757a1b6d2cd22d43b6c89039b831da4abfb955d57782be913309d510051e3af1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012424296061Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012424296061Z-lyra/result.json",
+        "samples": "runs/20260828T012424296061Z-lyra/samples.csv",
+        "resultSha256": "cbac85d032c888ccb091cbc0cb19f19e16929ddc5e8fc0e525a2a71f42cb97e0",
+        "samplesSha256": "0f88ec37466f2636978c0bc77ec6158b72ea3a5feed8dd0df642257cf0f407ae"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012436136840Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012436136840Z-lyra/result.json",
+        "samples": "runs/20260828T012436136840Z-lyra/samples.csv",
+        "resultSha256": "7ebd55eaf8adc638ceeb68f06ccb02e80dbf23a339dd34915bac4a430631e6ef",
+        "samplesSha256": "aedd9a0b4e5be7fd28efc6bf32f8211c953cd97da828bb2fc206c96b5a20a0ce"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012448230343Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-split-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012448230343Z-lyra/result.json",
+        "samples": "runs/20260828T012448230343Z-lyra/samples.csv",
+        "resultSha256": "865c13bd3b2d651fc63e2107ec76630f3a751a95a194b375422cacb1bdac45e7",
+        "samplesSha256": "5a004c4a43f1a7d600c44ce82a09236ccd1740ed0b094dbe7ea0ec836b1bc264"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T012502664620Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max matched-configuration diagnostic of FFTW guru64 split versus interleaved APIs on two representative workloads; bounded frontier only, with elevated variation in some 256-square rows, so it is not the final issue #4 Pareto set.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-split-measure-aligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T012502664620Z-lyra/result.json",
+        "samples": "runs/20260828T012502664620Z-lyra/samples.csv",
+        "resultSha256": "903401cf6fca4b282c1f1200816d5a9de54447dba8e5bfa4a66dbdefd169355b",
+        "samplesSha256": "d481e76656b8ab385c0c59764d7d646453f96e49bd01e7bc0c21540cd6f97ad0"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -3468,13 +3708,13 @@
         15
       ],
       "definition": {
-        "unitOfWork": "The same full real-2-D transform batches as issue #3.",
+        "unitOfWork": "The same full real-2-D transform batches as issue #3; layout increments may additionally preserve the provider representation through separately reported horizontal retention and embedding.",
         "candidates": "Aligned and unaligned plans; ESTIMATE, MEASURE, PATIENT, and EXHAUSTIVE; wisdom; interleaved and split APIs; internal, outer, and hybrid threading.",
         "workloads": "The production workload matrix established by issue #3.",
         "controlledVariables": "Mathematical transforms, fixtures, precision, dimensions, sampling, compiler, and machine protocol.",
         "changedVariables": "Planning effort, alignment, representation, wisdom state, and scheduling.",
-        "timedBoundary": "Raw provider execution with planning, allocation, wisdom, and conversions reported separately.",
-        "excludedWork": "Retention, vertical projection, modal work, and nonlinear flux.",
+        "timedBoundary": "Raw provider execution is always reported separately from planning, allocation, wisdom, conversion, retained-mode selection or embedding, adapters, and persistent-layout totals.",
+        "excludedWork": "Vertical projection, modal work, and nonlinear flux; retention remains outside primitive FFT timing even when a layout increment reports it separately.",
         "allocationPolicy": "No allocation in timed execution; all setup memory is reported."
       },
       "correctness": {
@@ -3490,6 +3730,9 @@
         "alignment",
         "scheduling",
         "memory",
+        "representation conversion",
+        "retained-layout diagnostic",
+        "capability",
         "Pareto set"
       ]
     },

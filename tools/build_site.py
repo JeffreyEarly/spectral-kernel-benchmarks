@@ -585,6 +585,11 @@ def fftw_split_evidence_table(bundles: list[PublishedBundle]) -> str:
                 values.append(float(split_timing["medianSeconds"]) / float(interleaved_timing["medianSeconds"]))
             return f"{values[0]:.3f}× / {values[1]:.3f}×"
 
+        def raw_cv(provider: dict) -> str:
+            forward = timing(provider, "primitive", "forward")
+            inverse = timing(provider, "primitive", "inverse")
+            return f"{coefficient_of_variation(forward)} / {coefficient_of_variation(inverse)}"
+
         conversion_forward = stage_timing(
             split, "adapter-component", "split-to-interleaved conversion", "forward"
         )
@@ -605,10 +610,12 @@ def fftw_split_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
             f'<span class="muted">{run["samples"]} samples · {publication_badge(bundle.publication["status"])}</span></td>'
             f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
-            f'<td>{escaped(fftw_candidate_name(interleaved))}</td>'
+            f'<td>{escaped(fftw_candidate_name(interleaved))}<br><span class="muted">{escaped(split["algorithmId"])}</span></td>'
             f'<td class="numeric">{escaped(pair(interleaved, "primitive"))}<br><span class="muted">interleaved</span><br>'
             f'{escaped(pair(split, "primitive"))}<br><span class="muted">split</span></td>'
             f'<td class="numeric">{escaped(ratio("primitive"))}</td>'
+            f'<td class="numeric">{escaped(raw_cv(interleaved))}<br><span class="muted">interleaved</span><br>'
+            f'{escaped(raw_cv(split))}<br><span class="muted">split</span></td>'
             f'<td class="numeric">{format_ms(conversion_forward["medianSeconds"]) if conversion_forward else "not measured"} / '
             f'{format_ms(conversion_inverse["medianSeconds"]) if conversion_inverse else "not measured"}</td>'
             f'<td class="numeric">{escaped(ratio("adapter-total"))}</td>'
@@ -617,6 +624,8 @@ def fftw_split_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'{format_ms(direct_embedding["medianSeconds"]) if direct_embedding else "not measured"}</td>'
             f'<td class="numeric">{format_ms(interleaved["setup"]["totalSeconds"])} / '
             f'{format_ms(split["setup"]["totalSeconds"])}</td>'
+            f'<td class="numeric">{format_bytes(interleaved["planning"]["temporaryBytes"])} / '
+            f'{format_bytes(split["planning"]["temporaryBytes"])}</td>'
             f'<td>{escaped(capability_state)}<br><span class="muted">out-of-place native paths measured</span></td>'
             f'<td class="numeric">{format_error(max(maximum_correctness_error(interleaved) or 0.0, maximum_correctness_error(split) or 0.0))}</td>'
             "</tr>"
@@ -625,13 +634,13 @@ def fftw_split_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return (
         '<h3>Paired split-versus-interleaved increment</h3>'
-        '<p>Each row holds planning, alignment, worker topology, fixture, and sampling fixed while changing only the FFTW complex API and physical layout. Providers are measured as sequential blocks in one process; the ratios are matched-configuration medians, not alternating-sample confidence intervals.</p>'
+        '<p>This increment asks whether FFTW’s split guru64 API beats its matched interleaved API at the raw transform boundary, after WVM-compatible conversion, or when the split layout persists through retained-mode selection and embedding. Each row holds planning, alignment, worker topology, fixture, and sampling fixed while changing only the FFTW complex API and physical layout. Providers are measured as sequential blocks in one process; the ratios are matched-configuration medians, not alternating-sample confidence intervals.</p>'
         '<div class="table-scroll"><table class="experiment-evidence-table issue4-split-evidence-table">'
-        '<caption>Times are forward / inverse median milliseconds. Ratio columns are split divided by interleaved, so values below one favor split for that boundary. Conversion is reported separately. The retained ratio compares direct persistent split selection/embedding with the existing interleaved retained operator. Setup is interleaved / split.</caption>'
+        '<caption>Times are forward / inverse median milliseconds. Ratio columns are split divided by interleaved, so values below one favor split for that boundary. CV is the sample standard deviation divided by the mean. Conversion is reported separately. The retained ratio compares direct persistent split selection/embedding with the existing interleaved retained operator. Setup and planning memory are interleaved / split.</caption>'
         '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Matched strategy</th>'
-        '<th scope="col">Raw FFT interleaved / split</th><th scope="col">Raw split / interleaved</th>'
+        '<th scope="col">Raw FFT interleaved / split</th><th scope="col">Raw split / interleaved</th><th scope="col">Raw CV interleaved / split</th>'
         '<th scope="col">Conversion</th><th scope="col">Adapter ratio</th><th scope="col">Retained ratio</th>'
-        '<th scope="col">Direct split select / embed</th><th scope="col">Setup</th><th scope="col">Exact WVM-order in-place</th>'
+        '<th scope="col">Direct split select / embed</th><th scope="col">Setup</th><th scope="col">Planning memory</th><th scope="col">Exact WVM-order in-place</th>'
         '<th scope="col">Max error</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
@@ -885,7 +894,7 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
         split_synthesis = f"""
       <h3>Split-layout diagnostic</h3>
       <p>Across {len(paired)} matched configuration-workloads, the geometric-mean split/interleaved ratios are {geometric_ratio("primitive", "forward"):.3f}× forward and {geometric_ratio("primitive", "inverse"):.3f}× inverse for raw FFT, {geometric_ratio("adapter-total", "forward"):.3f}× and {geometric_ratio("adapter-total", "inverse"):.3f}× for the WVM-compatible adapter, and {geometric_ratio("uninstrumented-total", "forward"):.3f}× and {geometric_ratio("uninstrumented-total", "inverse"):.3f}× for the retained horizontal operator. Values below one favor split. The split maximum relative error is {format_error(split_error)}.</p>
-      <p>The exact in-place alias between one padded x-fastest real grid and two disjoint WVM-frequency-major split arrays is recorded as unsupported: both guru64 planners reject it. Provider-native layouts with different strides remain a later algorithm experiment, so this result does not claim that every FFTW split in-place arrangement is impossible.</p>
+      <p>FFTW 3.3.11 documents rank-greater-than-one guru split real transforms as out-of-place only, and both exact WVM-order in-place planners reject the tested alias. The measured new-array path therefore uses one contiguous allocation with a fixed [real][imaginary] component separation matching the planning buffers. Provider-native layouts with different strides remain a later algorithm experiment.</p>
       """
         split_scope_note = "It includes a bounded paired split/interleaved screen, but still excludes most production fields/workloads and provider-native split orders with different strides."
     return f"""
