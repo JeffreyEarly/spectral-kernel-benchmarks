@@ -2,6 +2,7 @@
 
 #include <fftw3.h>
 
+#include <algorithm>
 #include <chrono>
 #include <climits>
 #include <cmath>
@@ -300,6 +301,19 @@ public:
         executor_->run(&executeShard, &context);
     }
 
+    void gatherRetainedOuter(const std::vector<RetainedMode>& modes,
+                             const Complex* spectrum, Complex* retained) {
+        RetainedContext context{this, &modes, spectrum, retained, nullptr, nullptr};
+        executor_->run(&gatherRetainedShard, &context);
+    }
+
+    void embedRetainedOuter(const std::vector<RetainedMode>& modes,
+                            const Complex* retained, Complex* spectrum) {
+        RetainedContext context{this, &modes, nullptr, nullptr, retained, spectrum};
+        executor_->run(&zeroSpectrumShard, &context);
+        executor_->run(&embedRetainedShard, &context);
+    }
+
     void forwardSplit(const double* input, double* outputReal, double* outputImag) {
         requireLayout(FFTWDataLayout::split);
         validateForwardSplitAlignment(input, outputReal, outputImag);
@@ -343,6 +357,15 @@ private:
         double* splitReal;
         double* splitImag;
         bool forward;
+    };
+
+    struct RetainedContext {
+        Impl* provider;
+        const std::vector<RetainedMode>* modes;
+        const Complex* spectrumInput;
+        Complex* retainedOutput;
+        const Complex* retainedInput;
+        Complex* spectrumOutput;
     };
 
     void requireLayout(FFTWDataLayout expected) const {
@@ -492,6 +515,58 @@ private:
         }
     }
 
+    static void gatherRetainedShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<RetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                auto value = context.spectrumInput[plane + planes * frequency];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                context.retainedOutput[plane + planes * modeIndex] = value;
+            }
+        }
+    }
+
+    static void zeroSpectrumShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<RetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto count = provider.workload_.spectrumElements();
+        const auto begin = count * shardIndex / provider.strategy_.outerWorkers;
+        const auto end = count * (shardIndex + 1) / provider.strategy_.outerWorkers;
+        std::fill(context.spectrumOutput + begin, context.spectrumOutput + end, Complex{});
+    }
+
+    static void embedRetainedShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<RetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                const auto compact = context.retainedInput[plane + planes * modeIndex];
+                const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
+                context.spectrumOutput[plane + planes * frequency] = stored;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != provider.workload_.ny) {
+                    const auto conjugateKy =
+                        (provider.workload_.ny - mode.storedKy) % provider.workload_.ny;
+                    const auto conjugateFrequency = nxHalf * conjugateKy;
+                    context.spectrumOutput[plane + planes * conjugateFrequency] = conjugate(stored);
+                }
+            }
+        }
+    }
+
     static void noopShard(void*, std::size_t) {}
 
     void validateForwardAlignment(const double* input, Complex* output) const {
@@ -591,6 +666,16 @@ FFTWProvider& FFTWProvider::operator=(FFTWProvider&&) noexcept = default;
 
 void FFTWProvider::forward(const double* input, Complex* wvmSpectrum) { impl_->forward(input, wvmSpectrum); }
 void FFTWProvider::inverse(Complex* wvmSpectrum, double* output) { impl_->inverse(wvmSpectrum, output); }
+void FFTWProvider::gatherRetainedOuter(const std::vector<RetainedMode>& modes,
+                                       const Complex* wvmSpectrum,
+                                       Complex* retainedSpectrum) {
+    impl_->gatherRetainedOuter(modes, wvmSpectrum, retainedSpectrum);
+}
+void FFTWProvider::embedRetainedOuter(const std::vector<RetainedMode>& modes,
+                                      const Complex* retainedSpectrum,
+                                      Complex* wvmSpectrum) {
+    impl_->embedRetainedOuter(modes, retainedSpectrum, wvmSpectrum);
+}
 void FFTWProvider::forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag) {
     impl_->forwardSplit(input, wvmSpectrumReal, wvmSpectrumImag);
 }

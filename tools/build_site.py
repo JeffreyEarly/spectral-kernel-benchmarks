@@ -1751,9 +1751,7 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
 
 
 def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
-    ratios: list[float] = []
-    ratios_by_direction: dict[str, list[float]] = {"forward": [], "inverse": []}
-    ratios_by_workers: dict[int, dict[str, list[float]]] = {}
+    ratios_by_topology: dict[tuple[str, int, int], dict[str, list[float]]] = {}
     errors: list[float] = []
     scratch_bytes: list[int] = []
     for bundle in bundles:
@@ -1769,16 +1767,20 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
         )
         if full is None or pruned is None:
             continue
+        scheduling = pruned.get("scheduling", {})
+        topology = (
+            str(pruned.get("schedulingId", "unknown")),
+            int(scheduling.get("internalWorkers", pruned.get("workers", 1))),
+            int(scheduling.get("outerWorkers", 1)),
+        )
         for direction in ("forward", "inverse"):
             full_total = timing(full, "uninstrumented-total", direction)
             pruned_total = timing(pruned, "uninstrumented-total", direction)
             if full_total is None or pruned_total is None:
                 continue
             ratio = float(pruned_total["medianSeconds"]) / float(full_total["medianSeconds"])
-            ratios.append(ratio)
-            ratios_by_direction[direction].append(ratio)
-            ratios_by_workers.setdefault(
-                int(pruned["workers"]), {"forward": [], "inverse": []}
+            ratios_by_topology.setdefault(
+                topology, {"forward": [], "inverse": []}
             )[direction].append(ratio)
         scratch_bytes.append(int(pruned["memory"]["scratchBytes"]))
         errors.extend(
@@ -1787,48 +1789,86 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
             for name in ("maximumRelativeError", "relativeL2Error")
             if metric.get(name) is not None
         )
-    if not ratios:
+    if not ratios_by_topology:
         return ""
-    geometric = math.exp(sum(math.log(value) for value in ratios) / len(ratios))
-    direction_summary = "; ".join(
-        f"{direction}: {sum(value < 1.0 for value in values)}/{len(values)} wins, "
-        f"{math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× geometric"
-        for direction, values in ratios_by_direction.items()
-        if values
-    )
-    topology_summary = "; ".join(
-        f"workers={workers}: " + ", ".join(
+
+    def topology_summary(predicate) -> str:
+        return "; ".join(
+            f"internal={internal}, outer={outer}: " + ", ".join(
             f"{direction} {math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× "
             f"({sum(value < 1.0 for value in values)}/{len(values)} wins)"
             for direction, values in directions.items()
             if values
         )
-        for workers, directions in sorted(ratios_by_workers.items())
-    )
-    highest_worker_count = max(ratios_by_workers)
-    highest_worker_ratios = [
+            for (scheduling_id, internal, outer), directions in sorted(
+                ratios_by_topology.items(), key=lambda item: (item[0][2], item[0][1], item[0][0])
+            )
+            if predicate(scheduling_id, internal, outer)
+        )
+
+    initial_ratios = [
         value
-        for values in ratios_by_workers[highest_worker_count].values()
+        for (_, _, outer), directions in ratios_by_topology.items()
+        if outer == 1
+        for values in directions.values()
         for value in values
     ]
-    single_inverse = ratios_by_workers.get(1, {}).get("inverse", [])
-    if highest_worker_ratios and not any(value < 1.0 for value in highest_worker_ratios) and single_inverse and all(value < 1.0 for value in single_inverse):
-        conclusion = (
-            "The single-worker inverse path remains viable evidence, but the current performance-core tuple is dominated and should not advance as a production candidate. Outer plane sharding is the next bounded scheduling test."
+    outer_ratios = [
+        value
+        for (_, _, outer), directions in ratios_by_topology.items()
+        if outer > 1
+        for values in directions.values()
+        for value in values
+    ]
+    initial_summary = topology_summary(lambda _id, _internal, outer: outer == 1)
+    outer_summary = topology_summary(lambda _id, _internal, outer: outer > 1)
+    initial_geometric = math.exp(
+        sum(math.log(value) for value in initial_ratios) / len(initial_ratios)
+    )
+    outer_section = ""
+    if outer_ratios:
+        outer_geometric = math.exp(
+            sum(math.log(value) for value in outer_ratios) / len(outer_ratios)
         )
-    elif any(value < 1.0 for value in ratios):
-        conclusion = (
-            "At least one topology is competitive and should advance to the broader retained-horizontal comparison."
-        )
-    else:
-        conclusion = (
-            "The candidate is dominated in this bounded cohort; this rejects the measured partial-column decomposition, not every theoretical pruned FFT."
-        )
+        outer_direction_best: list[str] = []
+        for direction in ("forward", "inverse"):
+            candidates = [
+                (
+                    math.exp(sum(math.log(value) for value in directions[direction]) /
+                             len(directions[direction])),
+                    internal,
+                    outer,
+                    directions[direction],
+                )
+                for (_, internal, outer), directions in ratios_by_topology.items()
+                if outer > 1 and directions[direction]
+            ]
+            if candidates:
+                geometric, internal, outer, values = min(candidates)
+                outer_direction_best.append(
+                    f"best {direction}: internal={internal}, outer={outer}, {geometric:.3f}× "
+                    f"geometric ({sum(value < 1.0 for value in values)}/{len(values)} wins)"
+                )
+        if any(value < 1.0 for value in outer_ratios):
+            conclusion = (
+                "At least one outer-sharded cell is competitive; the direction-specific consistency and regression limits determine whether a tuple advances to issue #7."
+            )
+        else:
+            conclusion = (
+                "No tested outer-sharded cell beats its matched full retained operator, so this scheduling path does not rescue the measured partial-column decomposition."
+            )
+        outer_section = f"""
+      <h3>Persistent outer plane/field sharding increment</h3>
+      <p>This append-only follow-on fixes FFTW internal pthreads at one and partitions planes/fields over persistent workers. The matched full reference uses the same worker count for its two-dimensional plans and radial adapters. The candidate partitions one aggregate full-row-spectrum scratch allocation into disjoint worker slices; it does not multiply aggregate scratch capacity. Empty scheduler dispatch is measured separately, and all complete calls remain out-of-place and allocation-free.</p>
+      <p>Across {len(outer_ratios)} outer-sharded workload/topology/direction cells, the candidate/full retained ratio is {outer_geometric:.3f}× geometrically and spans {min(outer_ratios):.3f}×–{max(outer_ratios):.3f}×. Topologies: {outer_summary}. {'; '.join(outer_direction_best)}. {conclusion}</p>
+      <p>Deeper within-column pruning, reduced aggregate scratch, split storage, generated transforms, efficiency-core-specific scheduling, and caller-visible in-place operation remain outside this increment.</p>
+        """
     return f"""
       <h3>Partial-column-pruned feasibility increment</h3>
       <p>The candidate performs every real-row transform but omits complete high-k<sub>x</sub> complex-column transforms that cannot intersect the retained radial disk. It exposes compact mode-keyed output rather than a completed WVM-order half-spectrum. The same-run reference uses FFTW's optimized full two-dimensional transform followed by radial selection or embedding. Planning effort, workers, fixture, precision, workload, warmups, and samples are matched.</p>
-      <p>Across {len(ratios)} workload/worker/direction comparisons, the pruned/full retained-operator geometric ratio is {geometric:.3f}× and spans {min(ratios):.3f}×–{max(ratios):.3f}×; pooled by direction, {direction_summary}. The topology split is {topology_summary}. The largest correctness error is {format_error(max(errors))}. Candidate scratch spans {format_bytes(min(scratch_bytes))}–{format_bytes(max(scratch_bytes))} and remains full row-spectrum sized.</p>
-      <p>{conclusion} Deeper within-column output pruning, reduced first-pass scratch, transform-internal transposition, split storage, outer batch sharding, and caller-visible in-place operation remain outside this increment.</p>
+      <p>The immutable initial internally threaded cohort contains {len(initial_ratios)} workload/topology/direction comparisons. Its candidate/full retained-operator geometric ratio is {initial_geometric:.3f}× and spans {min(initial_ratios):.3f}×–{max(initial_ratios):.3f}×. Topologies: {initial_summary}. The largest correctness error across all published increments is {format_error(max(errors))}. Aggregate candidate scratch spans {format_bytes(min(scratch_bytes))}–{format_bytes(max(scratch_bytes))} and remains full row-spectrum sized.</p>
+      <p>The single-worker inverse evidence motivated the outer-sharding follow-on below; the internally threaded performance-core tuple remains a negative result and is not rewritten.</p>
+      {outer_section}
     """
 
 
@@ -1872,17 +1912,40 @@ def pruned_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
                 ]
             )
         run_id = run["id"]
+        scheduling = pruned.get("scheduling", {})
+        internal_workers = int(scheduling.get("internalWorkers", pruned["workers"]))
+        outer_workers = int(scheduling.get("outerWorkers", 1))
+        planes = int(workload["Nz"]) * int(workload["fields"])
+        maximum_shard_planes = (planes + outer_workers - 1) // outer_workers
+        maximum_shard_scratch = (
+            maximum_shard_planes * int(workload["Ny"]) *
+            (int(workload["Nx"]) // 2 + 1) * 16
+        )
+        full_dispatch = stage_timing(
+            full, "diagnostic-component", "batch scheduler empty dispatch", "shared"
+        )
+        pruned_dispatch = stage_timing(
+            pruned, "diagnostic-component", "batch scheduler empty dispatch", "shared"
+        )
+        dispatch = "not measured"
+        if full_dispatch is not None and pruned_dispatch is not None:
+            dispatch = (
+                f"{format_ms(full_dispatch['medianSeconds'])} / "
+                f"{format_ms(pruned_dispatch['medianSeconds'])}"
+            )
         rows.append(
             "<tr>"
             f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
             f'<span class="muted">{run["samples"]} samples · {publication_badge(bundle.publication["status"])}</span></td>'
             f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
-            f'<td class="numeric">{pruned["workers"]}</td>'
+            f'<td class="numeric">internal={internal_workers}<br>outer={outer_workers}</td>'
             f'<td class="numeric">{values[0]}</td><td class="numeric">{values[1]}</td>'
             f'<td class="numeric">{values[2]}</td><td class="numeric">{values[3]}</td>'
             f'<td class="numeric">{values[4]}</td><td class="numeric">{values[5]}</td>'
             f'<td class="numeric">{values[6]}</td><td class="numeric">{values[7]}</td>'
-            f'<td class="numeric">{format_bytes(pruned["memory"]["scratchBytes"])}</td>'
+            f'<td class="numeric">{dispatch}</td>'
+            f'<td class="numeric">{format_bytes(pruned["memory"]["scratchBytes"])} / '
+            f'{format_bytes(maximum_shard_scratch)}</td>'
             f'<td class="numeric">{format_error(maximum_correctness_error(pruned))}</td>'
             "</tr>"
         )
@@ -1890,10 +1953,10 @@ def pruned_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return (
         '<div class="table-scroll"><table class="experiment-evidence-table">'
-        '<caption>Medians are milliseconds. Full entries are raw 2-D FFT / retained total. Candidate components are row / selected-column diagnostics and are not added; the separately sampled total is authoritative. Ratio is candidate/full retained total.</caption>'
-        '<thead><tr><th rowspan="2" scope="col">Run</th><th rowspan="2" scope="col">Workload</th><th rowspan="2" scope="col">Workers</th>'
+        '<caption>Medians are milliseconds. Full entries are raw 2-D FFT / retained total. Candidate components are row / selected-column diagnostics and are not added; the separately sampled total is authoritative. Ratio is candidate/full retained total. Empty dispatch is full / candidate and excludes all transform or adapter work.</caption>'
+        '<thead><tr><th rowspan="2" scope="col">Run</th><th rowspan="2" scope="col">Workload</th><th rowspan="2" scope="col">Topology</th>'
         '<th colspan="4" scope="colgroup">Forward</th><th colspan="4" scope="colgroup">Inverse</th>'
-        '<th rowspan="2" scope="col">Scratch</th><th rowspan="2" scope="col">Max error</th></tr>'
+        '<th rowspan="2" scope="col">Empty dispatch</th><th rowspan="2" scope="col">Scratch aggregate / max shard</th><th rowspan="2" scope="col">Max error</th></tr>'
         '<tr><th scope="col">Full raw / total</th><th scope="col">Candidate row / column</th><th scope="col">Candidate total</th><th scope="col">Ratio</th>'
         '<th scope="col">Full raw / total</th><th scope="col">Candidate row / column</th><th scope="col">Candidate total</th><th scope="col">Ratio</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'

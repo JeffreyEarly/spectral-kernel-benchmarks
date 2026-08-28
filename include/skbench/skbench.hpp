@@ -290,6 +290,10 @@ public:
 
     void forward(const double* input, Complex* wvmSpectrum);
     void inverse(Complex* wvmSpectrum, double* output);
+    void gatherRetainedOuter(const std::vector<RetainedMode>& modes,
+                             const Complex* wvmSpectrum, Complex* retainedSpectrum);
+    void embedRetainedOuter(const std::vector<RetainedMode>& modes,
+                            const Complex* retainedSpectrum, Complex* wvmSpectrum);
     void forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag);
     void inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output);
     void executeSchedulerNoop();
@@ -320,7 +324,8 @@ private:
 class FFTWPrunedProvider {
 public:
     FFTWPrunedProvider(const Workload& workload, const std::vector<RetainedMode>& modes,
-                       FFTWPlanningMode planningMode, std::size_t internalWorkers);
+                       FFTWPlanningMode planningMode, std::size_t internalWorkers,
+                       std::size_t outerWorkers = 1);
     ~FFTWPrunedProvider();
     FFTWPrunedProvider(FFTWPrunedProvider&&) noexcept;
     FFTWPrunedProvider& operator=(FFTWPrunedProvider&&) noexcept;
@@ -329,12 +334,13 @@ public:
 
     void executeForwardRows(const double* input);
     void executeForwardColumns();
-    void gatherForward(Complex* retainedSpectrum) const;
+    void gatherForward(Complex* retainedSpectrum);
     void forward(const double* input, Complex* retainedSpectrum);
     void embedInverse(const Complex* retainedSpectrum);
     void executeInverseColumns();
     void executeInverseRows(double* output);
     void inverse(const Complex* retainedSpectrum, double* output);
+    void executeSchedulerNoop();
 
     std::size_t activeKxCount() const noexcept;
     std::size_t fullKxCount() const noexcept;
@@ -345,6 +351,9 @@ public:
     std::size_t planningBytes() const noexcept;
     std::size_t minimumAlignmentBytes() const noexcept;
     std::size_t internalWorkers() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    std::size_t totalLogicalWorkers() const noexcept;
+    std::size_t maximumShardScratchBytes() const noexcept;
     double otherSetupSeconds() const noexcept;
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;

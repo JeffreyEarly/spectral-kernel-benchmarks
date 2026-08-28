@@ -69,7 +69,8 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
 }
 
 void requireAllocationFreePrunedExecution(
-    const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes) {
+    const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto retained = alignedBuffer<skbench::Complex>(modes.size() * workload.planes());
     auto output = alignedBuffer<double>(workload.realElements());
@@ -78,19 +79,60 @@ void requireAllocationFreePrunedExecution(
     }
 
     skbench::FFTWPrunedProvider provider(
-        workload, modes, skbench::FFTWPlanningMode::estimate, 1);
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1, outerWorkers);
     for (std::size_t repetition = 0; repetition < 3; ++repetition) {
         provider.forward(input.get(), retained.get());
         provider.inverse(retained.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
     }
 
     skbench::test::beginAllocationTracking();
     for (std::size_t repetition = 0; repetition < 32; ++repetition) {
         provider.forward(input.get(), retained.get());
         provider.inverse(retained.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
     }
     require(skbench::test::endAllocationTracking() == 0,
             "partially pruned FFTW steady-state execution allocated memory");
+}
+
+void requireAllocationFreeRetainedOuterExecution(
+    const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
+    auto retained = alignedBuffer<skbench::Complex>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 31) / 31.0;
+    }
+
+    skbench::FFTWProvider provider(workload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        outerWorkers,
+        0.0,
+        skbench::FFTWDataLayout::interleaved});
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.forward(input.get(), spectrum.get());
+        provider.gatherRetainedOuter(modes, spectrum.get(), retained.get());
+        provider.embedRetainedOuter(modes, retained.get(), spectrum.get());
+        provider.inverse(spectrum.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.forward(input.get(), spectrum.get());
+        provider.gatherRetainedOuter(modes, spectrum.get(), retained.get());
+        provider.embedRetainedOuter(modes, retained.get(), spectrum.get());
+        provider.inverse(spectrum.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "outer-sharded full retained FFTW execution allocated memory");
 }
 
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
@@ -314,7 +356,7 @@ int main() {
 
         const auto prunedModes = skbench::retainedHorizontalModes(workload);
         skbench::FFTWPrunedProvider prunedProvider(
-            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1);
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2);
         require(prunedProvider.activeKxCount() < prunedProvider.fullKxCount(),
                 "pruned FFTW candidate did not omit any kx columns");
         require(prunedProvider.columnTransformsPerDirection() +
@@ -324,6 +366,13 @@ int main() {
         require(prunedProvider.scratchBytes() ==
                     workload.spectrumElements() * sizeof(skbench::Complex),
                 "pruned FFTW scratch accounting");
+        require(prunedProvider.internalWorkers() == 1 &&
+                    prunedProvider.outerWorkers() == 2 &&
+                    prunedProvider.totalLogicalWorkers() == 2,
+                "pruned FFTW outer worker topology");
+        require(prunedProvider.maximumShardScratchBytes() * 2 >=
+                    prunedProvider.scratchBytes(),
+                "pruned FFTW maximum shard scratch accounting");
         require(!prunedProvider.completeHalfSpectrumOutputMaterialized(),
                 "pruned FFTW unexpectedly claims a complete transformed output");
         require(!prunedProvider.inPlaceRetainedOperatorSupported() &&
@@ -378,7 +427,8 @@ int main() {
         prunedOptions.profile = "smoke";
         prunedOptions.providers = "fftw";
         prunedOptions.fftwPlanning = "estimate";
-        prunedOptions.workers = 1;
+        prunedOptions.fftwInternalWorkers = 1;
+        prunedOptions.fftwOuterWorkers = 2;
         prunedOptions.warmups = 1;
         prunedOptions.samples = 2;
         const auto prunedReport = skbench::runBenchmark(prunedOptions);
@@ -392,6 +442,13 @@ int main() {
         require(prunedReport.providers[1].scratchBytes ==
                     prunedReport.fullSpectrumBytes,
                 "pruned FFTW report does not expose full-sized scratch");
+        for (const auto& provider : prunedReport.providers) {
+            require(provider.internalWorkers == 1 && provider.outerWorkers == 2 &&
+                        provider.workers == 2,
+                    "pruned benchmark matched outer worker topology");
+            require(provider.schedulingId.find("persistent-outer") != std::string::npos,
+                    "pruned benchmark scheduling identity");
+        }
         for (const auto& provider : prunedReport.providers) {
             for (const auto& correctness : provider.correctness) {
                 require(correctness.passed, "pruned FFTW benchmark correctness");
@@ -565,7 +622,9 @@ int main() {
                 2,
                 0.0,
                 skbench::FFTWDataLayout::split});
-            requireAllocationFreePrunedExecution(workload, prunedModes);
+            requireAllocationFreePrunedExecution(workload, prunedModes, 1);
+            requireAllocationFreePrunedExecution(workload, prunedModes, 2);
+            requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
         }
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);

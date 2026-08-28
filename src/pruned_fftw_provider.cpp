@@ -5,13 +5,16 @@
 #include <algorithm>
 #include <chrono>
 #include <climits>
+#include <condition_variable>
 #include <cstddef>
 #include <dlfcn.h>
 #include <limits>
 #include <mutex>
 #include <new>
 #include <stdexcept>
+#include <thread>
 #include <utility>
+#include <vector>
 
 namespace skbench {
 namespace {
@@ -41,17 +44,113 @@ std::string libraryContaining(const void* symbol) {
     return {};
 }
 
+class PersistentIndexExecutor {
+public:
+    using Task = void (*)(void*, std::size_t);
+
+    explicit PersistentIndexExecutor(std::size_t workers) : workers_(workers) {
+        threads_.reserve(workers_ - 1);
+        for (std::size_t worker = 1; worker < workers_; ++worker) {
+            threads_.emplace_back([this, worker] { workerLoop(worker); });
+        }
+    }
+
+    ~PersistentIndexExecutor() {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            stopping_ = true;
+            ++generation_;
+        }
+        ready_.notify_all();
+        for (auto& thread : threads_) thread.join();
+    }
+
+    PersistentIndexExecutor(const PersistentIndexExecutor&) = delete;
+    PersistentIndexExecutor& operator=(const PersistentIndexExecutor&) = delete;
+
+    void run(Task task, void* context) {
+        if (workers_ == 1) {
+            task(context, 0);
+            return;
+        }
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            task_ = task;
+            context_ = context;
+            remaining_ = workers_ - 1;
+            ++generation_;
+        }
+        ready_.notify_all();
+        task(context, 0);
+        std::unique_lock<std::mutex> lock(mutex_);
+        complete_.wait(lock, [this] { return remaining_ == 0; });
+    }
+
+private:
+    void workerLoop(std::size_t worker) {
+        std::size_t observedGeneration = 0;
+        while (true) {
+            Task task = nullptr;
+            void* context = nullptr;
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                ready_.wait(lock, [this, observedGeneration] {
+                    return stopping_ || generation_ != observedGeneration;
+                });
+                if (stopping_) return;
+                observedGeneration = generation_;
+                task = task_;
+                context = context_;
+            }
+            task(context, worker);
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                --remaining_;
+                if (remaining_ == 0) complete_.notify_one();
+            }
+        }
+    }
+
+    std::size_t workers_ = 1;
+    std::vector<std::thread> threads_;
+    std::mutex mutex_;
+    std::condition_variable ready_;
+    std::condition_variable complete_;
+    Task task_ = nullptr;
+    void* context_ = nullptr;
+    std::size_t generation_ = 0;
+    std::size_t remaining_ = 0;
+    bool stopping_ = false;
+};
+
 } // namespace
 
 class FFTWPrunedProvider::Impl {
 public:
+    struct PlanSet {
+        fftw_plan rowForward = nullptr;
+        fftw_plan columnForward = nullptr;
+        fftw_plan columnInverse = nullptr;
+        fftw_plan rowInverse = nullptr;
+        std::size_t beginPlane = 0;
+        std::size_t planeCount = 0;
+    };
+
     Impl(const Workload& workload, const std::vector<RetainedMode>& modes,
-         FFTWPlanningMode planningMode, std::size_t internalWorkers)
-        : workload_(workload), modes_(modes), planningMode_(planningMode), internalWorkers_(internalWorkers) {
+         FFTWPlanningMode planningMode, std::size_t internalWorkers,
+         std::size_t outerWorkers)
+        : workload_(workload), modes_(modes), planningMode_(planningMode),
+          internalWorkers_(internalWorkers), outerWorkers_(outerWorkers) {
         static_assert(sizeof(Complex) == sizeof(fftw_complex));
         if (modes_.empty()) throw std::invalid_argument("The pruned FFTW provider requires retained modes.");
         if (internalWorkers_ == 0 || internalWorkers_ > static_cast<std::size_t>(INT_MAX)) {
             throw std::invalid_argument("Pruned FFTW internal workers must lie in [1, INT_MAX].");
+        }
+        if (outerWorkers_ == 0 || outerWorkers_ > workload_.planes()) {
+            throw std::invalid_argument("Pruned FFTW outer workers must lie in [1, plane count].");
+        }
+        if (internalWorkers_ > std::numeric_limits<std::size_t>::max() / outerWorkers_) {
+            throw std::invalid_argument("Pruned FFTW logical worker count overflows size_t.");
         }
         for (const auto& mode : modes_) {
             if (mode.storedKx >= workload_.nxHalf() || mode.storedKy >= workload_.ny) {
@@ -92,37 +191,32 @@ public:
         }
         fftw_free(realSurrogate_);
         realSurrogate_ = nullptr;
+
+        const auto executorStart = Clock::now();
+        executor_ = std::make_unique<PersistentIndexExecutor>(outerWorkers_);
+        otherSetupSeconds_ += elapsedSeconds(executorStart);
     }
 
     ~Impl() {
+        executor_.reset();
         std::lock_guard<std::mutex> lock(prunedPlanningMutex);
         destroyPlans();
         releaseStorage();
     }
 
     void executeForwardRows(const double* input) {
-        fftw_execute_dft_r2c(rowForward_, const_cast<double*>(input),
-                             reinterpret_cast<fftw_complex*>(intermediate_));
+        ExecuteContext context{this, input, nullptr, nullptr, nullptr};
+        executor_->run(&forwardRowsShard, &context);
     }
 
     void executeForwardColumns() {
-        auto* values = reinterpret_cast<fftw_complex*>(intermediate_);
-        fftw_execute_dft(columnForward_, values, values);
+        ExecuteContext context{this, nullptr, nullptr, nullptr, nullptr};
+        executor_->run(&forwardColumnsShard, &context);
     }
 
-    void gatherForward(Complex* retainedSpectrum) const {
-        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
-            const auto& mode = modes_[modeIndex];
-            for (std::size_t field = 0; field < workload_.fields; ++field) {
-                for (std::size_t z = 0; z < workload_.nz; ++z) {
-                    auto value = intermediate_[planeMajorSpectrumIndex(
-                        workload_, mode.storedKx, mode.storedKy, z, field)];
-                    if (mode.conjugatesStoredValue) value = conjugate(value);
-                    retainedSpectrum[retainedSpectrumIndex(
-                        workload_, modeIndex, z, field)] = value;
-                }
-            }
-        }
+    void gatherForward(Complex* retainedSpectrum) {
+        ExecuteContext context{this, nullptr, nullptr, nullptr, retainedSpectrum};
+        executor_->run(&gatherForwardShard, &context);
     }
 
     void forward(const double* input, Complex* retainedSpectrum) {
@@ -132,34 +226,18 @@ public:
     }
 
     void embedInverse(const Complex* retainedSpectrum) {
-        std::fill_n(intermediate_, workload_.spectrumElements(), Complex{});
-        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
-            const auto& mode = modes_[modeIndex];
-            for (std::size_t field = 0; field < workload_.fields; ++field) {
-                for (std::size_t z = 0; z < workload_.nz; ++z) {
-                    const auto compact = retainedSpectrum[retainedSpectrumIndex(
-                        workload_, modeIndex, z, field)];
-                    const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
-                    intermediate_[planeMajorSpectrumIndex(
-                        workload_, mode.storedKx, mode.storedKy, z, field)] = stored;
-                    if (mode.storedKx == 0 && mode.storedKy != 0 &&
-                        2 * mode.storedKy != workload_.ny) {
-                        const auto conjugateKy = (workload_.ny - mode.storedKy) % workload_.ny;
-                        intermediate_[planeMajorSpectrumIndex(
-                            workload_, 0, conjugateKy, z, field)] = conjugate(stored);
-                    }
-                }
-            }
-        }
+        ExecuteContext context{this, nullptr, nullptr, retainedSpectrum, nullptr};
+        executor_->run(&embedInverseShard, &context);
     }
 
     void executeInverseColumns() {
-        auto* values = reinterpret_cast<fftw_complex*>(intermediate_);
-        fftw_execute_dft(columnInverse_, values, values);
+        ExecuteContext context{this, nullptr, nullptr, nullptr, nullptr};
+        executor_->run(&inverseColumnsShard, &context);
     }
 
     void executeInverseRows(double* output) {
-        fftw_execute_dft_c2r(rowInverse_, reinterpret_cast<fftw_complex*>(intermediate_), output);
+        ExecuteContext context{this, nullptr, output, nullptr, nullptr};
+        executor_->run(&inverseRowsShard, &context);
     }
 
     void inverse(const Complex* retainedSpectrum, double* output) {
@@ -168,74 +246,185 @@ public:
         executeInverseRows(output);
     }
 
+    void executeSchedulerNoop() {
+        executor_->run(&noopShard, nullptr);
+    }
+
     Workload workload_;
     std::vector<RetainedMode> modes_;
     FFTWPlanningMode planningMode_ = FFTWPlanningMode::measure;
     std::size_t internalWorkers_ = 1;
+    std::size_t outerWorkers_ = 1;
     std::size_t activeKxCount_ = 0;
     double* realSurrogate_ = nullptr;
     Complex* intermediate_ = nullptr;
-    fftw_plan rowForward_ = nullptr;
-    fftw_plan columnForward_ = nullptr;
-    fftw_plan columnInverse_ = nullptr;
-    fftw_plan rowInverse_ = nullptr;
+    std::vector<PlanSet> plans_;
+    std::unique_ptr<PersistentIndexExecutor> executor_;
     double otherSetupSeconds_ = 0.0;
     double allocationSeconds_ = 0.0;
     double planningSeconds_ = 0.0;
     std::size_t planningBytes_ = 0;
 
 private:
+    struct ExecuteContext {
+        Impl* provider;
+        const double* realInput;
+        double* realOutput;
+        const Complex* retainedInput;
+        Complex* retainedOutput;
+    };
+
     void createPlans(unsigned flags) {
         const auto nx = static_cast<ptrdiff_t>(workload_.nx);
         const auto ny = static_cast<ptrdiff_t>(workload_.ny);
         const auto nxHalf = static_cast<ptrdiff_t>(workload_.nxHalf());
-        const auto planes = static_cast<ptrdiff_t>(workload_.planes());
         const auto realPlane = static_cast<ptrdiff_t>(workload_.realPlaneElements());
         const auto spectrumPlane = static_cast<ptrdiff_t>(workload_.halfRows());
 
-        fftw_iodim64 rowForwardDimension[1] = {{nx, 1, 1}};
-        fftw_iodim64 rowForwardBatches[2] = {
-            {ny, nx, nxHalf},
-            {planes, realPlane, spectrumPlane}};
-        rowForward_ = fftw_plan_guru64_dft_r2c(
-            1, rowForwardDimension, 2, rowForwardBatches, realSurrogate_,
-            reinterpret_cast<fftw_complex*>(intermediate_), flags);
+        plans_.reserve(outerWorkers_);
+        for (std::size_t shardIndex = 0; shardIndex < outerWorkers_; ++shardIndex) {
+            PlanSet shard;
+            shard.beginPlane = workload_.planes() * shardIndex / outerWorkers_;
+            const auto endPlane = workload_.planes() * (shardIndex + 1) / outerWorkers_;
+            shard.planeCount = endPlane - shard.beginPlane;
+            const auto shardPlanes = static_cast<ptrdiff_t>(shard.planeCount);
+            auto* real = realSurrogate_ + shard.beginPlane * workload_.realPlaneElements();
+            auto* scratch = reinterpret_cast<fftw_complex*>(
+                intermediate_ + shard.beginPlane * workload_.halfRows());
 
-        fftw_iodim64 columnDimension[1] = {{ny, nxHalf, nxHalf}};
-        fftw_iodim64 columnBatches[2] = {
-            {static_cast<ptrdiff_t>(activeKxCount_), 1, 1},
-            {planes, spectrumPlane, spectrumPlane}};
-        auto* values = reinterpret_cast<fftw_complex*>(intermediate_);
-        columnForward_ = fftw_plan_guru64_dft(
-            1, columnDimension, 2, columnBatches, values, values, FFTW_FORWARD, flags);
-        columnInverse_ = fftw_plan_guru64_dft(
-            1, columnDimension, 2, columnBatches, values, values, FFTW_BACKWARD, flags);
+            fftw_iodim64 rowForwardDimension[1] = {{nx, 1, 1}};
+            fftw_iodim64 rowForwardBatches[2] = {
+                {ny, nx, nxHalf},
+                {shardPlanes, realPlane, spectrumPlane}};
+            shard.rowForward = fftw_plan_guru64_dft_r2c(
+                1, rowForwardDimension, 2, rowForwardBatches, real, scratch, flags);
 
-        fftw_iodim64 rowInverseDimension[1] = {{nx, 1, 1}};
-        fftw_iodim64 rowInverseBatches[2] = {
-            {ny, nxHalf, nx},
-            {planes, spectrumPlane, realPlane}};
-        rowInverse_ = fftw_plan_guru64_dft_c2r(
-            1, rowInverseDimension, 2, rowInverseBatches,
-            reinterpret_cast<fftw_complex*>(intermediate_), realSurrogate_, flags);
+            fftw_iodim64 columnDimension[1] = {{ny, nxHalf, nxHalf}};
+            fftw_iodim64 columnBatches[2] = {
+                {static_cast<ptrdiff_t>(activeKxCount_), 1, 1},
+                {shardPlanes, spectrumPlane, spectrumPlane}};
+            shard.columnForward = fftw_plan_guru64_dft(
+                1, columnDimension, 2, columnBatches, scratch, scratch, FFTW_FORWARD, flags);
+            shard.columnInverse = fftw_plan_guru64_dft(
+                1, columnDimension, 2, columnBatches, scratch, scratch, FFTW_BACKWARD, flags);
 
-        if (rowForward_ == nullptr || columnForward_ == nullptr ||
-            columnInverse_ == nullptr || rowInverse_ == nullptr) {
-            destroyPlans();
-            throw std::runtime_error("FFTW could not create the partially pruned separable plans.");
+            fftw_iodim64 rowInverseDimension[1] = {{nx, 1, 1}};
+            fftw_iodim64 rowInverseBatches[2] = {
+                {ny, nxHalf, nx},
+                {shardPlanes, spectrumPlane, realPlane}};
+            shard.rowInverse = fftw_plan_guru64_dft_c2r(
+                1, rowInverseDimension, 2, rowInverseBatches, scratch, real, flags);
+
+            if (shard.rowForward == nullptr || shard.columnForward == nullptr ||
+                shard.columnInverse == nullptr || shard.rowInverse == nullptr) {
+                destroyPlan(shard);
+                destroyPlans();
+                throw std::runtime_error(
+                    "FFTW could not create the outer-sharded partially pruned plans.");
+            }
+            plans_.push_back(shard);
         }
     }
 
-    void destroyPlans() {
-        if (rowForward_ != nullptr) fftw_destroy_plan(rowForward_);
-        if (columnForward_ != nullptr) fftw_destroy_plan(columnForward_);
-        if (columnInverse_ != nullptr) fftw_destroy_plan(columnInverse_);
-        if (rowInverse_ != nullptr) fftw_destroy_plan(rowInverse_);
-        rowForward_ = nullptr;
-        columnForward_ = nullptr;
-        columnInverse_ = nullptr;
-        rowInverse_ = nullptr;
+    static void destroyPlan(PlanSet& plan) {
+        if (plan.rowForward != nullptr) fftw_destroy_plan(plan.rowForward);
+        if (plan.columnForward != nullptr) fftw_destroy_plan(plan.columnForward);
+        if (plan.columnInverse != nullptr) fftw_destroy_plan(plan.columnInverse);
+        if (plan.rowInverse != nullptr) fftw_destroy_plan(plan.rowInverse);
+        plan.rowForward = nullptr;
+        plan.columnForward = nullptr;
+        plan.columnInverse = nullptr;
+        plan.rowInverse = nullptr;
     }
+
+    void destroyPlans() {
+        for (auto& plan : plans_) destroyPlan(plan);
+        plans_.clear();
+    }
+
+    static void forwardRowsShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<ExecuteContext*>(rawContext);
+        auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        auto* input = const_cast<double*>(context.realInput) +
+            shard.beginPlane * provider.workload_.realPlaneElements();
+        auto* scratch = reinterpret_cast<fftw_complex*>(
+            provider.intermediate_ + shard.beginPlane * provider.workload_.halfRows());
+        fftw_execute_dft_r2c(shard.rowForward, input, scratch);
+    }
+
+    static void forwardColumnsShard(void* rawContext, std::size_t shardIndex) {
+        auto& provider = *static_cast<ExecuteContext*>(rawContext)->provider;
+        const auto& shard = provider.plans_[shardIndex];
+        auto* scratch = reinterpret_cast<fftw_complex*>(
+            provider.intermediate_ + shard.beginPlane * provider.workload_.halfRows());
+        fftw_execute_dft(shard.columnForward, scratch, scratch);
+    }
+
+    static void gatherForwardShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<ExecuteContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto spectrumPlane = provider.workload_.halfRows();
+        for (std::size_t modeIndex = 0; modeIndex < provider.modes_.size(); ++modeIndex) {
+            const auto& mode = provider.modes_[modeIndex];
+            const auto frequency = mode.storedKx + provider.workload_.nxHalf() * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                auto value = provider.intermediate_[plane * spectrumPlane + frequency];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                context.retainedOutput[plane + planes * modeIndex] = value;
+            }
+        }
+    }
+
+    static void embedInverseShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<ExecuteContext*>(rawContext);
+        auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        const auto spectrumPlane = provider.workload_.halfRows();
+        for (std::size_t plane = shard.beginPlane;
+             plane < shard.beginPlane + shard.planeCount; ++plane) {
+            auto* scratch = provider.intermediate_ + plane * spectrumPlane;
+            std::fill_n(scratch, spectrumPlane, Complex{});
+            for (std::size_t modeIndex = 0; modeIndex < provider.modes_.size(); ++modeIndex) {
+                const auto& mode = provider.modes_[modeIndex];
+                const auto compact = context.retainedInput[plane + planes * modeIndex];
+                const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
+                scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != provider.workload_.ny) {
+                    const auto conjugateKy =
+                        (provider.workload_.ny - mode.storedKy) % provider.workload_.ny;
+                    scratch[nxHalf * conjugateKy] = conjugate(stored);
+                }
+            }
+        }
+    }
+
+    static void inverseColumnsShard(void* rawContext, std::size_t shardIndex) {
+        auto& provider = *static_cast<ExecuteContext*>(rawContext)->provider;
+        const auto& shard = provider.plans_[shardIndex];
+        auto* scratch = reinterpret_cast<fftw_complex*>(
+            provider.intermediate_ + shard.beginPlane * provider.workload_.halfRows());
+        fftw_execute_dft(shard.columnInverse, scratch, scratch);
+    }
+
+    static void inverseRowsShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<ExecuteContext*>(rawContext);
+        auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        auto* scratch = reinterpret_cast<fftw_complex*>(
+            provider.intermediate_ + shard.beginPlane * provider.workload_.halfRows());
+        auto* output = context.realOutput +
+            shard.beginPlane * provider.workload_.realPlaneElements();
+        fftw_execute_dft_c2r(shard.rowInverse, scratch, output);
+    }
+
+    static void noopShard(void*, std::size_t) {}
 
     void releaseStorage() {
         if (realSurrogate_ != nullptr) fftw_free(realSurrogate_);
@@ -247,8 +436,10 @@ private:
 
 FFTWPrunedProvider::FFTWPrunedProvider(
     const Workload& workload, const std::vector<RetainedMode>& modes,
-    FFTWPlanningMode planningMode, std::size_t internalWorkers)
-    : impl_(std::make_unique<Impl>(workload, modes, planningMode, internalWorkers)) {}
+    FFTWPlanningMode planningMode, std::size_t internalWorkers,
+    std::size_t outerWorkers)
+    : impl_(std::make_unique<Impl>(
+          workload, modes, planningMode, internalWorkers, outerWorkers)) {}
 
 FFTWPrunedProvider::~FFTWPrunedProvider() = default;
 FFTWPrunedProvider::FFTWPrunedProvider(FFTWPrunedProvider&&) noexcept = default;
@@ -256,7 +447,7 @@ FFTWPrunedProvider& FFTWPrunedProvider::operator=(FFTWPrunedProvider&&) noexcept
 
 void FFTWPrunedProvider::executeForwardRows(const double* input) { impl_->executeForwardRows(input); }
 void FFTWPrunedProvider::executeForwardColumns() { impl_->executeForwardColumns(); }
-void FFTWPrunedProvider::gatherForward(Complex* retainedSpectrum) const { impl_->gatherForward(retainedSpectrum); }
+void FFTWPrunedProvider::gatherForward(Complex* retainedSpectrum) { impl_->gatherForward(retainedSpectrum); }
 void FFTWPrunedProvider::forward(const double* input, Complex* retainedSpectrum) {
     impl_->forward(input, retainedSpectrum);
 }
@@ -266,6 +457,7 @@ void FFTWPrunedProvider::executeInverseRows(double* output) { impl_->executeInve
 void FFTWPrunedProvider::inverse(const Complex* retainedSpectrum, double* output) {
     impl_->inverse(retainedSpectrum, output);
 }
+void FFTWPrunedProvider::executeSchedulerNoop() { impl_->executeSchedulerNoop(); }
 
 std::size_t FFTWPrunedProvider::activeKxCount() const noexcept { return impl_->activeKxCount_; }
 std::size_t FFTWPrunedProvider::fullKxCount() const noexcept { return impl_->workload_.nxHalf(); }
@@ -284,6 +476,15 @@ std::size_t FFTWPrunedProvider::scratchBytes() const noexcept {
 std::size_t FFTWPrunedProvider::planningBytes() const noexcept { return impl_->planningBytes_; }
 std::size_t FFTWPrunedProvider::minimumAlignmentBytes() const noexcept { return 1; }
 std::size_t FFTWPrunedProvider::internalWorkers() const noexcept { return impl_->internalWorkers_; }
+std::size_t FFTWPrunedProvider::outerWorkers() const noexcept { return impl_->outerWorkers_; }
+std::size_t FFTWPrunedProvider::totalLogicalWorkers() const noexcept {
+    return impl_->internalWorkers_ * impl_->outerWorkers_;
+}
+std::size_t FFTWPrunedProvider::maximumShardScratchBytes() const noexcept {
+    std::size_t maximumPlanes = 0;
+    for (const auto& plan : impl_->plans_) maximumPlanes = std::max(maximumPlanes, plan.planeCount);
+    return maximumPlanes * impl_->workload_.halfRows() * sizeof(Complex);
+}
 double FFTWPrunedProvider::otherSetupSeconds() const noexcept { return impl_->otherSetupSeconds_; }
 double FFTWPrunedProvider::allocationSeconds() const noexcept { return impl_->allocationSeconds_; }
 double FFTWPrunedProvider::planningSeconds() const noexcept { return impl_->planningSeconds_; }
@@ -291,7 +492,7 @@ FFTWPlanningMode FFTWPrunedProvider::planningMode() const noexcept { return impl
 bool FFTWPrunedProvider::completeHalfSpectrumOutputMaterialized() const noexcept { return false; }
 bool FFTWPrunedProvider::inPlaceRetainedOperatorSupported() const noexcept { return false; }
 std::string FFTWPrunedProvider::inPlaceRetainedOperatorCapability() const {
-    return "unsupported in the initial candidate: the logical retained output is disjoint from the real input, while the selected complex column transforms execute in-place inside reusable full-sized plane-major row-spectrum scratch";
+    return "unsupported: the logical retained output is disjoint from the real input, while each outer shard executes selected complex column transforms in-place inside its disjoint reusable slice of full-sized plane-major row-spectrum scratch";
 }
 std::string FFTWPrunedProvider::libraryIdentity() const {
     return libraryContaining(reinterpret_cast<const void*>(&fftw_execute));

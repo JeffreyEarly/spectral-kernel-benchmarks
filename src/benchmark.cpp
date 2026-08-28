@@ -439,6 +439,12 @@ std::string fftwSchedulingId(const FFTWProvider& provider) {
     return "persistent-outer-batch-sharding+fftw-internal-pthreads";
 }
 
+std::string prunedFftwSchedulingId(const FFTWPrunedProvider& provider) {
+    if (provider.outerWorkers() == 1) return "fftw-internal-pthreads";
+    if (provider.internalWorkers() == 1) return "persistent-outer-plane-sharding";
+    return "persistent-outer-plane-sharding+fftw-internal-pthreads";
+}
+
 std::string fftwPlanningConfiguration(const FFTWProvider& provider) {
     const auto strategy = provider.strategy();
     std::ostringstream output;
@@ -464,7 +470,7 @@ std::string fftwPlanningConfiguration(const FFTWProvider& provider) {
 std::vector<LedgerEntry> fftwLedger(const FFTWProvider& provider) {
     const auto setup = fftwPlanningConfiguration(provider);
     const auto split = provider.strategy().layout == FFTWDataLayout::split;
-    const auto scheduling = provider.outerWorkers() > 1
+    const std::string scheduling = provider.outerWorkers() > 1
         ? "persistent outer batch sharding with separately measured empty-dispatch overhead"
         : "single guru64 batch plan with FFTW internal pthreads";
     return {
@@ -486,9 +492,15 @@ std::vector<LedgerEntry> fftwLedger(const FFTWProvider& provider) {
 std::vector<LedgerEntry> prunedFftwLedger(const FFTWPrunedProvider& provider) {
     const auto columns = std::to_string(provider.columnTransformsPerDirection());
     const auto omitted = std::to_string(provider.omittedColumnTransformsPerDirection());
+    const auto planCount = std::to_string(4 * provider.outerWorkers());
+    const std::string scheduling = provider.outerWorkers() > 1
+        ? "persistent outer plane/field sharding with single-threaded or explicitly declared hybrid FFTW plans"
+        : "one separable batch plan set using FFTW internal pthreads";
     return {
         {"setup/planning", StageState::setupOnly,
-         "four reusable FFTW guru64 plans and a full-sized plane-major row-spectrum scratch buffer"},
+         planCount + " reusable FFTW guru64 plans and one full-sized plane-major row-spectrum scratch allocation partitioned into disjoint worker slices"},
+        {"batch scheduling", provider.outerWorkers() > 1 ? StageState::executed : StageState::elided,
+         scheduling + "; maximum shard scratch=" + std::to_string(provider.maximumShardScratchBytes()) + " bytes"},
         {"raw forward FFT", StageState::fused,
          "the retained transform is decomposed into separately timed row and selected-column stages"},
         {"forward real row FFTs", StageState::executed,
@@ -546,7 +558,7 @@ ExecutionContract prunedFftwExecutionContract(const Workload& workload,
         "input{x=1,y=Nx,plane=Nx*Ny}; scratch{kx=1,ky=NxHalf,plane=NxHalf*Ny}; output{plane=1,mode=planes}",
         0,
         provider.minimumAlignmentBytes(),
-        "caller input and compact output are disjoint; selected column transforms overwrite reusable private scratch",
+        "caller input and compact output are disjoint; outer workers own disjoint plane shards and selected column transforms overwrite their reusable private scratch slices",
         provider.scratchBytes(),
         true};
     DirectionExecutionContract inverse{
@@ -565,7 +577,7 @@ ExecutionContract prunedFftwExecutionContract(const Workload& workload,
         "input{plane=1,mode=planes}; scratch{kx=1,ky=NxHalf,plane=NxHalf*Ny}; output{x=1,y=Nx,plane=Nx*Ny}",
         0,
         provider.minimumAlignmentBytes(),
-        "caller retained input and real output are disjoint; embedding initializes and the inverse transforms overwrite reusable private scratch",
+        "caller retained input and real output are disjoint; outer workers initialize disjoint plane shards and inverse transforms overwrite their reusable private scratch slices",
         provider.scratchBytes(),
         true};
     return {std::move(forward), std::move(inverse)};
@@ -1839,9 +1851,6 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
     if (options.fftwWisdom != "cold") {
         throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-wisdom cold.");
     }
-    if (options.fftwOuterWorkers != 1) {
-        throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-outer-workers 1.");
-    }
     if (options.fftwPlanningTimeLimitSeconds != 0.0) {
         throw std::invalid_argument("The initial pruned-horizontal candidate does not yet support a planning time limit.");
     }
@@ -1850,6 +1859,7 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
     const auto planningMode = fftwPlanningModeNamed(options.fftwPlanning);
     const auto workers = options.workers == 0 ? selected.defaultWorkers : options.workers;
     const auto internalWorkers = options.fftwInternalWorkers == 0 ? workers : options.fftwInternalWorkers;
+    const auto outerWorkers = options.fftwOuterWorkers;
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
     const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
 
@@ -1904,16 +1914,17 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
         FFTWAlignmentStrategy::unaligned,
         FFTWWisdomStrategy::cold,
         internalWorkers,
-        1,
+        outerWorkers,
         0.0,
         FFTWDataLayout::interleaved};
     FFTWProvider full(workload, fullStrategy);
     full.forward(input.data(), fullWorkingSpectrum.data());
-    gatherRetained(workload, modes, fullWorkingSpectrum.data(), retainedFull.data());
-    embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+    full.gatherRetainedOuter(modes, fullWorkingSpectrum.data(), retainedFull.data());
+    full.embedRetainedOuter(modes, retainedReference.data(), inverseFullSpectrum.data());
     full.inverse(inverseFullSpectrum.data(), fullOutput.data());
 
-    FFTWPrunedProvider pruned(workload, modes, planningMode, internalWorkers);
+    FFTWPrunedProvider pruned(
+        workload, modes, planningMode, internalWorkers, outerWorkers);
     pruned.forward(input.data(), retainedPruned.data());
     pruned.inverse(retainedReference.data(), prunedOutput.data());
 
@@ -1966,26 +1977,36 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
         "operator-component", "radial retention", "forward", StageState::executed,
         report.fullSpectrumBytes + report.retainedSpectrumBytes,
         measure(warmups, sampleCount, [&] {
-            gatherRetained(workload, modes, referenceSpectrum.data(), retainedFull.data());
+            full.gatherRetainedOuter(
+                modes, referenceSpectrum.data(), retainedFull.data());
         })));
     fullRecord.timings.push_back(series(
         "operator-component", "radial embedding and full-spectrum zero fill", "inverse",
         StageState::executed, report.retainedSpectrumBytes + report.fullSpectrumBytes,
         measure(warmups, sampleCount, [&] {
-            embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+            full.embedRetainedOuter(
+                modes, retainedReference.data(), inverseFullSpectrum.data());
         })));
+    fullRecord.timings.push_back(series(
+        "diagnostic-component", "batch scheduler empty dispatch", "shared",
+        full.outerWorkers() > 1 ? StageState::executed : StageState::elided, 0,
+        full.outerWorkers() > 1
+            ? measure(warmups, sampleCount, [&] { full.executeSchedulerNoop(); })
+            : std::vector<double>{}));
     fullRecord.timings.push_back(series(
         "uninstrumented-total", "retained horizontal operator", "forward", StageState::executed,
         report.fullRealBytes + report.fullSpectrumBytes + report.retainedSpectrumBytes,
         measure(warmups, sampleCount, [&] {
             full.forward(input.data(), fullWorkingSpectrum.data());
-            gatherRetained(workload, modes, fullWorkingSpectrum.data(), retainedFull.data());
+            full.gatherRetainedOuter(
+                modes, fullWorkingSpectrum.data(), retainedFull.data());
         })));
     fullRecord.timings.push_back(series(
         "uninstrumented-total", "retained horizontal operator", "inverse", StageState::executed,
         report.retainedSpectrumBytes + report.fullSpectrumBytes + report.fullRealBytes,
         measure(warmups, sampleCount, [&] {
-            embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+            full.embedRetainedOuter(
+                modes, retainedReference.data(), inverseFullSpectrum.data());
             full.inverse(inverseFullSpectrum.data(), fullOutput.data());
         })));
     report.providers.push_back(std::move(fullRecord));
@@ -1998,7 +2019,7 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
     prunedRecord.nativeRepresentationId =
         "plane-major-full-row-spectrum-scratch+logical-radial-retained-interleaved";
     prunedRecord.modeOrderId = "logical-radial-retained-mode-order";
-    prunedRecord.schedulingId = "fftw-internal-pthreads";
+    prunedRecord.schedulingId = prunedFftwSchedulingId(pruned);
     prunedRecord.sourceIdentity = "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz";
     prunedRecord.sourceSha256 = "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
     prunedRecord.configureFlags = fullStrategy.layout == FFTWDataLayout::interleaved
@@ -2009,10 +2030,13 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
         "FFTW_" + std::string(fftwPlanningModeName(pruned.planningMode())) +
         "|FFTW_UNALIGNED; guru64 1-D row r2c/c2r plus in-place selected-kx column c2c; active-kx=" +
         std::to_string(pruned.activeKxCount()) + "/" + std::to_string(pruned.fullKxCount()) +
-        "; internal-workers=" + std::to_string(pruned.internalWorkers());
-    prunedRecord.workers = pruned.internalWorkers();
+        "; internal-workers=" + std::to_string(pruned.internalWorkers()) +
+        "; outer-workers=" + std::to_string(pruned.outerWorkers()) +
+        "; maximum-shard-scratch-bytes=" +
+        std::to_string(pruned.maximumShardScratchBytes());
+    prunedRecord.workers = pruned.totalLogicalWorkers();
     prunedRecord.internalWorkers = pruned.internalWorkers();
-    prunedRecord.outerWorkers = 1;
+    prunedRecord.outerWorkers = pruned.outerWorkers();
     prunedRecord.execution = prunedFftwExecutionContract(workload, pruned);
     prunedRecord.explicitPersistentBytes = 0;
     prunedRecord.scratchBytes = pruned.scratchBytes();
@@ -2074,6 +2098,12 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
     prunedRecord.timings.push_back(series(
         "algorithm-component", "omitted high-kx complex column FFTs", "inverse",
         StageState::elided, 0));
+    prunedRecord.timings.push_back(series(
+        "diagnostic-component", "batch scheduler empty dispatch", "shared",
+        pruned.outerWorkers() > 1 ? StageState::executed : StageState::elided, 0,
+        pruned.outerWorkers() > 1
+            ? measure(warmups, sampleCount, [&] { pruned.executeSchedulerNoop(); })
+            : std::vector<double>{}));
     prunedRecord.timings.push_back(series(
         "uninstrumented-total", "partial-column-pruned retained horizontal operator", "forward",
         StageState::executed,
