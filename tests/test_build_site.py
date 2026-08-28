@@ -51,6 +51,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_4_page = output / "experiments" / "issue-004-fftw-strategy-sweep" / "index.html"
             issue_5_page = output / "experiments" / "issue-005-vdsp-native-baseline" / "index.html"
             issue_6_page = output / "experiments" / "issue-006-vdsp-batching-scheduling" / "index.html"
+            issue_7_page = output / "experiments" / "issue-007-retained-horizontal-algorithms" / "index.html"
             issue_8_page = output / "experiments" / "issue-008-vertical-projection-gemm" / "index.html"
             issue_12_page = output / "experiments" / "issue-012-pruned-horizontal-transforms" / "index.html"
             issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
@@ -69,6 +70,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_4_page.is_file())
             self.assertTrue(issue_5_page.is_file())
             self.assertTrue(issue_6_page.is_file())
+            self.assertTrue(issue_7_page.is_file())
             self.assertTrue(issue_8_page.is_file())
             self.assertTrue(issue_12_page.is_file())
             self.assertTrue(issue_13_page.is_file())
@@ -136,6 +138,21 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("only as an issue #7 guardrail", issue_6_html)
             self.assertIn("comes within 1.25×", issue_6_html)
             self.assertIn("not reference adoption statistics", issue_6_html)
+            issue_7_html = issue_7_page.read_text(encoding="utf-8")
+            self.assertIn("Matched reference finalist campaign", issue_7_html)
+            self.assertIn("FFTW plane-major full outer-12: 0.736× geometric across 12 direction-workload cells, 12/12 wins", issue_7_html)
+            self.assertIn("FFTW pruned outer-12: 0.694× geometric across 12 direction-workload cells, 12/12 wins", issue_7_html)
+            self.assertIn("FFTW pruned outer-4: 1.377× geometric across 12 direction-workload cells, 0/12 wins", issue_7_html)
+            self.assertIn("Bounded vDSP native-layout guardrail", issue_7_html)
+            self.assertIn("9.118×", issue_7_html)
+            self.assertIn("9.309×", issue_7_html)
+            self.assertIn("Neither guard workload meets the rule", issue_7_html)
+            self.assertIn("vDSP guard runs remain preliminary", issue_7_html)
+            self.assertIn("fused or not measured", issue_7_html)
+            vdsp_retained_run_html = (output / "runs" / "20260828T061536765767Z-lyra" / "index.html").read_text(encoding="utf-8")
+            self.assertIn("Accelerate/vDSP native retained split", vdsp_retained_run_html)
+            self.assertIn("persistent native split retained horizontal operator", vdsp_retained_run_html)
+            self.assertIn("plane-major-radial-retained-split-complex", vdsp_retained_run_html)
             issue_8_html = issue_8_page.read_text(encoding="utf-8")
             self.assertIn("Bounded common-matrix screen", issue_8_html)
             self.assertIn("deterministic percentile-bootstrap 95% intervals", issue_8_html)
