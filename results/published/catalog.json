@@ -5450,6 +5450,306 @@
         "samplesSha256": "bb7ffdd0333294eb0c7e33471296499c3c82da0cb955aea7c0392c753c7c8c9b"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T041232649754Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041232649754Z-lyra/result.json",
+        "samples": "runs/20260828T041232649754Z-lyra/samples.csv",
+        "resultSha256": "6a90b9820d6e879f5c9e06734b37435d4cd0914fc5cb8d9cb564a1d1388687e9",
+        "samplesSha256": "d2529bb7b252283424682b635371f533a3c8a85145cfd6554d9c6c08f036bd5d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041234755900Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041234755900Z-lyra/result.json",
+        "samples": "runs/20260828T041234755900Z-lyra/samples.csv",
+        "resultSha256": "0e6dc63cf092005c327cdd8ebd584cbfcc48168ebaf0d03cd8fadf56f91b36c3",
+        "samplesSha256": "5d2b3a6e244351c7e7d334d3d42bdf6fc34648f62d4187023217f92623b5013d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041240248157Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041240248157Z-lyra/result.json",
+        "samples": "runs/20260828T041240248157Z-lyra/samples.csv",
+        "resultSha256": "3d322785ba22c0c7de497d20ab80d87d117c2924fdfd83a204fc61fcd49afca1",
+        "samplesSha256": "c15a2f6b0d7e90b4dfe331db1c1bcbf597001f32db8b97caab373edf45174360"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041243528615Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041243528615Z-lyra/result.json",
+        "samples": "runs/20260828T041243528615Z-lyra/samples.csv",
+        "resultSha256": "892dd1f92e68b27d5f34e3fe37658151fc01b8574d830222a8a6afa25955d586",
+        "samplesSha256": "6d3e91473a94aa55cd8dccb3fc7b694959cee51e7fbbba810a95750eb09d0c92"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041249606038Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041249606038Z-lyra/result.json",
+        "samples": "runs/20260828T041249606038Z-lyra/samples.csv",
+        "resultSha256": "a8955da878e6c64d2d0915e84333c05be0bbfe802e242aaaf6f79893c2565f97",
+        "samplesSha256": "c88a7668f0bd1b4e7d5a105ef8577adc3ff9ca598e9347be935dd09734588284"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041258923957Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041258923957Z-lyra/result.json",
+        "samples": "runs/20260828T041258923957Z-lyra/samples.csv",
+        "resultSha256": "69dd3bab836a19d64df6de3ce7f666175dca39f091ad5b530825e94c683c4216",
+        "samplesSha256": "207f3c2052c6145f8984b77e45d498d9e2e7d4da2aec49b23732268793797e96"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041309626889Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041309626889Z-lyra/result.json",
+        "samples": "runs/20260828T041309626889Z-lyra/samples.csv",
+        "resultSha256": "2f215534cd5752a4371655a41810fa486cdf3e9964c314ba966339ed3338bd46",
+        "samplesSha256": "75e491c0409e6d31dbf5ce9b82bfe6b088a771d8302a980ac798194381daae76"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041329653784Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041329653784Z-lyra/result.json",
+        "samples": "runs/20260828T041329653784Z-lyra/samples.csv",
+        "resultSha256": "f5b803a08f038ac783e04a7d6c95347c413da06dd70d4fcc4c406210d75f66bf",
+        "samplesSha256": "578e429dfc9b4d484872d7d94671333ac68a6bce1d8f91e4ce61c950b2c106f5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041346566656Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041346566656Z-lyra/result.json",
+        "samples": "runs/20260828T041346566656Z-lyra/samples.csv",
+        "resultSha256": "23ac848340bf3328f7b39b8e52c915e35438f6a0f9f5ce9f2cabc5fad3c27493",
+        "samplesSha256": "731f7c716e75a045933e0c1e3827f213a5c474664c86099c21ef1133b96333b1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041415513121Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041415513121Z-lyra/result.json",
+        "samples": "runs/20260828T041415513121Z-lyra/samples.csv",
+        "resultSha256": "18eb71c9db86849f589b43ac2ec943dff2d1b50f027eb84bdde288479f3463d6",
+        "samplesSha256": "5b68660f12e9d1f438bb8b1b3cb26ed5d13c800fb6f4d2486ae78484918ca12a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041440338019Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041440338019Z-lyra/result.json",
+        "samples": "runs/20260828T041440338019Z-lyra/samples.csv",
+        "resultSha256": "2a2305da44b89b9013bef5d43a1099086bade22cd6cddf6c88bff6333ee35b69",
+        "samplesSha256": "b882359086d4cb75c0b77acc0e837d56e354bdf73f8336396b734284ddb14a72"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T041519737223Z-lyra",
+      "status": "preliminary",
+      "statusReason": "First validated M4 Max feasibility screen of the partial-column-pruned FFTW decomposition across six 256/512-class fields-1/3/4 profiles and matched internal-1/internal-12 execution. Preliminary because outer plane sharding, deeper within-column pruning, and alternative storage remain untested.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=12, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-005-vdsp-native-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T041519737223Z-lyra/result.json",
+        "samples": "runs/20260828T041519737223Z-lyra/samples.csv",
+        "resultSha256": "789e4bc5171b33fefb0e65761e2770a3e356f536463fe1139b4f316d08b847c9",
+        "samplesSha256": "2ec04ed1ceb7ae55868893d6c6884f34dd39e21bb67a25c96446c5666573cad7"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -5784,7 +6084,7 @@
     {
       "id": "issue-012-pruned-horizontal-transforms",
       "issue": 12,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Pruned horizontal transforms",
       "question": "Can an algorithm that computes only retained horizontal modes beat full-transform FFTW or vDSP baselines?",
       "baseline": "Compare with issues #3 and #5; feed viable or negative results to issue #7.",

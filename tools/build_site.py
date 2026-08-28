@@ -1753,6 +1753,7 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
 def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
     ratios: list[float] = []
     ratios_by_direction: dict[str, list[float]] = {"forward": [], "inverse": []}
+    ratios_by_workers: dict[int, dict[str, list[float]]] = {}
     errors: list[float] = []
     scratch_bytes: list[int] = []
     for bundle in bundles:
@@ -1776,6 +1777,9 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
             ratio = float(pruned_total["medianSeconds"]) / float(full_total["medianSeconds"])
             ratios.append(ratio)
             ratios_by_direction[direction].append(ratio)
+            ratios_by_workers.setdefault(
+                int(pruned["workers"]), {"forward": [], "inverse": []}
+            )[direction].append(ratio)
         scratch_bytes.append(int(pruned["memory"]["scratchBytes"]))
         errors.extend(
             float(metric[name])
@@ -1792,15 +1796,38 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
         for direction, values in ratios_by_direction.items()
         if values
     )
-    conclusion = (
-        "The candidate is competitive in this bounded cohort and should advance to the broader retained-horizontal comparison."
-        if any(value < 1.0 for value in ratios)
-        else "The candidate is dominated in this bounded cohort; this rejects the measured partial-column decomposition, not every theoretical pruned FFT."
+    topology_summary = "; ".join(
+        f"workers={workers}: " + ", ".join(
+            f"{direction} {math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× "
+            f"({sum(value < 1.0 for value in values)}/{len(values)} wins)"
+            for direction, values in directions.items()
+            if values
+        )
+        for workers, directions in sorted(ratios_by_workers.items())
     )
+    highest_worker_count = max(ratios_by_workers)
+    highest_worker_ratios = [
+        value
+        for values in ratios_by_workers[highest_worker_count].values()
+        for value in values
+    ]
+    single_inverse = ratios_by_workers.get(1, {}).get("inverse", [])
+    if highest_worker_ratios and not any(value < 1.0 for value in highest_worker_ratios) and single_inverse and all(value < 1.0 for value in single_inverse):
+        conclusion = (
+            "The single-worker inverse path remains viable evidence, but the current performance-core tuple is dominated and should not advance as a production candidate. Outer plane sharding is the next bounded scheduling test."
+        )
+    elif any(value < 1.0 for value in ratios):
+        conclusion = (
+            "At least one topology is competitive and should advance to the broader retained-horizontal comparison."
+        )
+    else:
+        conclusion = (
+            "The candidate is dominated in this bounded cohort; this rejects the measured partial-column decomposition, not every theoretical pruned FFT."
+        )
     return f"""
       <h3>Partial-column-pruned feasibility increment</h3>
       <p>The candidate performs every real-row transform but omits complete high-k<sub>x</sub> complex-column transforms that cannot intersect the retained radial disk. It exposes compact mode-keyed output rather than a completed WVM-order half-spectrum. The same-run reference uses FFTW's optimized full two-dimensional transform followed by radial selection or embedding. Planning effort, workers, fixture, precision, workload, warmups, and samples are matched.</p>
-      <p>Across {len(ratios)} workload/worker/direction comparisons, the pruned/full retained-operator geometric ratio is {geometric:.3f}× and spans {min(ratios):.3f}×–{max(ratios):.3f}×; {direction_summary}. The largest correctness error is {format_error(max(errors))}. Candidate scratch spans {format_bytes(min(scratch_bytes))}–{format_bytes(max(scratch_bytes))} and remains full row-spectrum sized.</p>
+      <p>Across {len(ratios)} workload/worker/direction comparisons, the pruned/full retained-operator geometric ratio is {geometric:.3f}× and spans {min(ratios):.3f}×–{max(ratios):.3f}×; pooled by direction, {direction_summary}. The topology split is {topology_summary}. The largest correctness error is {format_error(max(errors))}. Candidate scratch spans {format_bytes(min(scratch_bytes))}–{format_bytes(max(scratch_bytes))} and remains full row-spectrum sized.</p>
       <p>{conclusion} Deeper within-column output pruning, reduced first-pass scratch, transform-internal transposition, split storage, outer batch sharding, and caller-visible in-place operation remain outside this increment.</p>
     """
 

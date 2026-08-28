@@ -52,6 +52,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_5_page = output / "experiments" / "issue-005-vdsp-native-baseline" / "index.html"
             issue_6_page = output / "experiments" / "issue-006-vdsp-batching-scheduling" / "index.html"
             issue_8_page = output / "experiments" / "issue-008-vertical-projection-gemm" / "index.html"
+            issue_12_page = output / "experiments" / "issue-012-pruned-horizontal-transforms" / "index.html"
             issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
@@ -69,6 +70,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_5_page.is_file())
             self.assertTrue(issue_6_page.is_file())
             self.assertTrue(issue_8_page.is_file())
+            self.assertTrue(issue_12_page.is_file())
             self.assertTrue(issue_13_page.is_file())
             self.assertTrue(float32_page.is_file())
             self.assertTrue(methods_page.is_file())
@@ -98,6 +100,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("exact WVM-order split in-place", split_run_html)
             issue_5_html = issue_5_page.read_text(encoding="utf-8")
             self.assertIn("No reference run has been published", issue_5_html)
+            issue_12_html = issue_12_page.read_text(encoding="utf-8")
+            self.assertIn("Partial-column-pruned feasibility increment", issue_12_html)
+            self.assertIn("workers=1: forward 0.996× (2/6 wins), inverse 0.930× (6/6 wins)", issue_12_html)
+            self.assertIn("workers=12: forward 2.094× (0/6 wins), inverse 1.505× (0/6 wins)", issue_12_html)
+            self.assertIn("current performance-core tuple is dominated", issue_12_html)
             self.assertIn("Primitive FFT", issue_5_html)
             self.assertIn("Retained total", issue_5_html)
             self.assertIn("out-of-place-explicit-scratch", issue_5_html)
