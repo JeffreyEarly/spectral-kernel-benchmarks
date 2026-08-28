@@ -27,7 +27,9 @@ void usage(std::ostream& output) {
            << "              [--vertical-gemm-outer-workers N]\n"
            << "              [--boundary-policy NAME]\n"
            << "              [--streaming-tile-width N]\n"
+           << "              [--convolution-map independent-products|wvm-advection]\n"
            << "              [--convolution-products 4|12]\n"
+           << "              [--convolution-centered-m N]\n"
            << "              [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
@@ -177,7 +179,9 @@ int main(int argc, char** argv) {
                 else if (key == "--vertical-gemm-outer-workers") options.verticalGemmOuterWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--boundary-policy") options.boundaryPolicy = requireValue(argc, argv, index);
                 else if (key == "--streaming-tile-width") options.streamingTileWidth = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--convolution-map") options.convolutionMap = requireValue(argc, argv, index);
                 else if (key == "--convolution-products") options.convolutionProducts = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--convolution-centered-m") options.convolutionCenteredM = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));

@@ -778,7 +778,9 @@ struct RunOptions {
     std::size_t verticalGemmOuterWorkers = 1;
     std::string boundaryPolicy = "wvm-packed-split";
     std::size_t streamingTileWidth = 1;
+    std::string convolutionMap = "independent-products";
     std::size_t convolutionProducts = 4;
+    std::size_t convolutionCenteredM = 0;
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

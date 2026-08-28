@@ -180,6 +180,25 @@ build/issue17/skbench run --kernel dealiased-convolution --profile wvm-current-5
 
 FFTW++ exposes the transform-multiply-transform stage as one fused algorithm, so the benchmark does not fabricate standalone FFTW++ FFT timings. The explicit oracle continues to report inverse FFT, pointwise multiplication, and forward FFT components. A direct 12-output FFTW++ application is excluded after a reproducible upstream optimizer crash for more outputs than inputs; the correct 12-product candidate uses three persistent four-output applications and includes the input-restoration cost. This result can motivate a later threaded or model-expression experiment, but it cannot support a conclusion about the complete nonlinear flux.
 
+The WVM-derived follow-up keeps that early evidence intact and adds a closer horizontal operator. The nonhydrostatic compiled WVM source reconstructs three advectors and, for each of four targets, evaluates
+
+$$
+-(U q_x + V q_y + W q_z).
+$$
+
+The benchmark therefore starts with 15 ready compact spectra—$$U$$, $$V$$, $$W$$, and three derivatives for each target—and returns four compact advective-flux spectra. Vertical reconstruction, phase evolution, coefficient projection, and the rest of the nonlinear flux remain excluded. It compares a low-memory serial stream, a 15-input/4-output all-target application, and matched persistent four-target schedules for explicit FFTW and FFTW++:
+
+```sh
+build/issue17/skbench run --kernel dealiased-convolution \
+  --convolution-map wvm-advection \
+  --profile wvm-current-512-nz257-f4
+
+python3 tools/run_dealiased_convolution_wvm_sweep.py --dry-run --allow-dirty-tree
+python3 tools/run_dealiased_convolution_wvm_sweep.py
+```
+
+The fixed screen spans 256², 512², and 1024² with four target workers. Its matched baseline reconstructs the shared advectors once before dispatching four explicit target calculations. `--convolution-centered-m N` is a feasibility/tuning control for the all-target FFTW++ topology; it is not a workload-size dispatch mechanism. The default all-target policy uses `m=N`, while the low-memory and parallel-target candidates retain optimizer-selected implicit/hybrid parameters. Correctness is checked before timing conclusions, including FFTW++ residue choices that may reorder application inputs.
+
 The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
 
 ```sh

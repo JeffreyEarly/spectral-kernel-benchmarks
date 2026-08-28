@@ -79,6 +79,11 @@ def provider_name(provider: dict) -> str:
         "pipeline-streaming-pruned-compact-split": "Streaming pruned compact-split pipeline",
         "fftw-explicit-dealiased-convolution": "Explicit FFTW dealiased convolution",
         "fftwpp-hybrid-hermitian-convolution": "FFTW++ implicit/hybrid Hermitian convolution",
+        "fftw-explicit-streamed-wvm-advection": "Explicit FFTW streamed WVM advection",
+        "fftw-explicit-parallel-target-wvm-advection": "Explicit FFTW parallel-target WVM advection",
+        "fftwpp-streamed-target-wvm-advection": "FFTW++ streamed-target WVM advection",
+        "fftwpp-all-target-wvm-advection": "FFTW++ all-target WVM advection",
+        "fftwpp-parallel-target-wvm-advection": "FFTW++ parallel-target WVM advection",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -4208,8 +4213,12 @@ def streaming_pruned_reference_synthesis(
 
 
 def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
-    rows: list[str] = []
+    feasibility_rows: list[str] = []
+    advection_rows: list[str] = []
     projections: list[str] = []
+    advection_time_ratios: list[float] = []
+    advection_memory_ratios: list[float] = []
+    advection_errors: list[float] = []
     ordered = sorted(
         bundles,
         key=lambda item: (
@@ -4222,50 +4231,109 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
         providers = {provider["id"]: provider for provider in result["providers"]}
         baseline = providers.get("fftw-explicit-dealiased-convolution")
         candidate = providers.get("fftwpp-hybrid-hermitian-convolution")
-        if baseline is None or candidate is None:
-            continue
-        baseline_total = stage_timing(
-            baseline, "uninstrumented-total",
-            "dealiased four-field convolution", "forward",
+        if baseline is not None and candidate is not None:
+            baseline_total = stage_timing(
+                baseline, "uninstrumented-total",
+                "dealiased four-field convolution", "forward",
+            )
+            candidate_total = stage_timing(
+                candidate, "uninstrumented-total",
+                "dealiased four-field convolution", "forward",
+            )
+            if baseline_total is not None and candidate_total is not None:
+                products = int(candidate["algorithmId"].rsplit("p", 1)[1])
+                baseline_memory = int(baseline["memory"].get(
+                    "algorithmResidentBytes", baseline["memory"]["persistentBytes"],
+                ))
+                candidate_memory = int(candidate["memory"].get(
+                    "algorithmResidentBytes", candidate["memory"]["persistentBytes"],
+                ))
+                feasibility_rows.append(
+                    "<tr>"
+                    f'<td>{result["workload"]["Nx"]} × {result["workload"]["Ny"]}</td>'
+                    f'<td class="numeric">{products}</td>'
+                    f'<td class="numeric">{format_ms(baseline_total["medianSeconds"])}</td>'
+                    f'<td class="numeric">{format_ms(candidate_total["medianSeconds"])}</td>'
+                    f'<td class="numeric">{candidate_total["medianSeconds"] / baseline_total["medianSeconds"]:.3f}×</td>'
+                    f'<td class="numeric">{format_bytes(baseline_memory)}</td>'
+                    f'<td class="numeric">{format_bytes(candidate_memory)}</td>'
+                    f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
+                    f'<td class="numeric">{format_error(maximum_correctness_error(candidate))}</td>'
+                    "</tr>"
+                )
+                if result["workload"]["Nx"] == 512:
+                    projections.append(
+                        "<tr>"
+                        f'<td class="numeric">{products}</td>'
+                        f'<td class="numeric">{format_bytes(4 * baseline_memory)}</td>'
+                        f'<td class="numeric">{format_bytes(4 * candidate_memory)}</td>'
+                        f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
+                        "</tr>"
+                    )
+
+        advection_ids = (
+            "fftw-explicit-streamed-wvm-advection",
+            "fftw-explicit-parallel-target-wvm-advection",
+            "fftwpp-streamed-target-wvm-advection",
+            "fftwpp-all-target-wvm-advection",
+            "fftwpp-parallel-target-wvm-advection",
         )
-        candidate_total = stage_timing(
-            candidate, "uninstrumented-total",
-            "dealiased four-field convolution", "forward",
-        )
-        if baseline_total is None or candidate_total is None:
+        if not all(identifier in providers for identifier in advection_ids):
             continue
-        products = int(candidate["algorithmId"].rsplit("p", 1)[1])
-        baseline_memory = int(baseline["memory"].get(
-            "algorithmResidentBytes", baseline["memory"]["persistentBytes"],
+        advection = [providers[identifier] for identifier in advection_ids]
+        totals = [
+            stage_timing(
+                provider, "uninstrumented-total",
+                "WVM-like four-target horizontal advection", "forward",
+            )
+            for provider in advection
+        ]
+        if any(item is None for item in totals):
+            continue
+        serial_explicit, parallel_explicit, serial_implicit, all_target, parallel_implicit = advection
+        parallel_explicit_memory = int(parallel_explicit["memory"].get(
+            "algorithmResidentBytes", parallel_explicit["memory"]["persistentBytes"],
         ))
-        candidate_memory = int(candidate["memory"].get(
-            "algorithmResidentBytes", candidate["memory"]["persistentBytes"],
+        parallel_implicit_memory = int(parallel_implicit["memory"].get(
+            "algorithmResidentBytes", parallel_implicit["memory"]["persistentBytes"],
         ))
-        rows.append(
+        time_ratio = (
+            totals[4]["medianSeconds"] / totals[1]["medianSeconds"]
+        )
+        memory_ratio = parallel_implicit_memory / parallel_explicit_memory
+        error = max(maximum_correctness_error(provider) for provider in advection)
+        advection_time_ratios.append(time_ratio)
+        advection_memory_ratios.append(memory_ratio)
+        advection_errors.append(error)
+        advection_rows.append(
             "<tr>"
             f'<td>{result["workload"]["Nx"]} × {result["workload"]["Ny"]}</td>'
-            f'<td class="numeric">{products}</td>'
-            f'<td class="numeric">{format_ms(baseline_total["medianSeconds"])}</td>'
-            f'<td class="numeric">{format_ms(candidate_total["medianSeconds"])}</td>'
-            f'<td class="numeric">{candidate_total["medianSeconds"] / baseline_total["medianSeconds"]:.3f}×</td>'
-            f'<td class="numeric">{format_bytes(baseline_memory)}</td>'
-            f'<td class="numeric">{format_bytes(candidate_memory)}</td>'
-            f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
-            f'<td class="numeric">{format_error(maximum_correctness_error(candidate))}</td>'
+            f'<td class="numeric">{format_ms(totals[0]["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(totals[1]["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(totals[2]["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(totals[3]["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(totals[4]["medianSeconds"])}</td>'
+            f'<td class="numeric">{time_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(parallel_explicit_memory)}</td>'
+            f'<td class="numeric">{format_bytes(parallel_implicit_memory)}</td>'
+            f'<td class="numeric">{memory_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_error(error)}</td>'
             "</tr>"
         )
-        if result["workload"]["Nx"] == 512:
-            projections.append(
-                "<tr>"
-                f'<td class="numeric">{products}</td>'
-                f'<td class="numeric">{format_bytes(4 * baseline_memory)}</td>'
-                f'<td class="numeric">{format_bytes(4 * candidate_memory)}</td>'
-                f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
-                "</tr>"
-            )
-    if not rows:
+    if not feasibility_rows and not advection_rows:
         return ""
+    feasibility = ""
     projection = ""
+    if feasibility_rows:
+        feasibility = f"""
+      <h3>Independent-product feasibility screen</h3>
+      <p>The original increment computes a synthetic quadratic convolution, not WVM’s nonlinear flux. It uses four compact radial Hermitian inputs and either four or twelve independent products. It remains the amortization and FFTW++ capability baseline; it is not rewritten as a WVM expression benchmark.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Preliminary single-thread M4 screen. Ratios below one favor FFTW++; the caller-visible compact total is authoritative.</caption>
+        <thead><tr><th scope="col">Grid</th><th scope="col">Products</th><th scope="col">Explicit (ms)</th><th scope="col">FFTW++ (ms)</th><th scope="col">Time ratio</th><th scope="col">Explicit memory</th><th scope="col">FFTW++ memory</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{"".join(feasibility_rows)}</tbody>
+      </table></div>
+        """
     if projections:
         projection = f"""
       <h3>Analytical 1024² memory projection</h3>
@@ -4275,17 +4343,34 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
         <tbody>{"".join(projections)}</tbody>
       </table></div>
         """
+    advection_section = ""
+    if advection_rows:
+        geometric_time = math.exp(statistics.fmean(
+            math.log(value) for value in advection_time_ratios
+        ))
+        geometric_memory = math.exp(statistics.fmean(
+            math.log(value) for value in advection_memory_ratios
+        ))
+        maximum_error = max(advection_errors)
+        advection_section = f"""
+      <h3>WVM-derived four-target horizontal-advection screen</h3>
+      <p>The follow-up audits WVM’s nonhydrostatic compiled flux and isolates its shared horizontal quadratic map. Ready spectra for <em>U</em>, <em>V</em>, <em>W</em> and the three derivatives of each of four targets produce four outputs, −(<em>Uq</em><sub>x</sub> + <em>Vq</em><sub>y</sub> + <em>Wq</em><sub>z</sub>). Vertical reconstruction and projection, phase evolution, coefficient accumulation, and the rest of the nonlinear flux remain excluded.</p>
+      <p>The fixed primary comparison uses persistent four-target scheduling on both sides. Across the published cohort, FFTW++ is {geometric_time:.3f}× the explicit FFTW time and {geometric_memory:.3f}× its counted algorithm-resident storage geometrically; maximum mode-keyed error is {maximum_error:.3e}. This is a preliminary advancement screen, not a reference result or full-flux claim.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative ready-compact-input to ready-compact-output medians. The primary ratio compares the two persistent four-target schedules; ratios below one favor FFTW++.</caption>
+        <thead><tr><th scope="col">Grid</th><th scope="col">Explicit serial (ms)</th><th scope="col">Explicit parallel (ms)</th><th scope="col">FFTW++ streamed (ms)</th><th scope="col">FFTW++ all-target (ms)</th><th scope="col">FFTW++ parallel (ms)</th><th scope="col">Primary time ratio</th><th scope="col">Explicit parallel memory</th><th scope="col">FFTW++ parallel memory</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{"".join(advection_rows)}</tbody>
+      </table></div>
+      <p class="method-note">All five candidates use one topology uniformly across 256², 512², and 1024². The all-target FFTW++ path fixes the centered transform to <em>m=N</em>: optimizer-selected two-loop input rotation is not valid for this non-permutation-equivariant expression map. The allocator interposer verifies zero application allocations after warmup.</p>
+        """
     return f"""
       <h2>Bounded feasibility synthesis</h2>
-      <p>This experiment computes a synthetic quadratic convolution, not WVM’s nonlinear flux. Four compact radial Hermitian inputs are compared by mode key after either an explicit full-grid FFTW transform–multiply–transform or FFTW++’s centered/Hermitian implicit-hybrid algorithm. Planning, fixtures, correctness evaluation, and report generation are outside the timed totals.</p>
+      <p>Each increment declares its mathematical expression map, topology, timed boundary, and exclusions. New WVM-derived evidence extends the original feasibility result without clobbering it.</p>
+      {feasibility}
       <p>The public FFTW++ optimizer is usable with four inputs and four outputs. A single twelve-output application (B &gt; A) crashes reproducibly during optimization, so the correct twelve-product candidate consists of three independently planned four-output applications and includes the required input restoration. That limitation remains visible rather than being silently treated as one fused call.</p>
-      <div class="table-scroll"><table class="experiment-evidence-table">
-        <caption>Preliminary single-thread M4 screen. Ratios below one favor FFTW++; the caller-visible compact total is authoritative.</caption>
-        <thead><tr><th scope="col">Grid</th><th scope="col">Products</th><th scope="col">Explicit (ms)</th><th scope="col">FFTW++ (ms)</th><th scope="col">Time ratio</th><th scope="col">Explicit memory</th><th scope="col">FFTW++ memory</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
-        <tbody>{"".join(rows)}</tbody>
-      </table></div>
       {projection}
-      <p class="method-note">The macOS allocator interposer verifies zero application allocations across warmed explicit and FFTW++ executions for both output counts. The result can promote the algorithm into a threaded and WVM-expression follow-up. It cannot establish full-flux performance, multi-thread scaling, Float32 behavior, or a general-Mac recommendation.</p>
+      {advection_section}
+      <p class="method-note">These results can promote a fixed topology into rotated reference depth. They cannot establish complete WVM nonlinear-flux performance, Float32 behavior, a full timestep result, or a general-Mac recommendation.</p>
     """
 
 

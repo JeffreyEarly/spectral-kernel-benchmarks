@@ -21,6 +21,8 @@ namespace skbench {
 std::uint64_t probeDealiasedConvolutionSteadyStateAllocationsForTesting(
     std::size_t n, std::size_t products,
     void (*beginTracking)(), std::uint64_t (*endTracking)());
+std::uint64_t probeWvmAdvectiveConvolutionSteadyStateAllocationsForTesting(
+    std::size_t n, void (*beginTracking)(), std::uint64_t (*endTracking)());
 }
 #endif
 
@@ -1998,6 +2000,11 @@ int main() {
                     8, 12, skbench::test::beginAllocationTracking,
                     skbench::test::endAllocationTracking) == 0,
                 "FFTW++ twelve-product steady-state execution allocated memory");
+            require(
+                skbench::probeWvmAdvectiveConvolutionSteadyStateAllocationsForTesting(
+                    8, skbench::test::beginAllocationTracking,
+                    skbench::test::endAllocationTracking) == 0,
+                "WVM-like advective convolution steady-state execution allocated memory");
 #endif
         }
 
