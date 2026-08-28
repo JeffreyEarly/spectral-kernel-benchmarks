@@ -57,6 +57,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_12_page = output / "experiments" / "issue-012-pruned-horizontal-transforms" / "index.html"
             issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
+            issue_16_page = output / "experiments" / "issue-016-streaming-pruned-compact-split" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
@@ -80,6 +81,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_12_page.is_file())
             self.assertTrue(issue_13_page.is_file())
             self.assertTrue(float32_page.is_file())
+            self.assertTrue(issue_16_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertIn("What this experiment measures", issue_3_page.read_text(encoding="utf-8"))
@@ -287,6 +289,10 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("GEMM calls per execution", direct_ordering_run_html)
             self.assertIn("orderingPackingEstimatedExplicitPeak", (output / "artifacts" / "20260828T032729237033Z-lyra" / "result.json").read_text(encoding="utf-8"))
             self.assertIn("in-place", float32_page.read_text(encoding="utf-8").lower())
+            issue_16_html = issue_16_page.read_text(encoding="utf-8")
+            self.assertIn("Streaming pruned-to-compact-split pipeline", issue_16_html)
+            self.assertIn("worker-local-plane", issue_16_html)
+            self.assertIn("No reference run has been published", issue_16_html)
             self.assertIn("Adoption decision not yet ready", decision_page.read_text(encoding="utf-8"))
             self.assertIn("predates the explicit placement contract", legacy_page.read_text(encoding="utf-8"))
             self.assertEqual((PUBLISHED / "m4-max-quick-20260827.json").read_bytes(), result_artifact.read_bytes())

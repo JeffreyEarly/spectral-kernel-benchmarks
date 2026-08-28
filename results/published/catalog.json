@@ -20424,6 +20424,47 @@
         "memory",
         "pipeline total"
       ]
+    },
+    {
+      "id": "issue-016-streaming-pruned-compact-split",
+      "issue": 16,
+      "phase": "planned",
+      "title": "Streaming pruned-to-compact-split pipeline",
+      "question": "Can successful outer-sharded partial-column pruning stream directly into the winning compact radial split pipeline while reducing full-spectrum memory?",
+      "baseline": "Compare one uniform streaming candidate with the issue #9 plane-major fused-split winner using the issue #12 pruning topology.",
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "A complete synthetic antialiased spectral round trip using a streamed partial-column-pruned horizontal operator and the existing split vertical pipeline.",
+        "candidates": "The issue #9 plane-major full-FFT fused-split control and one worker-local-plane streaming-pruned direct-split candidate.",
+        "workloads": "Uniform Float64 fields=4 cases at 256 squared/Nz=129, 512 squared/Nz=257, and 1024 squared/Nz=129.",
+        "controlledVariables": "Logical retained modes, fixtures, normalization, FFTW build and planning, worker topology, vertical kernel, modal work, oracle, and sampling.",
+        "changedVariables": "Batch-sized versus worker-local-plane spectrum lifetime, full versus selected column transforms, and fused full-spectrum selection versus direct compact split production.",
+        "timedBoundary": "Separate row, selected-column, direct-split movement, vertical-MM, modal, retained-horizontal, and authoritative allocation-free complete-pipeline timings.",
+        "excludedWork": "Custom butterflies, deeper within-column pruning, FFTW++ implicit/hybrid dealiasing, WVM nonlinear flux, and full-model claims.",
+        "allocationPolicy": "Zero allocations in timed steady state; worker-local scratch, algorithm-resident, benchmark-only, estimated-peak, and observed memory are separate."
+      },
+      "correctness": {
+        "oracle": "Independent mode-keyed horizontal, vertical, modal, and complete-pipeline oracle with DC, Nyquist, Hermitian-boundary, and arbitrary-input coverage.",
+        "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
+        "capabilityHandling": "A correct negative feasibility or preliminary performance result remains publishable and does not reopen the v1 decision.",
+        "canSupport": "Promotion or rejection of one uniform streaming-pruned compact-split pipeline for reference-depth follow-up.",
+        "cannotSupport": "Size-dependent dispatch, implicit nonlinear convolution conclusions, or general-Mac adoption without replication."
+      },
+      "requiredTables": [
+        "row and selected-column FFT work",
+        "direct split movement",
+        "retained horizontal total",
+        "raw vertical MM",
+        "modal work",
+        "complete pipeline total",
+        "memory",
+        "correctness"
+      ]
     }
   ]
 }

@@ -76,6 +76,7 @@ def provider_name(provider: dict) -> str:
         "accelerate-vdsp-native-retained": "Accelerate/vDSP native retained split",
         "pipeline-wvm-direct": "WVM direct/no-reorder pipeline",
         "pipeline-plane-major-fused-split": "Plane-major fused-split pipeline",
+        "pipeline-streaming-pruned-compact-split": "Streaming pruned compact-split pipeline",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -2976,6 +2977,7 @@ def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
 PIPELINE_PROVIDER_IDS = {
     "pipeline-wvm-direct",
     "pipeline-plane-major-fused-split",
+    "pipeline-streaming-pruned-compact-split",
 }
 
 
@@ -3008,14 +3010,39 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
         def pair(scope: str, stage: str) -> str:
             return f"{milliseconds(scope, stage, 'forward')} / {milliseconds(scope, stage, 'inverse')}"
 
-        movement = (
-            f"{milliseconds('adapter-component', 'logical retained provider-order view', 'forward')} / "
-            f"{milliseconds('adapter-component', 'rebuild zero-padded inverse spectrum', 'inverse')}"
-            if provider["id"] == "pipeline-wvm-direct"
-            else
-            f"{milliseconds('adapter-component', 'fused retained selection and split pack', 'forward')} / "
-            f"{milliseconds('adapter-component', 'fused split embed into zeroed plane-major spectrum', 'inverse')}"
-        )
+        if provider["id"] == "pipeline-wvm-direct":
+            movement = (
+                f"{milliseconds('adapter-component', 'logical retained provider-order view', 'forward')} / "
+                f"{milliseconds('adapter-component', 'rebuild zero-padded inverse spectrum', 'inverse')}"
+            )
+        elif provider["id"] == "pipeline-streaming-pruned-compact-split":
+            movement = (
+                f"{milliseconds('adapter-component', 'streamed radial direct split write', 'forward')} / "
+                f"{milliseconds('adapter-component', 'streamed split embed and zero fill', 'inverse')}"
+            )
+        else:
+            movement = (
+                f"{milliseconds('adapter-component', 'fused retained selection and split pack', 'forward')} / "
+                f"{milliseconds('adapter-component', 'fused split embed into zeroed plane-major spectrum', 'inverse')}"
+            )
+        if provider["id"] == "pipeline-streaming-pruned-compact-split":
+            horizontal_work = (
+                f"rows {milliseconds('primitive-component', 'real row FFTs', 'forward')} / "
+                f"{milliseconds('primitive-component', 'real row FFTs', 'inverse')}<br>"
+                f'<span class="muted">selected columns '
+                f"{milliseconds('primitive-component', 'selected-kx complex column FFTs', 'forward')} / "
+                f"{milliseconds('primitive-component', 'selected-kx complex column FFTs', 'inverse')}</span>"
+            )
+            retained_horizontal = pair(
+                "retained-operator-total",
+                "streaming pruned compact split horizontal operator",
+            )
+        else:
+            horizontal_work = pair("primitive", "raw FFT")
+            retained_horizontal = pair(
+                "retained-operator-total",
+                "full FFT fused compact split horizontal operator",
+            )
         total = milliseconds(
             "uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip"
         )
@@ -3044,7 +3071,8 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'<span class="muted">round {escaped(round_number)} · {publication_badge(publication["status"])}</span></td>'
             f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
             f'<td>{escaped(provider_name(provider))}</td>'
-            f'<td class="numeric">{pair("primitive", "raw FFT")}</td>'
+            f'<td class="numeric">{horizontal_work}</td>'
+            f'<td class="numeric">{retained_horizontal}</td>'
             f'<td class="numeric">{pair("primitive", "raw vertical MM")}</td>'
             f'<td class="numeric">{movement}</td>'
             f'<td class="numeric">{modal}</td>'
@@ -3059,7 +3087,8 @@ def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
         '<div class="table-scroll"><table class="experiment-evidence-table">'
         '<caption>Component medians in milliseconds are forward / inverse. Modal work and the uninstrumented total are single round-trip values. Component medians are diagnostic and are not summed; the uninstrumented total is authoritative. New memory-aware runs separate algorithm-resident storage, benchmark-only overhead, conservative estimated peak, and observed process high water; older immutable runs retain their original memory fields.</caption>'
         '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm graph</th>'
-        '<th scope="col">Raw FFT</th><th scope="col">Raw vertical MM</th><th scope="col">Movement / rebuild</th>'
+        '<th scope="col">Raw FFT / pruned components</th><th scope="col">Horizontal retained total</th>'
+        '<th scope="col">Raw vertical MM</th><th scope="col">Movement / rebuild</th>'
         '<th scope="col">Modal work</th><th scope="col">Uninstrumented total</th><th scope="col">Memory</th><th scope="col">Max error</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
@@ -3373,8 +3402,134 @@ def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
     return "".join(sections)
 
 
+def streaming_pruned_pipeline_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") ==
+        "streaming-pruned-compact-split-screen-v1"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "plane-major-fused-split--outer-dynamic-16"
+    candidate_id = "streaming-pruned-compact-split--outer-dynamic-16"
+    cells: dict[tuple[str, str], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        provider = spectral_pipeline_provider(bundle)
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in {baseline_id, candidate_id}:
+            continue
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "synthetic antialiased spectral pipeline", "round-trip",
+        )
+        horizontal_stage = (
+            "streaming pruned compact split horizontal operator"
+            if candidate == candidate_id
+            else "full FFT fused compact split horizontal operator"
+        )
+        horizontal_forward = stage_timing(
+            provider, "retained-operator-total", horizontal_stage, "forward",
+        )
+        horizontal_inverse = stage_timing(
+            provider, "retained-operator-total", horizontal_stage, "inverse",
+        )
+        memory = provider["memory"]
+        if total is None or horizontal_forward is None or horizontal_inverse is None:
+            continue
+        cells[(candidate, bundle.result["run"]["profile"])] = {
+            "total": float(total["medianSeconds"]),
+            "horizontalForward": float(horizontal_forward["medianSeconds"]),
+            "horizontalInverse": float(horizontal_inverse["medianSeconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "scratch": float(memory["scratchBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    profiles = sorted({profile for _, profile in cells})
+    time_ratios: list[float] = []
+    large_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    rows: list[str] = []
+    for profile in profiles:
+        baseline = cells.get((baseline_id, profile))
+        candidate = cells.get((candidate_id, profile))
+        if baseline is None or candidate is None:
+            continue
+        time_ratio = candidate["total"] / baseline["total"]
+        resident_ratio = candidate["resident"] / baseline["resident"]
+        time_ratios.append(time_ratio)
+        resident_ratios.append(resident_ratio)
+        if profile in {
+            "wvm-current-512-nz257-f4",
+            "wvm-large-1024-nz129-f4",
+        }:
+            large_ratios.append(time_ratio)
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(baseline["horizontalForward"])} / '
+            f'{format_ms(candidate["horizontalForward"])}<br>'
+            f'<span class="muted">inverse {format_ms(baseline["horizontalInverse"])} / '
+            f'{format_ms(candidate["horizontalInverse"])}</span></td>'
+            f'<td class="numeric">{format_ms(baseline["total"])} / '
+            f'{format_ms(candidate["total"])}<br>'
+            f'<span class="muted">candidate/control {time_ratio:.3f}×</span></td>'
+            f'<td class="numeric">{format_bytes(int(baseline["resident"]))} / '
+            f'{format_bytes(int(candidate["resident"]))}<br>'
+            f'<span class="muted">candidate/control {resident_ratio:.3f}×</span></td>'
+            f'<td class="numeric">{format_bytes(int(baseline["scratch"]))} / '
+            f'{format_bytes(int(candidate["scratch"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(baseline["observed"]))} / '
+            f'{format_bytes(int(candidate["observed"]))}</td>'
+            "</tr>"
+        )
+    if not time_ratios or len(time_ratios) != 3 or len(large_ratios) != 2:
+        return ""
+    geometric_ratio = math.exp(
+        sum(math.log(value) for value in time_ratios) / len(time_ratios)
+    )
+    large_ratio = math.exp(
+        sum(math.log(value) for value in large_ratios) / len(large_ratios)
+    )
+    resident_ratio = math.exp(
+        sum(math.log(value) for value in resident_ratios) / len(resident_ratios)
+    )
+    maximum_error = max(errors) if errors else math.inf
+    time_gate = large_ratio <= 0.97 and maximum_error <= 1.0e-12
+    memory_gate = (
+        resident_ratio <= 0.90 and geometric_ratio <= 1.02
+        and maximum_error <= 1.0e-12
+    )
+    if time_gate:
+        classification = "advances on large-case time"
+    elif memory_gate:
+        classification = "advances on memory within the time bound"
+    else:
+        classification = "negative preliminary screen"
+    return f"""
+      <h3>Streaming pruned-to-compact-split preliminary screen</h3>
+      <p>This non-blocking experiment asks whether issue #12's outer-12 partial-column pruning can survive the final issue #9 representation boundary. The candidate holds one half-spectrum plane per worker, executes every real row transform, skips inactive complex columns, writes retained values directly to compact radial split arrays, and reverses the process one plane at a time. No batch-sized candidate half-spectrum is materialized.</p>
+      <p>Across the three uniform fields=4 workloads, the candidate/control complete-pipeline ratio is {geometric_ratio:.3f}× geometrically; the two large decision cases are {large_ratio:.3f}×. Algorithm-resident memory is {resident_ratio:.3f}×. Maximum correctness error is {maximum_error:.3e}. Classification: <strong>{escaped(classification)}</strong>.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Control / streaming candidate medians. Horizontal values are forward on the first line and inverse on the second; the complete uninstrumented total is authoritative.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Retained horizontal</th><th scope="col">Complete pipeline</th><th scope="col">Algorithm resident</th><th scope="col">Scratch</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">This is preliminary screen evidence, not a replacement for the issue #9 M4 decision. One uniform algorithm is evaluated across sizes; no size-dependent dispatch is proposed. Issue #17 implicit and hybrid dealiased convolutions remain outside this experiment.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-009-combined-spectral-pipeline":
+        return spectral_pipeline_evidence_table(bundles)
+    if experiment["id"] == "issue-016-streaming-pruned-compact-split":
         return spectral_pipeline_evidence_table(bundles)
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
@@ -3461,6 +3616,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-009-combined-spectral-pipeline":
         synthesis = spectral_pipeline_synthesis(related)
+    elif experiment_id == "issue-016-streaming-pruned-compact-split":
+        synthesis = streaming_pruned_pipeline_synthesis(related)
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":

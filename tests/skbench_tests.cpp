@@ -167,6 +167,35 @@ void requireAllocationFreePrunedSplitExecution(
             "pruned retained-split FFTW execution allocated memory");
 }
 
+void requireAllocationFreeStreamingPrunedSplitExecution(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 53) / 53.0;
+    }
+
+    skbench::FFTWStreamingPrunedSplitProvider provider(
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1, outerWorkers);
+    const auto execute = [&] {
+        provider.forwardSplit(
+            input.get(), retainedReal.get(), retainedImag.get());
+        provider.inverseSplit(
+            retainedReal.get(), retainedImag.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "streaming pruned split FFTW execution allocated memory");
+}
+
 void requireAllocationFreeRetainedOuterExecution(
     const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
     std::size_t outerWorkers,
@@ -696,6 +725,22 @@ int main() {
         require(!prunedProvider.inPlaceRetainedOperatorSupported() &&
                     !prunedProvider.inPlaceRetainedOperatorCapability().empty(),
                 "pruned FFTW in-place capability contract");
+        skbench::FFTWStreamingPrunedSplitProvider streamingPrunedProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2);
+        require(streamingPrunedProvider.activeKxCount() ==
+                    prunedProvider.activeKxCount(),
+                "streaming pruned active-column count");
+        require(streamingPrunedProvider.scratchBytes() ==
+                    2 * workload.halfRows() * sizeof(skbench::Complex),
+                "streaming pruned worker-local scratch accounting");
+        require(streamingPrunedProvider.scratchBytes() <
+                    prunedProvider.scratchBytes(),
+                "streaming pruned scratch must be smaller than batch scratch");
+        require(streamingPrunedProvider.workerScratchBytes() ==
+                    workload.halfRows() * sizeof(skbench::Complex),
+                "streaming pruned per-worker scratch accounting");
+        require(!streamingPrunedProvider.completeHalfSpectrumMaterialized(),
+                "streaming pruned provider unexpectedly materializes a full spectrum");
 
         std::vector<skbench::Complex> prunedOracleSpectrum(workload.spectrumElements());
         std::vector<skbench::Complex> prunedEmbeddedSpectrum(workload.spectrumElements());
@@ -833,6 +878,25 @@ int main() {
                         prunedInverseActual.data(), prunedInverseOracle.data(),
                         prunedInverseActual.size()) < 1.0e-12,
                     "pruned retained-split inverse versus mode-keyed oracle");
+
+            streamingPrunedProvider.forwardSplit(
+                fixtureInput.data(), retainedSplitReal.data(),
+                retainedSplitImag.data());
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedSplitReal.data(), retainedOracleReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedSplitImag.data(), retainedOracleImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "streaming pruned direct-split forward versus mode-keyed oracle");
+            streamingPrunedProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "streaming pruned split inverse versus mode-keyed oracle");
         }
 
         skbench::RunOptions prunedOptions;
@@ -1132,6 +1196,8 @@ int main() {
             requireAllocationFreePrunedExecution(workload, prunedModes, 1);
             requireAllocationFreePrunedExecution(workload, prunedModes, 2);
             requireAllocationFreePrunedSplitExecution(workload, prunedModes, 2);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
@@ -1683,7 +1749,8 @@ int main() {
         }
 
         for (const std::string pipelinePolicy : {
-                 "wvm-direct", "plane-major-fused-split"}) {
+                 "wvm-direct", "plane-major-fused-split",
+                 "streaming-pruned-compact-split"}) {
             skbench::RunOptions pipelineOptions;
             pipelineOptions.kernel = "spectral-pipeline";
             pipelineOptions.boundaryPolicy = pipelinePolicy;
@@ -1712,6 +1779,10 @@ int main() {
                     "spectral-pipeline correctness");
             bool foundRoundTrip = false;
             bool foundModalWork = false;
+            bool foundRetainedForward = false;
+            bool foundRetainedInverse = false;
+            bool foundPrunedRows = false;
+            bool foundPrunedColumns = false;
             bool modalLedgerExecuted = false;
             for (const auto& timing : provider.timings) {
                 foundRoundTrip = foundRoundTrip ||
@@ -1722,6 +1793,18 @@ int main() {
                     (timing.scope == "component" &&
                      timing.stage == "mode-keyed modal work" &&
                      timing.direction == "modal" && timing.seconds.size() == 2);
+                foundRetainedForward = foundRetainedForward ||
+                    (timing.scope == "retained-operator-total" &&
+                     timing.direction == "forward" && timing.seconds.size() == 2);
+                foundRetainedInverse = foundRetainedInverse ||
+                    (timing.scope == "retained-operator-total" &&
+                     timing.direction == "inverse" && timing.seconds.size() == 2);
+                foundPrunedRows = foundPrunedRows ||
+                    (timing.scope == "primitive-component" &&
+                     timing.stage == "real row FFTs");
+                foundPrunedColumns = foundPrunedColumns ||
+                    (timing.scope == "primitive-component" &&
+                     timing.stage == "selected-kx complex column FFTs");
             }
             for (const auto& entry : provider.ledger) {
                 modalLedgerExecuted = modalLedgerExecuted ||
@@ -1747,6 +1830,23 @@ int main() {
                     "spectral-pipeline memory partition");
             require(provider.observedProcessHighWaterBytes > 0,
                     "spectral-pipeline observed process high-water memory");
+            if (pipelinePolicy == "plane-major-fused-split") {
+                require(foundRetainedForward && foundRetainedInverse,
+                        "full fused-split retained horizontal totals");
+            }
+            if (pipelinePolicy == "streaming-pruned-compact-split") {
+                require(provider.id ==
+                            "pipeline-streaming-pruned-compact-split",
+                        "streaming pipeline provider identity");
+                require(foundRetainedForward && foundRetainedInverse &&
+                            foundPrunedRows && foundPrunedColumns,
+                        "streaming pipeline horizontal component ledger");
+                require(provider.scratchBytes ==
+                            2 * workload.halfRows() * sizeof(skbench::Complex),
+                        "streaming pipeline worker-local scratch");
+                require(provider.scratchBytes < pipelineReport.fullSpectrumBytes,
+                        "streaming pipeline avoids batch-sized spectrum scratch");
+            }
         }
 
         if (skbench::test::allocationTrackingSupported()) {

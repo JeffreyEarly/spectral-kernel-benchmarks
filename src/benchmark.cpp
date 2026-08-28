@@ -2974,10 +2974,11 @@ BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options) {
 
 BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
     if (options.boundaryPolicy != "wvm-direct" &&
-        options.boundaryPolicy != "plane-major-fused-split") {
+        options.boundaryPolicy != "plane-major-fused-split" &&
+        options.boundaryPolicy != "streaming-pruned-compact-split") {
         throw std::invalid_argument(
             "spectral-pipeline boundary-policy must be wvm-direct or "
-            "plane-major-fused-split.");
+            "plane-major-fused-split or streaming-pruned-compact-split.");
     }
     if (options.verticalGemmFamily != "k2-grouped") {
         throw std::invalid_argument(
@@ -3375,6 +3376,247 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
         return report;
     }
 
+    if (options.boundaryPolicy == "streaming-pruned-compact-split") {
+        FFTWStreamingPrunedSplitProvider fftw(
+            workload, modes, fftwPlanningModeNamed(options.fftwPlanning),
+            fftwInternalWorkers, options.fftwOuterWorkers);
+        VerticalGemmProvider provider(
+            workload, vertical, VerticalGemmLayout::split, verticalStrategy);
+        if (!provider.supported()) throw std::runtime_error(provider.capability());
+        vertical.forward = {};
+        vertical.inverse = {};
+
+        std::vector<double> output(workload.realElements());
+        std::vector<Complex> horizontal(physicalElements);
+        std::vector<Complex> forward(modalElements);
+        std::vector<Complex> postWork(modalElements);
+        std::vector<Complex> inverse(physicalElements);
+
+        fftw.forwardSplit(
+            input.data(), provider.splitPhysicalInputRealData(),
+            provider.splitPhysicalInputImaginaryData());
+        splitToInterleaved(
+            physicalElements, provider.splitPhysicalInputRealData(),
+            provider.splitPhysicalInputImaginaryData(), horizontal.data());
+        provider.executeForward();
+        provider.copyForwardOutput(forward.data());
+        applySyntheticModalWorkSplit(
+            modalElements, modalWeights.data(),
+            provider.splitModalOutputRealData(),
+            provider.splitModalOutputImaginaryData(),
+            provider.splitModalInputRealData(),
+            provider.splitModalInputImaginaryData());
+        splitToInterleaved(
+            modalElements, provider.splitModalInputRealData(),
+            provider.splitModalInputImaginaryData(), postWork.data());
+        provider.executeInverse();
+        provider.copyInverseOutput(inverse.data());
+        fftw.inverseSplit(
+            provider.splitPhysicalOutputRealData(),
+            provider.splitPhysicalOutputImaginaryData(), output.data());
+
+        auto record = makeRecord(
+            "pipeline-streaming-pruned-compact-split",
+            "streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1",
+            "worker-local-plane-spectrum-to-persistent-radial-compact-split");
+        record.version = fftw.version() + " + Apple Accelerate";
+        record.gemmCallsPerExecution = 2 * provider.gemmCallsPerExecution();
+        record.opaquePlanningBytes = fftw.planningBytes();
+        record.otherSetupSeconds = fftw.otherSetupSeconds() +
+            provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds() +
+            weightGenerationSeconds;
+        record.allocationSeconds = fftw.allocationSeconds() +
+            provider.allocationSeconds();
+        record.planningSeconds = fftw.planningSeconds();
+        record.explicitPersistentBytes = provider.persistentBytes() +
+            bytes(modalWeights.size(), sizeof(double)) + report.fullRealBytes;
+        record.scratchBytes = fftw.scratchBytes();
+        record.planningConfiguration +=
+            "; active kx columns=" + std::to_string(fftw.activeKxCount()) +
+            "/" + std::to_string(fftw.fullKxCount()) +
+            "; one worker-local half-spectrum plane per outer worker" +
+            "; no batch-sized full half-spectrum";
+        record.execution.forward = {
+            "out-of-place", "out-of-place", false, true, false, false, false,
+            "real-grid", "radial-compact-split-modal-after-real-diagonal-work",
+            "real-grid", "radial-compact-split-modal-after-real-diagonal-work",
+            "real grid -> worker-local row spectrum -> selected column FFTs -> direct radial split -> grouped dgemm -> modal work",
+            "one full half-spectrum plane per outer worker; z/field plane index contiguous within each retained radial mode",
+            fftw.scratchBytes() / sizeof(Complex), 1,
+            "worker-local FFT scratch, split physical, split forward-modal, and split post-work buffers do not overlap",
+            provider.persistentBytes() + fftw.scratchBytes(), true};
+        record.execution.inverse = record.execution.forward;
+        record.execution.inverse.nativeInputRepresentationId =
+            "radial-compact-split-modal-after-real-diagonal-work";
+        record.execution.inverse.nativeOutputRepresentationId = "real-grid";
+        record.execution.inverse.adapterInputRepresentationId =
+            record.execution.inverse.nativeInputRepresentationId;
+        record.execution.inverse.adapterOutputRepresentationId = "real-grid";
+        record.execution.inverse.physicalExtents =
+            "post-work split modal -> grouped dgemm -> per-plane split embed/selected-column synthesis/row reconstruction -> real grid";
+        record.execution.inverse.reusableWorkBytes = fftw.scratchBytes();
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "single-plane FFTW plans, per-worker plane scratch, grouped real matrices, split operands, modal weights, and persistent schedulers"},
+            {"raw forward FFT", StageState::fused,
+             "row and selected-column FFT work streams directly into retained split output"},
+            {"horizontal retention", StageState::fused,
+             "radial selection occurs while each worker-local plane is live"},
+            {"representation conversion", StageState::fused,
+             "selected interleaved values are written directly to final compact split arrays"},
+            {"permutation/packing", StageState::fused,
+             "radial mode ordering and split production are one streamed write"},
+            {"raw forward vertical MM", StageState::executed,
+             "two grouped dgemm calls per K-squared matrix group"},
+            {"modal work", StageState::executed,
+             "out-of-place real diagonal scaling over contiguous split (k,l,j,field) values"},
+            {"raw inverse vertical MM", StageState::executed,
+             "two grouped dgemm calls per K-squared matrix group"},
+            {"horizontal embedding", StageState::fused,
+             "compact split input is embedded into one zeroed worker-local plane at a time"},
+            {"raw inverse FFT", StageState::fused,
+             "selected-column synthesis and row reconstruction consume each embedded plane before reuse"},
+            {"uninstrumented total", StageState::executed,
+             "complete streaming synthetic spectral operator; nonlinear flux excluded"}};
+        addCorrectness(record, horizontal, forward, postWork, inverse, output);
+
+        const auto matrixBytes = provider.matrixBytesPerDirection();
+        const auto verticalBytes = 2 * matrixBytes +
+            report.retainedSpectrumBytes + report.modalSpectrumBytes;
+        const auto activeColumnElements = static_cast<std::uint64_t>(
+            fftw.activeKxCount()) * workload.ny * workload.planes();
+        const auto selectedColumnBytes = bytes(
+            activeColumnElements, sizeof(Complex));
+        const auto rowBytes = report.fullRealBytes + report.fullSpectrumBytes;
+        const auto splitWriteBytes = 2 * report.retainedSpectrumBytes;
+        const auto splitEmbedBytes = report.fullSpectrumBytes +
+            2 * report.retainedSpectrumBytes;
+        const auto forwardHorizontalBytes =
+            rowBytes + 2 * selectedColumnBytes + splitWriteBytes;
+        const auto inverseHorizontalBytes =
+            splitEmbedBytes + 2 * selectedColumnBytes + rowBytes;
+        record.timings = {
+            series("setup-shared-component", "logical matrix-family fixture generation", "shared",
+                   StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+                   {fixtureGenerationSeconds}),
+            series("setup-shared-component", "mode-keyed modal weight generation", "shared",
+                   StageState::setupOnly, bytes(modalWeights.size(), sizeof(double)),
+                   {weightGenerationSeconds}),
+            series("setup-component", "single-plane FFTW planning", "shared",
+                   StageState::setupOnly, fftw.planningBytes(),
+                   {fftw.planningSeconds()}),
+            series("setup-component", "vertical matrix preparation", "shared",
+                   StageState::setupOnly, 2 * matrixBytes,
+                   {provider.matrixPreparationSeconds()}),
+            series("primitive-component", "real row FFTs", "forward",
+                   StageState::executed, rowBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeForwardRowsDiagnostic(input.data());
+                   })),
+            series("primitive-component", "selected-kx complex column FFTs", "forward",
+                   StageState::executed, 2 * selectedColumnBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeForwardColumnsDiagnostic();
+                   })),
+            series("adapter-component", "streamed radial direct split write", "forward",
+                   StageState::executed, splitWriteBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.writeForwardSplitDiagnostic(
+                           provider.splitPhysicalInputRealData(),
+                           provider.splitPhysicalInputImaginaryData());
+                   })),
+            series("retained-operator-total", "streaming pruned compact split horizontal operator", "forward",
+                   StageState::executed, forwardHorizontalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forwardSplit(
+                           input.data(), provider.splitPhysicalInputRealData(),
+                           provider.splitPhysicalInputImaginaryData());
+                   })),
+            series("primitive", "raw vertical MM", "forward", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeForward(); })),
+            series("component", "mode-keyed modal work", "modal", StageState::executed,
+                   modalWorkBytes,
+                   measure(warmups, sampleCount, [&] {
+                       applySyntheticModalWorkSplit(
+                           modalElements, modalWeights.data(),
+                           provider.splitModalOutputRealData(),
+                           provider.splitModalOutputImaginaryData(),
+                           provider.splitModalInputRealData(),
+                           provider.splitModalInputImaginaryData());
+                   })),
+            series("primitive", "raw vertical MM", "inverse", StageState::executed,
+                   verticalBytes,
+                   measure(warmups, sampleCount, [&] { provider.executeInverse(); })),
+            series("adapter-component", "streamed split embed and zero fill", "inverse",
+                   StageState::executed, splitEmbedBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.embedInverseSplitDiagnostic(
+                           provider.splitPhysicalOutputRealData(),
+                           provider.splitPhysicalOutputImaginaryData());
+                   })),
+            series("primitive-component", "selected-kx complex column FFTs", "inverse",
+                   StageState::executed, 2 * selectedColumnBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeInverseColumnsDiagnostic();
+                   })),
+            series("primitive-component", "real row FFTs", "inverse",
+                   StageState::executed, rowBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeInverseRowsDiagnostic(output.data());
+                   })),
+            series("retained-operator-total", "streaming pruned compact split horizontal operator", "inverse",
+                   StageState::executed, inverseHorizontalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.inverseSplit(
+                           provider.splitPhysicalOutputRealData(),
+                           provider.splitPhysicalOutputImaginaryData(),
+                           output.data());
+                   })),
+            series("diagnostic-component", "batch scheduler empty dispatch", "shared",
+                   StageState::executed, 0,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.executeSchedulerNoop();
+                   })),
+            series("uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
+                   StageState::executed,
+                   forwardHorizontalBytes + 2 * verticalBytes +
+                       modalWorkBytes + inverseHorizontalBytes,
+                   measure(warmups, sampleCount, [&] {
+                       fftw.forwardSplit(
+                           input.data(), provider.splitPhysicalInputRealData(),
+                           provider.splitPhysicalInputImaginaryData());
+                       provider.executeForward();
+                       applySyntheticModalWorkSplit(
+                           modalElements, modalWeights.data(),
+                           provider.splitModalOutputRealData(),
+                           provider.splitModalOutputImaginaryData(),
+                           provider.splitModalInputRealData(),
+                           provider.splitModalInputImaginaryData());
+                       provider.executeInverse();
+                       fftw.inverseSplit(
+                           provider.splitPhysicalOutputRealData(),
+                           provider.splitPhysicalOutputImaginaryData(),
+                           output.data());
+                   }))};
+        report.spectralPipelineEstimatedExplicitPeakBytes =
+            report.verticalMatrixFamilySourceBytes + record.explicitPersistentBytes +
+            record.scratchBytes + 2 * report.fullSpectrumBytes +
+            2 * report.fullRealBytes + 2 * report.retainedSpectrumBytes +
+            2 * report.modalSpectrumBytes;
+        record.algorithmResidentBytes = record.explicitPersistentBytes +
+            report.fullRealBytes + record.scratchBytes;
+        record.estimatedProcessPeakBytes =
+            report.spectralPipelineEstimatedExplicitPeakBytes;
+        record.benchmarkHarnessBytes = record.estimatedProcessPeakBytes -
+            record.algorithmResidentBytes;
+        record.observedProcessHighWaterBytes = processHighWaterBytes();
+        report.providers.push_back(std::move(record));
+        report.status = correctnessPassed(report.providers.front())
+            ? "passed" : "failed";
+        return report;
+    }
+
     FFTWProvider fftw(workload, FFTWStrategy{
         fftwPlanningModeNamed(options.fftwPlanning),
         fftwAlignmentStrategyNamed(options.fftwAlignment),
@@ -3533,6 +3775,16 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                                provider.splitPhysicalInputRealData(),
                                provider.splitPhysicalInputImaginaryData());
                        })),
+        series("retained-operator-total", "full FFT fused compact split horizontal operator", "forward",
+               StageState::executed,
+               report.fullRealBytes + report.fullSpectrumBytes + packBytes,
+               measure(warmups, sampleCount, [&] {
+                   fftw.forward(input.data(), fullSpectrum.data());
+                   fftw.gatherRetainedToSplitOuter(
+                       modes, fullSpectrum.data(),
+                       provider.splitPhysicalInputRealData(),
+                       provider.splitPhysicalInputImaginaryData());
+               })),
         series("primitive", "raw vertical MM", "forward", StageState::executed,
                verticalBytes,
                measure(warmups, sampleCount, [&] { provider.executeForward(); })),
@@ -3556,6 +3808,16 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                        modes, provider.splitPhysicalOutputRealData(),
                        provider.splitPhysicalOutputImaginaryData(),
                        fullSpectrum.data());
+               })),
+        series("retained-operator-total", "full FFT fused compact split horizontal operator", "inverse",
+               StageState::executed,
+               embedBytes + report.fullSpectrumBytes + report.fullRealBytes,
+               measure(warmups, sampleCount, [&] {
+                   fftw.embedRetainedFromSplitOuter(
+                       modes, provider.splitPhysicalOutputRealData(),
+                       provider.splitPhysicalOutputImaginaryData(),
+                       fullSpectrum.data());
+                   fftw.inverse(fullSpectrum.data(), output.data());
                })),
         series("uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
                StageState::executed,

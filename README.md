@@ -160,6 +160,15 @@ python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase reference \
 
 Pipeline memory reports distinguish explicit algorithm-resident storage, benchmark/oracle overhead, the conservative explicit process-peak estimate, and the isolated process high-water measurement. Lower algorithm memory is a result: a workload that only one graph can execute safely is published as a capacity outcome rather than forced through swap. The `512²/Nz=513/fields=4` and `1024²/Nz=257/fields=4` capacity cases remain deferred until benchmark-only storage can be reduced without hiding production-resident buffers.
 
+Issue #16 is a non-blocking follow-up to the M4 decision. Its bounded screen compares the published plane-major fused-split winner with one uniform outer-12 partial-column-pruned implementation that holds a single half-spectrum plane per worker and writes retained values directly to compact radial split storage:
+
+```sh
+python3 tools/run_streaming_pruned_pipeline_sweep.py --dry-run --allow-dirty-tree
+python3 tools/run_streaming_pruned_pipeline_sweep.py
+```
+
+The screen covers only the fields=4 `256²/Nz=129`, `512²/Nz=257`, and `1024²/Nz=129` profiles. It advances only for a correct large-case time improvement or a material algorithm-resident memory reduction within the declared total-time bound. FFTW++ implicit and hybrid convolution work belongs to issue #17 and is not part of this runner.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries

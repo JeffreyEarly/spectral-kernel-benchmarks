@@ -462,6 +462,62 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+class FFTWStreamingPrunedSplitProvider {
+public:
+    FFTWStreamingPrunedSplitProvider(
+        const Workload& workload, const std::vector<RetainedMode>& modes,
+        FFTWPlanningMode planningMode, std::size_t internalWorkers,
+        std::size_t outerWorkers);
+    ~FFTWStreamingPrunedSplitProvider();
+    FFTWStreamingPrunedSplitProvider(FFTWStreamingPrunedSplitProvider&&) noexcept;
+    FFTWStreamingPrunedSplitProvider& operator=(
+        FFTWStreamingPrunedSplitProvider&&) noexcept;
+    FFTWStreamingPrunedSplitProvider(
+        const FFTWStreamingPrunedSplitProvider&) = delete;
+    FFTWStreamingPrunedSplitProvider& operator=(
+        const FFTWStreamingPrunedSplitProvider&) = delete;
+
+    void forwardSplit(const double* input, double* retainedReal,
+                      double* retainedImag, double scale = 1.0);
+    void inverseSplit(const double* retainedReal, const double* retainedImag,
+                      double* output);
+
+    void executeForwardRowsDiagnostic(const double* input);
+    void executeForwardColumnsDiagnostic();
+    void writeForwardSplitDiagnostic(double* retainedReal,
+                                     double* retainedImag,
+                                     double scale = 1.0);
+    void embedInverseSplitDiagnostic(const double* retainedReal,
+                                     const double* retainedImag);
+    void executeInverseColumnsDiagnostic();
+    void executeInverseRowsDiagnostic(double* output);
+    void executeSchedulerNoop();
+
+    std::size_t activeKxCount() const noexcept;
+    std::size_t fullKxCount() const noexcept;
+    std::size_t rowTransformsPerDirection() const noexcept;
+    std::size_t columnTransformsPerDirection() const noexcept;
+    std::size_t omittedColumnTransformsPerDirection() const noexcept;
+    std::size_t scratchBytes() const noexcept;
+    std::size_t workerScratchBytes() const noexcept;
+    std::size_t planningBytes() const noexcept;
+    std::size_t minimumAlignmentBytes() const noexcept;
+    std::size_t internalWorkers() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    std::size_t totalLogicalWorkers() const noexcept;
+    double otherSetupSeconds() const noexcept;
+    double allocationSeconds() const noexcept;
+    double planningSeconds() const noexcept;
+    FFTWPlanningMode planningMode() const noexcept;
+    bool completeHalfSpectrumMaterialized() const noexcept;
+    std::string libraryIdentity() const;
+    std::string version() const;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 enum class VDSPTransformStrategy {
     inPlace,
     inPlaceExplicitScratch,

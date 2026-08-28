@@ -58,6 +58,7 @@ void list() {
               << "  wvm-packed-split\n"
               << "  pruned-compact-interleaved\n"
               << "  plane-major-fused-split\n"
+              << "  streaming-pruned-compact-split\n"
               << "  plane-major-view\n"
               << "vertical GEMM matrix families:\n"
               << "  common\n"
