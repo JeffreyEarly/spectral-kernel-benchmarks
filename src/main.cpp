@@ -17,6 +17,7 @@ void usage(std::ostream& output) {
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-spectrum-order wvm|plane-major]\n"
+           << "              [--retained-representation interleaved|split|view]\n"
            << "              [--fftw-alignment aligned|unaligned] [--fftw-wisdom cold|generated-import]\n"
            << "              [--fftw-internal-workers N] [--fftw-outer-workers N]\n"
            << "              [--fftw-planning-time-limit SECONDS]\n"
@@ -74,6 +75,10 @@ void list() {
               << "FFTW spectrum orders:\n"
               << "  wvm\n"
               << "  plane-major\n"
+              << "retained representations:\n"
+              << "  interleaved\n"
+              << "  split\n"
+              << "  view\n"
               << "vDSP strategies:\n"
               << "  in-place\n"
               << "  in-place-explicit-scratch\n"
@@ -145,6 +150,7 @@ int main(int argc, char** argv) {
                 else if (key == "--providers") options.providers = requireValue(argc, argv, index);
                 else if (key == "--fftw-layout") options.fftwLayout = requireValue(argc, argv, index);
                 else if (key == "--fftw-spectrum-order") options.fftwSpectrumOrder = requireValue(argc, argv, index);
+                else if (key == "--retained-representation") options.retainedRepresentation = requireValue(argc, argv, index);
                 else if (key == "--fftw-planning") options.fftwPlanning = requireValue(argc, argv, index);
                 else if (key == "--fftw-alignment") options.fftwAlignment = requireValue(argc, argv, index);
                 else if (key == "--fftw-wisdom") options.fftwWisdom = requireValue(argc, argv, index);

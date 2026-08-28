@@ -119,6 +119,8 @@ The next increment adds a no-reorder competitor to the same run. It reads retain
 ```sh
 python3 tools/run_ordering_packing_sweep.py --dry-run --allow-dirty-tree
 python3 tools/run_ordering_packing_sweep.py
+python3 tools/run_retained_horizontal_closeout_sweep.py --phase screen --dry-run --allow-dirty-tree
+python3 tools/run_retained_horizontal_closeout_sweep.py --phase screen
 ```
 
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.

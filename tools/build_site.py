@@ -2178,6 +2178,9 @@ RETAINED_HORIZONTAL_PROVIDER_IDS = {
     "fftw",
     "fftw-full-2d-retained-reference",
     "fftw-partial-column-pruned",
+    "fftw-plane-major-retained-view",
+    "fftw-plane-major-fused-retained-split",
+    "fftw-partial-column-pruned-fused-split",
     "accelerate-vdsp-native-retained",
 }
 
@@ -2186,6 +2189,12 @@ def retained_horizontal_candidate_name(provider: dict) -> str:
     outer = provider.get("scheduling", {}).get(
         "outerWorkers", provider.get("outerWorkers", provider.get("workers", 1))
     )
+    if provider["id"] == "fftw-plane-major-retained-view":
+        return f"FFTW plane-major retained view outer-{outer}"
+    if provider["id"] == "fftw-plane-major-fused-retained-split":
+        return f"FFTW plane-major fused split outer-{outer}"
+    if provider["id"] == "fftw-partial-column-pruned-fused-split":
+        return f"FFTW pruned fused split outer-{outer}"
     if provider["id"] == "fftw-partial-column-pruned":
         return f"FFTW pruned outer-{outer}"
     if provider["id"] == "fftw-full-2d-retained-reference":
@@ -2243,6 +2252,11 @@ def retained_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
             def pair(first: dict | None, second: dict | None) -> str:
                 if first is None or second is None:
                     return '<span class="muted">fused or not measured</span>'
+                if (
+                    first.get("medianSeconds") is None
+                    or second.get("medianSeconds") is None
+                ):
+                    return '<span class="muted">elided</span>'
                 return f"{timing_with_interval(first)} / {timing_with_interval(second)}"
 
             setup = provider["setup"]
@@ -2281,6 +2295,187 @@ def retained_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
     )
 
 
+def retained_horizontal_closeout_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    screen_increment = "retained-horizontal-representation-closeout-screen-v1"
+    reference_increment = "retained-horizontal-representation-closeout-reference-v1"
+    screen = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == screen_increment
+        and bundle.publication["status"] == "preliminary"
+    ]
+    reference = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == reference_increment
+        and bundle.publication["status"] == "reference"
+    ]
+    cohort = reference or screen
+    if not cohort:
+        return ""
+
+    provider_priority = [
+        "fftw-plane-major-retained-view",
+        "fftw-plane-major-fused-retained-split",
+        "fftw-partial-column-pruned-fused-split",
+        "fftw-partial-column-pruned",
+        "fftw",
+    ]
+    records: dict[tuple[str, str, str], list[float]] = {}
+    providers_by_id: dict[str, list[tuple[PublishedBundle, dict]]] = {}
+    for bundle in cohort:
+        provider = next(
+            (
+                item
+                for provider_id in provider_priority
+                for item in bundle.result["providers"]
+                if item["id"] == provider_id
+            ),
+            None,
+        )
+        if provider is None:
+            continue
+        profile = bundle.result["run"]["profile"]
+        providers_by_id.setdefault(provider["id"], []).append((bundle, provider))
+        for direction in ("forward", "inverse"):
+            total = timing(provider, "uninstrumented-total", direction)
+            if total is not None:
+                records.setdefault((provider["id"], profile, direction), []).append(
+                    float(total["medianSeconds"])
+                )
+
+    control_ids = ("fftw", "fftw-partial-column-pruned")
+    candidate_ids = [
+        provider_id for provider_id in provider_priority
+        if provider_id not in control_ids and provider_id in providers_by_id
+    ]
+    profiles = sorted({key[1] for key in records})
+    rows: list[str] = []
+    summaries: list[str] = []
+    for provider_id in candidate_ids:
+        ratios: list[float] = []
+        wins = 0
+        for profile in profiles:
+            for direction in ("forward", "inverse"):
+                key = (provider_id, profile, direction)
+                controls = [
+                    statistics.median(records[(control_id, profile, direction)])
+                    for control_id in control_ids
+                    if (control_id, profile, direction) in records
+                ]
+                if key not in records or not controls:
+                    continue
+                candidate_seconds = statistics.median(records[key])
+                ratio = candidate_seconds / min(controls)
+                ratios.append(ratio)
+                wins += int(ratio < 1.0)
+                provider = providers_by_id[provider_id][0][1]
+                rows.append(
+                    "<tr>"
+                    f'<th scope="row">{escaped(profile)}</th>'
+                    f'<td>{escaped(retained_horizontal_candidate_name(provider))}</td>'
+                    f'<td>{escaped(direction)}</td>'
+                    f'<td class="numeric">{format_ms(candidate_seconds)}</td>'
+                    f'<td class="numeric">{ratio:.3f}×</td>'
+                    f'<td class="numeric">{len(records[key])}</td>'
+                    "</tr>"
+                )
+        if ratios:
+            geometric = math.exp(statistics.mean(math.log(value) for value in ratios))
+            provider = providers_by_id[provider_id][0][1]
+            summaries.append(
+                f"{escaped(retained_horizontal_candidate_name(provider))}: "
+                f"{geometric:.3f}× geometric versus the faster matched control, "
+                f"{wins}/{len(ratios)} workload-direction wins"
+            )
+
+    memory_rows: list[str] = []
+    for provider_id in [*control_ids, *candidate_ids]:
+        if provider_id not in providers_by_id:
+            continue
+        bundle, provider = providers_by_id[provider_id][0]
+        result = bundle.result
+        workload_bytes = result["workload"]["bytes"]
+        if provider_id == "fftw-plane-major-retained-view":
+            boundary_bytes = int(workload_bytes["fullSpectrum"])
+            boundary = "full half-spectrum plus immutable index view"
+            inverse_lifetime = "ready zero-padded input is dead after inverse"
+        else:
+            boundary_bytes = (
+                int(workload_bytes["fullSpectrum"])
+                + int(workload_bytes["retainedSpectrum"])
+            )
+            boundary = "full scratch plus compact retained storage"
+            inverse_lifetime = "caller retained input is preserved"
+        memory_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(retained_horizontal_candidate_name(provider))}</th>'
+            f'<td>{escaped(boundary)}</td>'
+            f'<td class="numeric">{format_bytes(boundary_bytes)}</td>'
+            f'<td>{escaped(provider["executionContract"]["forward"]["adapterPlacement"])}</td>'
+            f'<td>{escaped(inverse_lifetime)}</td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+            "</tr>"
+        )
+
+    normalization_ratios: list[float] = []
+    for _, provider in providers_by_id.get(
+        "fftw-plane-major-fused-retained-split", [],
+    ):
+        fused = next(
+            (
+                item for item in provider["timings"]
+                if item["scope"] == "diagnostic-total"
+                and item["stage"] ==
+                    "retained operator with fused horizontal normalization"
+            ),
+            None,
+        )
+        separate = next(
+            (
+                item for item in provider["timings"]
+                if item["scope"] == "diagnostic-total"
+                and item["stage"] ==
+                    "retained operator with separate horizontal normalization"
+            ),
+            None,
+        )
+        if fused is not None and separate is not None:
+            normalization_ratios.append(
+                float(fused["medianSeconds"]) /
+                float(separate["medianSeconds"])
+            )
+    normalization_note = ""
+    if normalization_ratios:
+        geometric = math.exp(
+            statistics.mean(math.log(value) for value in normalization_ratios)
+        )
+        normalization_note = (
+            f" The fused/separate normalized-total geometric ratio is {geometric:.3f}× "
+            f"across {len(normalization_ratios)} processes. This diagnostic does not "
+            "change the unnormalized retained-operator comparison; setup-time vertical "
+            "matrix scaling remains the zero-horizontal-pass policy for issue #13 to test."
+        )
+
+    status = "reference" if reference else "preliminary screen"
+    return f"""
+      <h3>Representation-boundary close-out</h3>
+      <p>This append-only {status} increment asks whether an immutable plane-major retained view or fused compact split selection can improve on the established plane-major full and partial-column-pruned outer-12 controls. It fixes the logical radial two-thirds operator, six production workloads, Float64 precision, FFTW build and planning effort, worker topology, fixtures, and normalization. It changes only the full/pruned algorithm, retained representation, and whether selection, conversion, zero fill, embedding, and optional normalization are fused.</p>
+      <p>The retained view times no forward gather. Its inverse total starts from a ready disposable zero-padded provider-order spectrum because multidimensional FFTW c2r may destroy input; producing that representation remains work for issue #13, not an elided production cost. Compact split candidates include their fused movement in the complete total. Raw primitives, movement components, complete totals, explicit representation storage, placement/liveness, and correctness remain separate below.{normalization_note}</p>
+      <ul>{''.join(f'<li>{summary}</li>' for summary in summaries)}</ul>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Candidate complete retained median versus the faster matched plane-major full or pruned control. Values below one favor the candidate.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Candidate</th><th scope="col">Direction</th><th scope="col">Median</th><th scope="col">Ratio</th><th scope="col">Processes</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Representation storage excludes real-grid input/output and opaque FFTW planning memory. Placement and inverse lifetime are algorithm contracts, not mathematical requirements.</caption>
+        <thead><tr><th scope="col">Algorithm</th><th scope="col">Boundary storage</th><th scope="col">Bytes</th><th scope="col">Forward placement</th><th scope="col">Inverse lifetime</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{''.join(memory_rows)}</tbody>
+      </table></div>
+    """
+
+
 def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
     reference: dict[tuple[str, str, str], list[float]] = {}
     preliminary: dict[str, list[dict]] = {}
@@ -2299,10 +2494,17 @@ def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
                 reference.setdefault((profile, name, "inverse"), []).append(
                     float(total_inverse["medianSeconds"])
                 )
-            elif bundle.publication["status"] == "preliminary":
+            elif (
+                bundle.publication["status"] == "preliminary"
+                and bundle.publication.get("incrementId") ==
+                    "retained-horizontal-finalist-screen-v1"
+            ):
                 preliminary.setdefault(profile, []).append(provider)
 
     sections: list[str] = []
+    closeout = retained_horizontal_closeout_synthesis(bundles)
+    if closeout:
+        sections.append(closeout)
     if reference:
         profiles = sorted({key[0] for key in reference})
         names = sorted({key[1] for key in reference})

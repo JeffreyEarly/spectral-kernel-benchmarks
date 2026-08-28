@@ -219,15 +219,36 @@ public:
         executor_->run(&gatherForwardShard, &context);
     }
 
+    void gatherForwardSplit(double* retainedReal, double* retainedImag,
+                            double scale) {
+        SplitRetainedContext context{
+            this, retainedReal, retainedImag, nullptr, nullptr, scale};
+        executor_->run(&gatherForwardSplitShard, &context);
+    }
+
     void forward(const double* input, Complex* retainedSpectrum) {
         executeForwardRows(input);
         executeForwardColumns();
         gatherForward(retainedSpectrum);
     }
 
+    void forwardSplit(const double* input, double* retainedReal,
+                      double* retainedImag, double scale) {
+        executeForwardRows(input);
+        executeForwardColumns();
+        gatherForwardSplit(retainedReal, retainedImag, scale);
+    }
+
     void embedInverse(const Complex* retainedSpectrum) {
         ExecuteContext context{this, nullptr, nullptr, retainedSpectrum, nullptr};
         executor_->run(&embedInverseShard, &context);
+    }
+
+    void embedInverseSplit(const double* retainedReal,
+                           const double* retainedImag) {
+        SplitRetainedContext context{
+            this, nullptr, nullptr, retainedReal, retainedImag, 1.0};
+        executor_->run(&embedInverseSplitShard, &context);
     }
 
     void executeInverseColumns() {
@@ -242,6 +263,13 @@ public:
 
     void inverse(const Complex* retainedSpectrum, double* output) {
         embedInverse(retainedSpectrum);
+        executeInverseColumns();
+        executeInverseRows(output);
+    }
+
+    void inverseSplit(const double* retainedReal, const double* retainedImag,
+                      double* output) {
+        embedInverseSplit(retainedReal, retainedImag);
         executeInverseColumns();
         executeInverseRows(output);
     }
@@ -272,6 +300,15 @@ private:
         double* realOutput;
         const Complex* retainedInput;
         Complex* retainedOutput;
+    };
+
+    struct SplitRetainedContext {
+        Impl* provider;
+        double* retainedRealOutput;
+        double* retainedImagOutput;
+        const double* retainedRealInput;
+        const double* retainedImagInput;
+        double scale;
     };
 
     void createPlans(unsigned flags) {
@@ -379,6 +416,29 @@ private:
         }
     }
 
+    static void gatherForwardSplitShard(void* rawContext,
+                                        std::size_t shardIndex) {
+        auto& context = *static_cast<SplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto spectrumPlane = provider.workload_.halfRows();
+        for (std::size_t modeIndex = 0; modeIndex < provider.modes_.size(); ++modeIndex) {
+            const auto& mode = provider.modes_[modeIndex];
+            const auto frequency = mode.storedKx +
+                provider.workload_.nxHalf() * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                auto value = provider.intermediate_[
+                    plane * spectrumPlane + frequency];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                const auto retained = plane + planes * modeIndex;
+                context.retainedRealOutput[retained] = context.scale * value.real;
+                context.retainedImagOutput[retained] = context.scale * value.imag;
+            }
+        }
+    }
+
     static void embedInverseShard(void* rawContext, std::size_t shardIndex) {
         auto& context = *static_cast<ExecuteContext*>(rawContext);
         auto& provider = *context.provider;
@@ -399,6 +459,37 @@ private:
                     2 * mode.storedKy != provider.workload_.ny) {
                     const auto conjugateKy =
                         (provider.workload_.ny - mode.storedKy) % provider.workload_.ny;
+                    scratch[nxHalf * conjugateKy] = conjugate(stored);
+                }
+            }
+        }
+    }
+
+    static void embedInverseSplitShard(void* rawContext,
+                                       std::size_t shardIndex) {
+        auto& context = *static_cast<SplitRetainedContext*>(rawContext);
+        auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        const auto spectrumPlane = provider.workload_.halfRows();
+        for (std::size_t plane = shard.beginPlane;
+             plane < shard.beginPlane + shard.planeCount; ++plane) {
+            auto* scratch = provider.intermediate_ + plane * spectrumPlane;
+            std::fill_n(scratch, spectrumPlane, Complex{});
+            for (std::size_t modeIndex = 0; modeIndex < provider.modes_.size(); ++modeIndex) {
+                const auto& mode = provider.modes_[modeIndex];
+                const auto retained = plane + planes * modeIndex;
+                Complex stored{
+                    context.retainedRealInput[retained],
+                    context.retainedImagInput[retained]};
+                if (mode.conjugatesStoredValue) stored = conjugate(stored);
+                scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != provider.workload_.ny) {
+                    const auto conjugateKy =
+                        (provider.workload_.ny - mode.storedKy) %
+                        provider.workload_.ny;
                     scratch[nxHalf * conjugateKy] = conjugate(stored);
                 }
             }
@@ -448,14 +539,31 @@ FFTWPrunedProvider& FFTWPrunedProvider::operator=(FFTWPrunedProvider&&) noexcept
 void FFTWPrunedProvider::executeForwardRows(const double* input) { impl_->executeForwardRows(input); }
 void FFTWPrunedProvider::executeForwardColumns() { impl_->executeForwardColumns(); }
 void FFTWPrunedProvider::gatherForward(Complex* retainedSpectrum) { impl_->gatherForward(retainedSpectrum); }
+void FFTWPrunedProvider::gatherForwardSplit(
+    double* retainedReal, double* retainedImag, double scale) {
+    impl_->gatherForwardSplit(retainedReal, retainedImag, scale);
+}
 void FFTWPrunedProvider::forward(const double* input, Complex* retainedSpectrum) {
     impl_->forward(input, retainedSpectrum);
 }
+void FFTWPrunedProvider::forwardSplit(
+    const double* input, double* retainedReal, double* retainedImag,
+    double scale) {
+    impl_->forwardSplit(input, retainedReal, retainedImag, scale);
+}
 void FFTWPrunedProvider::embedInverse(const Complex* retainedSpectrum) { impl_->embedInverse(retainedSpectrum); }
+void FFTWPrunedProvider::embedInverseSplit(
+    const double* retainedReal, const double* retainedImag) {
+    impl_->embedInverseSplit(retainedReal, retainedImag);
+}
 void FFTWPrunedProvider::executeInverseColumns() { impl_->executeInverseColumns(); }
 void FFTWPrunedProvider::executeInverseRows(double* output) { impl_->executeInverseRows(output); }
 void FFTWPrunedProvider::inverse(const Complex* retainedSpectrum, double* output) {
     impl_->inverse(retainedSpectrum, output);
+}
+void FFTWPrunedProvider::inverseSplit(
+    const double* retainedReal, const double* retainedImag, double* output) {
+    impl_->inverseSplit(retainedReal, retainedImag, output);
 }
 void FFTWPrunedProvider::executeSchedulerNoop() { impl_->executeSchedulerNoop(); }
 

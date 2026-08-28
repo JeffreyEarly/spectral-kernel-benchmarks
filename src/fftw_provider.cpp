@@ -328,6 +328,37 @@ public:
         executor_->run(&embedRetainedShard, &context);
     }
 
+    void gatherRetainedToSplitOuter(const std::vector<RetainedMode>& modes,
+                                    const Complex* spectrum,
+                                    double* retainedReal, double* retainedImag,
+                                    double scale) {
+        FusedSplitRetainedContext context{
+            this, &modes, spectrum, retainedReal, retainedImag,
+            nullptr, nullptr, nullptr, scale};
+        executor_->run(&gatherRetainedToSplitShard, &context);
+    }
+
+    void embedRetainedFromSplitOuter(const std::vector<RetainedMode>& modes,
+                                     const double* retainedReal,
+                                     const double* retainedImag,
+                                     Complex* spectrum) {
+        RetainedContext zeroContext{this, &modes, nullptr, nullptr, nullptr, spectrum};
+        executor_->run(&zeroSpectrumShard, &zeroContext);
+        FusedSplitRetainedContext context{
+            this, &modes, nullptr, nullptr, nullptr,
+            retainedReal, retainedImag, spectrum, 1.0};
+        executor_->run(&embedRetainedFromSplitShard, &context);
+    }
+
+    void scaleRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                 double* retainedReal, double* retainedImag,
+                                 double scale) {
+        FusedSplitRetainedContext context{
+            this, &modes, nullptr, retainedReal, retainedImag,
+            nullptr, nullptr, nullptr, scale};
+        executor_->run(&scaleRetainedSplitShard, &context);
+    }
+
     void forwardSplit(const double* input, double* outputReal, double* outputImag) {
         requireLayout(FFTWDataLayout::split);
         validateForwardSplitAlignment(input, outputReal, outputImag);
@@ -414,6 +445,18 @@ private:
         const double* retainedImagInput;
         double* spectrumRealOutput;
         double* spectrumImagOutput;
+    };
+
+    struct FusedSplitRetainedContext {
+        Impl* provider;
+        const std::vector<RetainedMode>* modes;
+        const Complex* spectrumInput;
+        double* retainedRealOutput;
+        double* retainedImagOutput;
+        const double* retainedRealInput;
+        const double* retainedImagInput;
+        Complex* spectrumOutput;
+        double scale;
     };
 
     std::size_t spectrumOffset(std::size_t plane, std::size_t frequency = 0) const noexcept {
@@ -655,6 +698,77 @@ private:
         }
     }
 
+    static void gatherRetainedToSplitShard(void* rawContext,
+                                           std::size_t shardIndex) {
+        auto& context = *static_cast<FusedSplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                auto value = context.spectrumInput[
+                    provider.spectrumOffset(plane, frequency)];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                const auto retained = plane + planes * modeIndex;
+                context.retainedRealOutput[retained] = context.scale * value.real;
+                context.retainedImagOutput[retained] = context.scale * value.imag;
+            }
+        }
+    }
+
+    static void embedRetainedFromSplitShard(void* rawContext,
+                                            std::size_t shardIndex) {
+        auto& context = *static_cast<FusedSplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                const auto retained = plane + planes * modeIndex;
+                Complex stored{
+                    context.retainedRealInput[retained],
+                    context.retainedImagInput[retained]};
+                if (mode.conjugatesStoredValue) stored = conjugate(stored);
+                context.spectrumOutput[
+                    provider.spectrumOffset(plane, frequency)] = stored;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != provider.workload_.ny) {
+                    const auto conjugateKy =
+                        (provider.workload_.ny - mode.storedKy) %
+                        provider.workload_.ny;
+                    const auto conjugateFrequency = nxHalf * conjugateKy;
+                    context.spectrumOutput[
+                        provider.spectrumOffset(plane, conjugateFrequency)] =
+                        conjugate(stored);
+                }
+            }
+        }
+    }
+
+    static void scaleRetainedSplitShard(void* rawContext,
+                                        std::size_t shardIndex) {
+        auto& context = *static_cast<FusedSplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                const auto retained = plane + planes * modeIndex;
+                context.retainedRealOutput[retained] *= context.scale;
+                context.retainedImagOutput[retained] *= context.scale;
+            }
+        }
+    }
+
     static void gatherRetainedSplitShard(void* rawContext, std::size_t shardIndex) {
         auto& context = *static_cast<SplitRetainedContext*>(rawContext);
         const auto& provider = *context.provider;
@@ -824,6 +938,24 @@ void FFTWProvider::embedRetainedOuter(const std::vector<RetainedMode>& modes,
                                       const Complex* retainedSpectrum,
                                       Complex* wvmSpectrum) {
     impl_->embedRetainedOuter(modes, retainedSpectrum, wvmSpectrum);
+}
+void FFTWProvider::gatherRetainedToSplitOuter(
+    const std::vector<RetainedMode>& modes, const Complex* spectrum,
+    double* retainedReal, double* retainedImag, double scale) {
+    impl_->gatherRetainedToSplitOuter(
+        modes, spectrum, retainedReal, retainedImag, scale);
+}
+void FFTWProvider::embedRetainedFromSplitOuter(
+    const std::vector<RetainedMode>& modes, const double* retainedReal,
+    const double* retainedImag, Complex* spectrum) {
+    impl_->embedRetainedFromSplitOuter(
+        modes, retainedReal, retainedImag, spectrum);
+}
+void FFTWProvider::scaleRetainedSplitOuter(
+    const std::vector<RetainedMode>& modes, double* retainedReal,
+    double* retainedImag, double scale) {
+    impl_->scaleRetainedSplitOuter(
+        modes, retainedReal, retainedImag, scale);
 }
 void FFTWProvider::forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag) {
     impl_->forwardSplit(input, wvmSpectrumReal, wvmSpectrumImag);

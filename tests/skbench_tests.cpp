@@ -96,6 +96,76 @@ void requireAllocationFreePrunedExecution(
             "partially pruned FFTW steady-state execution allocated memory");
 }
 
+void requireAllocationFreeFusedRetainedSplitExecution(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 43) / 43.0;
+    }
+
+    skbench::FFTWProvider provider(workload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        outerWorkers,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::planeMajor});
+    const auto execute = [&] {
+        provider.forward(input.get(), spectrum.get());
+        provider.gatherRetainedToSplitOuter(
+            modes, spectrum.get(), retainedReal.get(), retainedImag.get());
+        provider.scaleRetainedSplitOuter(
+            modes, retainedReal.get(), retainedImag.get(), 0.5);
+        provider.embedRetainedFromSplitOuter(
+            modes, retainedReal.get(), retainedImag.get(), spectrum.get());
+        provider.inverse(spectrum.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "fused retained-split FFTW execution allocated memory");
+}
+
+void requireAllocationFreePrunedSplitExecution(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 47) / 47.0;
+    }
+
+    skbench::FFTWPrunedProvider provider(
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1, outerWorkers);
+    const auto execute = [&] {
+        provider.forwardSplit(
+            input.get(), retainedReal.get(), retainedImag.get(), 0.5);
+        provider.inverseSplit(
+            retainedReal.get(), retainedImag.get(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "pruned retained-split FFTW execution allocated memory");
+}
+
 void requireAllocationFreeRetainedOuterExecution(
     const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
     std::size_t outerWorkers,
@@ -500,6 +570,101 @@ int main() {
                     "pruned FFTW inverse modified caller retained input");
         }
 
+        skbench::FFTWProvider fusedSplitProvider(workload, {
+            skbench::FFTWPlanningMode::estimate,
+            skbench::FFTWAlignmentStrategy::unaligned,
+            skbench::FFTWWisdomStrategy::cold,
+            1,
+            2,
+            0.0,
+            skbench::FFTWDataLayout::interleaved,
+            skbench::FFTWSpectrumOrder::planeMajor});
+        std::vector<skbench::Complex> planeMajorSpectrum(workload.spectrumElements());
+        std::vector<double> retainedOracleReal(prunedRetainedOracle.size());
+        std::vector<double> retainedOracleImag(prunedRetainedOracle.size());
+        std::vector<double> retainedSplitReal(prunedRetainedOracle.size());
+        std::vector<double> retainedSplitImag(prunedRetainedOracle.size());
+        std::vector<double> retainedNormalizedReal(prunedRetainedOracle.size());
+        std::vector<double> retainedNormalizedImag(prunedRetainedOracle.size());
+        for (std::size_t fixtureIndex = 0; fixtureIndex < 5; ++fixtureIndex) {
+            const auto fixture = static_cast<skbench::FixtureKind>(fixtureIndex);
+            const auto fixtureInput = skbench::makeFixture(
+                workload, fixture, 900 + fixtureIndex);
+            skbench::directR2C(
+                workload, fixtureInput.data(), prunedOracleSpectrum.data());
+            skbench::gatherRetained(
+                workload, prunedModes, prunedOracleSpectrum.data(),
+                prunedRetainedOracle.data());
+            skbench::interleavedToSplit(
+                prunedRetainedOracle.size(), prunedRetainedOracle.data(),
+                retainedOracleReal.data(), retainedOracleImag.data());
+
+            fusedSplitProvider.forward(
+                fixtureInput.data(), planeMajorSpectrum.data());
+            fusedSplitProvider.gatherRetainedToSplitOuter(
+                prunedModes, planeMajorSpectrum.data(), retainedSplitReal.data(),
+                retainedSplitImag.data());
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedSplitReal.data(), retainedOracleReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedSplitImag.data(), retainedOracleImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "fused retained-split forward versus mode-keyed oracle");
+
+            constexpr double scale = 0.25;
+            fusedSplitProvider.gatherRetainedToSplitOuter(
+                prunedModes, planeMajorSpectrum.data(), retainedNormalizedReal.data(),
+                retainedNormalizedImag.data(), scale);
+            for (std::size_t index = 0; index < retainedSplitReal.size(); ++index) {
+                retainedSplitReal[index] *= scale;
+                retainedSplitImag[index] *= scale;
+            }
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedNormalizedReal.data(), retainedSplitReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedNormalizedImag.data(), retainedSplitImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "fused retained-split normalization versus separate scale");
+
+            fusedSplitProvider.embedRetainedFromSplitOuter(
+                prunedModes, retainedOracleReal.data(), retainedOracleImag.data(),
+                planeMajorSpectrum.data());
+            fusedSplitProvider.inverse(
+                planeMajorSpectrum.data(), prunedInverseActual.data());
+            skbench::embedRetained(
+                workload, prunedModes, prunedRetainedOracle.data(),
+                prunedEmbeddedSpectrum.data());
+            skbench::directC2R(
+                workload, prunedEmbeddedSpectrum.data(), prunedInverseOracle.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "fused retained-split inverse versus mode-keyed oracle");
+
+            prunedProvider.forwardSplit(
+                fixtureInput.data(), retainedSplitReal.data(),
+                retainedSplitImag.data());
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedSplitReal.data(), retainedOracleReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedSplitImag.data(), retainedOracleImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "pruned retained-split forward versus mode-keyed oracle");
+            prunedProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "pruned retained-split inverse versus mode-keyed oracle");
+        }
+
         skbench::RunOptions prunedOptions;
         prunedOptions.kernel = "pruned-horizontal";
         prunedOptions.profile = "smoke";
@@ -532,6 +697,15 @@ int main() {
                 require(correctness.passed, "pruned FFTW benchmark correctness");
             }
         }
+
+        auto prunedSplitOptions = prunedOptions;
+        prunedSplitOptions.retainedRepresentation = "split";
+        const auto prunedSplitReport = skbench::runBenchmark(prunedSplitOptions);
+        require(prunedSplitReport.status == "passed" &&
+                    prunedSplitReport.providers.size() == 2 &&
+                    prunedSplitReport.providers[1].id ==
+                        "fftw-partial-column-pruned-fused-split",
+                "pruned retained-split smoke benchmark");
 
         skbench::RunOptions fftwOptions;
         fftwOptions.profile = "smoke";
@@ -622,6 +796,66 @@ int main() {
                 require(metric.passed, "plane-major FFTW correctness");
             }
         }
+
+        auto retainedViewOptions = planeMajorOptions;
+        retainedViewOptions.fftwLayout = "interleaved";
+        retainedViewOptions.retainedRepresentation = "view";
+        const auto retainedViewReport = skbench::runBenchmark(retainedViewOptions);
+        require(retainedViewReport.status == "passed" &&
+                    retainedViewReport.providers.size() == 1 &&
+                    retainedViewReport.providers[0].id ==
+                        "fftw-plane-major-retained-view",
+                "persistent retained-view smoke benchmark");
+        require(!retainedViewReport.providers[0]
+                     .execution.inverse.adapterPreservesCallerInput &&
+                    !retainedViewReport.providers[0]
+                         .execution.inverse.requiresPreservationCopyForRepeatedExecution,
+                "persistent retained-view dead inverse-input contract");
+        bool foundElidedViewRetention = false;
+        for (const auto& timing : retainedViewReport.providers[0].timings) {
+            if (timing.stage == "logical retained index view" &&
+                timing.direction == "forward") {
+                foundElidedViewRetention =
+                    timing.state == skbench::StageState::elided &&
+                    timing.seconds.empty();
+            }
+        }
+        require(foundElidedViewRetention,
+                "persistent retained-view elided retention timing");
+
+        auto fusedRetainedSplitOptions = retainedViewOptions;
+        fusedRetainedSplitOptions.retainedRepresentation = "split";
+        const auto fusedRetainedSplitReport =
+            skbench::runBenchmark(fusedRetainedSplitOptions);
+        require(fusedRetainedSplitReport.status == "passed" &&
+                    fusedRetainedSplitReport.providers.size() == 1 &&
+                    fusedRetainedSplitReport.providers[0].id ==
+                        "fftw-plane-major-fused-retained-split",
+                "fused retained-split smoke benchmark");
+        require(fusedRetainedSplitReport.providers[0].correctness.size() == 9,
+                "fused retained-split correctness metric count");
+        bool foundFusedConversion = false;
+        bool foundNormalizationDiagnostic = false;
+        for (const auto& timing : fusedRetainedSplitReport.providers[0].timings) {
+            if (timing.stage ==
+                    "fused horizontal retention and split conversion" &&
+                timing.direction == "forward") {
+                foundFusedConversion =
+                    timing.state == skbench::StageState::executed &&
+                    timing.seconds.size() == 2;
+            }
+            if (timing.scope == "diagnostic-total" &&
+                timing.stage ==
+                    "retained operator with fused horizontal normalization") {
+                foundNormalizationDiagnostic =
+                    timing.state == skbench::StageState::executed &&
+                    timing.seconds.size() == 2;
+            }
+        }
+        require(foundFusedConversion,
+                "fused retained-split conversion timing");
+        require(foundNormalizationDiagnostic,
+                "fused retained-split normalization diagnostic timing");
 
         const auto splitInput = skbench::makeFixture(workload, skbench::FixtureKind::random, 441);
         auto splitStrategy = skbench::FFTWStrategy{
@@ -727,9 +961,12 @@ int main() {
                 skbench::FFTWDataLayout::split});
             requireAllocationFreePrunedExecution(workload, prunedModes, 1);
             requireAllocationFreePrunedExecution(workload, prunedModes, 2);
+            requireAllocationFreePrunedSplitExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
+            requireAllocationFreeFusedRetainedSplitExecution(
+                workload, prunedModes, 2);
             requireAllocationFreeSplitRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
         }

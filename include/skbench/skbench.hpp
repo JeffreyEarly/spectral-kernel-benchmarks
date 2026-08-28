@@ -303,6 +303,16 @@ public:
                              const Complex* wvmSpectrum, Complex* retainedSpectrum);
     void embedRetainedOuter(const std::vector<RetainedMode>& modes,
                             const Complex* retainedSpectrum, Complex* wvmSpectrum);
+    void gatherRetainedToSplitOuter(const std::vector<RetainedMode>& modes,
+                                    const Complex* spectrum,
+                                    double* retainedReal, double* retainedImag,
+                                    double scale = 1.0);
+    void embedRetainedFromSplitOuter(const std::vector<RetainedMode>& modes,
+                                    const double* retainedReal, const double* retainedImag,
+                                    Complex* spectrum);
+    void scaleRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                 double* retainedReal, double* retainedImag,
+                                 double scale);
     void forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag);
     void inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output);
     void gatherRetainedSplitOuter(const std::vector<RetainedMode>& modes,
@@ -350,11 +360,18 @@ public:
     void executeForwardRows(const double* input);
     void executeForwardColumns();
     void gatherForward(Complex* retainedSpectrum);
+    void gatherForwardSplit(double* retainedReal, double* retainedImag,
+                            double scale = 1.0);
     void forward(const double* input, Complex* retainedSpectrum);
+    void forwardSplit(const double* input, double* retainedReal,
+                      double* retainedImag, double scale = 1.0);
     void embedInverse(const Complex* retainedSpectrum);
+    void embedInverseSplit(const double* retainedReal, const double* retainedImag);
     void executeInverseColumns();
     void executeInverseRows(double* output);
     void inverse(const Complex* retainedSpectrum, double* output);
+    void inverseSplit(const double* retainedReal, const double* retainedImag,
+                      double* output);
     void executeSchedulerNoop();
 
     std::size_t activeKxCount() const noexcept;
@@ -625,6 +642,7 @@ struct RunOptions {
     std::string fftwPlanning = "measure";
     std::string fftwAlignment = "unaligned";
     std::string fftwWisdom = "cold";
+    std::string retainedRepresentation = "interleaved";
     std::size_t fftwInternalWorkers = 0;
     std::size_t fftwOuterWorkers = 1;
     double fftwPlanningTimeLimitSeconds = 0.0;
