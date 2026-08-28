@@ -284,7 +284,7 @@ def analyze(results: list[tuple[Candidate, int, dict]]) -> dict:
         "geometricObservedHighWaterCandidateToBaseline": geometric_observed,
         "stratifiedPairedBootstrap95": confidence,
         "profiles": profiles,
-        "referenceGate": {
+        "adoptionGate": {
             "geometricTimeRatioAtMost": 0.90,
             "maximumProfileTimeRatioAtMost": 1.03,
             "geometricAlgorithmResidentRatioAtMost": 0.80,
@@ -296,7 +296,7 @@ def analyze(results: list[tuple[Candidate, int, dict]]) -> dict:
             "placementPassed": all_placements_valid,
             "zeroSteadyStateAllocationRequired": True,
             "allocationVerification": "skbench-unit macOS allocator interposer",
-            "singleUniformPolicyPassed": passed,
+            "adoptionCandidatePassed": passed,
             "sizeDependentDispatchAllowed": False,
             "crossMacReplicationStillRequired": True,
         },
@@ -456,7 +456,7 @@ def main() -> int:
             "any campaign process; candidate plans, buffers, outputs, and worker "
             "pools are persistent."
         ),
-        "referenceGate": (
+        "adoptionGate": (
             "Require a complete matched three-round matrix, correctness within 1e-12, "
             "valid placement contracts, at least 10% geometric time improvement, "
             "no profile regression above 3%, a stratified paired-bootstrap 95% "

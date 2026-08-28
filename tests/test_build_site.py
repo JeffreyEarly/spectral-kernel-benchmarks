@@ -263,7 +263,8 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Rotated finalist-only M4 reference-depth campaign", issue_17_html)
             self.assertIn("FFTW++ is 0.902× explicit FFTW geometrically", issue_17_html)
             self.assertIn("0.900×–0.917×", issue_17_html)
-            self.assertIn("The reference gate does not pass", issue_17_html)
+            self.assertIn("campaign is reference-quality", issue_17_html)
+            self.assertIn("does not meet the M4 adoption threshold", issue_17_html)
             self.assertIn("reference-depth conclusion", issue_17_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"

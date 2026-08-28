@@ -92,31 +92,31 @@ class DealiasedConvolutionWvmReferenceTests(unittest.TestCase):
 
     def test_reference_gate_uses_paired_confidence_and_memory(self) -> None:
         analysis = reference.analyze(self.results())
-        gate = analysis["referenceGate"]
+        gate = analysis["adoptionGate"]
         self.assertTrue(analysis["completeProductionMatrix"])
         self.assertTrue(analysis["allPlacementContractsValid"])
         self.assertTrue(gate["improvementPassed"])
         self.assertTrue(gate["regressionPassed"])
         self.assertTrue(gate["confidenceExcludesTie"])
         self.assertTrue(gate["memoryReductionPassed"])
-        self.assertTrue(gate["singleUniformPolicyPassed"])
+        self.assertTrue(gate["adoptionCandidatePassed"])
         self.assertFalse(gate["sizeDependentDispatchAllowed"])
         self.assertEqual(3, len(analysis["profiles"]))
 
     def test_memory_gate_is_independent_of_speed(self) -> None:
         gate = reference.analyze(
             self.results(time_ratio=0.85, memory_ratio=0.85)
-        )["referenceGate"]
+        )["adoptionGate"]
         self.assertTrue(gate["improvementPassed"])
         self.assertFalse(gate["memoryReductionPassed"])
-        self.assertFalse(gate["singleUniformPolicyPassed"])
+        self.assertFalse(gate["adoptionCandidatePassed"])
 
     def test_improvement_gate_rejects_small_win(self) -> None:
         gate = reference.analyze(
             self.results(time_ratio=0.92, memory_ratio=0.65)
-        )["referenceGate"]
+        )["adoptionGate"]
         self.assertFalse(gate["improvementPassed"])
-        self.assertFalse(gate["singleUniformPolicyPassed"])
+        self.assertFalse(gate["adoptionCandidatePassed"])
 
     def test_command_is_finalist_only_and_reference_depth(self) -> None:
         candidate = reference.reference_candidates()[1]
@@ -144,7 +144,7 @@ class DealiasedConvolutionWvmReferenceTests(unittest.TestCase):
         synthesis = build_site.dealiased_convolution_reference_synthesis(bundles)
         self.assertIn("Rotated finalist-only M4 reference-depth campaign", synthesis)
         self.assertIn("FFTW++ is 0.850× explicit FFTW", synthesis)
-        self.assertIn("passes the M4 horizontal-kernel reference gate", synthesis)
+        self.assertIn("passes the M4 adoption gate", synthesis)
         self.assertIn("complete nonlinear flux", synthesis)
 
 

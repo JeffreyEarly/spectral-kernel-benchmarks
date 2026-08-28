@@ -4332,16 +4332,16 @@ def dealiased_convolution_reference_synthesis(
     lower, upper = spectral_pipeline_bootstrap(profile_ratios)
     maximum_ratio = max(summary_ratios)
     maximum_error = max(errors) if errors else math.inf
-    gate_passed = bool(
+    adoption_passed = bool(
         geometric_time <= 0.90 and maximum_ratio <= 1.03
         and upper < 1.0 and geometric_resident <= 0.80
         and maximum_error <= 1.0e-12
     )
     conclusion = (
-        "The fixed FFTW++ four-target policy passes the M4 horizontal-kernel "
-        "reference gate. Full-flux integration and cross-Mac replication remain required."
-        if gate_passed else
-        "The reference gate does not pass; the preliminary FFTW++ result is not promoted."
+        "The campaign is reference-quality, and the fixed FFTW++ four-target policy "
+        "passes the M4 adoption gate. Full-flux integration and cross-Mac replication remain required."
+        if adoption_passed else
+        "The campaign is reference-quality, but the fixed FFTW++ candidate does not meet the M4 adoption threshold."
     )
     return f"""
       <h3>Rotated finalist-only M4 reference-depth campaign</h3>
