@@ -6,8 +6,10 @@ include(CTest)
 find_package(Threads REQUIRED)
 
 option(SKBENCH_BUILD_TESTS "Build the focused correctness test executable." ON)
+option(SKBENCH_ENABLE_FFTWPP "Build the non-blocking FFTW++ dealiased-convolution screen." OFF)
 set(SKBENCH_FFTW_ROOT "" CACHE PATH "Root of a pinned FFTW 3.3.11 installation. Leave empty to build the pinned provider.")
 set(SKBENCH_FFTW_BUILD_JOBS "12" CACHE STRING "Parallel jobs used when building the pinned FFTW provider.")
+set(SKBENCH_FFTWPP_SOURCE_DIR "" CACHE PATH "Optional checkout of FFTW++ commit e685733aba768d77e9234ca02092632f7ccb4c86.")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SkbenchFFTW)
@@ -35,6 +37,7 @@ endif()
 
 add_library(skbench_core
     src/benchmark.cpp
+    src/dealiased_convolution.cpp
     src/fftw_provider.cpp
     src/pruned_fftw_provider.cpp
     src/json.cpp
@@ -51,6 +54,36 @@ target_compile_definitions(skbench_core PRIVATE
     SKBENCH_GIT_COMMIT="${SKBENCH_GIT_COMMIT}"
     SKBENCH_GIT_DIRTY=${SKBENCH_GIT_DIRTY}
     SKBENCH_BUILD_FLAGS="$<$<CONFIG:Release>:-O3\ -mcpu=native>")
+
+if(SKBENCH_ENABLE_FFTWPP)
+    include(FetchContent)
+    if(SKBENCH_FFTWPP_SOURCE_DIR)
+        set(skbench_fftwpp_source_SOURCE_DIR "${SKBENCH_FFTWPP_SOURCE_DIR}")
+    else()
+        FetchContent_Declare(skbench_fftwpp_source
+            GIT_REPOSITORY https://github.com/dealias/fftwpp.git
+            GIT_TAG e685733aba768d77e9234ca02092632f7ccb4c86
+            GIT_SHALLOW FALSE)
+        FetchContent_GetProperties(skbench_fftwpp_source)
+        if(NOT skbench_fftwpp_source_POPULATED)
+            FetchContent_Populate(skbench_fftwpp_source)
+        endif()
+    endif()
+    add_library(skbench_fftwpp STATIC
+        "${skbench_fftwpp_source_SOURCE_DIR}/convolve.cc"
+        "${skbench_fftwpp_source_SOURCE_DIR}/fftw++.cc"
+        "${skbench_fftwpp_source_SOURCE_DIR}/parallel.cc")
+    target_compile_features(skbench_fftwpp PUBLIC cxx_std_11)
+    target_include_directories(skbench_fftwpp SYSTEM PUBLIC "${skbench_fftwpp_source_SOURCE_DIR}")
+    target_compile_definitions(skbench_fftwpp PUBLIC FFTWPP_SINGLE_THREAD=1)
+    target_link_libraries(skbench_fftwpp PUBLIC skbench_fftw)
+    target_link_libraries(skbench_core PRIVATE skbench_fftwpp)
+    target_compile_definitions(skbench_core PRIVATE
+        SKBENCH_HAVE_FFTWPP=1
+        SKBENCH_FFTWPP_COMMIT="e685733aba768d77e9234ca02092632f7ccb4c86")
+else()
+    target_compile_definitions(skbench_core PRIVATE SKBENCH_HAVE_FFTWPP=0)
+endif()
 
 if(APPLE)
     find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
@@ -94,6 +127,11 @@ if(SKBENCH_BUILD_TESTS)
     add_test(NAME skbench-cli-spectral-pipeline COMMAND skbench run --kernel spectral-pipeline --boundary-policy plane-major-fused-split --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-streaming-pruned-pipeline COMMAND skbench run --kernel spectral-pipeline --boundary-policy streaming-pruned-compact-split --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-streaming-pruned-tiled-pipeline COMMAND skbench run --kernel spectral-pipeline --boundary-policy streaming-pruned-compact-split --streaming-tile-width 8 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
+    if(SKBENCH_ENABLE_FFTWPP)
+        add_test(NAME skbench-cli-dealiased-convolution-p4 COMMAND skbench run --kernel dealiased-convolution --profile smoke --convolution-products 4 --warmups 1 --samples 2)
+        add_test(NAME skbench-cli-dealiased-convolution-p12 COMMAND skbench run --kernel dealiased-convolution --profile smoke --convolution-products 12 --warmups 1 --samples 2)
+        set_tests_properties(skbench-cli-dealiased-convolution-p4 skbench-cli-dealiased-convolution-p12 PROPERTIES TIMEOUT 120)
+    endif()
     set_tests_properties(skbench-cli-validate PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-pruned-horizontal PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-pruned-horizontal-split PROPERTIES TIMEOUT 120)

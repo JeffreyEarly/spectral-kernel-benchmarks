@@ -77,6 +77,8 @@ def provider_name(provider: dict) -> str:
         "pipeline-wvm-direct": "WVM direct/no-reorder pipeline",
         "pipeline-plane-major-fused-split": "Plane-major fused-split pipeline",
         "pipeline-streaming-pruned-compact-split": "Streaming pruned compact-split pipeline",
+        "fftw-explicit-dealiased-convolution": "Explicit FFTW dealiased convolution",
+        "fftwpp-hybrid-hermitian-convolution": "FFTW++ implicit/hybrid Hermitian convolution",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -4205,6 +4207,84 @@ def streaming_pruned_reference_synthesis(
     """
 
 
+def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    projections: list[str] = []
+    ordered = sorted(
+        bundles,
+        key=lambda item: (
+            item.result["workload"]["Nx"],
+            item.result["providers"][0]["algorithmId"],
+        ),
+    )
+    for bundle in ordered:
+        result = bundle.result
+        providers = {provider["id"]: provider for provider in result["providers"]}
+        baseline = providers.get("fftw-explicit-dealiased-convolution")
+        candidate = providers.get("fftwpp-hybrid-hermitian-convolution")
+        if baseline is None or candidate is None:
+            continue
+        baseline_total = stage_timing(
+            baseline, "uninstrumented-total",
+            "dealiased four-field convolution", "forward",
+        )
+        candidate_total = stage_timing(
+            candidate, "uninstrumented-total",
+            "dealiased four-field convolution", "forward",
+        )
+        if baseline_total is None or candidate_total is None:
+            continue
+        products = int(candidate["algorithmId"].rsplit("p", 1)[1])
+        baseline_memory = int(baseline["memory"]["algorithmResidentBytes"])
+        candidate_memory = int(candidate["memory"]["algorithmResidentBytes"])
+        rows.append(
+            "<tr>"
+            f'<td>{result["workload"]["Nx"]} × {result["workload"]["Ny"]}</td>'
+            f'<td class="numeric">{products}</td>'
+            f'<td class="numeric">{format_ms(baseline_total["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(candidate_total["medianSeconds"])}</td>'
+            f'<td class="numeric">{candidate_total["medianSeconds"] / baseline_total["medianSeconds"]:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(baseline_memory)}</td>'
+            f'<td class="numeric">{format_bytes(candidate_memory)}</td>'
+            f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(candidate))}</td>'
+            "</tr>"
+        )
+        if result["workload"]["Nx"] == 512:
+            projections.append(
+                "<tr>"
+                f'<td class="numeric">{products}</td>'
+                f'<td class="numeric">{format_bytes(4 * baseline_memory)}</td>'
+                f'<td class="numeric">{format_bytes(4 * candidate_memory)}</td>'
+                f'<td class="numeric">{candidate_memory / baseline_memory:.3f}×</td>'
+                "</tr>"
+            )
+    if not rows:
+        return ""
+    projection = ""
+    if projections:
+        projection = f"""
+      <h3>Analytical 1024² memory projection</h3>
+      <p>The same fixed topology has quadratic storage in horizontal size. The table scales each measured 512² algorithm-resident ledger by four; it is a capacity projection, not a 1024² timing result or a substitute for measuring allocator and plan overhead.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <thead><tr><th scope="col">Products</th><th scope="col">Explicit FFTW</th><th scope="col">FFTW++</th><th scope="col">Ratio</th></tr></thead>
+        <tbody>{"".join(projections)}</tbody>
+      </table></div>
+        """
+    return f"""
+      <h2>Bounded feasibility synthesis</h2>
+      <p>This experiment computes a synthetic quadratic convolution, not WVM’s nonlinear flux. Four compact radial Hermitian inputs are compared by mode key after either an explicit full-grid FFTW transform–multiply–transform or FFTW++’s centered/Hermitian implicit-hybrid algorithm. Planning, fixtures, correctness evaluation, and report generation are outside the timed totals.</p>
+      <p>The public FFTW++ optimizer is usable with four inputs and four outputs. A single twelve-output application (B &gt; A) crashes reproducibly during optimization, so the correct twelve-product candidate consists of three independently planned four-output applications and includes the required input restoration. That limitation remains visible rather than being silently treated as one fused call.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Preliminary single-thread M4 screen. Ratios below one favor FFTW++; the caller-visible compact total is authoritative.</caption>
+        <thead><tr><th scope="col">Grid</th><th scope="col">Products</th><th scope="col">Explicit (ms)</th><th scope="col">FFTW++ (ms)</th><th scope="col">Time ratio</th><th scope="col">Explicit memory</th><th scope="col">FFTW++ memory</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      {projection}
+      <p class="method-note">The result can promote the algorithm into a threaded and WVM-expression follow-up. It cannot establish full-flux performance, multi-thread scaling, Float32 behavior, or a general-Mac recommendation.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-009-combined-spectral-pipeline":
         return spectral_pipeline_evidence_table(bundles)
@@ -4297,6 +4377,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = spectral_pipeline_synthesis(related)
     elif experiment_id == "issue-016-streaming-pruned-compact-split":
         synthesis = streaming_pruned_pipeline_synthesis(related)
+    elif experiment_id == "issue-017-implicit-hybrid-dealiased-convolution":
+        synthesis = dealiased_convolution_synthesis(related)
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":

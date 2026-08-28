@@ -18,6 +18,8 @@ ctest --preset macos-release
 
 Use `SKBENCH_FFTW_ROOT` at configure time to select an existing compatible FFTW installation instead of the pinned build.
 
+Issue #17 is an optional, non-blocking FFTW++ experiment and is disabled in the ordinary build and CI. Configure with `-DSKBENCH_ENABLE_FFTWPP=ON` to fetch the exact public FFTW++ commit `e685733aba768d77e9234ca02092632f7ccb4c86`, or also set `SKBENCH_FFTWPP_SOURCE_DIR` to use a reviewed local checkout.
+
 ## Commands
 
 ```sh
@@ -168,6 +170,15 @@ python3 tools/run_streaming_pruned_pipeline_sweep.py
 ```
 
 The screen covers only the fields=4 `256²/Nz=129`, `512²/Nz=257`, and `1024²/Nz=129` profiles. It advances only for a correct large-case time improvement or a material algorithm-resident memory reduction within the declared total-time bound. FFTW++ implicit and hybrid convolution work belongs to issue #17 and is not part of this runner.
+
+Issue #17 adds a separate optional kernel for a four-input synthetic quadratic convolution. It does not implement the WVM nonlinear flux. The caller-visible boundary begins and ends with compact radial Hermitian spectra; the explicit FFTW oracle and FFTW++ centered/Hermitian implicit-hybrid candidate therefore both include their required embedding, preservation, and retention work. The initial single-thread screen uses 256² and 512² grids with 4 and 12 products:
+
+```sh
+build/issue17/skbench run --kernel dealiased-convolution --profile wvm-current-256-nz129-f4 --convolution-products 4
+build/issue17/skbench run --kernel dealiased-convolution --profile wvm-current-512-nz257-f4 --convolution-products 12
+```
+
+FFTW++ exposes the transform-multiply-transform stage as one fused algorithm, so the benchmark does not fabricate standalone FFTW++ FFT timings. The explicit oracle continues to report inverse FFT, pointwise multiplication, and forward FFT components. A direct 12-output FFTW++ application is excluded after a reproducible upstream optimizer crash for more outputs than inputs; the correct 12-product candidate uses three persistent four-output applications and includes the input-restoration cost. This result can motivate a later threaded or model-expression experiment, but it cannot support a conclusion about the complete nonlinear flux.
 
 The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
 

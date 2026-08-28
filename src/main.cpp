@@ -13,7 +13,7 @@ void usage(std::ostream& output) {
     output << "Usage:\n"
            << "  skbench list\n"
            << "  skbench validate [--profile NAME]\n"
-           << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing|spectral-boundary|spectral-pipeline] [--profile NAME] [--providers both|fftw] [--workers N]\n"
+           << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing|spectral-boundary|spectral-pipeline|dealiased-convolution] [--profile NAME] [--providers both|fftw] [--workers N]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-spectrum-order wvm|plane-major]\n"
@@ -27,6 +27,7 @@ void usage(std::ostream& output) {
            << "              [--vertical-gemm-outer-workers N]\n"
            << "              [--boundary-policy NAME]\n"
            << "              [--streaming-tile-width N]\n"
+           << "              [--convolution-products 4|12]\n"
            << "              [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
@@ -54,6 +55,7 @@ void list() {
               << "  ordering-packing\n"
               << "  spectral-boundary\n"
               << "  spectral-pipeline\n"
+              << "  dealiased-convolution (optional FFTW++ build)\n"
               << "spectral boundary policies:\n"
               << "  wvm-direct\n"
               << "  wvm-packed-split\n"
@@ -175,6 +177,7 @@ int main(int argc, char** argv) {
                 else if (key == "--vertical-gemm-outer-workers") options.verticalGemmOuterWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--boundary-policy") options.boundaryPolicy = requireValue(argc, argv, index);
                 else if (key == "--streaming-tile-width") options.streamingTileWidth = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--convolution-products") options.convolutionProducts = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));

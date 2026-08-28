@@ -22382,6 +22382,45 @@
         "memory",
         "correctness"
       ]
+    },
+    {
+      "id": "issue-017-implicit-hybrid-dealiased-convolution",
+      "issue": 17,
+      "phase": "planned",
+      "title": "Implicit and hybrid dealiased four-field convolution",
+      "question": "Can a correct FFTW++ implicit or hybrid Hermitian convolution beat an explicitly padded FFTW calculation or materially reduce its memory for representative four-field quadratic work?",
+      "baseline": "Use an independent full-grid FFTW transform-multiply-transform oracle, while retaining the issue #3 FFTW build and issue #7 radial mode contract.",
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-007-retained-horizontal-algorithms"
+      ],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "Four compact radially retained Hermitian spectra are embedded, transformed, combined into 4 or 12 deterministic quadratic products, transformed back, and retained by mode key.",
+        "candidates": "An explicit full-grid FFTW path and the pinned FFTW++ centered/Hermitian implicit-hybrid path; twelve products use three independent four-output FFTW++ applications because the public optimizer crashes for B greater than A.",
+        "workloads": "Float64 256 squared and 512 squared screens with four inputs, 4 or 12 outputs, and an analytical 1024 squared memory projection.",
+        "controlledVariables": "Input coefficients, radial two-thirds disk, product map, FFTW build, planning effort, single-thread scheduling, precision, oracle, and sampling.",
+        "changedVariables": "Explicit full-grid versus implicit/hybrid residue transforms and the number of requested quadratic outputs.",
+        "timedBoundary": "Fused native transform-multiply-transform and caller-visible compact adapter totals are separate; explicit inverse FFT, multiplication, and forward FFT components are also separate.",
+        "excludedWork": "Vertical transforms, WVM derivative construction, the nonlinear flux formula, time integration, I/O, and model state management.",
+        "allocationPolicy": "All plans, provider buffers, compact adapters, and output arrays are persistent; no application allocation is intended in timed steady state."
+      },
+      "correctness": {
+        "oracle": "Independent explicitly padded FFTW calculation compared in a centered mode-keyed radial Hermitian representation.",
+        "tolerance": "Float64 maximum scale-normalized and relative L2 errors at most 1e-12.",
+        "capabilityHandling": "Crashes and unsupported output cardinalities are published as exclusions; no silent fallback is called an FFTW++ result.",
+        "canSupport": "Promotion of a bounded implicit/hybrid convolution candidate to a fuller scheduling and model-level experiment.",
+        "cannotSupport": "A claim about the complete WVM nonlinear flux, multi-thread scaling, Float32, or a general-Mac default."
+      },
+      "requiredTables": [
+        "explicit FFT components",
+        "fused implicit or hybrid call",
+        "compact adapter total",
+        "correctness",
+        "placement and input preservation",
+        "persistent memory",
+        "1024 squared memory projection"
+      ]
     }
   ]
 }

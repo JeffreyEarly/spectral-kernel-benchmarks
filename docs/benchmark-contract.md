@@ -230,6 +230,16 @@ Stable publication routes are:
 
 Pages generation reads committed artifacts and never executes a benchmark. `python3 tools/validate_publication.py` performs the fast local catalog and immutability checks; `python3 tools/build_site.py --output _site` renders the site independently.
 
+## Implicit and hybrid dealiased convolution screen
+
+Issue #17 is a bounded model-adjacent experiment, not an implementation of WVM's nonlinear flux. Its logical input is four Float64 radially retained Hermitian spectra. A fixed deterministic product map produces either four or twelve quadratic spectral outputs. The explicit oracle embeds those coefficients in a full FFTW half-spectrum, executes four inverse transforms, forms the requested pointwise products, executes one forward transform per output, and retains the radial disk. The FFTW++ candidate accepts the equivalent centered rectangular Hermitian representation with zeros outside the disk and uses the pinned public centered/Hermitian implicit-hybrid implementation.
+
+The authoritative total starts with caller-owned compact coefficients and ends with caller-owned compact coefficients, so embedding, input preservation, and radial output selection are included. The explicit inverse FFT batch, pointwise multiplication, and forward FFT batch remain separately reportable. FFTW++'s transform-multiply-transform stage is reported as fused because its algorithm does not expose honest standalone FFT timings. Planning, provider optimization, fixture construction, correctness comparison, and publication are excluded from execution.
+
+The initial screen fixes one thread, FFTW `MEASURE | UNALIGNED`, the FFTW 3.3.11 build, 256² and 512² grids, four input fields, output counts 4 and 12, and the radial two-thirds disk. The public FFTW++ optimizer crashes when configured directly with more outputs than inputs for this application. The correct twelve-product candidate therefore uses three independently planned four-output applications and includes the necessary input-restoration work. The experiment publishes that capability boundary and does not describe the three-call path as one native fused call.
+
+Correctness is a mode-keyed comparison with the independent explicit oracle using both scale-normalized maximum and relative $L_2$ errors at the Float64 $10^{-12}$ tolerance. Placement, native input destruction, caller-input preservation, setup time, provider-resident memory, and the quadratic 1024² capacity projection are published separately. The screen can justify a deeper threaded or WVM-expression experiment; it cannot establish complete-flux performance, Float32 behavior, or a general-Mac recommendation.
+
 ## Scope boundary
 
 This repository benchmarks primitives and composed spectral-operator graphs. It does not duplicate WVM's equations, nonlinear flux implementation, time integration, state management, or output system. A later WVM integration benchmark will validate any selected provider/layout tuple inside the production nonlinear calculation.
