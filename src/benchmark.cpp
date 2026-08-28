@@ -531,7 +531,7 @@ ExecutionContract prunedFftwExecutionContract(const Workload& workload,
     const auto retainedExtents = "[mode=" + std::to_string(retained) + "][planes=" +
         std::to_string(planes) + "]";
     DirectionExecutionContract forward{
-        "mixed: out-of-place rows and in-place selected columns in private scratch",
+        "out-of-place",
         "out-of-place",
         false,
         true,
@@ -550,7 +550,7 @@ ExecutionContract prunedFftwExecutionContract(const Workload& workload,
         provider.scratchBytes(),
         true};
     DirectionExecutionContract inverse{
-        "mixed: in-place selected columns and out-of-place real rows from private scratch",
+        "out-of-place",
         "out-of-place",
         false,
         true,
