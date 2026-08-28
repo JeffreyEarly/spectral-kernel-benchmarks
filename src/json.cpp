@@ -191,6 +191,7 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"scheduling\":{\"internalWorkers\":" << provider.internalWorkers
                << ",\"outerWorkers\":" << provider.outerWorkers
                << ",\"totalLogicalWorkers\":" << provider.workers << '}';
+        stream << ",\"gemmCallsPerExecution\":" << provider.gemmCallsPerExecution;
         stream << ",\"executionContract\":{\"forward\":";
         executionDirection(stream, provider.execution.forward);
         stream << ",\"inverse\":";

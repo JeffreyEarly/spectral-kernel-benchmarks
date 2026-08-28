@@ -162,6 +162,7 @@
         ],
         "properties": {
           "workers": {"type": "integer", "minimum": 1},
+          "gemmCallsPerExecution": {"type": "integer", "minimum": 0},
           "scheduling": {
             "type": "object",
             "required": ["internalWorkers", "outerWorkers", "totalLogicalWorkers"],

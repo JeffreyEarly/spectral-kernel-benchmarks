@@ -62,9 +62,15 @@ std::size_t wvmSpectrumIndex(const Workload& workload, std::size_t kx, std::size
 std::size_t planeMajorSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky, std::size_t z, std::size_t field);
 std::size_t retainedSpectrumIndex(const Workload& workload, std::size_t mode, std::size_t z, std::size_t field);
 std::size_t modalSpectrumIndex(const Workload& workload, std::size_t mode, std::size_t j, std::size_t field);
+std::size_t wvmModalSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky,
+                                  std::size_t j, std::size_t field);
 
 void gatherRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* fullSpectrum, Complex* retainedSpectrum);
 void embedRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* retainedSpectrum, Complex* fullSpectrum);
+void gatherRetainedModal(const Workload& workload, const std::vector<RetainedMode>& modes,
+                         const Complex* fullModalSpectrum, Complex* retainedModalSpectrum);
+void embedRetainedModal(const Workload& workload, const std::vector<RetainedMode>& modes,
+                        const Complex* retainedModalSpectrum, Complex* fullModalSpectrum);
 void interleavedToSplit(std::size_t count, const Complex* interleaved, double* real, double* imag);
 void splitToInterleaved(std::size_t count, const double* real, const double* imag, Complex* interleaved);
 void gatherRetainedSplit(const Workload& workload, const std::vector<RetainedMode>& modes,
@@ -170,6 +176,43 @@ public:
     void copyForwardOutput(Complex* output) const;
     void copyInverseOutput(Complex* output) const;
     void embedPhysicalOutputToWvm(const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
+class WvmDirectVerticalGemmProvider {
+public:
+    WvmDirectVerticalGemmProvider(const Workload& workload,
+                                  const std::vector<RetainedMode>& modes,
+                                  const GroupedVerticalOperators& operators,
+                                  VerticalGemmStrategy strategy);
+    ~WvmDirectVerticalGemmProvider();
+    WvmDirectVerticalGemmProvider(WvmDirectVerticalGemmProvider&&) noexcept;
+    WvmDirectVerticalGemmProvider& operator=(WvmDirectVerticalGemmProvider&&) noexcept;
+    WvmDirectVerticalGemmProvider(const WvmDirectVerticalGemmProvider&) = delete;
+    WvmDirectVerticalGemmProvider& operator=(const WvmDirectVerticalGemmProvider&) = delete;
+
+    bool supported() const noexcept;
+    std::string capability() const;
+    void initializeModalOutput(Complex* fullModalSpectrum) const;
+    void initializeSpectrumOutput(Complex* fullSpectrum) const;
+    void executeForward(const Complex* fullSpectrum, Complex* fullModalSpectrum);
+    void executeInverse(const Complex* fullModalSpectrum, Complex* fullSpectrum);
+    void executeSchedulerNoop();
+    std::size_t modalSpectrumElements() const noexcept;
+    std::size_t gemmCallsPerExecution() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    VerticalGemmStrategy strategy() const noexcept;
+    std::size_t persistentBytes() const noexcept;
+    std::size_t schedulerPersistentBytes() const noexcept;
+    std::size_t matrixBytesPerDirection() const noexcept;
+    double allocationSeconds() const noexcept;
+    double matrixPreparationSeconds() const noexcept;
+    double schedulerSetupSeconds() const noexcept;
+    bool hasOpaqueSchedulerMemory() const noexcept;
+    std::string libraryIdentity() const;
 
 private:
     struct Impl;
@@ -413,6 +456,7 @@ struct ProviderRecord {
     std::size_t workers = 1;
     std::size_t internalWorkers = 1;
     std::size_t outerWorkers = 1;
+    std::size_t gemmCallsPerExecution = 0;
     ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
     std::size_t scratchBytes = 0;

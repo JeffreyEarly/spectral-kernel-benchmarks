@@ -30,6 +30,8 @@ using BlasComplex = __LAPACK_double_complex;
 using BlasComplex = std::complex<double>;
 #endif
 static_assert(sizeof(BlasComplex) == 2 * sizeof(double));
+static_assert(sizeof(Complex) == sizeof(BlasComplex));
+static_assert(alignof(Complex) >= alignof(BlasComplex));
 
 double elapsedSeconds(Clock::time_point start) {
     return std::chrono::duration<double>(Clock::now() - start).count();
@@ -761,6 +763,313 @@ void VerticalGemmProvider::copyInverseOutput(Complex* output) const {
 void VerticalGemmProvider::embedPhysicalOutputToWvm(
     const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const {
     impl_->embedPhysicalOutputToWvm(modes, wvmSpectrum);
+}
+
+struct WvmDirectVerticalGemmProvider::Impl {
+    struct ExecutionContext {
+        Impl* self = nullptr;
+        const Complex* input = nullptr;
+        Complex* output = nullptr;
+    };
+
+    Workload workload;
+    std::size_t modalSpectrumCount = 0;
+    std::size_t matrixElementsPerGroup = 0;
+    VerticalGemmStrategy strategy;
+    bool available = SKBENCH_HAVE_ACCELERATE != 0;
+    std::string capabilityText;
+    double allocationTime = 0.0;
+    double preparationTime = 0.0;
+    double schedulerSetupTime = 0.0;
+    std::vector<RetainedMode> modes;
+    std::vector<std::size_t> modeGroupIndices;
+    std::vector<std::size_t> spectrumOffsets;
+    std::vector<std::size_t> modalOffsets;
+    std::unique_ptr<PersistentGroupExecutor> executor;
+    AlignedBuffer<BlasComplex> complexForwardMatrix;
+    AlignedBuffer<BlasComplex> complexInverseMatrix;
+    int nz = 0;
+    int nj = 0;
+    int fields = 0;
+
+    Impl(const Workload& inputWorkload, const std::vector<RetainedMode>& inputModes,
+         const GroupedVerticalOperators& operators, VerticalGemmStrategy inputStrategy)
+        : workload(inputWorkload), strategy(inputStrategy), modes(inputModes) {
+        if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
+            throw std::invalid_argument("Direct WVM vertical GEMM operator dimensions do not match the workload.");
+        }
+        if (modes.empty() || operators.groups.empty() || workload.fields == 0) {
+            throw std::invalid_argument("Direct WVM vertical GEMM requires modes, groups, and fields.");
+        }
+        if (strategy.outerWorkers == 0) {
+            throw std::invalid_argument("Direct WVM vertical GEMM outer workers must be positive.");
+        }
+        if (strategy.schedule == VerticalGemmSchedule::serial && strategy.outerWorkers != 1) {
+            throw std::invalid_argument(
+                "The serial direct WVM vertical GEMM schedule requires exactly one outer worker.");
+        }
+
+        matrixElementsPerGroup = checkedProduct(operators.nz, operators.nj, "direct WVM matrix");
+        const auto familyElements = checkedProduct(
+            operators.groups.size(), matrixElementsPerGroup, "direct WVM matrix family");
+        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
+            throw std::invalid_argument(
+                "Direct WVM vertical GEMM matrix-family storage does not match its groups and dimensions.");
+        }
+        std::size_t expectedFirstMode = 0;
+        modeGroupIndices.resize(modes.size());
+        for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
+            const auto& group = operators.groups[groupIndex];
+            if (group.modeCount == 0 || group.firstMode != expectedFirstMode ||
+                group.firstMode + group.modeCount > modes.size()) {
+                throw std::invalid_argument(
+                    "Direct WVM vertical GEMM groups must be nonempty, contiguous, and cover the modes.");
+            }
+            std::fill_n(modeGroupIndices.begin() + static_cast<std::ptrdiff_t>(group.firstMode),
+                        group.modeCount, groupIndex);
+            expectedFirstMode += group.modeCount;
+        }
+        if (expectedFirstMode != modes.size()) {
+            throw std::invalid_argument("Direct WVM vertical GEMM groups do not cover every retained mode.");
+        }
+
+        spectrumOffsets.reserve(modes.size());
+        modalOffsets.reserve(modes.size());
+        std::vector<std::size_t> storedFrequencyIndices;
+        storedFrequencyIndices.reserve(modes.size());
+        for (const auto& mode : modes) {
+            const auto frequencyIndex = mode.storedKx + workload.nxHalf() * mode.storedKy;
+            storedFrequencyIndices.push_back(frequencyIndex);
+            spectrumOffsets.push_back(workload.planes() * frequencyIndex);
+            modalOffsets.push_back(
+                workload.retainedVerticalModes() * workload.fields * frequencyIndex);
+        }
+        std::sort(storedFrequencyIndices.begin(), storedFrequencyIndices.end());
+        if (std::adjacent_find(storedFrequencyIndices.begin(), storedFrequencyIndices.end()) !=
+            storedFrequencyIndices.end()) {
+            throw std::invalid_argument(
+                "Direct WVM vertical GEMM requires a unique stored frequency for every retained mode.");
+        }
+
+        modalSpectrumCount = checkedProduct(
+            workload.halfRows(), checkedProduct(operators.nj, workload.fields, "direct WVM modal plane"),
+            "direct WVM modal spectrum");
+        nz = checkedBlasDimension(workload.nz, "Nz");
+        nj = checkedBlasDimension(operators.nj, "Nj");
+        fields = checkedBlasDimension(workload.fields, "fields");
+
+        if (!available) {
+            capabilityText = "unsupported: Accelerate BLAS is available only on Apple platforms";
+            return;
+        }
+
+        const auto allocationStart = Clock::now();
+        complexForwardMatrix.allocate(familyElements);
+        complexInverseMatrix.allocate(familyElements);
+        allocationTime = elapsedSeconds(allocationStart);
+
+        const auto preparationStart = Clock::now();
+        for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
+            const auto offset = groupIndex * matrixElementsPerGroup;
+            for (std::size_t z = 0; z < operators.nz; ++z) {
+                for (std::size_t j = 0; j < operators.nj; ++j) {
+                    const auto forwardValue = operators.forward[offset + j * operators.nz + z];
+                    const auto inverseValue = operators.inverse[offset + z * operators.nj + j];
+                    complexForwardMatrix.data()[offset + j + operators.nj * z] =
+                        {forwardValue, 0.0};
+                    complexInverseMatrix.data()[offset + z + operators.nz * j] =
+                        {inverseValue, 0.0};
+                }
+            }
+        }
+        preparationTime = elapsedSeconds(preparationStart);
+
+        const auto schedulerStart = Clock::now();
+        std::vector<int> modeWeights(modes.size(), fields);
+        executor = std::make_unique<PersistentGroupExecutor>(
+            std::move(modeWeights), strategy.outerWorkers, strategy.schedule);
+        strategy.outerWorkers = executor->workerCount();
+        schedulerSetupTime = elapsedSeconds(schedulerStart);
+        capabilityText = "supported: frequency-major direct per-mode zgemm; " +
+            std::string(verticalGemmScheduleName(strategy.schedule)) + "; outer workers=" +
+            std::to_string(strategy.outerWorkers);
+    }
+
+    void requireAvailable() const {
+        if (!available) throw std::runtime_error(capabilityText);
+    }
+
+    std::size_t persistentBytes() const noexcept {
+        return complexForwardMatrix.bytes() + complexInverseMatrix.bytes() +
+            modes.size() * sizeof(RetainedMode) +
+            modeGroupIndices.size() * sizeof(std::size_t) +
+            spectrumOffsets.size() * sizeof(std::size_t) +
+            modalOffsets.size() * sizeof(std::size_t) +
+            (executor == nullptr ? 0 : executor->explicitBytes());
+    }
+
+    void copyModalBoundary(std::size_t modeIndex, Complex* output) const {
+        const auto& mode = modes[modeIndex];
+        if (mode.storedKx != 0 || mode.storedKy == 0 || 2 * mode.storedKy == workload.ny) return;
+        const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                output[wvmModalSpectrumIndex(workload, 0, conjugateKy, j, field)] =
+                    conjugate(output[wvmModalSpectrumIndex(
+                        workload, mode.storedKx, mode.storedKy, j, field)]);
+            }
+        }
+    }
+
+    void copySpectrumBoundary(std::size_t modeIndex, Complex* output) const {
+        const auto& mode = modes[modeIndex];
+        if (mode.storedKx != 0 || mode.storedKy == 0 || 2 * mode.storedKy == workload.ny) return;
+        const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t z = 0; z < workload.nz; ++z) {
+                output[wvmSpectrumIndex(workload, 0, conjugateKy, z, field)] =
+                    conjugate(output[wvmSpectrumIndex(
+                        workload, mode.storedKx, mode.storedKy, z, field)]);
+            }
+        }
+    }
+
+#if SKBENCH_HAVE_ACCELERATE
+    void forwardMode(std::size_t modeIndex, const Complex* input, Complex* output) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = modeGroupIndices[modeIndex] * matrixElementsPerGroup;
+        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nj, fields, nz,
+                    &alpha, complexForwardMatrix.data() + matrixOffset, nj,
+                    reinterpret_cast<const BlasComplex*>(input + spectrumOffsets[modeIndex]), nz,
+                    &beta, reinterpret_cast<BlasComplex*>(output + modalOffsets[modeIndex]), nj);
+        copyModalBoundary(modeIndex, output);
+    }
+
+    void inverseMode(std::size_t modeIndex, const Complex* input, Complex* output) {
+        const BlasComplex alpha{1.0, 0.0};
+        const BlasComplex beta{0.0, 0.0};
+        const auto matrixOffset = modeGroupIndices[modeIndex] * matrixElementsPerGroup;
+        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    nz, fields, nj,
+                    &alpha, complexInverseMatrix.data() + matrixOffset, nz,
+                    reinterpret_cast<const BlasComplex*>(input + modalOffsets[modeIndex]), nj,
+                    &beta, reinterpret_cast<BlasComplex*>(output + spectrumOffsets[modeIndex]), nz);
+        copySpectrumBoundary(modeIndex, output);
+    }
+
+    static void forwardTask(void* opaque, std::size_t modeIndex) {
+        auto* context = static_cast<ExecutionContext*>(opaque);
+        context->self->forwardMode(modeIndex, context->input, context->output);
+    }
+
+    static void inverseTask(void* opaque, std::size_t modeIndex) {
+        auto* context = static_cast<ExecutionContext*>(opaque);
+        context->self->inverseMode(modeIndex, context->input, context->output);
+    }
+#endif
+};
+
+WvmDirectVerticalGemmProvider::WvmDirectVerticalGemmProvider(
+    const Workload& workload, const std::vector<RetainedMode>& modes,
+    const GroupedVerticalOperators& operators, VerticalGemmStrategy strategy)
+    : impl_(std::make_unique<Impl>(workload, modes, operators, strategy)) {}
+
+WvmDirectVerticalGemmProvider::~WvmDirectVerticalGemmProvider() = default;
+WvmDirectVerticalGemmProvider::WvmDirectVerticalGemmProvider(
+    WvmDirectVerticalGemmProvider&&) noexcept = default;
+WvmDirectVerticalGemmProvider& WvmDirectVerticalGemmProvider::operator=(
+    WvmDirectVerticalGemmProvider&&) noexcept = default;
+
+bool WvmDirectVerticalGemmProvider::supported() const noexcept { return impl_->available; }
+std::string WvmDirectVerticalGemmProvider::capability() const { return impl_->capabilityText; }
+std::size_t WvmDirectVerticalGemmProvider::modalSpectrumElements() const noexcept {
+    return impl_->modalSpectrumCount;
+}
+std::size_t WvmDirectVerticalGemmProvider::gemmCallsPerExecution() const noexcept {
+    return impl_->modes.size();
+}
+std::size_t WvmDirectVerticalGemmProvider::outerWorkers() const noexcept {
+    return impl_->strategy.outerWorkers;
+}
+VerticalGemmStrategy WvmDirectVerticalGemmProvider::strategy() const noexcept {
+    return impl_->strategy;
+}
+std::size_t WvmDirectVerticalGemmProvider::persistentBytes() const noexcept {
+    return impl_->persistentBytes();
+}
+std::size_t WvmDirectVerticalGemmProvider::schedulerPersistentBytes() const noexcept {
+    return impl_->executor == nullptr ? 0 : impl_->executor->explicitBytes();
+}
+std::size_t WvmDirectVerticalGemmProvider::matrixBytesPerDirection() const noexcept {
+    return impl_->complexForwardMatrix.bytes();
+}
+double WvmDirectVerticalGemmProvider::allocationSeconds() const noexcept {
+    return impl_->allocationTime;
+}
+double WvmDirectVerticalGemmProvider::matrixPreparationSeconds() const noexcept {
+    return impl_->preparationTime;
+}
+double WvmDirectVerticalGemmProvider::schedulerSetupSeconds() const noexcept {
+    return impl_->schedulerSetupTime;
+}
+bool WvmDirectVerticalGemmProvider::hasOpaqueSchedulerMemory() const noexcept {
+    return impl_->strategy.outerWorkers > 1;
+}
+std::string WvmDirectVerticalGemmProvider::libraryIdentity() const {
+#if SKBENCH_HAVE_ACCELERATE
+    return "/System/Library/Frameworks/Accelerate.framework";
+#else
+    return "unavailable";
+#endif
+}
+
+void WvmDirectVerticalGemmProvider::initializeModalOutput(Complex* fullModalSpectrum) const {
+    impl_->requireAvailable();
+    std::fill_n(fullModalSpectrum, impl_->modalSpectrumCount, Complex{});
+}
+
+void WvmDirectVerticalGemmProvider::initializeSpectrumOutput(Complex* fullSpectrum) const {
+    impl_->requireAvailable();
+    std::fill_n(fullSpectrum, impl_->workload.spectrumElements(), Complex{});
+}
+
+void WvmDirectVerticalGemmProvider::executeForward(
+    const Complex* fullSpectrum, Complex* fullModalSpectrum) {
+    impl_->requireAvailable();
+#if SKBENCH_HAVE_ACCELERATE
+    Impl::ExecutionContext context{impl_.get(), fullSpectrum, fullModalSpectrum};
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t mode = 0; mode < impl_->modes.size(); ++mode) {
+            impl_->forwardMode(mode, fullSpectrum, fullModalSpectrum);
+        }
+    } else {
+        impl_->executor->run(&context, &Impl::forwardTask);
+    }
+#endif
+}
+
+void WvmDirectVerticalGemmProvider::executeInverse(
+    const Complex* fullModalSpectrum, Complex* fullSpectrum) {
+    impl_->requireAvailable();
+#if SKBENCH_HAVE_ACCELERATE
+    Impl::ExecutionContext context{impl_.get(), fullModalSpectrum, fullSpectrum};
+    if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
+        for (std::size_t mode = 0; mode < impl_->modes.size(); ++mode) {
+            impl_->inverseMode(mode, fullModalSpectrum, fullSpectrum);
+        }
+    } else {
+        impl_->executor->run(&context, &Impl::inverseTask);
+    }
+#endif
+}
+
+void WvmDirectVerticalGemmProvider::executeSchedulerNoop() {
+    impl_->requireAvailable();
+    if (impl_->strategy.schedule != VerticalGemmSchedule::serial) {
+        impl_->executor->run(nullptr, &noopGroup);
+    }
 }
 
 } // namespace skbench

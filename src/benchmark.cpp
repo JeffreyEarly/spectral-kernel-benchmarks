@@ -911,6 +911,7 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         record.workers = configuredThreads * provider.outerWorkers();
         record.internalWorkers = configuredThreads;
         record.outerWorkers = provider.outerWorkers();
+        record.gemmCallsPerExecution = provider.gemmCallsPerExecution();
         record.execution = verticalGemmExecutionContract(provider, workload);
         record.explicitPersistentBytes = provider.persistentBytes();
         record.scratchBytes = 0;
@@ -1111,14 +1112,24 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
         workload, vertical, VerticalGemmLayout::complexInterleaved, requestedStrategy);
     VerticalGemmProvider splitProvider(
         workload, vertical, VerticalGemmLayout::split, requestedStrategy);
-    if (!complexProvider.supported() || !splitProvider.supported()) {
+    WvmDirectVerticalGemmProvider directProvider(
+        workload, modes, vertical, requestedStrategy);
+    if (!complexProvider.supported() || !splitProvider.supported() || !directProvider.supported()) {
         throw std::runtime_error(
-            !complexProvider.supported() ? complexProvider.capability() : splitProvider.capability());
+            !complexProvider.supported() ? complexProvider.capability()
+            : !splitProvider.supported() ? splitProvider.capability()
+                                         : directProvider.capability());
     }
     complexProvider.packPhysicalInputFromWvm(modes, fullInput.data());
     splitProvider.packPhysicalInputFromWvm(modes, fullInput.data());
     complexProvider.loadModalInput(modalInput.data());
     splitProvider.loadModalInput(modalInput.data());
+    std::vector<Complex> directModalInput(directProvider.modalSpectrumElements());
+    std::vector<Complex> directModalOutput(directProvider.modalSpectrumElements());
+    std::vector<Complex> directFull(workload.spectrumElements());
+    embedRetainedModal(workload, modes, modalInput.data(), directModalInput.data());
+    directProvider.initializeModalOutput(directModalOutput.data());
+    directProvider.initializeSpectrumOutput(directFull.data());
     vertical.forward = {};
     vertical.inverse = {};
 
@@ -1126,18 +1137,26 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
     complexProvider.executeInverse();
     splitProvider.executeForward();
     splitProvider.executeInverse();
+    directProvider.executeForward(fullInput.data(), directModalOutput.data());
+    directProvider.executeInverse(directModalInput.data(), directFull.data());
     std::vector<Complex> complexForward(modalElements);
     std::vector<Complex> complexInverse(physicalElements);
     std::vector<Complex> splitForward(modalElements);
     std::vector<Complex> splitInverse(physicalElements);
+    std::vector<Complex> directForward(modalElements);
+    std::vector<Complex> directInverse(physicalElements);
     complexProvider.copyForwardOutput(complexForward.data());
     complexProvider.copyInverseOutput(complexInverse.data());
     splitProvider.copyForwardOutput(splitForward.data());
     splitProvider.copyInverseOutput(splitInverse.data());
+    gatherRetainedModal(workload, modes, directModalOutput.data(), directForward.data());
+    gatherRetained(workload, modes, directFull.data(), directInverse.data());
     const auto complexForwardProbes = gatherVerticalProbes(complexForward.data(), vertical.nj, probes);
     const auto complexInverseProbes = gatherVerticalProbes(complexInverse.data(), workload.nz, probes);
     const auto splitForwardProbes = gatherVerticalProbes(splitForward.data(), vertical.nj, probes);
     const auto splitInverseProbes = gatherVerticalProbes(splitInverse.data(), workload.nz, probes);
+    const auto directForwardProbes = gatherVerticalProbes(directForward.data(), vertical.nj, probes);
+    const auto directInverseProbes = gatherVerticalProbes(directInverse.data(), workload.nz, probes);
 
     std::vector<Complex> expectedFull(workload.spectrumElements());
     std::vector<Complex> complexFull(workload.spectrumElements());
@@ -1147,12 +1166,15 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
     splitProvider.embedPhysicalOutputToWvm(modes, splitFull.data());
     std::vector<Complex> complexGathered(physicalElements);
     std::vector<Complex> splitGathered(physicalElements);
+    std::vector<Complex> directGathered(physicalElements);
     gatherRetained(workload, modes, complexFull.data(), complexGathered.data());
     gatherRetained(workload, modes, splitFull.data(), splitGathered.data());
+    gatherRetained(workload, modes, directFull.data(), directGathered.data());
 
     const auto physicalBytes = report.retainedSpectrumBytes;
     const auto modalBytes = report.modalSpectrumBytes;
     const auto fullBytes = report.fullSpectrumBytes;
+    const auto fullModalBytes = bytes(directProvider.modalSpectrumElements(), sizeof(Complex));
     const auto conjugateBoundaryModes = static_cast<std::uint64_t>(std::count_if(
         modes.begin(), modes.end(), [&](const RetainedMode& mode) {
             return mode.storedKx == 0 && mode.storedKy != 0 &&
@@ -1160,14 +1182,19 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
         }));
     const auto conjugateBoundaryBytes = conjugateBoundaryModes *
         static_cast<std::uint64_t>(workload.planes()) * sizeof(Complex);
+    const auto conjugateModalBoundaryBytes = conjugateBoundaryModes *
+        static_cast<std::uint64_t>(workload.retainedVerticalModes() * workload.fields) *
+        sizeof(Complex);
     const auto forwardPackingBytes = 2 * physicalBytes;
     const auto inverseEmbeddingBytes = fullBytes + 2 * physicalBytes + conjugateBoundaryBytes;
     const auto providerPersistentBytes = static_cast<std::uint64_t>(
-        complexProvider.persistentBytes() + splitProvider.persistentBytes());
+        complexProvider.persistentBytes() + splitProvider.persistentBytes() +
+        directProvider.persistentBytes());
     const auto constructionPeak = report.verticalMatrixFamilySourceBytes + providerPersistentBytes +
-        physicalBytes + modalBytes + fullBytes;
+        physicalBytes + modalBytes + 2 * fullBytes + 2 * fullModalBytes;
     const auto inspectionPeak = providerPersistentBytes + 5 * physicalBytes + 3 * modalBytes +
-        4 * fullBytes + bytes(forwardOracle.size() + inverseOracle.size(), sizeof(Complex));
+        5 * fullBytes + 2 * fullModalBytes +
+        bytes(forwardOracle.size() + inverseOracle.size(), sizeof(Complex));
     report.orderingPackingEstimatedExplicitPeakBytes = std::max(constructionPeak, inspectionPeak);
 
     auto makeRecord = [&](VerticalGemmProvider& provider, std::string id,
@@ -1199,6 +1226,7 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
         record.workers = configuredThreads * provider.outerWorkers();
         record.internalWorkers = configuredThreads;
         record.outerWorkers = provider.outerWorkers();
+        record.gemmCallsPerExecution = provider.gemmCallsPerExecution();
         record.execution = verticalGemmExecutionContract(provider, workload);
         record.execution.forward.adapterInputRepresentationId =
             "wvm-frequency-major-interleaved-half-spectrum";
@@ -1378,6 +1406,226 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
                    splitGathered.data(), splitInverse.data(), splitInverse.size()),
         },
         splitFull));
+
+    ProviderRecord directRecord;
+    const auto directStrategy = directProvider.strategy();
+    const auto directSchedulingId = verticalGemmSchedulingId(directStrategy);
+    directRecord.id = "ordering-no-reorder-accelerate-zgemm";
+    directRecord.version = "system";
+    directRecord.libraryIdentity = directProvider.libraryIdentity();
+    directRecord.algorithmId =
+        "wvm-frequency-major-direct-per-mode-zgemm-k2-" + options.verticalGemmSchedule;
+    directRecord.nativeRepresentationId =
+        "wvm-frequency-major-interleaved-antialiased-zero-padded";
+    directRecord.modeOrderId =
+        "WVM-frequency-major;vertical-contiguous;field-block-within-frequency";
+    directRecord.schedulingId = directSchedulingId;
+    directRecord.sourceIdentity = "Apple Accelerate system framework plus direct WVM-order kernel";
+    directRecord.configureFlags = "system framework";
+    directRecord.compilerFlags = report.environment.compilerFlags;
+    directRecord.planningConfiguration = vertical.id +
+        "; no gather, transpose, radial permutation, or split conversion" +
+        "; retained frequencies=" + std::to_string(modes.size()) +
+        "; matrix groups=" + std::to_string(vertical.groups.size()) +
+        "; fields per GEMM=" + std::to_string(workload.fields) +
+        "; GEMM calls per direction=" + std::to_string(directProvider.gemmCallsPerExecution()) +
+        "; persistent zero padding initialized once; reuse counts=2,4,8; " +
+        directSchedulingId;
+    directRecord.workers = configuredThreads * directProvider.outerWorkers();
+    directRecord.internalWorkers = configuredThreads;
+    directRecord.outerWorkers = directProvider.outerWorkers();
+    directRecord.gemmCallsPerExecution = directProvider.gemmCallsPerExecution();
+
+    DirectionExecutionContract directForwardContract;
+    directForwardContract.nativePlacement = "out-of-place";
+    directForwardContract.adapterPlacement = "out-of-place";
+    directForwardContract.adapterPreservesCallerInput = true;
+    directForwardContract.nativeInputRepresentationId =
+        "wvm-frequency-major-interleaved-half-spectrum";
+    directForwardContract.nativeOutputRepresentationId =
+        "wvm-frequency-major-interleaved-modal-half-spectrum";
+    directForwardContract.adapterInputRepresentationId =
+        directForwardContract.nativeInputRepresentationId;
+    directForwardContract.adapterOutputRepresentationId =
+        directForwardContract.nativeOutputRepresentationId;
+    directForwardContract.physicalExtents =
+        "input=[frequency=" + std::to_string(workload.halfRows()) + "][field=" +
+        std::to_string(workload.fields) + "][Nz=" + std::to_string(workload.nz) +
+        "]; output=[frequency=" + std::to_string(workload.halfRows()) + "][field=" +
+        std::to_string(workload.fields) + "][Nj=" +
+        std::to_string(workload.retainedVerticalModes()) + "]";
+    directForwardContract.stridesElements =
+        "input{z=1,field=Nz,frequency=Nz*fields}; "
+        "output{j=1,field=Nj,frequency=Nj*fields}";
+    directForwardContract.paddingElements =
+        directProvider.modalSpectrumElements() - modalElements;
+    directForwardContract.minimumAlignmentBytes = alignof(Complex);
+    directForwardContract.aliasing = "input and output do not overlap";
+    directForwardContract.reusableWorkBytes = fullModalBytes;
+    directForwardContract.outputCanFeedOppositeDirection = true;
+    directRecord.execution.forward = directForwardContract;
+    directRecord.execution.inverse = directForwardContract;
+    directRecord.execution.inverse.nativeInputRepresentationId =
+        directForwardContract.nativeOutputRepresentationId;
+    directRecord.execution.inverse.nativeOutputRepresentationId =
+        directForwardContract.nativeInputRepresentationId;
+    directRecord.execution.inverse.adapterInputRepresentationId =
+        directRecord.execution.inverse.nativeInputRepresentationId;
+    directRecord.execution.inverse.adapterOutputRepresentationId =
+        directRecord.execution.inverse.nativeOutputRepresentationId;
+    directRecord.execution.inverse.physicalExtents =
+        "input=[frequency=" + std::to_string(workload.halfRows()) + "][field=" +
+        std::to_string(workload.fields) + "][Nj=" +
+        std::to_string(workload.retainedVerticalModes()) +
+        "]; output=[frequency=" + std::to_string(workload.halfRows()) + "][field=" +
+        std::to_string(workload.fields) + "][Nz=" + std::to_string(workload.nz) + "]";
+    directRecord.execution.inverse.stridesElements =
+        "input{j=1,field=Nj,frequency=Nj*fields}; "
+        "output{z=1,field=Nz,frequency=Nz*fields}";
+    directRecord.execution.inverse.paddingElements =
+        workload.spectrumElements() - physicalElements;
+    directRecord.execution.inverse.reusableWorkBytes = fullBytes;
+
+    directRecord.explicitPersistentBytes = directProvider.persistentBytes();
+    directRecord.scratchBytes = 0;
+    directRecord.opaqueProviderMemory = directProvider.hasOpaqueSchedulerMemory();
+    directRecord.otherSetupSeconds =
+        directProvider.matrixPreparationSeconds() + directProvider.schedulerSetupSeconds();
+    directRecord.allocationSeconds = directProvider.allocationSeconds();
+    directRecord.planningSeconds = 0.0;
+    directRecord.ledger = {
+        {"setup/planning", StageState::setupOnly,
+         "prepare immutable complex K-squared matrix family, persistent outer scheduler, and one-time zero padding"},
+        {"raw forward FFT", StageState::unsupported,
+         "excluded from this issue #13 vertical ordering comparison"},
+        {"horizontal retention", StageState::elided,
+         "the kernel indexes retained stored frequencies directly in WVM order"},
+        {"representation conversion", StageState::elided,
+         "the interleaved WVM representation persists across the vertical operator"},
+        {"permutation/packing", StageState::elided,
+         "no radial gather, transpose, or column pack is executed"},
+        {"raw forward vertical MM", StageState::executed,
+         std::to_string(directProvider.gemmCallsPerExecution()) +
+             " small per-frequency zgemm calls; Hermitian boundary repair is fused"},
+        {"modal work", StageState::unsupported,
+         "modal physics and nonlinear flux are excluded"},
+        {"raw inverse vertical MM", StageState::executed,
+         std::to_string(directProvider.gemmCallsPerExecution()) +
+             " small per-frequency zgemm calls; Hermitian boundary repair is fused"},
+        {"horizontal embedding", StageState::elided,
+         "retained frequencies are written directly into persistent zero-padded WVM storage"},
+        {"raw inverse FFT", StageState::unsupported,
+         "excluded from this issue #13 vertical ordering comparison"},
+        {"uninstrumented total", StageState::executed,
+         "synthetic no-reorder vertical total only; complete pipeline belongs to issue #9"}};
+    std::vector<Complex> directModalInputRoundTrip(modalElements);
+    gatherRetainedModal(
+        workload, modes, directModalInput.data(), directModalInputRoundTrip.data());
+    directRecord.correctness = {
+        metric("forward selected modes versus independent scalar oracle",
+               directForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+        metric("inverse selected modes versus independent scalar oracle",
+               directInverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+        metric("forward full compact output versus packed split formulation",
+               directForward.data(), splitForward.data(), directForward.size()),
+        metric("inverse full compact output versus packed split formulation",
+               directInverse.data(), splitInverse.data(), directInverse.size()),
+        metric("direct WVM reconstruction versus independent embedding",
+               directFull.data(), expectedFull.data(), directFull.size()),
+        metric("frequency-major modal representation mode-key round trip",
+               directModalInputRoundTrip.data(), modalInput.data(), modalInput.size()),
+    };
+
+    const auto directMatrixBytes = static_cast<std::uint64_t>(
+        directProvider.matrixBytesPerDirection());
+    const auto matrixBytesPerMode = bytes(
+        workload.nz * workload.retainedVerticalModes(), sizeof(Complex));
+    const auto directMatrixTraffic =
+        static_cast<std::uint64_t>(directProvider.gemmCallsPerExecution()) * matrixBytesPerMode;
+    const auto directForwardBytes = directMatrixTraffic + physicalBytes + modalBytes +
+        2 * conjugateModalBoundaryBytes;
+    const auto directInverseBytes = directMatrixTraffic + modalBytes + physicalBytes +
+        2 * conjugateBoundaryBytes;
+    directRecord.timings.push_back(series(
+        "setup-shared-component", "logical matrix-family fixture generation", "shared",
+        StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+        {fixtureGenerationSeconds}));
+    directRecord.timings.push_back(series(
+        "setup-shared-component", "adjacent matrix equivalence scan", "shared",
+        StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+        {equivalenceScanSeconds}));
+    directRecord.timings.push_back(series(
+        "setup-component", "matrix preparation", "shared", StageState::setupOnly,
+        2 * directMatrixBytes, {directProvider.matrixPreparationSeconds()}));
+    directRecord.timings.push_back(series(
+        "setup-component", "persistent outer scheduler creation", "shared",
+        StageState::setupOnly, directProvider.schedulerPersistentBytes(),
+        {directProvider.schedulerSetupSeconds()}));
+    directRecord.timings.push_back(series(
+        "setup-component", "persistent modal zero-padding initialization", "forward",
+        StageState::setupOnly, fullModalBytes,
+        measure(0, 1, [&] { directProvider.initializeModalOutput(directModalOutput.data()); })));
+    directRecord.timings.push_back(series(
+        "setup-component", "persistent spectrum zero-padding initialization", "inverse",
+        StageState::setupOnly, fullBytes,
+        measure(0, 1, [&] { directProvider.initializeSpectrumOutput(directFull.data()); })));
+    directRecord.timings.push_back(series(
+        "primitive", "direct frequency-major per-mode vertical GEMM", "forward",
+        StageState::executed, directForwardBytes,
+        measure(warmups, sampleCount, [&] {
+            directProvider.executeForward(fullInput.data(), directModalOutput.data());
+        })));
+    directRecord.timings.push_back(series(
+        "primitive", "direct frequency-major per-mode vertical GEMM", "inverse",
+        StageState::executed, directInverseBytes,
+        measure(warmups, sampleCount, [&] {
+            directProvider.executeInverse(directModalInput.data(), directFull.data());
+        })));
+    directRecord.timings.push_back(series(
+        "adapter-component", "WVM retained gather and radial pack", "forward",
+        StageState::elided, 0));
+    directRecord.timings.push_back(series(
+        "adapter-component", "WVM scatter and Hermitian embed", "inverse",
+        StageState::elided, 0));
+    directRecord.timings.push_back(series(
+        "adapter-total", "one-shot no-reorder vertical projection", "forward",
+        StageState::executed, directForwardBytes,
+        measure(warmups, sampleCount, [&] {
+            directProvider.executeForward(fullInput.data(), directModalOutput.data());
+        })));
+    directRecord.timings.push_back(series(
+        "adapter-total", "one-shot no-reorder vertical projection", "inverse",
+        StageState::executed, directInverseBytes,
+        measure(warmups, sampleCount, [&] {
+            directProvider.executeInverse(directModalInput.data(), directFull.data());
+        })));
+    for (const std::size_t reuseCount : {2U, 4U, 8U}) {
+        const auto suffix = "-r" + std::to_string(reuseCount);
+        directRecord.timings.push_back(series(
+            "reuse-total", "persistent-provider-order-no-movement", "forward" + suffix,
+            StageState::executed, reuseCount * directForwardBytes,
+            measure(warmups, sampleCount, [&] {
+                for (std::size_t use = 0; use < reuseCount; ++use) {
+                    directProvider.executeForward(fullInput.data(), directModalOutput.data());
+                }
+            })));
+        directRecord.timings.push_back(series(
+            "reuse-total", "persistent-provider-order-no-movement", "inverse" + suffix,
+            StageState::executed, reuseCount * directInverseBytes,
+            measure(warmups, sampleCount, [&] {
+                for (std::size_t use = 0; use < reuseCount; ++use) {
+                    directProvider.executeInverse(directModalInput.data(), directFull.data());
+                }
+            })));
+    }
+    directRecord.timings.push_back(series(
+        "primitive-diagnostic", "empty frequency dispatch", "shared",
+        directStrategy.schedule == VerticalGemmSchedule::serial
+            ? StageState::elided : StageState::executed,
+        0, directStrategy.schedule == VerticalGemmSchedule::serial
+            ? std::vector<double>{}
+            : measure(warmups, sampleCount, [&] { directProvider.executeSchedulerNoop(); })));
+    report.providers.push_back(std::move(directRecord));
     report.status = std::all_of(report.providers.begin(), report.providers.end(), correctnessPassed)
         ? "passed" : "failed";
     return report;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the bounded issue #13 MATLAB-style ordering/packing baseline."""
+"""Run the bounded issue #13 packed-versus-direct ordering comparison."""
 
 from __future__ import annotations
 
@@ -43,14 +43,21 @@ def estimated_explicit_peak_bytes(profile: str) -> int:
     columns = nkl * fields
     family_elements = groups * nz * nj
     source_matrices = 2 * family_elements * 8
-    provider_matrices = 2 * family_elements * 16 + 2 * family_elements * 8
+    provider_matrices = 4 * family_elements * 16 + 2 * family_elements * 8
     physical = nz * columns * 16
     modal = nj * columns * 16
     full = ny * (nx // 2 + 1) * nz * fields * 16
+    full_modal = ny * (nx // 2 + 1) * nj * fields * 16
     provider_operands = 4 * (physical + modal)
     bookkeeping_reserve = 2 * 1024**2
-    construction = source_matrices + provider_matrices + provider_operands + physical + modal + full
-    inspection = provider_matrices + provider_operands + 5 * physical + 3 * modal + 4 * full
+    construction = (
+        source_matrices + provider_matrices + provider_operands + physical + modal
+        + 2 * full + 2 * full_modal
+    )
+    inspection = (
+        provider_matrices + provider_operands + 5 * physical + 3 * modal
+        + 5 * full + 2 * full_modal
+    )
     return max(construction, inspection) + bookkeeping_reserve
 
 
@@ -115,7 +122,7 @@ def main() -> int:
     commands: list[tuple[str, str, int, int, list[str], Path]] = []
     for profile in profiles:
         for schedule, workers in topologies:
-            stem = f"{profile}--matlab-radial-pack--{schedule}--outer-{workers}"
+            stem = f"{profile}--packed-vs-direct--{schedule}--outer-{workers}"
             result_path = arguments.output / f"{stem}.json"
             command = [
                 str(arguments.executable),
@@ -157,7 +164,10 @@ def main() -> int:
         "schema": "spectral-kernel-local-sweep-v1",
         "experimentId": "issue-013-ordering-packing-crossover",
         "createdAtUtc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        "scope": "bounded Float64 MATLAB-style radial gather/embed plus K2 vertical projection; FFT excluded",
+        "scope": (
+            "bounded Float64 MATLAB-style radial gather-to-split versus direct WVM-order "
+            "K2 vertical projection; FFT excluded"
+        ),
         "profiles": profiles,
         "topologies": [
             {"schedule": schedule, "outerWorkers": workers}

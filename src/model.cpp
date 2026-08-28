@@ -237,6 +237,12 @@ std::size_t modalSpectrumIndex(const Workload& workload, std::size_t mode, std::
     return j + nj * field + nj * workload.fields * mode;
 }
 
+std::size_t wvmModalSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky,
+                                  std::size_t j, std::size_t field) {
+    const auto nj = workload.retainedVerticalModes();
+    return j + nj * field + nj * workload.fields * (kx + workload.nxHalf() * ky);
+}
+
 void gatherRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* fullSpectrum, Complex* retainedSpectrum) {
     for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
         const auto& mode = modes[modeIndex];
@@ -262,6 +268,47 @@ void embedRetained(const Workload& workload, const std::vector<RetainedMode>& mo
                 if (mode.storedKx == 0 && mode.storedKy != 0 && 2 * mode.storedKy != workload.ny) {
                     const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
                     fullSpectrum[wvmSpectrumIndex(workload, 0, conjugateKy, z, field)] = conjugate(stored);
+                }
+            }
+        }
+    }
+}
+
+void gatherRetainedModal(const Workload& workload, const std::vector<RetainedMode>& modes,
+                         const Complex* fullModalSpectrum, Complex* retainedModalSpectrum) {
+    const auto nj = workload.retainedVerticalModes();
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                auto value = fullModalSpectrum[wvmModalSpectrumIndex(
+                    workload, mode.storedKx, mode.storedKy, j, field)];
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                retainedModalSpectrum[modalSpectrumIndex(workload, modeIndex, j, field)] = value;
+            }
+        }
+    }
+}
+
+void embedRetainedModal(const Workload& workload, const std::vector<RetainedMode>& modes,
+                        const Complex* retainedModalSpectrum, Complex* fullModalSpectrum) {
+    const auto nj = workload.retainedVerticalModes();
+    const auto fullElements = workload.nxHalf() * workload.ny * nj * workload.fields;
+    std::fill_n(fullModalSpectrum, fullElements, Complex{});
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                const auto compact = retainedModalSpectrum[
+                    modalSpectrumIndex(workload, modeIndex, j, field)];
+                const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
+                fullModalSpectrum[wvmModalSpectrumIndex(
+                    workload, mode.storedKx, mode.storedKy, j, field)] = stored;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != workload.ny) {
+                    const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+                    fullModalSpectrum[wvmModalSpectrumIndex(
+                        workload, 0, conjugateKy, j, field)] = conjugate(stored);
                 }
             }
         }
