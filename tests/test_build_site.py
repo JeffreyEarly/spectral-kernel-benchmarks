@@ -52,6 +52,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_5_page = output / "experiments" / "issue-005-vdsp-native-baseline" / "index.html"
             issue_6_page = output / "experiments" / "issue-006-vdsp-batching-scheduling" / "index.html"
             issue_8_page = output / "experiments" / "issue-008-vertical-projection-gemm" / "index.html"
+            issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
@@ -68,6 +69,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_5_page.is_file())
             self.assertTrue(issue_6_page.is_file())
             self.assertTrue(issue_8_page.is_file())
+            self.assertTrue(issue_13_page.is_file())
             self.assertTrue(float32_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
@@ -148,6 +150,21 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("public variable-size grouped BLAS batch API=unavailable", scheduled_run_html)
             self.assertIn("exactly equivalent adjacent matrix pairs=0", scheduled_run_html)
             self.assertIn("empty group dispatch", scheduled_run_html)
+            issue_13_html = issue_13_page.read_text(encoding="utf-8")
+            self.assertIn("First bounded MATLAB-style baseline", issue_13_html)
+            self.assertIn("The latest same-commit cohort contains 8 runs across 4 profiles", issue_13_html)
+            self.assertIn("Dynamic scheduling wins 7 cells and static 1", issue_13_html)
+            self.assertIn("split storage wins 8 and interleaved 0", issue_13_html)
+            self.assertIn("Movement costs span 1.099×–5.911×", issue_13_html)
+            self.assertIn("32 of 32 representation/schedule/direction cells", issue_13_html)
+            self.assertIn("32 cross at R=2", issue_13_html)
+            self.assertIn("1.08 GiB–3.22 GiB", issue_13_html)
+            self.assertIn("20260828T032621211425Z-lyra", issue_13_html)
+            self.assertIn("20260828T032729237033Z-lyra", issue_13_html)
+            ordering_run_html = (output / "runs" / "20260828T032729237033Z-lyra" / "index.html").read_text(encoding="utf-8")
+            self.assertIn("WVM retained gather and radial pack", ordering_run_html)
+            self.assertIn("persistent-compact-boundary-once", ordering_run_html)
+            self.assertIn("orderingPackingEstimatedExplicitPeak", (output / "artifacts" / "20260828T032729237033Z-lyra" / "result.json").read_text(encoding="utf-8"))
             self.assertIn("in-place", float32_page.read_text(encoding="utf-8").lower())
             self.assertIn("Adoption decision not yet ready", decision_page.read_text(encoding="utf-8"))
             self.assertIn("predates the explicit placement contract", legacy_page.read_text(encoding="utf-8"))

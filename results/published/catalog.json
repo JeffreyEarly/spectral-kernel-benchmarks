@@ -5058,6 +5058,206 @@
         "samplesSha256": "fa5c29bf4956eb12d43c4315e400f3df631505c60930f7ac8c7b60b29ddcfcb3"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T032621211425Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using matlab-radial-gather-to-interleaved-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032621211425Z-lyra/result.json",
+        "samples": "runs/20260828T032621211425Z-lyra/samples.csv",
+        "resultSha256": "233843b0efd1eb7803a87e111fb7cd7ef8b0cea65e08de16e8ac8c00db20e355",
+        "samplesSha256": "d65bd4663a7630ac2435af63ab7e402f4e9fb2e9c5c7fe235945bf4ced2b7b9d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032627171018Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using matlab-radial-gather-to-interleaved-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032627171018Z-lyra/result.json",
+        "samples": "runs/20260828T032627171018Z-lyra/samples.csv",
+        "resultSha256": "427697d0ebfa4d4bd8176a90235bcf754734e2be813f56f4e640f1dc219cfcf5",
+        "samplesSha256": "3ca9f56d1e96d70e0f9f102de9bd4f69f6d6d3964f1df32eb5fa86c0831c16ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032633159738Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using matlab-radial-gather-to-interleaved-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032633159738Z-lyra/result.json",
+        "samples": "runs/20260828T032633159738Z-lyra/samples.csv",
+        "resultSha256": "a5d05cf3f8dc2bd0457cb75aaa0d3f82969a064b448a0e371d80e65401ecbda1",
+        "samplesSha256": "d894f7b8cd44b3df22f09d19e08bac1de43755df5a6ad00b0a159a020f240344"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032638828971Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using matlab-radial-gather-to-interleaved-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032638828971Z-lyra/result.json",
+        "samples": "runs/20260828T032638828971Z-lyra/samples.csv",
+        "resultSha256": "f774af5f5007201f6633011f7fa7c59a87cd65d1caf044c4b3646df0a71a4df2",
+        "samplesSha256": "1f0dfb512ae6d4da8d78b5a493e5c7662b05fa06d409cb9b720a8bfb8d238337"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032644022493Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using matlab-radial-gather-to-interleaved-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032644022493Z-lyra/result.json",
+        "samples": "runs/20260828T032644022493Z-lyra/samples.csv",
+        "resultSha256": "b17a76eb5f5dd666a7243f618e3fb111f3c6f503c70d13e59ae84f3f1be9cb0e",
+        "samplesSha256": "3b1d996ae159271712125e0e87626508ba564e63e1a702d9b6249c4538b1f4da"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032658151700Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using matlab-radial-gather-to-interleaved-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032658151700Z-lyra/result.json",
+        "samples": "runs/20260828T032658151700Z-lyra/samples.csv",
+        "resultSha256": "e9c02bfd4c8e244607c8cc95914caf3f5792ce377b99f0acd84830c8f4054cb3",
+        "samplesSha256": "cbc00831a77c9d39594f3f44404b5ffba508b2b489b50848773e6057a8648b60"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032711249480Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using matlab-radial-gather-to-interleaved-k2-outer-static (internal=1, outer=12).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032711249480Z-lyra/result.json",
+        "samples": "runs/20260828T032711249480Z-lyra/samples.csv",
+        "resultSha256": "22b1cb6ec566e02b7cfbc7a991790222a1c6bda40bd06725bbc67057bb5f7975",
+        "samplesSha256": "7ca4df15d250a46153fd23d3080800f8bd20de930faf4a217658d399055431f4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T032729237033Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max preliminary first issue #13 MATLAB-style radial gather/embed baseline across four 256-squared fields=1/3/4 and Nz=65/129 profiles with static-12 and dynamic-16 K-squared scheduling; separately reports movement, primitive GEMM, one-shot combined totals, and reuse counts 2/4/8 with zero steady-state allocation, while excluding raw FFTs, modal physics, nonlinear flux, 512-class scaling, no-reorder kernels, provider-native fusion, and tiled packing.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using matlab-radial-gather-to-interleaved-k2-outer-dynamic (internal=1, outer=16).",
+      "issues": [
+        13
+      ],
+      "experiments": [
+        "issue-013-ordering-packing-crossover"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T032729237033Z-lyra/result.json",
+        "samples": "runs/20260828T032729237033Z-lyra/samples.csv",
+        "resultSha256": "7d6dadadbe162ee3f6022d76f5b297b0d97eab7498acf9cebfe396b228eac7b2",
+        "samplesSha256": "50fb4e5e877310bc3de7b55865b118562a43d6d23ef430f1f4263600a23fa704"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -5433,7 +5633,7 @@
     {
       "id": "issue-013-ordering-packing-crossover",
       "issue": 13,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Ordering and packing crossover",
       "question": "When does optional reordering between horizontal transforms and vertical projections repay its movement cost?",
       "baseline": "Cross issue #7 horizontal candidates with issue #8 vertical kernels; feed complete policies to issue #9.",
