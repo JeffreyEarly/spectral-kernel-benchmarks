@@ -1179,16 +1179,20 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
         key=lambda record: (record[0]["workload"]["Nx"], record[1]["workers"]),
     ):
         result, complex_provider, split_provider, _ = grouped
-        matched = next(
-            (
-                record for record in common_records
-                if record[0]["run"]["profile"] == result["run"]["profile"]
-                and record[1]["workers"] == complex_provider["workers"]
-            ),
-            None,
-        )
-        if matched is None:
+        matched_candidates = [
+            record for record in common_records
+            if record[0]["run"]["profile"] == result["run"]["profile"]
+            and record[1]["workers"] == complex_provider["workers"]
+        ]
+        if not matched_candidates:
             continue
+        matched = max(
+            matched_candidates,
+            key=lambda record: (
+                record[0]["environment"]["gitCommit"] == result["environment"]["gitCommit"],
+                record[0]["environment"]["timestampUtc"],
+            ),
+        )
         workload = result["workload"]
         grouping = workload.get("grouping", {})
         ratios: list[str] = []

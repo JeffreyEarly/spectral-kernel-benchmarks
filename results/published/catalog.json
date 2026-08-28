@@ -3782,6 +3782,270 @@
         "samplesSha256": "f42b76c568cea2089559b24345e1f4bf5a843000d0c628043c520014129b7bb1"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T021212238213Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021212238213Z-lyra/result.json",
+        "samples": "runs/20260828T021212238213Z-lyra/samples.csv",
+        "resultSha256": "9f8ff7776002074244152df31d67e08e53bc63f9a62b9136e6ad2d7f143b755f",
+        "samplesSha256": "0e802e1b7317d01d1cb82efd4d0ab19e0a85047c8d6b4f417fcd807308b9f812"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021212704964Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021212704964Z-lyra/result.json",
+        "samples": "runs/20260828T021212704964Z-lyra/samples.csv",
+        "resultSha256": "b6d8a7df6928a953fb580f66dfefd3db798f5b38818eb2842c0d605aa45b1607",
+        "samplesSha256": "877e463fe9c9c6f027640a969a10c1bb833fdabf4ab44dfe33f8781a4c2939ab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021213036504Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-split-common (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021213036504Z-lyra/result.json",
+        "samples": "runs/20260828T021213036504Z-lyra/samples.csv",
+        "resultSha256": "e7a53c7ec12ee866364f73ff12f98be8acedba67ea79eb109f7cb355174d4a82",
+        "samplesSha256": "a28fefdcd91c12d29d15af10be26892644e7b4c20875ddefada26a1cde314c86"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021213368890Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021213368890Z-lyra/result.json",
+        "samples": "runs/20260828T021213368890Z-lyra/samples.csv",
+        "resultSha256": "312c74713a345a8260ac8de69ef2d16b09ee6bf9109963591e3d83a8f112298f",
+        "samplesSha256": "57455e8a07640a50f08cdbd7789e3000c0e419fa67f1805c568bcf29e2e335a8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021217785734Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021217785734Z-lyra/result.json",
+        "samples": "runs/20260828T021217785734Z-lyra/samples.csv",
+        "resultSha256": "eec1d8cda0cc70912acc589b5dfd9e85bf38a50ed12b8c00293c4d827c4c326e",
+        "samplesSha256": "0bf82ed717fb9dcb1ff9cf085b1857a6715305b23104d23a138e1f02e3831cd1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021220859301Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max same-commit common-matrix controls for the K-squared-grouped issue #8 increment; preliminary until the full fields/Nz matrix and reference-depth machine-state protocol are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-split-common (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021220859301Z-lyra/result.json",
+        "samples": "runs/20260828T021220859301Z-lyra/samples.csv",
+        "resultSha256": "b6e5f91e8f57f8c79d53a2e1d956bf0d2d0ef4adccd4a49d2fa1b9265384c341",
+        "samplesSha256": "acca9442e59e696e3fec7f451bd90bb913fdcc306e25d8cbefd5f2d797dc501d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021121012383Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021121012383Z-lyra/result.json",
+        "samples": "runs/20260828T021121012383Z-lyra/samples.csv",
+        "resultSha256": "70e4a7b8463834ee459d52be8692d00da7becdd5037189dc797ee16c961c98ee",
+        "samplesSha256": "ea37fa1b081f51100e01d26609aa4c3fd3097b1530c5c507952e71266850033d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021121591531Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021121591531Z-lyra/result.json",
+        "samples": "runs/20260828T021121591531Z-lyra/samples.csv",
+        "resultSha256": "aeac3a70017dc1bb980216389830296711f7e1422aad3e23af0a2e016d62e080",
+        "samplesSha256": "6a017fd102b44b397706660139b36767b0c70c67e0ba2b571ca6c7e8e80131c8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021122166016Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021122166016Z-lyra/result.json",
+        "samples": "runs/20260828T021122166016Z-lyra/samples.csv",
+        "resultSha256": "39b5d0bca6b122b05412c7d160de893d04a9f39ad85d1a34b44723b0294997aa",
+        "samplesSha256": "0089341d9eb0ae14bf33b9d6947d6c92ad819d1aec8bd360368e64fb84c4ed3a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021122742816Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=1, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021122742816Z-lyra/result.json",
+        "samples": "runs/20260828T021122742816Z-lyra/samples.csv",
+        "resultSha256": "13985300efc9a93f31fa8aedcae67d1c7b0fe5b585e0fd4e12c96a4d4d373ff5",
+        "samplesSha256": "12bb5113fc3016c9511597766da0cc81ce23d4ec16bc997dac5270d71b5076b5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021128606292Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=12, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021128606292Z-lyra/result.json",
+        "samples": "runs/20260828T021128606292Z-lyra/samples.csv",
+        "resultSha256": "218a02b8c49dd765a20ed5fae7e1891ee735b91719eb8dedc1131d21544db0cb",
+        "samplesSha256": "7b9742d5b66ee41754f8492be486af84787a5dd808fb93d497f3842a1e394d13"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T021134464144Z-lyra",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max bounded synthetic K-squared-grouped Float64 screen for two representative fields=3 workloads and isolated Accelerate thread limits; prearranged group order excludes gathering and packing, and results remain preliminary until alternative grouped kernels and the full workload matrix are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-loop-split (internal=16, outer=1).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T021134464144Z-lyra/result.json",
+        "samples": "runs/20260828T021134464144Z-lyra/samples.csv",
+        "resultSha256": "20790648797cddd180a47fda80dcb783861c5d90f47b717ed912cce6512e4dc9",
+        "samplesSha256": "3cef31c8921519aa2e8e0675bea3cdbc2451c7f1d04231d6e10555fe15a77729"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

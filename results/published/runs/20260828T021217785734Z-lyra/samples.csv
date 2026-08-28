@@ -1,0 +1,79 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260828T021217785734Z-lyra,accelerate-zgemm,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,175440,0,5.9874999999999998e-05
+20260828T021217785734Z-lyra,accelerate-zgemm,setup-component,matrix preparation,shared,setup-only,350880,0,2.5083e-05
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,0,0.022678708999999998
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,1,0.022643541
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,2,0.022652834
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,3,0.022633416999999999
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,4,0.022695375
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,5,0.022585083999999998
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,6,0.022540500000000002
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,7,0.022734667
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,forward,executed,470273520,8,0.022691666999999999
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,0,0.025925833999999998
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,1,0.025943458999999999
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,2,0.025946791
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,3,0.025944958000000001
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,4,0.025744584000000001
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,5,0.025988332999999999
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,6,0.025942125
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,7,0.025953500000000001
+20260828T021217785734Z-lyra,accelerate-zgemm,primitive,raw vertical GEMM,inverse,executed,470273520,8,0.025960582999999999
+20260828T021217785734Z-lyra,accelerate-zgemm,adapter-component,packing and representation conversion,shared,elided,0,,
+20260828T021217785734Z-lyra,accelerate-split-dgemm,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,175440,0,5.9874999999999998e-05
+20260828T021217785734Z-lyra,accelerate-split-dgemm,setup-component,matrix preparation,shared,setup-only,175440,0,1.6583e-05
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,0,0.012318083000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,1,0.012339875
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,2,0.012863708
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,3,0.012291541
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,4,0.012272833
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,5,0.012261207999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,6,0.012284
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,7,0.012275417
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,forward,executed,470273520,8,0.012265375
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,0,0.012870959
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,1,0.012896790999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,2,0.012890916000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,3,0.012856375
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,4,0.012842167
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,5,0.012849083000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,6,0.013010458000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,7,0.012975542
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive,raw vertical GEMM,inverse,executed,470273520,8,0.012878334
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,0,0.006117333
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,1,0.0061129169999999998
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,2,0.0061118750000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,3,0.0061122909999999997
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,4,0.00611175
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,5,0.0060937090000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,6,0.0060967499999999997
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,7,0.0060982500000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,forward,executed,235136760,8,0.0060969170000000003
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,0,0.0061001249999999996
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,1,0.0061172079999999998
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,2,0.006108792
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,3,0.0061136660000000002
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,4,0.0060978330000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,5,0.006114375
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,6,0.0060997500000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,7,0.0060981660000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,forward,executed,235136760,8,0.0061990420000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,0,0.006427833
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,1,0.0064413339999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,2,0.0064332909999999998
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,3,0.0064351249999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,4,0.006427917
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,5,0.0064477909999999996
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,6,0.0064400840000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,7,0.0064420830000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,real-part GEMM,inverse,executed,235136760,8,0.0064382500000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,0,0.0064596660000000002
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,1,0.0064584999999999998
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,2,0.0064403330000000003
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,3,0.0064447920000000004
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,4,0.0064575409999999998
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,5,0.0064303329999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,6,0.0064395839999999999
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,7,0.0064261659999999996
+20260828T021217785734Z-lyra,accelerate-split-dgemm,primitive-component,imaginary-part GEMM,inverse,executed,235136760,8,0.0064557920000000001
+20260828T021217785734Z-lyra,accelerate-split-dgemm,adapter-component,packing and representation conversion,shared,elided,0,,
