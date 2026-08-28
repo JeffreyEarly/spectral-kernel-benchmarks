@@ -1187,14 +1187,16 @@ def vdsp_batch_synthesis(bundles: list[PublishedBundle]) -> str:
         else "No new GCD or separable candidate clears the 10% advancement screen on both directions and both workloads."
     )
     return f"""
-      <h3>Diagnostic conclusion</h3>
+      <h3>Qualified negative feasibility conclusion</h3>
       <p>The advancement screen carries a new candidate forward only when its best worker count reduces both raw forward and inverse medians by at least 10% on both representative workloads, without moving work outside the primitive boundary. {escaped(advancement)}</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Best median raw times in milliseconds are forward / inverse. Positive improvement means the best non-baseline candidate is faster than direct-persistent. The final column is best vDSP divided by matched best FFTW.</caption>
         <thead><tr><th scope="col">Workload</th><th scope="col">Direct-persistent best</th><th scope="col">Best alternative</th><th scope="col">Improvement</th><th scope="col">vDSP / FFTW</th></tr></thead>
         <tbody>{"".join(rows)}</tbody>
       </table></div>
-      <p class="method-note">Direct-persistent therefore remains the only issue #6 candidate carried forward: 12 workers for the representative 256² batch and 16 workers for the representative 512² batch. GCD dispatch overhead is negligible relative to transform time but does not materially change throughput. In the separable implementation, the isolated strided-column phase dominates; its phase medians are diagnostic and non-additive. These preliminary results do not replace the full fields 1/3/4 workload matrix or reference-depth machine-state protocol.</p>
+      <p>Best native vDSP execution remains approximately 5.5–6.6× slower than the matched FFTW baseline on both representative horizontal sizes. Closing that gap would require an approximately 82–85% runtime reduction. Because the worker-count sweep, GCD alternative, and separable implementation did not reveal such a mechanism, the project deliberately stops this Float64 scheduling sweep instead of spending a full reference campaign on fields 1/3/4.</p>
+      <p class="method-note">Direct-persistent remains the only issue #6 candidate carried forward, and only as an issue #7 guardrail: 12 workers for the representative 256² batch and 16 workers for the representative 512² batch. Issue #7 will test whether preserving native packed split storage changes the complete retained-operator conclusion on those two workloads. Broader vDSP coverage is triggered only if one workload comes within 1.25× of the best matched FFTW retained operator in both directions. GCD dispatch overhead is negligible relative to transform time but does not materially change throughput. In the separable implementation, the isolated strided-column phase dominates; its phase medians are diagnostic and non-additive.</p>
+      <p class="method-note">All 48 runs remain preliminary because they use nine samples and do not satisfy the reference-depth machine-state protocol. They support an explicit early-stop feasibility decision, not reference adoption statistics, exhaustive production coverage, Float32 conclusions, or a cross-Mac default.</p>
     """
 
 

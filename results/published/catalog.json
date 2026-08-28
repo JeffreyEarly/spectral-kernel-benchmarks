@@ -9332,7 +9332,7 @@
     {
       "id": "issue-006-vdsp-batching-scheduling",
       "issue": 6,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "vDSP batching and scheduling",
       "question": "Can multiple-transform implementations or batch scheduling close the vDSP gap observed in issue #5?",
       "baseline": "Compare with issues #3, #4, and #5; pass viable vDSP configurations to issue #7.",
@@ -9349,7 +9349,7 @@
       "definition": {
         "unitOfWork": "A complete batch of independent horizontal real-2-D transforms.",
         "candidates": "Direct 2-D calls; separable row/column multiple-transform calls; persistent thread pools; Grand Central Dispatch; per-worker setup.",
-        "workloads": "The issue #5 production batch matrix.",
+        "workloads": "Two representative production batches, 256 by 256 with Nz=65 and fields=3 and 512 by 512 with Nz=129 and fields=3, used as a preregistered advancement screen before any full-matrix campaign.",
         "controlledVariables": "Provider, precision, logical transforms, storage contract, fixtures, and sampling.",
         "changedVariables": "Batch decomposition, worker count, setup sharing, scheduler, and transposition policy.",
         "timedBoundary": "Native execution, scheduling, packing, transposition, and complete adapter are separate scopes.",
@@ -9360,8 +9360,8 @@
         "oracle": "Issue #5 provider conformance and mode-keyed outputs.",
         "tolerance": "Float64 maximum scale-normalized error at most 1e-12.",
         "capabilityHandling": "Unavailable APIs and shapes are published as capability results.",
-        "canSupport": "A vDSP scheduling Pareto set for issue #7.",
-        "cannotSupport": "A retained-horizontal or full-pipeline decision."
+        "canSupport": "A qualified negative Float64 feasibility conclusion and selection of direct-persistent vDSP as a two-workload guardrail for issue #7.",
+        "cannotSupport": "An exhaustive production-matrix, retained-horizontal, full-pipeline, Float32, or cross-Mac decision."
       },
       "requiredTables": [
         "native execution",
