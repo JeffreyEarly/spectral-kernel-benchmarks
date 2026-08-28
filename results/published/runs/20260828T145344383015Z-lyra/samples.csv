@@ -1,0 +1,45 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,4873547760,0,0.362501083
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,497860640,0,0.040307250000000003
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,setup-component,FFTW planning,shared,setup-only,8665497600,0,0.078001374999999998
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,setup-component,vertical matrix preparation,shared,setup-only,4873547760,0,0.49245512499999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,forward,executed,8665497600,0,0.108195666
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,forward,executed,8665497600,1,0.107335166
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,forward,executed,8665497600,2,0.111791792
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,forward,executed,8665497600,3,0.109101583
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,forward,executed,8665497600,4,0.10690504200000001
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,inverse,executed,8665497600,0,0.11972595799999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,inverse,executed,8665497600,1,0.11967104200000001
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,inverse,executed,8665497600,2,0.11959325
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,inverse,executed,8665497600,3,0.11968962499999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw FFT,inverse,executed,8665497600,4,0.119637125
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused retained selection and split pack,forward,executed,3022306944,0,0.046531916
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused retained selection and split pack,forward,executed,3022306944,1,0.046379499999999997
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused retained selection and split pack,forward,executed,3022306944,2,0.046594333000000002
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused retained selection and split pack,forward,executed,3022306944,3,0.046489958999999997
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused retained selection and split pack,forward,executed,3022306944,4,0.046824083000000002
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,forward,executed,7380422512,0,0.044226292
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,forward,executed,7380422512,1,0.044869166000000002
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,forward,executed,7380422512,2,0.043667499999999998
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,forward,executed,7380422512,3,0.043480833000000003
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,forward,executed,7380422512,4,0.043630084
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,component,mode-keyed modal work,modal,executed,2489303200,0,0.021424958000000001
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,component,mode-keyed modal work,modal,executed,2489303200,1,0.023031209
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,component,mode-keyed modal work,modal,executed,2489303200,2,0.022647791
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,component,mode-keyed modal work,modal,executed,2489303200,3,0.021277125000000001
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,component,mode-keyed modal work,modal,executed,2489303200,4,0.019582749999999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,inverse,executed,7380422512,0,0.044500084000000002
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,inverse,executed,7380422512,1,0.044366124999999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,inverse,executed,7380422512,2,0.044372374999999999
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,inverse,executed,7380422512,3,0.044445375000000002
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,primitive,raw vertical MM,inverse,executed,7380422512,4,0.044429999999999997
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused split embed into zeroed plane-major spectrum,inverse,executed,7359282816,0,0.069437582999999997
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused split embed into zeroed plane-major spectrum,inverse,executed,7359282816,1,0.068113416999999996
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused split embed into zeroed plane-major spectrum,inverse,executed,7359282816,2,0.067893750000000003
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused split embed into zeroed plane-major spectrum,inverse,executed,7359282816,3,0.067889541999999997
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,adapter-component,fused split embed into zeroed plane-major spectrum,inverse,executed,7359282816,4,0.068050042000000005
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,44962733184,0,0.468973792
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,44962733184,1,0.46139387500000001
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,44962733184,2,0.459819792
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,44962733184,3,0.46344012499999998
+20260828T145344383015Z-lyra,pipeline-plane-major-fused-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,44962733184,4,0.45927020800000001

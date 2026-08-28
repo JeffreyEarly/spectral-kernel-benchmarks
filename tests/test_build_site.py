@@ -220,6 +220,27 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Plane-major fused-split pipeline", pipeline_run_html)
             self.assertIn("Synthetic antialiased spectral pipeline", pipeline_run_html)
             self.assertIn("Mode-keyed modal work", pipeline_run_html)
+            self.assertIn("Large four-field nonhydrostatic cohort", issue_9_html)
+            self.assertIn("0.896× the WVM control geometrically", issue_9_html)
+            self.assertIn("1.040× worst workload", issue_9_html)
+            self.assertIn("algorithm-resident ratio is 0.778×", issue_9_html)
+            self.assertIn("observed high-water ratio is 0.994×", issue_9_html)
+            self.assertIn("0.885×–0.909×", issue_9_html)
+            self.assertIn("size-specific dispatch", issue_9_html)
+            self.assertIn("wvm-current-256-nz129-f4", issue_9_html)
+            self.assertIn("wvm-current-512-nz257-f4", issue_9_html)
+            self.assertIn("wvm-large-1024-nz129-f4", issue_9_html)
+            self.assertIn("512²/Nz=513/fields=4", issue_9_html)
+            large_f4_run_page = (
+                output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
+            )
+            self.assertTrue(large_f4_run_page.is_file())
+            large_f4_run_html = large_f4_run_page.read_text(encoding="utf-8")
+            self.assertIn("Plane-major fused-split pipeline", large_f4_run_html)
+            self.assertIn("spectralPipelineEstimatedExplicitPeak", (
+                output / "artifacts" / "20260828T150329017392Z-lyra" /
+                "result.json"
+            ).read_text(encoding="utf-8"))
             vertical_run_html = (output / "runs" / "20260828T015555382629Z-lyra" / "index.html").read_text(encoding="utf-8")
             self.assertIn("Raw vertical GEMM", vertical_run_html)
             self.assertIn("Accelerate split dgemm", vertical_run_html)

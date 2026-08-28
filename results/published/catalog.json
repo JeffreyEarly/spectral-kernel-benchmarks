@@ -19004,6 +19004,966 @@
         "samplesSha256": "19c57c2ad697a49bd7cfe93527996c0113d234442f564e4ae8801b6a451790bf"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T145224696028Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145224696028Z-lyra/result.json",
+        "samples": "runs/20260828T145224696028Z-lyra/samples.csv",
+        "resultSha256": "48f50ce62152cc96ab31fabd11392b4d5b3bd576d8f976c73f3906b4fb60cd5f",
+        "samplesSha256": "4e27265d9742a544fd74568b5cb11f76397fe71e6d7df354441bcda7c9b0a93e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145226454885Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145226454885Z-lyra/result.json",
+        "samples": "runs/20260828T145226454885Z-lyra/samples.csv",
+        "resultSha256": "0bb909b0be1b056c497c7a2fe12671b65f051b005a12c5de7d2aca53aa2a1030",
+        "samplesSha256": "87c96e2ac8a6c1f0e1004110bf127464708f4f4b9f58e52354a61b6a9ffbf690"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145228222621Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145228222621Z-lyra/result.json",
+        "samples": "runs/20260828T145228222621Z-lyra/samples.csv",
+        "resultSha256": "1beadaa23a8823022c049be7fd5dfb14caa353122daf6113a943b7a7e8bb9d6a",
+        "samplesSha256": "dfbe74e3d881a269311c65010b52695ecb20920a03c382e2b8017f2a560338bc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145235030624Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145235030624Z-lyra/result.json",
+        "samples": "runs/20260828T145235030624Z-lyra/samples.csv",
+        "resultSha256": "837a27d09585dd4a4782bf95238f3060da6dfc95db454100183255eacc1e4137",
+        "samplesSha256": "91cf6bd47acf2e81142bbeaee578549d5edea8e3d640b724814c4035d1cfdc15"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145241888602Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145241888602Z-lyra/result.json",
+        "samples": "runs/20260828T145241888602Z-lyra/samples.csv",
+        "resultSha256": "3852feeb20dcc086c6949b9ab5064f6c7243cdae60d9e70b95b81cbb85deab7e",
+        "samplesSha256": "d1b4c18c0bf75d2f9e2e8ec74e9e9330edccf5f13cd8100691fe50efda5e0e49"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145258935932Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145258935932Z-lyra/result.json",
+        "samples": "runs/20260828T145258935932Z-lyra/samples.csv",
+        "resultSha256": "f46cd28d69664bb0b3e3d6778d63dff5ac75a8043673fc461d4eb7ad6d513a9a",
+        "samplesSha256": "f743a94231d0215e9217cacc1a762099a8959239a2d65a30bf92da8b946c3930"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145314588650Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145314588650Z-lyra/result.json",
+        "samples": "runs/20260828T145314588650Z-lyra/samples.csv",
+        "resultSha256": "efee31bb5089cdc88579efcf32d943a97a595949324f9c35d796bfce4aa9126c",
+        "samplesSha256": "42257e8d56e6aa23eb01181b762414dbda088c116493430988bbe267f0862d2d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145344383015Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round four-field correctness/capability screen; performance does not gate reference collection; reference evidence is published separately.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145344383015Z-lyra/result.json",
+        "samples": "runs/20260828T145344383015Z-lyra/samples.csv",
+        "resultSha256": "1f6b0555a225ac55c8005211c5da3f8f218f7159f9707a53a327602f1855c255",
+        "samplesSha256": "2d6a83ede87ac17394be7bc6f829ba06492a3723547fc1717a7b4dbb0e52a3cc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145434017493Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145434017493Z-lyra/result.json",
+        "samples": "runs/20260828T145434017493Z-lyra/samples.csv",
+        "resultSha256": "ebff760c3acffd79d2ddeeba4dbec6a6a4c4b168ca476220868639bea766cbc1",
+        "samplesSha256": "aab42f6939e0f39124fd70fe47bf09cdc6185540b57fb2c5ea61cf9a9830fe2e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145437120524Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145437120524Z-lyra/result.json",
+        "samples": "runs/20260828T145437120524Z-lyra/samples.csv",
+        "resultSha256": "76eda3ecc06f115618b8cc0b7703be263d4247481eb30f59306cab952189679a",
+        "samplesSha256": "ddfa79d396f5bdb7027c75731b56c8307063451d73cc5c913e3d196ca7661040"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145440204231Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145440204231Z-lyra/result.json",
+        "samples": "runs/20260828T145440204231Z-lyra/samples.csv",
+        "resultSha256": "5cab92c2636fc83a64bfd0b7694bb0286882789edcf604cb373eb5f4965bdcbe",
+        "samplesSha256": "0d4fcdbd3d3ade5fe454946cb8c6f130ffdb49c19527d867fea60a25e6d3bd28"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145452394991Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145452394991Z-lyra/result.json",
+        "samples": "runs/20260828T145452394991Z-lyra/samples.csv",
+        "resultSha256": "ee8816a834ff54a2fdc20f9a0b6413bf1d7644ac00425417484b018ec660cb70",
+        "samplesSha256": "e3519d0457f92267dd8f31bd5a2e1ef268d199854fcd662908693e8f0d6d5fa5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145504287463Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145504287463Z-lyra/result.json",
+        "samples": "runs/20260828T145504287463Z-lyra/samples.csv",
+        "resultSha256": "7281dd9b129268f50454668556181a4652522825aefa4499380f009f70ef8616",
+        "samplesSha256": "c3304deb0bdf6c83d68c86727de07cca4bde95046b6e2f1694be20bea5103b70"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145533267603Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145533267603Z-lyra/result.json",
+        "samples": "runs/20260828T145533267603Z-lyra/samples.csv",
+        "resultSha256": "ce39f5667381a41c75416c2499c05309c5a7fb1d60f4c6475461b2873453c3b1",
+        "samplesSha256": "27a70e2c0c4a651f3565b09155ec815dc1f7957bb19e0d6f25ab70ec06ce9338"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145558774168Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145558774168Z-lyra/result.json",
+        "samples": "runs/20260828T145558774168Z-lyra/samples.csv",
+        "resultSha256": "71e5e7d73dc7796c3246b81a6db5b88900d3b879713f993a9abdf83b0e9089fb",
+        "samplesSha256": "16ab5cbd8a244bb1e705dc3ee25399ea852805f6b57d92aa24a86ac2dbb2a4ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145649161353Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145649161353Z-lyra/result.json",
+        "samples": "runs/20260828T145649161353Z-lyra/samples.csv",
+        "resultSha256": "21c85e8e786f43c7004091a53b072ff70f1a62cef20897f98cac3f348c7cd32d",
+        "samplesSha256": "b4c875fe0a81e2671186bdf30be28f0949c086f48a8a186b29b4054f760248ba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145736506991Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145736506991Z-lyra/result.json",
+        "samples": "runs/20260828T145736506991Z-lyra/samples.csv",
+        "resultSha256": "ad81606a0a953b12549b4f384ee22abc06e1b01667689217753e642330ef8432",
+        "samplesSha256": "bac6f0032064a79c31b5cb6807dc7e502d4aafc8411f93041425fcc68a891f49"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145747833605Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145747833605Z-lyra/result.json",
+        "samples": "runs/20260828T145747833605Z-lyra/samples.csv",
+        "resultSha256": "87e0de30ada1680277b2c1b270be15d4d45c09c090d8b7383bd9e1c93fe96c44",
+        "samplesSha256": "829562af03f9febc4356cd8254e2c0d71244c4fcfdeaa5e97c36e66ff391dad8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145800010383Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145800010383Z-lyra/result.json",
+        "samples": "runs/20260828T145800010383Z-lyra/samples.csv",
+        "resultSha256": "cc0616a6181eddd7890ef966ec4bbfaa0fc98b24f4eac419237488e004fbfd1e",
+        "samplesSha256": "61849425fee5a6dd9b306fb2767f2deb8be5072a3348a8dac60ae6f4097b93a4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145825872819Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145825872819Z-lyra/result.json",
+        "samples": "runs/20260828T145825872819Z-lyra/samples.csv",
+        "resultSha256": "879607ca1a7b6a015dc617b93b033a31742ab49bc9a1a1b9960fb3e9affc987f",
+        "samplesSha256": "20fd1762e1a910a590f6cad54a692bb5eb84a8df31c32d205011b52aa4252859"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145854935174Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145854935174Z-lyra/result.json",
+        "samples": "runs/20260828T145854935174Z-lyra/samples.csv",
+        "resultSha256": "541ba0e3a6330920cd832e3e1fadeb72481cfb3713bd8a37ff434551a345cf26",
+        "samplesSha256": "49708bb6fe4b121cf585c965b0a1142bb91205427ed34524f627411cafebea07"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T145942356835Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T145942356835Z-lyra/result.json",
+        "samples": "runs/20260828T145942356835Z-lyra/samples.csv",
+        "resultSha256": "59471d10ef50a9d7212fed9d5b53f0e5251a16a20a3851889b94f9401d948143",
+        "samplesSha256": "750d9b66bac7e5076beb780d7cc74e41b1a5922a98f0bc11d83313f7d357b7e0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150032819249Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150032819249Z-lyra/result.json",
+        "samples": "runs/20260828T150032819249Z-lyra/samples.csv",
+        "resultSha256": "f7e20d28bae49b5d02161f8246f34afff7e329d5fe841ecfae78b703e1469f53",
+        "samplesSha256": "6953045597b90bede222c817ddbdf4e6981d996c9cf0358d38a854f8482afc93"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150035836993Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150035836993Z-lyra/result.json",
+        "samples": "runs/20260828T150035836993Z-lyra/samples.csv",
+        "resultSha256": "7d67e9e7b7b7536639537ed504c8766de556e544ee4430c5cfd3ed52ab4d368a",
+        "samplesSha256": "c92f8c315dbb0cfa3da5026ec046ce198cbbeb6e11cde6a001ab5323711169fe"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150038968772Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150038968772Z-lyra/result.json",
+        "samples": "runs/20260828T150038968772Z-lyra/samples.csv",
+        "resultSha256": "682d005188e4dd9df466faf4cc87ba244f16b154d5a725ee6a9c141d3b64f7e7",
+        "samplesSha256": "49efdffb7301e77c9cca070985dd4df5d21d32ebeeed34549ad935fc3a203b2a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150108039422Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150108039422Z-lyra/result.json",
+        "samples": "runs/20260828T150108039422Z-lyra/samples.csv",
+        "resultSha256": "d2059e80e382a9dcef728fbf3b16686512d9541f7536e8b3a672b38286dbff1b",
+        "samplesSha256": "7f093a684903a0851a6eb598460d61001427a35b080e7d5483840397c5444358"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150133755307Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150133755307Z-lyra/result.json",
+        "samples": "runs/20260828T150133755307Z-lyra/samples.csv",
+        "resultSha256": "8c4a5187e5c8d3d2959481641f3ded8f892487af33f1c9000d14bc5265762d59",
+        "samplesSha256": "360e3f18552187395a8ac6b5e3afba28a71200f7c04bd6285382faa26ac2dad1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150223473719Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150223473719Z-lyra/result.json",
+        "samples": "runs/20260828T150223473719Z-lyra/samples.csv",
+        "resultSha256": "ae352b495bb9756b5ab48b7ccd54c5d0a4dd0dd305f5dd3fefdbbdf15787d3d8",
+        "samplesSha256": "1e35f19c3c9dbdd6b638bcc7cd9d47dd627a51a61980c95f3265bc1b46238eb7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150310806392Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150310806392Z-lyra/result.json",
+        "samples": "runs/20260828T150310806392Z-lyra/samples.csv",
+        "resultSha256": "eff5d9d65d9fd48bb103702234612736b2082cc6ad66e8186d7e055f5eb98486",
+        "samplesSha256": "1cb564dec825339227fdc0c01c58c3293e27fca85f12d34ae867c7d15e2119ea"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150313913792Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150313913792Z-lyra/result.json",
+        "samples": "runs/20260828T150313913792Z-lyra/samples.csv",
+        "resultSha256": "3bcd21555ab1094e8c951f6fb07f83d24387e03fcf7b3a71aceb5ceffa47e9e9",
+        "samplesSha256": "15e03a824d54c1e538de101b896357e9d0d1818c6cfcd42ef5b60ba9d7d74cb1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150316857893Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150316857893Z-lyra/result.json",
+        "samples": "runs/20260828T150316857893Z-lyra/samples.csv",
+        "resultSha256": "7abb187d7753bb02cb52d914c33cb57bfcb3c112adb19e11db7d0dda06d3f3dd",
+        "samplesSha256": "785339a66ef4bee75b7b42550181d450c9d8551f6cf26989ff18a2451fb9c841"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T150329017392Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-large-f4-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Clean three-round rotated memory-aware four-field reference cohort over 256-squared through 1024-squared safe workloads; separate algorithm-resident, benchmark-only, estimated, and observed memory; deferred unsafe extremes remain.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T150329017392Z-lyra/result.json",
+        "samples": "runs/20260828T150329017392Z-lyra/samples.csv",
+        "resultSha256": "91396ee3f6a22045089da4a6dad4288ca99395addcfd6c8597a420edc6ae9ddc",
+        "samplesSha256": "0a5a33666e956fc35d8dc6f4df1885b06387cb78fa3aaeb7ccf0ae0a37b9b4d0"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

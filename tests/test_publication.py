@@ -63,6 +63,69 @@ class PublicationValidationTests(unittest.TestCase):
                 for bundle in pipeline_reference
             },
         )
+        pipeline_large_f4_screen = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-large-f4-screen-v1"
+        ]
+        pipeline_large_f4_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-large-f4-reference-v1"
+        ]
+        self.assertEqual(8, len(pipeline_large_f4_screen))
+        self.assertEqual(24, len(pipeline_large_f4_reference))
+        self.assertTrue(all(
+            bundle.publication["status"] == "preliminary"
+            for bundle in pipeline_large_f4_screen
+        ))
+        self.assertTrue(all(
+            bundle.publication["status"] == "reference"
+            and not bundle.result["environment"]["gitDirty"]
+            for bundle in pipeline_large_f4_reference
+        ))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"]
+            for bundle in pipeline_large_f4_reference
+        })
+        self.assertEqual(
+            {
+                "wvm-direct--outer-dynamic-16",
+                "plane-major-fused-split--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in pipeline_large_f4_reference
+            },
+        )
+        self.assertEqual(
+            {
+                "wvm-current-256-nz129-f4",
+                "wvm-historical-512-nz129-f4",
+                "wvm-current-512-nz257-f4",
+                "wvm-large-1024-nz129-f4",
+            },
+            {
+                bundle.result["run"]["profile"]
+                for bundle in pipeline_large_f4_reference
+            },
+        )
+        for bundle in pipeline_large_f4_reference:
+            provider = bundle.result["providers"][0]
+            memory = provider["memory"]
+            self.assertGreater(memory["algorithmResidentBytes"], 0)
+            self.assertGreater(memory["benchmarkHarnessBytes"], 0)
+            self.assertGreater(memory["observedProcessHighWaterBytes"], 0)
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                memory["algorithmResidentBytes"] +
+                memory["benchmarkHarnessBytes"],
+            )
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                bundle.result["workload"]["bytes"]
+                ["spectralPipelineEstimatedExplicitPeak"],
+            )
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
