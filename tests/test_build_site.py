@@ -255,6 +255,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("synthetic quadratic convolution, not WVM’s nonlinear flux", issue_17_html)
             self.assertIn("Analytical 1024² memory projection", issue_17_html)
             self.assertIn("three independently planned four-output applications", issue_17_html)
+            self.assertIn("WVM-derived four-target horizontal-advection screen", issue_17_html)
+            self.assertIn("FFTW++ is 0.889× the explicit FFTW time", issue_17_html)
+            self.assertIn("0.661× its counted algorithm-resident storage", issue_17_html)
+            self.assertIn("1024 × 1024", issue_17_html)
+            self.assertIn("not a reference result or full-flux claim", issue_17_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

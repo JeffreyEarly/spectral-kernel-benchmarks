@@ -21989,6 +21989,81 @@
         "samplesSha256": "539d4855a12fce8d3976c9672099d59e15b344ff516cd69c7d0a37e8c7454a95"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T192857Z-issue17-n256-wvmadv-m256",
+      "incrementId": "wvm-derived-horizontal-advection-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "status": "preliminary",
+      "statusReason": "Single-round M4 Max WVM-derived horizontal-advection screen; passes the gate for rotated reference depth but is not a complete nonlinear-flux or general-Mac result.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T192857Z-issue17-n256-wvmadv-m256/result.json",
+        "samples": "runs/20260828T192857Z-issue17-n256-wvmadv-m256/samples.csv",
+        "resultSha256": "6b274453412280b7c89fcee4e0f7c191cf36533d3e5a5e3e4876f8b3379fe2d8",
+        "samplesSha256": "e15cb034cd204f259f6c42feaf36c67060fde9f29a673ec136407c4d292688e0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T192858Z-issue17-n512-wvmadv-m512",
+      "incrementId": "wvm-derived-horizontal-advection-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "status": "preliminary",
+      "statusReason": "Single-round M4 Max WVM-derived horizontal-advection screen; passes the gate for rotated reference depth but is not a complete nonlinear-flux or general-Mac result.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T192858Z-issue17-n512-wvmadv-m512/result.json",
+        "samples": "runs/20260828T192858Z-issue17-n512-wvmadv-m512/samples.csv",
+        "resultSha256": "fd573d19c832ed2ee7650cb8ce14e6fab3be40dae0c81902729c16196c4090d4",
+        "samplesSha256": "8bb9a44769fec2ebac17c119e4f9930d7f1c64960ac3ba3f0567adbe50c559fa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T192900Z-issue17-n1024-wvmadv-m1024",
+      "incrementId": "wvm-derived-horizontal-advection-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "status": "preliminary",
+      "statusReason": "Single-round M4 Max WVM-derived horizontal-advection screen; passes the gate for rotated reference depth but is not a complete nonlinear-flux or general-Mac result.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T192900Z-issue17-n1024-wvmadv-m1024/result.json",
+        "samples": "runs/20260828T192900Z-issue17-n1024-wvmadv-m1024/samples.csv",
+        "resultSha256": "f7972c8b27543df1ca93ac4f3cacab88b396a4abd4aab633673f969e25277569",
+        "samplesSha256": "ade027cfb25264f8d25c312cf0c05f12dd3afa9588d92d62c3190225d7255660"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
