@@ -466,6 +466,107 @@ void requireAllocationFreePlaneMajorOrdering(
             "plane-major retained-view steady-state execution allocated memory");
 }
 
+void requireAllocationFreeWvmPipeline(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    const skbench::GroupedVerticalOperators& operators,
+    skbench::VerticalGemmStrategy strategy) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
+    auto output = alignedBuffer<double>(workload.realElements());
+    const auto weights = skbench::syntheticModalWorkWeights(workload, modes);
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 53) / 53.0;
+    }
+
+    skbench::FFTWProvider fftw(workload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        2,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::wvmFrequencyMajor});
+    skbench::WvmDirectVerticalGemmProvider vertical(
+        workload, modes, operators, strategy);
+    require(vertical.supported(), "WVM pipeline vertical provider is unavailable");
+    auto modalForward = alignedBuffer<skbench::Complex>(vertical.modalSpectrumElements());
+    auto modalPostWork = alignedBuffer<skbench::Complex>(vertical.modalSpectrumElements());
+    vertical.initializeModalOutput(modalForward.get());
+    vertical.initializeModalOutput(modalPostWork.get());
+
+    const auto execute = [&] {
+        fftw.forward(input.get(), spectrum.get());
+        vertical.executeForward(spectrum.get(), modalForward.get());
+        skbench::applySyntheticModalWorkWvm(
+            workload, modes, weights.data(), modalForward.get(), modalPostWork.get());
+        vertical.initializeSpectrumOutput(spectrum.get());
+        vertical.executeInverse(modalPostWork.get(), spectrum.get());
+        fftw.inverse(spectrum.get(), output.get());
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "WVM synthetic pipeline steady-state execution allocated memory");
+}
+
+void requireAllocationFreeFusedSplitPipeline(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    const skbench::GroupedVerticalOperators& operators,
+    skbench::VerticalGemmStrategy strategy) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
+    auto output = alignedBuffer<double>(workload.realElements());
+    const auto weights = skbench::syntheticModalWorkWeights(workload, modes);
+    const auto modalElements =
+        workload.retainedVerticalModes() * modes.size() * workload.fields;
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 59) / 59.0;
+    }
+
+    skbench::FFTWProvider fftw(workload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        2,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::planeMajor});
+    skbench::VerticalGemmProvider vertical(
+        workload, operators, skbench::VerticalGemmLayout::split, strategy);
+    require(vertical.supported(), "fused-split pipeline vertical provider is unavailable");
+
+    const auto execute = [&] {
+        fftw.forward(input.get(), spectrum.get());
+        fftw.gatherRetainedToSplitOuter(
+            modes, spectrum.get(), vertical.splitPhysicalInputRealData(),
+            vertical.splitPhysicalInputImaginaryData());
+        vertical.executeForward();
+        skbench::applySyntheticModalWorkSplit(
+            modalElements, weights.data(),
+            vertical.splitModalOutputRealData(),
+            vertical.splitModalOutputImaginaryData(),
+            vertical.splitModalInputRealData(),
+            vertical.splitModalInputImaginaryData());
+        vertical.executeInverse();
+        fftw.embedRetainedFromSplitOuter(
+            modes, vertical.splitPhysicalOutputRealData(),
+            vertical.splitPhysicalOutputImaginaryData(), spectrum.get());
+        fftw.inverse(spectrum.get(), output.get());
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "fused-split synthetic pipeline steady-state execution allocated memory");
+}
+
 void requireExactSplitInPlaceWvmOrderUnsupported(const skbench::Workload& workload) {
     const auto storageCount = 2 * workload.spectrumElements();
     auto* storage = static_cast<double*>(fftw_malloc(storageCount * sizeof(double)));
@@ -1529,6 +1630,107 @@ int main() {
                     "spectral-boundary explicit peak estimate");
         }
 
+        {
+            const auto modalElements =
+                workload.retainedVerticalModes() * modes.size() * workload.fields;
+            const auto weights = skbench::syntheticModalWorkWeights(workload, modes);
+            std::vector<skbench::Complex> modalInput(modalElements);
+            std::vector<skbench::Complex> interleavedOutput(modalElements);
+            std::vector<double> inputReal(modalElements);
+            std::vector<double> inputImaginary(modalElements);
+            std::vector<double> outputReal(modalElements);
+            std::vector<double> outputImaginary(modalElements);
+            std::vector<skbench::Complex> splitOutput(modalElements);
+            for (std::size_t index = 0; index < modalElements; ++index) {
+                modalInput[index] = {
+                    static_cast<double>(index % 31) / 31.0,
+                    -static_cast<double>(index % 29) / 29.0};
+            }
+            skbench::interleavedToSplit(
+                modalElements, modalInput.data(), inputReal.data(), inputImaginary.data());
+            skbench::applySyntheticModalWorkInterleaved(
+                modalElements, weights.data(), modalInput.data(), interleavedOutput.data());
+            skbench::applySyntheticModalWorkSplit(
+                modalElements, weights.data(), inputReal.data(), inputImaginary.data(),
+                outputReal.data(), outputImaginary.data());
+            skbench::splitToInterleaved(
+                modalElements, outputReal.data(), outputImaginary.data(), splitOutput.data());
+            require(skbench::relativeL2Error(
+                        splitOutput.data(), interleavedOutput.data(), modalElements) == 0.0,
+                    "synthetic modal work split/interleaved equivalence");
+
+            const auto fullModalElements = workload.halfRows() *
+                workload.retainedVerticalModes() * workload.fields;
+            std::vector<skbench::Complex> fullModalInput(fullModalElements);
+            std::vector<skbench::Complex> fullModalOutput(fullModalElements);
+            std::vector<skbench::Complex> gatheredModalOutput(modalElements);
+            skbench::embedRetainedModal(
+                workload, modes, modalInput.data(), fullModalInput.data());
+            skbench::applySyntheticModalWorkWvm(
+                workload, modes, weights.data(), fullModalInput.data(),
+                fullModalOutput.data());
+            skbench::gatherRetainedModal(
+                workload, modes, fullModalOutput.data(), gatheredModalOutput.data());
+            require(skbench::relativeL2Error(
+                        gatheredModalOutput.data(), interleavedOutput.data(), modalElements) == 0.0,
+                    "synthetic modal work WVM/compact equivalence");
+        }
+
+        for (const std::string pipelinePolicy : {
+                 "wvm-direct", "plane-major-fused-split"}) {
+            skbench::RunOptions pipelineOptions;
+            pipelineOptions.kernel = "spectral-pipeline";
+            pipelineOptions.boundaryPolicy = pipelinePolicy;
+            pipelineOptions.profile = "smoke";
+            pipelineOptions.verticalGemmFamily = "k2-grouped";
+            pipelineOptions.verticalGemmSchedule = "serial";
+            pipelineOptions.verticalGemmOuterWorkers = 1;
+            pipelineOptions.fftwPlanning = "estimate";
+            pipelineOptions.fftwInternalWorkers = 1;
+            pipelineOptions.fftwOuterWorkers = 2;
+            pipelineOptions.warmups = 1;
+            pipelineOptions.samples = 2;
+            const auto pipelineReport = skbench::runBenchmark(pipelineOptions);
+            require(pipelineReport.status == "passed",
+                    "spectral-pipeline smoke benchmark failed");
+            require(pipelineReport.providers.size() == 1,
+                    "spectral-pipeline isolated provider count");
+            const auto& provider = pipelineReport.providers.front();
+            require(provider.correctness.size() == 5,
+                    "spectral-pipeline correctness metric count");
+            require(std::all_of(
+                        provider.correctness.begin(), provider.correctness.end(),
+                        [](const skbench::CorrectnessMetric& item) {
+                            return item.passed;
+                        }),
+                    "spectral-pipeline correctness");
+            bool foundRoundTrip = false;
+            bool foundModalWork = false;
+            bool modalLedgerExecuted = false;
+            for (const auto& timing : provider.timings) {
+                foundRoundTrip = foundRoundTrip ||
+                    (timing.scope == "uninstrumented-total" &&
+                     timing.stage == "synthetic antialiased spectral pipeline" &&
+                     timing.direction == "round-trip" && timing.seconds.size() == 2);
+                foundModalWork = foundModalWork ||
+                    (timing.scope == "component" &&
+                     timing.stage == "mode-keyed modal work" &&
+                     timing.direction == "modal" && timing.seconds.size() == 2);
+            }
+            for (const auto& entry : provider.ledger) {
+                modalLedgerExecuted = modalLedgerExecuted ||
+                    (entry.stage == "modal work" &&
+                     entry.state == skbench::StageState::executed);
+            }
+            require(foundRoundTrip && foundModalWork,
+                    "spectral-pipeline total and modal timing series");
+            require(modalLedgerExecuted,
+                    "spectral-pipeline modal ledger state");
+            require(pipelineReport.spectralPipelineEstimatedExplicitPeakBytes >
+                        pipelineReport.fullSpectrumBytes,
+                    "spectral-pipeline explicit peak estimate");
+        }
+
         if (skbench::test::allocationTrackingSupported()) {
             requireAllocationFreeVerticalExecution(
                 workload, commonVertical, skbench::VerticalGemmLayout::complexInterleaved);
@@ -1560,6 +1762,12 @@ int main() {
                 requireAllocationFreePlaneMajorOrdering(
                     workload, modes, groupedVertical, {schedule, 2});
             }
+            requireAllocationFreeWvmPipeline(
+                workload, modes, groupedVertical,
+                {skbench::VerticalGemmSchedule::outerDynamic, 2});
+            requireAllocationFreeFusedSplitPipeline(
+                workload, modes, groupedVertical,
+                {skbench::VerticalGemmSchedule::outerDynamic, 2});
         }
 
         std::cout << "skbench unit tests passed\n";

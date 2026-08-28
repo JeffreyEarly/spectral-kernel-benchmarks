@@ -243,6 +243,70 @@ std::size_t wvmModalSpectrumIndex(const Workload& workload, std::size_t kx, std:
     return j + nj * field + nj * workload.fields * (kx + workload.nxHalf() * ky);
 }
 
+std::vector<double> syntheticModalWorkWeights(
+    const Workload& workload, const std::vector<RetainedMode>& modes) {
+    const auto nj = workload.retainedVerticalModes();
+    std::vector<double> weights(nj * workload.fields * modes.size());
+    auto magnitude = [](std::int64_t value) {
+        return value < 0
+            ? static_cast<std::uint64_t>(-(value + 1)) + 1
+            : static_cast<std::uint64_t>(value);
+    };
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto k = magnitude(modes[modeIndex].k);
+        const auto l = magnitude(modes[modeIndex].l);
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                const auto key = (17U * k + 29U * l + 7U * j + 11U * field) % 97U;
+                weights[modalSpectrumIndex(workload, modeIndex, j, field)] =
+                    0.75 + 0.5 * static_cast<double>(key) / 96.0;
+            }
+        }
+    }
+    return weights;
+}
+
+void applySyntheticModalWorkInterleaved(
+    std::size_t count, const double* weights, const Complex* input, Complex* output) noexcept {
+    for (std::size_t index = 0; index < count; ++index) {
+        output[index] = scale(input[index], weights[index]);
+    }
+}
+
+void applySyntheticModalWorkSplit(
+    std::size_t count, const double* weights,
+    const double* inputReal, const double* inputImaginary,
+    double* outputReal, double* outputImaginary) noexcept {
+    for (std::size_t index = 0; index < count; ++index) {
+        outputReal[index] = weights[index] * inputReal[index];
+        outputImaginary[index] = weights[index] * inputImaginary[index];
+    }
+}
+
+void applySyntheticModalWorkWvm(
+    const Workload& workload, const std::vector<RetainedMode>& modes,
+    const double* weights, const Complex* input, Complex* output) {
+    const auto nj = workload.retainedVerticalModes();
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto& mode = modes[modeIndex];
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                const auto logicalIndex = modalSpectrumIndex(
+                    workload, modeIndex, j, field);
+                const auto storedIndex = wvmModalSpectrumIndex(
+                    workload, mode.storedKx, mode.storedKy, j, field);
+                output[storedIndex] = scale(input[storedIndex], weights[logicalIndex]);
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != workload.ny) {
+                    const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+                    output[wvmModalSpectrumIndex(
+                        workload, 0, conjugateKy, j, field)] = conjugate(output[storedIndex]);
+                }
+            }
+        }
+    }
+}
+
 void gatherRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* fullSpectrum, Complex* retainedSpectrum) {
     for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
         const auto& mode = modes[modeIndex];

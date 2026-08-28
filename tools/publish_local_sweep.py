@@ -107,6 +107,22 @@ def main() -> int:
         publication = {
             "id": run_id,
             **({"incrementId": increment_id} if increment_id is not None else {}),
+            **(
+                {"campaignPhase": manifest["phase"]}
+                if isinstance(manifest.get("phase"), str) and manifest["phase"]
+                else {}
+            ),
+            **(
+                {"campaignRound": manifest_entry["round"]}
+                if isinstance(manifest_entry.get("round"), int)
+                else {}
+            ),
+            **(
+                {"campaignCandidateId": manifest_entry["candidate"]["id"]}
+                if isinstance(manifest_entry.get("candidate"), dict)
+                and isinstance(manifest_entry["candidate"].get("id"), str)
+                else {}
+            ),
             "status": arguments.status,
             "statusReason": arguments.status_reason,
             "summary": summary,

@@ -74,6 +74,8 @@ def provider_name(provider: dict) -> str:
         "fftw-full-2d-retained-reference": "FFTW full 2-D plus radial selection",
         "fftw-partial-column-pruned": "FFTW partial-column-pruned",
         "accelerate-vdsp-native-retained": "Accelerate/vDSP native retained split",
+        "pipeline-wvm-direct": "WVM direct/no-reorder pipeline",
+        "pipeline-plane-major-fused-split": "Plane-major fused-split pipeline",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -155,26 +157,39 @@ def maximum_l2_error(provider: dict) -> float | None:
 
 def summary_timing_table(result: dict) -> str:
     providers = result["providers"]
-    measurements: list[tuple[str, str, tuple[str, ...]]] = [
-        (label, scope, ()) for label, scope in SUMMARY_SCOPES
+    measurements: list[tuple[str, str, tuple[str, ...], tuple[str, ...]]] = [
+        (label, scope, (), ("forward", "inverse")) for label, scope in SUMMARY_SCOPES
     ]
-    if any(provider["id"].startswith("boundary-") for provider in providers):
+    if any(provider["id"].startswith("pipeline-") for provider in providers):
         measurements = [
-            ("Raw horizontal transform", "primitive", ("raw FFT", "raw pruned FFT")),
-            ("Raw vertical MM", "primitive", ("raw vertical MM",)),
-            ("Representation movement", "adapter-component", ()),
-            ("Composed boundary", "uninstrumented-total", ()),
+            ("Raw FFT", "primitive", ("raw FFT",), ("forward", "inverse")),
+            ("Raw vertical MM", "primitive", ("raw vertical MM",), ("forward", "inverse")),
+            ("Representation movement", "adapter-component", (), ("forward", "inverse")),
+            ("Mode-keyed modal work", "component", ("mode-keyed modal work",), ("modal",)),
+            (
+                "Synthetic antialiased spectral pipeline",
+                "uninstrumented-total",
+                ("synthetic antialiased spectral pipeline",),
+                ("round-trip",),
+            ),
+        ]
+    elif any(provider["id"].startswith("boundary-") for provider in providers):
+        measurements = [
+            ("Raw horizontal transform", "primitive", ("raw FFT", "raw pruned FFT"), ("forward", "inverse")),
+            ("Raw vertical MM", "primitive", ("raw vertical MM",), ("forward", "inverse")),
+            ("Representation movement", "adapter-component", (), ("forward", "inverse")),
+            ("Composed boundary", "uninstrumented-total", (), ("forward", "inverse")),
         ]
     elif any(
         item["scope"] == "primitive" and item["stage"] == "raw vertical GEMM"
         for provider in providers
         for item in provider["timings"]
     ):
-        measurements = [("Raw vertical GEMM", "primitive", ())]
+        measurements = [("Raw vertical GEMM", "primitive", (), ("forward", "inverse"))]
     header = "".join(f'<th scope="col">{escaped(provider_name(provider))}</th>' for provider in providers)
     rows: list[str] = []
-    for label, scope, stages in measurements:
-        for direction in ("forward", "inverse"):
+    for label, scope, stages, directions in measurements:
+        for direction in directions:
             values = []
             for provider in providers:
                 if stages:
@@ -2958,7 +2973,220 @@ def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
     return "".join(sections)
 
 
+PIPELINE_PROVIDER_IDS = {
+    "pipeline-wvm-direct",
+    "pipeline-plane-major-fused-split",
+}
+
+
+def spectral_pipeline_bundles(bundles: list[PublishedBundle]) -> list[PublishedBundle]:
+    return [
+        bundle for bundle in bundles
+        if any(provider["id"] in PIPELINE_PROVIDER_IDS for provider in bundle.result["providers"])
+    ]
+
+
+def spectral_pipeline_provider(bundle: PublishedBundle) -> dict:
+    return next(
+        provider for provider in bundle.result["providers"]
+        if provider["id"] in PIPELINE_PROVIDER_IDS
+    )
+
+
+def spectral_pipeline_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in spectral_pipeline_bundles(bundles):
+        result = bundle.result
+        provider = spectral_pipeline_provider(bundle)
+        workload = result["workload"]
+        publication = bundle.publication
+
+        def milliseconds(scope: str, stage: str, direction: str) -> str:
+            item = stage_timing(provider, scope, stage, direction)
+            return "not measured" if item is None else format_ms(item["medianSeconds"])
+
+        def pair(scope: str, stage: str) -> str:
+            return f"{milliseconds(scope, stage, 'forward')} / {milliseconds(scope, stage, 'inverse')}"
+
+        movement = (
+            f"{milliseconds('adapter-component', 'logical retained provider-order view', 'forward')} / "
+            f"{milliseconds('adapter-component', 'rebuild zero-padded inverse spectrum', 'inverse')}"
+            if provider["id"] == "pipeline-wvm-direct"
+            else
+            f"{milliseconds('adapter-component', 'fused retained selection and split pack', 'forward')} / "
+            f"{milliseconds('adapter-component', 'fused split embed into zeroed plane-major spectrum', 'inverse')}"
+        )
+        total = milliseconds(
+            "uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip"
+        )
+        modal = milliseconds("component", "mode-keyed modal work", "modal")
+        explicit_peak = result["workload"].get("bytes", {}).get(
+            "spectralPipelineEstimatedExplicitPeak"
+        )
+        peak_text = format_bytes(explicit_peak) if explicit_peak is not None else "not reported"
+        round_number = publication.get("campaignRound", "—")
+        run_id = result["run"]["id"]
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+            f'<span class="muted">round {escaped(round_number)} · {publication_badge(publication["status"])}</span></td>'
+            f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
+            f'<td>{escaped(provider_name(provider))}</td>'
+            f'<td class="numeric">{pair("primitive", "raw FFT")}</td>'
+            f'<td class="numeric">{pair("primitive", "raw vertical MM")}</td>'
+            f'<td class="numeric">{movement}</td>'
+            f'<td class="numeric">{modal}</td>'
+            f'<td class="numeric"><strong>{total}</strong></td>'
+            f'<td class="numeric">{format_bytes(provider["memory"]["persistentBytes"])}<br><span class="muted">peak {peak_text}</span></td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table">'
+        '<caption>Component medians in milliseconds are forward / inverse. Modal work and the uninstrumented total are single round-trip values. Component medians are diagnostic and are not summed; the uninstrumented total is authoritative.</caption>'
+        '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Algorithm graph</th>'
+        '<th scope="col">Raw FFT</th><th scope="col">Raw vertical MM</th><th scope="col">Movement / rebuild</th>'
+        '<th scope="col">Modal work</th><th scope="col">Uninstrumented total</th><th scope="col">Memory</th><th scope="col">Max error</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def spectral_pipeline_bootstrap(profile_ratios: dict[str, list[float]]) -> tuple[float, float]:
+    generator = random.Random(129)
+    profiles = sorted(profile_ratios)
+    draws = sorted(
+        math.exp(
+            sum(math.log(generator.choice(profile_ratios[profile])) for profile in profiles)
+            / len(profiles)
+        )
+        for _ in range(20000)
+    )
+    return draws[int(0.025 * (len(draws) - 1))], draws[int(0.975 * (len(draws) - 1))]
+
+
+def spectral_pipeline_synthesis(bundles: list[PublishedBundle]) -> str:
+    pipeline = spectral_pipeline_bundles(bundles)
+    if not pipeline:
+        return ""
+    reference = [bundle for bundle in pipeline if bundle.publication["status"] == "reference"]
+    candidates = reference or pipeline
+    latest_increment = max(
+        {bundle.publication.get("incrementId", "") for bundle in candidates},
+        key=lambda increment: max(
+            bundle.result["environment"]["timestampUtc"]
+            for bundle in candidates
+            if bundle.publication.get("incrementId", "") == increment
+        ),
+    )
+    cohort = [
+        bundle for bundle in candidates
+        if bundle.publication.get("incrementId", "") == latest_increment
+    ]
+    cells: dict[tuple[str, str, int], float] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        provider = spectral_pipeline_provider(bundle)
+        candidate_id = bundle.publication.get("campaignCandidateId") or (
+            "wvm-direct--outer-dynamic-16"
+            if provider["id"] == "pipeline-wvm-direct"
+            else "plane-major-fused-split--outer-dynamic-16"
+        )
+        round_number = int(bundle.publication.get("campaignRound", 1))
+        total = stage_timing(
+            provider,
+            "uninstrumented-total",
+            "synthetic antialiased spectral pipeline",
+            "round-trip",
+        )
+        if total is not None:
+            cells[(candidate_id, bundle.result["run"]["profile"], round_number)] = float(
+                total["medianSeconds"]
+            )
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    baseline_id = "wvm-direct--outer-dynamic-16"
+    candidate_id = "plane-major-fused-split--outer-dynamic-16"
+    profiles = sorted({profile for _, profile, _ in cells})
+    profile_rows: list[str] = []
+    profile_ratios: dict[str, list[float]] = {}
+    summary_ratios: list[float] = []
+    for profile in profiles:
+        rounds = sorted(
+            round_number for candidate, candidate_profile, round_number in cells
+            if candidate == baseline_id
+            and candidate_profile == profile
+            and (candidate_id, profile, round_number) in cells
+        )
+        if not rounds:
+            continue
+        baseline_values = [cells[(baseline_id, profile, round_number)] for round_number in rounds]
+        candidate_values = [cells[(candidate_id, profile, round_number)] for round_number in rounds]
+        paired = [candidate / baseline for candidate, baseline in zip(candidate_values, baseline_values)]
+        ratio = statistics.median(candidate_values) / statistics.median(baseline_values)
+        profile_ratios[profile] = paired
+        summary_ratios.append(ratio)
+        profile_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(statistics.median(baseline_values))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(candidate_values))}</td>'
+            f'<td class="numeric">{ratio:.3f}×</td>'
+            f'<td class="numeric">{len(rounds)}</td>'
+            "</tr>"
+        )
+    if not summary_ratios:
+        return ""
+    geometric_ratio = math.exp(sum(math.log(value) for value in summary_ratios) / len(summary_ratios))
+    maximum_ratio = max(summary_ratios)
+    maximum_error = max(errors) if errors else math.inf
+    is_reference = bool(reference)
+    interval = spectral_pipeline_bootstrap(profile_ratios) if is_reference else None
+    if is_reference:
+        statistics_pass = (
+            geometric_ratio <= 0.90
+            and maximum_ratio <= 1.03
+            and interval is not None
+            and interval[1] < 1.0
+            and maximum_error <= 1.0e-12
+        )
+        gate_text = (
+            "The M4 adoption-statistics gate passes; cross-Mac replication and full-model validation remain required."
+            if statistics_pass else
+            "The M4 adoption-statistics gate does not pass; this pipeline is not yet an adoption candidate."
+        )
+        interval_text = f" The stratified paired-bootstrap 95% interval is {interval[0]:.3f}×–{interval[1]:.3f}×."
+    else:
+        screen_pass = (
+            geometric_ratio <= 0.95
+            and maximum_ratio <= 1.10
+            and maximum_error <= 1.0e-12
+        )
+        gate_text = (
+            "The bounded screen passes, so the same two graphs advance to the three-round reference campaign."
+            if screen_pass else
+            "The bounded screen does not pass, so the reference campaign is not triggered."
+        )
+        interval_text = " Confidence is deliberately deferred to the reference campaign."
+    return f"""
+      <h3>Synthetic antialiased spectral-pipeline campaign</h3>
+      <p>This experiment composes the issue #7 horizontal representation, the issue #8 vertically truncated projection, and the issue #13 ordering policy around one deterministic representation-independent real diagonal modal operator. It starts with ready real data and ends with reconstructed real data. It explicitly excludes the WVM nonlinear flux calculation, time integration, state management, and I/O, so it tests a spectral infrastructure decision rather than full-model physics.</p>
+      <p>The latest {"reference" if is_reference else "screen"} cohort uses <code>{escaped(latest_increment)}</code>. The plane-major fused-split graph is {geometric_ratio:.3f}× the WVM direct/no-reorder control geometrically across {len(summary_ratios)} production workloads; its worst workload is {maximum_ratio:.3f}×. The maximum recorded correctness error is {maximum_error:.3e}.{interval_text} {escaped(gate_text)}</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative uninstrumented round-trip medians; candidate / control below one favors the fused-split graph.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">WVM direct (ms)</th><th scope="col">Fused split (ms)</th><th scope="col">Ratio</th><th scope="col">Rounds</th></tr></thead>
+        <tbody>{"".join(profile_rows)}</tbody>
+      </table></div>
+      <p class="method-note">Raw FFT, raw forward and inverse vertical MM, representation movement, modal work, setup, and memory remain separately reported below. Component medians are diagnostic; the uninstrumented total is authoritative because cache effects and fused work prevent additive interpretation.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
+    if experiment["id"] == "issue-009-combined-spectral-pipeline":
+        return spectral_pipeline_evidence_table(bundles)
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
     if experiment["id"] == "issue-006-vdsp-batching-scheduling":
@@ -3042,7 +3270,9 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
     evidence_table = experiment_evidence_table(experiment, related)
-    if experiment_id == "issue-004-fftw-strategy-sweep":
+    if experiment_id == "issue-009-combined-spectral-pipeline":
+        synthesis = spectral_pipeline_synthesis(related)
+    elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
         synthesis = vdsp_batch_synthesis(related)

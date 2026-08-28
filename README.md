@@ -120,6 +120,10 @@ The next increment adds a no-reorder competitor to the same run. It reads retain
 
 Raw horizontal transform, raw vertical MM, retention/conversion/packing, inverse zero fill and embedding, setup, memory, and uninstrumented composed totals are all reported separately. Component medians remain diagnostic rather than additive. Multidimensional FFTW inverse transforms may destroy their spectrum input, so WVM-direct and plane-major-view totals rebuild their full zero-padded inverse view on every timed call. This is a real composed-boundary cost; the earlier horizontal-only retained-view result correctly excluded it by taking a ready disposable view as its input. Every policy is out-of-place at the transform boundary and performs zero steady-state allocations.
 
+`--kernel spectral-pipeline` is the bounded issue #9 synthetic round trip. It compares the WVM direct/no-reorder production-layout control with the issue #13 `plane-major-fused-split--outer-dynamic-16` survivor. Each timed total starts with ready real fields and executes horizontal forward and radial retention, vertically truncated forward projection, `real-diagonal-mode-keyed-v1` modal work, inverse vertical reconstruction, horizontal embedding, and inverse FFT. The modal operator precomputes one real bounded weight for every logical `(k,l,j,field)` value during setup and applies the same out-of-place scaling to interleaved WVM modal views or compact split arrays. It preserves Hermitian symmetry, exercises one real downstream modal-data pass, and is not a surrogate implementation of WVM's nonlinear flux.
+
+The pipeline report retains independent raw forward/inverse FFT, raw forward/inverse vertical MM, movement, modal-work, setup, memory, placement, liveness, and authoritative uninstrumented round-trip timings. The component medians are diagnostic and need not sum to the total. Both graphs are out-of-place at the transform boundary, explicitly rebuild any disposable zero-padded inverse spectrum, and allocate no memory in steady state. A canonical compact-interleaved graph supplies the complete mode-keyed oracle, with independent scalar vertical probes, at a Float64 tolerance of `1e-12`.
+
 ```sh
 python3 tools/run_ordering_packing_sweep.py --dry-run --allow-dirty-tree
 python3 tools/run_ordering_packing_sweep.py
@@ -131,6 +135,17 @@ python3 tools/run_spectral_boundary_sweep.py --phase reference --screen-analysis
 ```
 
 The bounded screen crosses the six issue #7 production profiles with dynamic-16 and static-12 issue #8 schedulers. A non-control policy advances only when its complete-matrix geometric ratio to the workload-direction best is at most 1.05 and it wins at least one cell; the best fused-split representation bridge may advance at 1.10. Dynamic-16 WVM direct and packed-split controls remain at reference depth. Because issue #9 consumes a complete bidirectional policy, its reference selection pairs the forward and inverse boundary medians within each workload. It keeps at most three candidates within 3% of the best geometric paired ratio and rejects any candidate whose paired cost is more than 10% behind the best policy for a workload.
+
+The issue #9 driver holds the selected issue #13 topology fixed rather than reopening the provider search:
+
+```sh
+python3 tools/run_spectral_pipeline_sweep.py --phase screen --dry-run --allow-dirty-tree
+python3 tools/run_spectral_pipeline_sweep.py --phase screen
+python3 tools/run_spectral_pipeline_sweep.py --phase reference \
+  --screen-analysis results/local/<screen>/analysis.json
+```
+
+The one-round screen advances to the three-round reference campaign only when fused split is at least 5% faster geometrically than WVM direct, no workload is more than 10% slower, and every correctness metric passes. Reference-depth M4 adoption statistics require at least 10% geometric improvement, no workload regression above 3%, and a stratified 95% bootstrap interval excluding a tie. Cross-Mac replication remains a separate issue #11 gate.
 
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 

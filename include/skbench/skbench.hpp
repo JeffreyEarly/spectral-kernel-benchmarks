@@ -65,6 +65,18 @@ std::size_t modalSpectrumIndex(const Workload& workload, std::size_t mode, std::
 std::size_t wvmModalSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky,
                                   std::size_t j, std::size_t field);
 
+std::vector<double> syntheticModalWorkWeights(
+    const Workload& workload, const std::vector<RetainedMode>& modes);
+void applySyntheticModalWorkInterleaved(
+    std::size_t count, const double* weights, const Complex* input, Complex* output) noexcept;
+void applySyntheticModalWorkSplit(
+    std::size_t count, const double* weights,
+    const double* inputReal, const double* inputImaginary,
+    double* outputReal, double* outputImaginary) noexcept;
+void applySyntheticModalWorkWvm(
+    const Workload& workload, const std::vector<RetainedMode>& modes,
+    const double* weights, const Complex* input, Complex* output);
+
 void gatherRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* fullSpectrum, Complex* retainedSpectrum);
 void embedRetained(const Workload& workload, const std::vector<RetainedMode>& modes, const Complex* retainedSpectrum, Complex* fullSpectrum);
 void gatherRetainedModal(const Workload& workload, const std::vector<RetainedMode>& modes,
@@ -657,6 +669,7 @@ struct BenchmarkReport {
     std::uint64_t verticalMatrixFamilySourceBytes = 0;
     std::uint64_t verticalBenchmarkEstimatedExplicitPeakBytes = 0;
     std::uint64_t orderingPackingEstimatedExplicitPeakBytes = 0;
+    std::uint64_t spectralPipelineEstimatedExplicitPeakBytes = 0;
     std::string verticalMatrixFamilyId = "orthonormal-dct2-truncated-v1";
     std::size_t verticalGroupCount = 0;
     std::size_t minimumVerticalGroupModes = 0;
@@ -718,6 +731,7 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options);
 BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
 BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options);
+BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
 EnvironmentRecord environmentRecord();
 double median(std::vector<double> values);
