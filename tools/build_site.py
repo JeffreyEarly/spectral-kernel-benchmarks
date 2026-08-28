@@ -73,6 +73,7 @@ def provider_name(provider: dict) -> str:
         "ordering-no-reorder-accelerate-zgemm": "Direct WVM-order Accelerate zgemm",
         "fftw-full-2d-retained-reference": "FFTW full 2-D plus radial selection",
         "fftw-partial-column-pruned": "FFTW partial-column-pruned",
+        "accelerate-vdsp-native-retained": "Accelerate/vDSP native retained split",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -2173,6 +2174,251 @@ def pruned_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
     )
 
 
+RETAINED_HORIZONTAL_PROVIDER_IDS = {
+    "fftw",
+    "fftw-full-2d-retained-reference",
+    "fftw-partial-column-pruned",
+    "accelerate-vdsp-native-retained",
+}
+
+
+def retained_horizontal_candidate_name(provider: dict) -> str:
+    outer = provider.get("scheduling", {}).get(
+        "outerWorkers", provider.get("outerWorkers", provider.get("workers", 1))
+    )
+    if provider["id"] == "fftw-partial-column-pruned":
+        return f"FFTW pruned outer-{outer}"
+    if provider["id"] == "fftw-full-2d-retained-reference":
+        return f"FFTW WVM full outer-{outer}"
+    if provider["id"] == "accelerate-vdsp-native-retained":
+        return f"vDSP native retained outer-{outer}"
+    if provider["nativeRepresentationId"].startswith("plane-major"):
+        return f"FFTW plane-major full outer-{outer}"
+    return f"FFTW WVM full outer-{outer}"
+
+
+def retained_horizontal_providers(bundle: PublishedBundle) -> list[dict]:
+    return [
+        provider for provider in bundle.result["providers"]
+        if provider["id"] in RETAINED_HORIZONTAL_PROVIDER_IDS
+    ]
+
+
+def retained_component(provider: dict, direction: str) -> dict | None:
+    matches = [
+        item for item in provider["timings"]
+        if item["scope"] == "operator-component"
+        and item["direction"] == direction
+    ]
+    if len(matches) > 1:
+        raise ValueError(
+            f"Multiple retained operator components for {provider['id']} {direction}"
+        )
+    return matches[0] if matches else None
+
+
+def retained_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in sorted(
+        bundles,
+        key=lambda item: (
+            item.result["workload"]["Nx"],
+            item.result["workload"]["Nz"],
+            item.result["workload"]["fields"],
+            item.result["run"]["id"],
+        ),
+    ):
+        result = bundle.result
+        workload = result["workload"]
+        for provider in retained_horizontal_providers(bundle):
+            raw_forward = timing(provider, "primitive", "forward")
+            raw_inverse = timing(provider, "primitive", "inverse")
+            retained_forward = retained_component(provider, "forward")
+            retained_inverse = retained_component(provider, "inverse")
+            total_forward = timing(provider, "uninstrumented-total", "forward")
+            total_inverse = timing(provider, "uninstrumented-total", "inverse")
+            if total_forward is None or total_inverse is None:
+                continue
+
+            def pair(first: dict | None, second: dict | None) -> str:
+                if first is None or second is None:
+                    return '<span class="muted">fused or not measured</span>'
+                return f"{timing_with_interval(first)} / {timing_with_interval(second)}"
+
+            setup = provider["setup"]
+            memory = provider["memory"]
+            explicit_memory = (
+                int(memory["persistentBytes"]) + int(memory["scratchBytes"])
+            )
+            run_id = result["run"]["id"]
+            rows.append(
+                "<tr>"
+                f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+                f'<span class="muted">{publication_badge(bundle.publication["status"])} · '
+                f'{result["run"]["samples"]} samples</span></td>'
+                f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
+                f'fields={workload["fields"]}</span></td>'
+                f'<td>{escaped(retained_horizontal_candidate_name(provider))}<br>'
+                f'<span class="muted">{escaped(provider["nativeRepresentationId"])}</span></td>'
+                f'<td class="numeric">{pair(raw_forward, raw_inverse)}</td>'
+                f'<td class="numeric">{pair(retained_forward, retained_inverse)}</td>'
+                f'<td class="numeric">{pair(total_forward, total_inverse)}</td>'
+                f'<td class="numeric">{format_ms(setup["totalSeconds"])}<br>'
+                f'<span class="muted">{format_bytes(explicit_memory)}</span></td>'
+                f'<td class="numeric">{format_error(maximum_correctness_error(provider))}</td>'
+                "</tr>"
+            )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table">'
+        '<caption>Forward / inverse medians and deterministic percentile-bootstrap 95% intervals are milliseconds. Raw is shown only when a standalone full provider primitive exists; the pruned transform reports its row and selected-column work as inseparable components rather than inventing a raw FFT total. Retention includes direct selection or inverse zero-fill/embed. The complete retained total is authoritative.</caption>'
+        '<thead><tr><th scope="col">Run</th><th scope="col">Workload</th>'
+        '<th scope="col">Algorithm / representation</th><th scope="col">Raw FFT</th>'
+        '<th scope="col">Retention / embedding</th><th scope="col">Complete retained</th>'
+        '<th scope="col">Setup / explicit memory</th><th scope="col">Max error</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
+    reference: dict[tuple[str, str, str], list[float]] = {}
+    preliminary: dict[str, list[dict]] = {}
+    for bundle in bundles:
+        profile = bundle.result["run"]["profile"]
+        for provider in retained_horizontal_providers(bundle):
+            total_forward = timing(provider, "uninstrumented-total", "forward")
+            total_inverse = timing(provider, "uninstrumented-total", "inverse")
+            if total_forward is None or total_inverse is None:
+                continue
+            if bundle.publication["status"] == "reference":
+                name = retained_horizontal_candidate_name(provider)
+                reference.setdefault((profile, name, "forward"), []).append(
+                    float(total_forward["medianSeconds"])
+                )
+                reference.setdefault((profile, name, "inverse"), []).append(
+                    float(total_inverse["medianSeconds"])
+                )
+            elif bundle.publication["status"] == "preliminary":
+                preliminary.setdefault(profile, []).append(provider)
+
+    sections: list[str] = []
+    if reference:
+        profiles = sorted({key[0] for key in reference})
+        names = sorted({key[1] for key in reference})
+        rows: list[str] = []
+        aggregate_ratios: dict[str, list[float]] = {name: [] for name in names}
+        aggregate_wins: dict[str, int] = {name: 0 for name in names}
+        aggregate_cells: dict[str, int] = {name: 0 for name in names}
+        for profile in profiles:
+            baseline_name = "FFTW WVM full outer-12"
+            if (profile, baseline_name, "forward") not in reference:
+                continue
+            baseline = {
+                direction: statistics.median(reference[(profile, baseline_name, direction)])
+                for direction in ("forward", "inverse")
+            }
+            for name in names:
+                key_forward = (profile, name, "forward")
+                key_inverse = (profile, name, "inverse")
+                if key_forward not in reference or key_inverse not in reference:
+                    continue
+                forward = statistics.median(reference[key_forward])
+                inverse = statistics.median(reference[key_inverse])
+                forward_ratio = forward / baseline["forward"]
+                inverse_ratio = inverse / baseline["inverse"]
+                aggregate_ratios[name].extend((forward_ratio, inverse_ratio))
+                aggregate_wins[name] += int(forward_ratio < 1.0) + int(inverse_ratio < 1.0)
+                aggregate_cells[name] += 2
+                rows.append(
+                    "<tr>"
+                    f'<th scope="row">{escaped(profile)}</th><td>{escaped(name)}</td>'
+                    f'<td class="numeric">{format_ms(forward)} / {format_ms(inverse)}</td>'
+                    f'<td class="numeric">{forward_ratio:.3f}× / {inverse_ratio:.3f}×</td>'
+                    f'<td class="numeric">{len(reference[key_forward])} / '
+                    f'{len(reference[key_inverse])}</td>'
+                    "</tr>"
+                )
+        summaries = []
+        for name in names:
+            values = aggregate_ratios[name]
+            if not values:
+                continue
+            geometric = math.exp(statistics.mean(math.log(value) for value in values))
+            summaries.append(
+                f"{escaped(name)}: {geometric:.3f}× geometric across "
+                f"{aggregate_cells[name]} direction-workload cells, "
+                f"{aggregate_wins[name]}/{aggregate_cells[name]} wins"
+            )
+        sections.append(f"""
+          <h3>Matched reference finalist campaign</h3>
+          <p>Each cell aggregates independently planned process medians for an identical workload, algorithm, representation, and worker topology. Ratios use the WVM-order full FFTW outer-12 retained operator as 1.0. Component medians are not added; the separately sampled complete retained total is authoritative.</p>
+          <ul>{''.join(f'<li>{summary}</li>' for summary in summaries)}</ul>
+          <div class="table-scroll"><table class="experiment-evidence-table">
+            <caption>Complete retained forward / inverse milliseconds and candidate / WVM outer-12 ratios.</caption>
+            <thead><tr><th scope="col">Profile</th><th scope="col">Candidate</th><th scope="col">Forward / inverse</th><th scope="col">Ratio</th><th scope="col">Processes F / I</th></tr></thead>
+            <tbody>{''.join(rows)}</tbody>
+          </table></div>
+        """)
+
+    guard_rows: list[str] = []
+    expansion = False
+    for profile, providers in sorted(preliminary.items()):
+        vdsp = [
+            provider for provider in providers
+            if provider["id"] == "accelerate-vdsp-native-retained"
+        ]
+        fftw = [
+            provider for provider in providers
+            if provider["id"] != "accelerate-vdsp-native-retained"
+        ]
+        if not vdsp or not fftw:
+            continue
+        candidate = min(
+            vdsp,
+            key=lambda provider: float(
+                timing(provider, "uninstrumented-total", "forward")["medianSeconds"]
+            ),
+        )
+        ratios = {}
+        for direction in ("forward", "inverse"):
+            best = min(
+                float(timing(provider, "uninstrumented-total", direction)["medianSeconds"])
+                for provider in fftw
+            )
+            ratios[direction] = (
+                float(timing(candidate, "uninstrumented-total", direction)["medianSeconds"])
+                / best
+            )
+        qualifies = ratios["forward"] <= 1.25 and ratios["inverse"] <= 1.25
+        expansion = expansion or qualifies
+        guard_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{ratios["forward"]:.3f}×</td>'
+            f'<td class="numeric">{ratios["inverse"]:.3f}×</td>'
+            f'<td>{"expand" if qualifies else "stop after guardrail"}</td>'
+            "</tr>"
+        )
+    if guard_rows:
+        decision = (
+            "At least one guard workload meets the rule, so broader vDSP coverage is enabled."
+            if expansion else
+            "Neither guard workload meets the rule, so vDSP remains published negative evidence and does not expand to the production matrix."
+        )
+        sections.append(f"""
+          <h3>Bounded vDSP native-layout guardrail</h3>
+          <p>The guardrail grants vDSP its favorable path: direct packed-split retention and embedding without a full WVM-order spectrum. Expansion requires one workload to be no slower than 1.25× the best matched FFTW complete retained operator in both directions. {escaped(decision)}</p>
+          <div class="table-scroll"><table class="experiment-evidence-table">
+            <caption>vDSP / best matched FFTW complete retained total; values below one favor vDSP.</caption>
+            <thead><tr><th scope="col">Profile</th><th scope="col">Forward</th><th scope="col">Inverse</th><th scope="col">Rule result</th></tr></thead>
+            <tbody>{''.join(guard_rows)}</tbody>
+          </table></div>
+          <p class="method-note">The vDSP guard runs remain preliminary and cannot contribute to adoption statistics. Float32 remains a separate follow-up.</p>
+        """)
+    return "".join(sections)
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
@@ -2184,6 +2430,8 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
         return ordering_packing_evidence_table(bundles)
     if experiment["id"] == "issue-012-pruned-horizontal-transforms":
         return pruned_horizontal_evidence_table(bundles)
+    if experiment["id"] == "issue-007-retained-horizontal-algorithms":
+        return retained_horizontal_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
     if provider_id is None or not bundles:
         return ""
@@ -2265,6 +2513,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = ordering_packing_synthesis(related)
     elif experiment_id == "issue-012-pruned-horizontal-transforms":
         synthesis = pruned_horizontal_synthesis(related)
+    elif experiment_id == "issue-007-retained-horizontal-algorithms":
+        synthesis = retained_horizontal_synthesis(related)
     else:
         synthesis = ""
     content = f"""

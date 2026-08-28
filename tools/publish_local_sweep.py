@@ -82,7 +82,7 @@ def main() -> int:
             parser.error(f"publication destination already exists: {destination_dir}")
 
         workload = result["workload"]
-        primary_provider = arguments.primary_provider
+        primary_provider = arguments.primary_provider or manifest_entry.get("primaryProvider")
         if primary_provider is None and arguments.experiment == "issue-006-vdsp-batching-scheduling":
             primary_provider = "accelerate-vdsp"
         if primary_provider is None:

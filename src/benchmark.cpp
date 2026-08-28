@@ -641,6 +641,37 @@ std::vector<LedgerEntry> vdspLedger(VDSPTransformStrategy strategy, VDSPBatchStr
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
+std::vector<LedgerEntry> vdspNativeRetainedLedger(
+    VDSPTransformStrategy strategy, VDSPBatchStrategy batchStrategy) {
+    const auto api = vdspApiName(strategy, batchStrategy);
+    return {
+        {"setup/planning", StageState::setupOnly,
+         "one radix-2 setup per logical batch worker plus persistent packed split buffers"},
+        {"raw forward FFT", StageState::executed,
+         "batched outer scheduling of " + api},
+        {"batch scheduling", StageState::executed,
+         "non-additive empty-dispatch diagnostic for " +
+             vdspSchedulingId(batchStrategy)},
+        {"horizontal retention", StageState::executed,
+         "direct mode-keyed gather from vDSP packed split storage into plane-major compact split storage"},
+        {"representation conversion", StageState::elided,
+         "split complex persists across the retained-operator boundary"},
+        {"permutation/packing", StageState::fused,
+         "native packed boundary decoding and radial compact ordering are fused with retention"},
+        {"raw forward vertical MM", StageState::unsupported,
+         "outside this retained-horizontal experiment"},
+        {"modal work", StageState::unsupported,
+         "outside this retained-horizontal experiment"},
+        {"raw inverse vertical MM", StageState::unsupported,
+         "outside this retained-horizontal experiment"},
+        {"horizontal embedding", StageState::executed,
+         "parallel zero fill and direct mode-keyed embedding from compact split storage into vDSP packing"},
+        {"raw inverse FFT", StageState::executed,
+         "batched outer scheduling of " + api},
+        {"uninstrumented total", StageState::executed,
+         "persistent native split retained horizontal forward or inverse operation"}};
+}
+
 ExecutionContract fftwExecutionContract(const Workload& workload, const FFTWProvider& provider) {
     const auto planes = workload.planes();
     const auto planeMajor = provider.strategy().spectrumOrder == FFTWSpectrumOrder::planeMajor;
@@ -759,6 +790,36 @@ ExecutionContract vdspExecutionContract(const Workload& workload, const VDSPProv
     contract.inverse = forward;
     contract.inverse.adapterInputRepresentationId = "wvm-frequency-major-interleaved-half-spectrum";
     contract.inverse.adapterOutputRepresentationId = "wvm-x-fastest-real-grid";
+    return contract;
+}
+
+ExecutionContract vdspNativeRetainedExecutionContract(
+    const Workload& workload, const VDSPProvider& provider,
+    std::size_t retainedModeCount) {
+    auto contract = vdspExecutionContract(workload, provider);
+    const auto retainedExtents = "two split arrays [planes=" +
+        std::to_string(workload.planes()) + "][retainedModes=" +
+        std::to_string(retainedModeCount) + "]";
+    const auto retainedStrides = "mode=1,plane=" +
+        std::to_string(retainedModeCount);
+    contract.forward.adapterOutputRepresentationId =
+        "plane-major-radial-retained-split-complex";
+    contract.forward.adapterPreservesCallerInput = true;
+    contract.forward.requiresPreservationCopyForRepeatedExecution = false;
+    contract.forward.preservationIncludedInAdapterTiming = false;
+    contract.forward.physicalExtents += "; retained-output=" + retainedExtents;
+    contract.forward.stridesElements += "; retained-output{" + retainedStrides + "}";
+    contract.forward.reusableWorkBytes = provider.nativeBufferBytes();
+    contract.inverse.adapterInputRepresentationId =
+        "plane-major-radial-retained-split-complex";
+    contract.inverse.adapterPreservesCallerInput = true;
+    contract.inverse.requiresPreservationCopyForRepeatedExecution = false;
+    contract.inverse.preservationIncludedInAdapterTiming = false;
+    contract.inverse.physicalExtents = "retained-input=" + retainedExtents + "; " +
+        contract.inverse.physicalExtents;
+    contract.inverse.stridesElements = "retained-input{" + retainedStrides + "}; " +
+        contract.inverse.stridesElements;
+    contract.inverse.reusableWorkBytes = provider.nativeBufferBytes();
     return contract;
 }
 
@@ -2648,6 +2709,46 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     fftw.inverse(workingSpectrum.data(), fftwOutput.data());
     const auto vdspRetainedInverseError = maximumRelativeError(output.data(), fftwOutput.data(), output.size());
 
+    const auto retainedElements = retainedSpectrum.size();
+    std::vector<double> vdspRetainedReferenceReal(retainedElements);
+    std::vector<double> vdspRetainedReferenceImag(retainedElements);
+    std::vector<double> vdspRetainedWorkingReal(retainedElements);
+    std::vector<double> vdspRetainedWorkingImag(retainedElements);
+    std::vector<Complex> vdspRetainedCanonical(retainedElements);
+    FFTWArray<double> vdspNativeRetainedOutput(workload.realElements());
+    for (std::size_t plane = 0; plane < workload.planes(); ++plane) {
+        const auto z = plane % workload.nz;
+        const auto field = plane / workload.nz;
+        for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+            const auto canonical = retainedSpectrumIndex(workload, mode, z, field);
+            const auto native = mode + modes.size() * plane;
+            vdspRetainedReferenceReal[native] = retainedSpectrum[canonical].real;
+            vdspRetainedReferenceImag[native] = retainedSpectrum[canonical].imag;
+        }
+    }
+    vdsp.forwardRetainedNativeSplit(
+        input.data(), modes, vdspRetainedWorkingReal.data(),
+        vdspRetainedWorkingImag.data());
+    for (std::size_t plane = 0; plane < workload.planes(); ++plane) {
+        const auto z = plane % workload.nz;
+        const auto field = plane / workload.nz;
+        for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+            const auto canonical = retainedSpectrumIndex(workload, mode, z, field);
+            const auto native = mode + modes.size() * plane;
+            vdspRetainedCanonical[canonical] = {
+                vdspRetainedWorkingReal[native],
+                vdspRetainedWorkingImag[native]};
+        }
+    }
+    const auto vdspNativeRetainedForwardError = maximumRelativeError(
+        vdspRetainedCanonical.data(), retainedSpectrum.data(), retainedElements);
+    vdsp.inverseRetainedNativeSplit(
+        modes, vdspRetainedReferenceReal.data(), vdspRetainedReferenceImag.data(),
+        vdspNativeRetainedOutput.data());
+    const auto vdspNativeRetainedInverseError = maximumRelativeError(
+        vdspNativeRetainedOutput.data(), fftwOutput.data(),
+        vdspNativeRetainedOutput.size());
+
     ProviderRecord vdspRecord;
     vdspRecord.id = "accelerate-vdsp";
     vdspRecord.version = "system";
@@ -2770,6 +2871,121 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
             vdsp.inverseAdapter(inverseSpectrum.data(), output.data());
         })));
     report.providers.push_back(std::move(vdspRecord));
+
+    ProviderRecord vdspNativeRetainedRecord;
+    vdspNativeRetainedRecord.id = "accelerate-vdsp-native-retained";
+    vdspNativeRetainedRecord.version = "system";
+    vdspNativeRetainedRecord.libraryIdentity = vdsp.libraryIdentity();
+    vdspNativeRetainedRecord.algorithmId =
+        vdspAlgorithmId(vdsp.strategy(), vdsp.batchStrategy()) +
+        "-direct-native-retained-split";
+    vdspNativeRetainedRecord.nativeRepresentationId =
+        "vdsp-packed-split-complex+plane-major-radial-retained-split-complex";
+    vdspNativeRetainedRecord.modeOrderId =
+        "retained logical radial mode contiguous within plane; plane=z+Nz*field";
+    vdspNativeRetainedRecord.schedulingId = vdspSchedulingId(vdsp.batchStrategy());
+    vdspNativeRetainedRecord.sourceIdentity = "Apple Accelerate system framework";
+    vdspNativeRetainedRecord.configureFlags = "system framework";
+    vdspNativeRetainedRecord.compilerFlags = report.environment.compilerFlags;
+    vdspNativeRetainedRecord.planningConfiguration =
+        "radix-2 setup per logical batch worker; direct native packed split retention; " +
+        std::string(vdspTransformStrategyName(vdsp.strategy())) + "; " +
+        std::string(vdspBatchStrategyName(vdsp.batchStrategy()));
+    vdspNativeRetainedRecord.workers = workers;
+    vdspNativeRetainedRecord.internalWorkers = 1;
+    vdspNativeRetainedRecord.outerWorkers = workers;
+    vdspNativeRetainedRecord.execution = vdspNativeRetainedExecutionContract(
+        workload, vdsp, modes.size());
+    vdspNativeRetainedRecord.explicitPersistentBytes = vdsp.explicitPersistentBytes();
+    vdspNativeRetainedRecord.scratchBytes = vdsp.scratchBytes();
+    vdspNativeRetainedRecord.otherSetupSeconds = vdsp.otherSetupSeconds();
+    vdspNativeRetainedRecord.allocationSeconds = vdsp.allocationSeconds();
+    vdspNativeRetainedRecord.planningSeconds = vdsp.planningSeconds();
+    vdspNativeRetainedRecord.ledger = vdspNativeRetainedLedger(
+        vdsp.strategy(), vdsp.batchStrategy());
+    vdspNativeRetainedRecord.correctness = {
+        metric("native packed split retained forward versus mode-keyed FFTW oracle",
+               vdspNativeRetainedForwardError),
+        metric("native packed split retained inverse versus FFTW projection",
+               vdspNativeRetainedInverseError)};
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "primitive", "raw FFT", "forward", StageState::executed,
+        vdsp.nativeOperandBytes() * 2,
+        measure(warmups, sampleCount,
+                [&] { vdsp.packForwardInput(input.data()); },
+                [&] { vdsp.executeForwardNative(); })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "primitive", "raw FFT", "inverse", StageState::executed,
+        vdsp.nativeOperandBytes() * 2,
+        measure(warmups, sampleCount,
+                [&] {
+                    vdsp.embedRetainedNativeSplit(
+                        modes, vdspRetainedReferenceReal.data(),
+                        vdspRetainedReferenceImag.data());
+                },
+                [&] { vdsp.executeInverseNative(); })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "diagnostic-component", "batch scheduler empty dispatch", "shared",
+        StageState::executed, 0,
+        measure(warmups, sampleCount, [&] { vdsp.executeSchedulerNoop(); })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "adapter-component", "real-to-vDSP packing", "forward",
+        StageState::executed,
+        report.fullRealBytes + vdsp.nativeOperandBytes(),
+        measure(warmups, sampleCount,
+                [&] { vdsp.packForwardInput(input.data()); })));
+    vdsp.packForwardInput(input.data());
+    vdsp.executeForwardNative();
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "operator-component", "direct native packed split horizontal retention",
+        "forward", StageState::executed,
+        vdsp.nativeOperandBytes() + report.retainedSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            vdsp.gatherRetainedNativeSplit(
+                modes, vdspRetainedWorkingReal.data(),
+                vdspRetainedWorkingImag.data());
+        })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "operator-component", "direct native packed split horizontal embedding",
+        "inverse", StageState::executed,
+        report.retainedSpectrumBytes + vdsp.nativeOperandBytes(),
+        measure(warmups, sampleCount, [&] {
+            vdsp.embedRetainedNativeSplit(
+                modes, vdspRetainedReferenceReal.data(),
+                vdspRetainedReferenceImag.data());
+        })));
+    vdsp.embedRetainedNativeSplit(
+        modes, vdspRetainedReferenceReal.data(),
+        vdspRetainedReferenceImag.data());
+    vdsp.executeInverseNative();
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "adapter-component", "vDSP-to-real unpacking", "inverse",
+        StageState::executed,
+        vdsp.nativeOperandBytes() + report.fullRealBytes,
+        measure(warmups, sampleCount,
+                [&] { vdsp.unpackInverseOutput(vdspNativeRetainedOutput.data()); })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "uninstrumented-total", "persistent native split retained horizontal operator",
+        "forward", StageState::executed,
+        report.fullRealBytes + 3 * vdsp.nativeOperandBytes() +
+            report.retainedSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            vdsp.forwardRetainedNativeSplit(
+                input.data(), modes, vdspRetainedWorkingReal.data(),
+                vdspRetainedWorkingImag.data());
+        })));
+    vdspNativeRetainedRecord.timings.push_back(series(
+        "uninstrumented-total", "persistent native split retained horizontal operator",
+        "inverse", StageState::executed,
+        report.retainedSpectrumBytes + 3 * vdsp.nativeOperandBytes() +
+            report.fullRealBytes,
+        measure(warmups, sampleCount, [&] {
+            vdsp.inverseRetainedNativeSplit(
+                modes, vdspRetainedReferenceReal.data(),
+                vdspRetainedReferenceImag.data(),
+                vdspNativeRetainedOutput.data());
+        })));
+    report.providers.push_back(std::move(vdspNativeRetainedRecord));
 
     report.status = std::all_of(report.providers.begin(), report.providers.end(), correctnessPassed) ? "passed" : "failed";
     return report;

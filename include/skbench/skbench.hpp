@@ -421,7 +421,11 @@ public:
     void executeForwardRowsNative();
     void executeForwardColumnsNative();
     void unpackForwardOutput(Complex* wvmSpectrum) const;
+    void gatherRetainedNativeSplit(const std::vector<RetainedMode>& modes,
+                                   double* retainedReal, double* retainedImag);
     void packInverseInput(const Complex* wvmSpectrum);
+    void embedRetainedNativeSplit(const std::vector<RetainedMode>& modes,
+                                  const double* retainedReal, const double* retainedImag);
     void executeInverseNative();
     void executeInverseColumnsNative();
     void executeInverseRowsNative();
@@ -429,6 +433,12 @@ public:
     void unpackInverseOutput(double* output) const;
     void forwardAdapter(const double* input, Complex* wvmSpectrum);
     void inverseAdapter(const Complex* wvmSpectrum, double* output);
+    void forwardRetainedNativeSplit(const double* input,
+                                    const std::vector<RetainedMode>& modes,
+                                    double* retainedReal, double* retainedImag);
+    void inverseRetainedNativeSplit(const std::vector<RetainedMode>& modes,
+                                    const double* retainedReal, const double* retainedImag,
+                                    double* output);
     double otherSetupSeconds() const noexcept;
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;

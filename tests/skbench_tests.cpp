@@ -177,6 +177,36 @@ void requireAllocationFreeSplitRetainedOuterExecution(
             "outer-sharded split retained FFTW execution allocated memory");
 }
 
+void requireAllocationFreeVdspRetainedExecution(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    std::size_t workers) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 41) / 41.0;
+    }
+
+    skbench::VDSPProvider provider(
+        workload, workers, skbench::VDSPTransformStrategy::inPlace,
+        skbench::VDSPBatchStrategy::directPersistent);
+    if (!provider.supported()) return;
+    const auto execute = [&] {
+        provider.forwardRetainedNativeSplit(
+            input.get(), modes, retainedReal.get(), retainedImag.get());
+        provider.inverseRetainedNativeSplit(
+            modes, retainedReal.get(), retainedImag.get(), output.get());
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "vDSP native retained steady-state execution allocated memory");
+}
+
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                                             const skbench::GroupedVerticalOperators& operators,
                                             skbench::VerticalGemmLayout layout,
@@ -740,6 +770,52 @@ int main() {
 
         const auto modes = skbench::retainedHorizontalModes(workload);
         require(!modes.empty(), "retained modes are empty");
+        if (inPlace.supported()) {
+            const auto input = skbench::makeFixture(
+                workload, skbench::FixtureKind::random, 7331);
+            std::vector<skbench::Complex> full(workload.spectrumElements());
+            std::vector<skbench::Complex> expectedRetained(
+                modes.size() * workload.planes());
+            std::vector<skbench::Complex> actualRetained(expectedRetained.size());
+            std::vector<skbench::Complex> projected(workload.spectrumElements());
+            std::vector<double> retainedReal(expectedRetained.size());
+            std::vector<double> retainedImag(expectedRetained.size());
+            std::vector<double> expectedOutput(workload.realElements());
+            std::vector<double> actualOutput(workload.realElements());
+
+            inPlace.forwardAdapter(input.data(), full.data());
+            skbench::gatherRetained(
+                workload, modes, full.data(), expectedRetained.data());
+            inPlace.forwardRetainedNativeSplit(
+                input.data(), modes, retainedReal.data(), retainedImag.data());
+            for (std::size_t plane = 0; plane < workload.planes(); ++plane) {
+                const auto z = plane % workload.nz;
+                const auto field = plane / workload.nz;
+                for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+                    const auto native = mode + modes.size() * plane;
+                    actualRetained[skbench::retainedSpectrumIndex(
+                        workload, mode, z, field)] = {
+                            retainedReal[native], retainedImag[native]};
+                }
+            }
+            require(skbench::maximumRelativeError(
+                        actualRetained.data(), expectedRetained.data(),
+                        expectedRetained.size()) < 1.0e-12,
+                    "vDSP native split retained forward equivalence");
+
+            skbench::embedRetained(
+                workload, modes, expectedRetained.data(), projected.data());
+            inPlace.inverseAdapter(projected.data(), expectedOutput.data());
+            inPlace.inverseRetainedNativeSplit(
+                modes, retainedReal.data(), retainedImag.data(), actualOutput.data());
+            require(skbench::maximumRelativeError(
+                        actualOutput.data(), expectedOutput.data(), actualOutput.size()) <
+                        1.0e-12,
+                    "vDSP native split retained inverse equivalence");
+        }
+        if (skbench::test::allocationTrackingSupported()) {
+            requireAllocationFreeVdspRetainedExecution(workload, modes, 2);
+        }
         require(modes.front().k == 0 && modes.front().l == 0, "DC is not first");
         require(skbench::modeOrderHash(modes) == skbench::modeOrderHash(modes), "mode hash is unstable");
         const auto k2Groups = skbench::squaredWavenumberGroups(modes);

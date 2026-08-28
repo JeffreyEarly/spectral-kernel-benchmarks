@@ -437,6 +437,126 @@ public:
         }
     }
 
+    Complex nativeSpectrumValue(std::size_t plane, std::size_t kx,
+                                std::size_t ky) const {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        if (kx != 0 && kx != half) {
+            const auto packed = offset + ky * half + kx;
+            return {0.5 * resultReal()[packed], 0.5 * resultImag()[packed]};
+        }
+
+        auto* component = kx == half ? resultImag() : resultReal();
+        const auto yNyquist = workload_.ny / 2;
+        bool conjugateValue = false;
+        if (ky > yNyquist) {
+            ky = workload_.ny - ky;
+            conjugateValue = true;
+        }
+        Complex value;
+        if (ky == 0) {
+            value = {0.5 * component[offset], 0.0};
+        } else if (ky == yNyquist) {
+            value = {0.5 * component[offset + half], 0.0};
+        } else {
+            value = {0.5 * component[offset + (2 * ky) * half],
+                     0.5 * component[offset + (2 * ky + 1) * half]};
+        }
+        return conjugateValue ? conjugate(value) : value;
+    }
+
+    void storeNativeSpectrumValue(std::size_t plane, std::size_t kx,
+                                  std::size_t ky, Complex value) {
+        const auto half = workload_.nx / 2;
+        const auto offset = plane * nativePlaneElements();
+        if (kx != 0 && kx != half) {
+            const auto packed = offset + ky * half + kx;
+            inputReal_.data()[packed] = value.real;
+            inputImag_.data()[packed] = value.imag;
+            return;
+        }
+
+        auto* component = kx == half ? inputImag_.data() : inputReal_.data();
+        const auto yNyquist = workload_.ny / 2;
+        if (ky > yNyquist) {
+            ky = workload_.ny - ky;
+            value = conjugate(value);
+        }
+        if (ky == 0) {
+            component[offset] = value.real;
+        } else if (ky == yNyquist) {
+            component[offset + half] = value.real;
+        } else {
+            component[offset + (2 * ky) * half] = value.real;
+            component[offset + (2 * ky + 1) * half] = value.imag;
+        }
+    }
+
+    struct RetainedContext {
+        Impl* provider;
+        const std::vector<RetainedMode>* modes;
+        double* outputReal;
+        double* outputImag;
+        const double* inputReal;
+        const double* inputImag;
+    };
+
+    static void gatherRetainedTask(void* rawContext, std::size_t, std::size_t begin,
+                                   std::size_t end) {
+        auto& context = *static_cast<RetainedContext*>(rawContext);
+        auto& self = *context.provider;
+        const auto& modes = *context.modes;
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+                const auto& mode = modes[modeIndex];
+                auto value = self.nativeSpectrumValue(
+                    plane, mode.storedKx, mode.storedKy);
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                const auto retained = modeIndex + modes.size() * plane;
+                context.outputReal[retained] = value.real;
+                context.outputImag[retained] = value.imag;
+            }
+        }
+    }
+
+    static void embedRetainedTask(void* rawContext, std::size_t, std::size_t begin,
+                                  std::size_t end) {
+        auto& context = *static_cast<RetainedContext*>(rawContext);
+        auto& self = *context.provider;
+        const auto& modes = *context.modes;
+        const auto nativePlane = self.nativePlaneElements();
+        for (std::size_t plane = begin; plane < end; ++plane) {
+            const auto offset = plane * nativePlane;
+            std::fill_n(self.inputReal_.data() + offset, nativePlane, 0.0);
+            std::fill_n(self.inputImag_.data() + offset, nativePlane, 0.0);
+            for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+                const auto& mode = modes[modeIndex];
+                const auto retained = modeIndex + modes.size() * plane;
+                Complex value{context.inputReal[retained], context.inputImag[retained]};
+                if (mode.conjugatesStoredValue) value = conjugate(value);
+                self.storeNativeSpectrumValue(
+                    plane, mode.storedKx, mode.storedKy, value);
+            }
+        }
+    }
+
+    void gatherRetainedNativeSplit(const std::vector<RetainedMode>& modes,
+                                   double* retainedReal, double* retainedImag) {
+        requireSupported();
+        RetainedContext context{
+            this, &modes, retainedReal, retainedImag, nullptr, nullptr};
+        executor_->run(&context, &Impl::gatherRetainedTask);
+    }
+
+    void embedRetainedNativeSplit(const std::vector<RetainedMode>& modes,
+                                  const double* retainedReal,
+                                  const double* retainedImag) {
+        requireSupported();
+        RetainedContext context{
+            this, &modes, nullptr, nullptr, retainedReal, retainedImag};
+        executor_->run(&context, &Impl::embedRetainedTask);
+    }
+
     void packInverse(const Complex* input) {
         requireSupported();
         std::fill(inputReal_.begin(), inputReal_.end(), 0.0);
@@ -714,7 +834,17 @@ void VDSPProvider::executeForwardNative() { impl_->executeForward(); }
 void VDSPProvider::executeForwardRowsNative() { impl_->executeForwardRows(); }
 void VDSPProvider::executeForwardColumnsNative() { impl_->executeForwardColumns(); }
 void VDSPProvider::unpackForwardOutput(Complex* output) const { impl_->unpackForward(output); }
+void VDSPProvider::gatherRetainedNativeSplit(
+    const std::vector<RetainedMode>& modes, double* retainedReal,
+    double* retainedImag) {
+    impl_->gatherRetainedNativeSplit(modes, retainedReal, retainedImag);
+}
 void VDSPProvider::packInverseInput(const Complex* input) { impl_->packInverse(input); }
+void VDSPProvider::embedRetainedNativeSplit(
+    const std::vector<RetainedMode>& modes, const double* retainedReal,
+    const double* retainedImag) {
+    impl_->embedRetainedNativeSplit(modes, retainedReal, retainedImag);
+}
 void VDSPProvider::executeInverseNative() { impl_->executeInverse(); }
 void VDSPProvider::executeInverseColumnsNative() { impl_->executeInverseColumns(); }
 void VDSPProvider::executeInverseRowsNative() { impl_->executeInverseRows(); }
@@ -729,6 +859,22 @@ void VDSPProvider::forwardAdapter(const double* input, Complex* output) {
 
 void VDSPProvider::inverseAdapter(const Complex* input, double* output) {
     packInverseInput(input);
+    executeInverseNative();
+    unpackInverseOutput(output);
+}
+
+void VDSPProvider::forwardRetainedNativeSplit(
+    const double* input, const std::vector<RetainedMode>& modes,
+    double* retainedReal, double* retainedImag) {
+    packForwardInput(input);
+    executeForwardNative();
+    gatherRetainedNativeSplit(modes, retainedReal, retainedImag);
+}
+
+void VDSPProvider::inverseRetainedNativeSplit(
+    const std::vector<RetainedMode>& modes, const double* retainedReal,
+    const double* retainedImag, double* output) {
+    embedRetainedNativeSplit(modes, retainedReal, retainedImag);
     executeInverseNative();
     unpackInverseOutput(output);
 }
