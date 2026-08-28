@@ -247,6 +247,8 @@ def load_and_validate(results_dir: Path, baseline_ref: str | None = None) -> tup
             raise ValueError(f"{context}: invalid publication status {run['status']!r}")
         for key in ("id", "statusReason", "summary"):
             _require_nonempty_string(run[key], f"{context}.{key}")
+        if "incrementId" in run:
+            _require_nonempty_string(run["incrementId"], f"{context}.incrementId")
         if not isinstance(run["issues"], list) or not run["issues"]:
             raise ValueError(f"{context}.issues: expected a non-empty array")
         if not isinstance(run["experiments"], list) or not run["experiments"]:

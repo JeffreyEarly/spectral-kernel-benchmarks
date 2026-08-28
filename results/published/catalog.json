@@ -5750,6 +5750,606 @@
         "samplesSha256": "2ec04ed1ceb7ae55868893d6c6884f34dd39e21bb67a25c96446c5666573cad7"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T045309341195Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045309341195Z-lyra/result.json",
+        "samples": "runs/20260828T045309341195Z-lyra/samples.csv",
+        "resultSha256": "f3d8d5452f8081582548f8ed5ae4bec86c65f096a43083702855f9f11ce4ef30",
+        "samplesSha256": "bf3e016ea935e29009c3ed8a5694e36809938c3b41ce222086aa1e3122530fc3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045311502831Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045311502831Z-lyra/result.json",
+        "samples": "runs/20260828T045311502831Z-lyra/samples.csv",
+        "resultSha256": "023ace9b6626d179c40ba52f55598a8c553050bcc68f84ba1479e96575c7515f",
+        "samplesSha256": "70977157f5daf1b54f8dbd5e83af12b06a122704cc69b2088db88b46e895a2fc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045312410969Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045312410969Z-lyra/result.json",
+        "samples": "runs/20260828T045312410969Z-lyra/samples.csv",
+        "resultSha256": "4311e03b32b1ee48047b2b4389eb34f92368a449c8885b7665951407d1853767",
+        "samplesSha256": "ac9613ccba6996ed9c1466db047e30c26be6ba21fd86e36e128f65e86c0c5c3c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045313078832Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045313078832Z-lyra/result.json",
+        "samples": "runs/20260828T045313078832Z-lyra/samples.csv",
+        "resultSha256": "1396c22e3c6ced8f691fedd729db59703d89df0b3004ab3ed22085bcdc2eacfe",
+        "samplesSha256": "51862ad374144626c1c618bfd3674bcb9734d87f89a71bcecedba096a2d9db61"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045313706057Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045313706057Z-lyra/result.json",
+        "samples": "runs/20260828T045313706057Z-lyra/samples.csv",
+        "resultSha256": "48dfb03d07fe1b190e777d926980f7ba3661a9c5aa91ce418d8ced95d8bce42c",
+        "samplesSha256": "5f6a133b000de59227c175993e9652c5806110604cdaba7bc5c9ed1ab3c23d3a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045317043962Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045317043962Z-lyra/result.json",
+        "samples": "runs/20260828T045317043962Z-lyra/samples.csv",
+        "resultSha256": "1147999a0b87eecf96964ff67cf40098d50897855ef9fa6de36117af4aef7b36",
+        "samplesSha256": "23991c4cfd139902197c1c51b1c63e8d329363c54611a46a8e3e98d0975a65f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045318448729Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045318448729Z-lyra/result.json",
+        "samples": "runs/20260828T045318448729Z-lyra/samples.csv",
+        "resultSha256": "45d2f4d50ed1edc63fcdad4b9cc3f64b148f9a3469a1ed3be978c573e5f523bb",
+        "samplesSha256": "66c036c2bd10a909fd58064e5d659bfd64d56afb340f8735aeaa5347a4df604a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045319491645Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045319491645Z-lyra/result.json",
+        "samples": "runs/20260828T045319491645Z-lyra/samples.csv",
+        "resultSha256": "ca2b18f8d219d8fb8ff0f1dbb18821405b40f06667d2ece623f643ac8ae47161",
+        "samplesSha256": "676ae39b098c2fc95d877fba36651a590506af26b169879792a7f7f3ed113e82"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045320442884Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045320442884Z-lyra/result.json",
+        "samples": "runs/20260828T045320442884Z-lyra/samples.csv",
+        "resultSha256": "924422138eceb4b4f91f8600927faade7fe10d2504b662316b4b85930a282cbc",
+        "samplesSha256": "398828444b838a872aab408a104915345cf0822c96ac9c043fe1f157e5aa3baa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045329543850Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045329543850Z-lyra/result.json",
+        "samples": "runs/20260828T045329543850Z-lyra/samples.csv",
+        "resultSha256": "87883ab543bc7240a923c90461bf20551c1f0d236818a5c935e9b667c4244aa2",
+        "samplesSha256": "351b1d18d00b4fae9ca37d207a2bab7e781771ffc124d2d27064d4dc543ef0db"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045332860880Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045332860880Z-lyra/result.json",
+        "samples": "runs/20260828T045332860880Z-lyra/samples.csv",
+        "resultSha256": "5b001e95c4bdf176d1a34bc8b0e94360435238375bc621989dd7f9a58915f735",
+        "samplesSha256": "8cf0f811f35f4c621dd1e721b4b6591eafe6175712c3e97b44f178920b33b098"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045335423861Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045335423861Z-lyra/result.json",
+        "samples": "runs/20260828T045335423861Z-lyra/samples.csv",
+        "resultSha256": "84c638601e2ada26a5cd47d7b3b049cc5956fb269fbdecceddcc6c097ce3fdff",
+        "samplesSha256": "03258bef49a7394929004a2688b25e306e9ada32c47a09488a17da5d220c9a3c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045337782940Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045337782940Z-lyra/result.json",
+        "samples": "runs/20260828T045337782940Z-lyra/samples.csv",
+        "resultSha256": "13ce2a6b2825156ffefefa38473837ebdbdc6f88ebb4e382b1a0d7470fd5dbb3",
+        "samplesSha256": "755d4bdf9170749a9ccd02e21fb45be5c995f182fcc7cf03fe4a03eec0aa9ae7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045357830289Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045357830289Z-lyra/result.json",
+        "samples": "runs/20260828T045357830289Z-lyra/samples.csv",
+        "resultSha256": "8d79bd85a39a68f710f902e9086d03993d2d0893359bb551d3702ea84409c7a9",
+        "samplesSha256": "d376e219eb21b32cbad1fc982726a8ad35ddfc77a1ba82911116b267faef8790"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045405029055Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045405029055Z-lyra/result.json",
+        "samples": "runs/20260828T045405029055Z-lyra/samples.csv",
+        "resultSha256": "df3bb00fa85091a99d94f5cb0964ecae0a3a31ffdba602e2f3c8a36382eb5065",
+        "samplesSha256": "d2e5dce7d5c7e019549b62915c3e76f33c72e15efeb0a2032e4ffc109a7fa730"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045410587751Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045410587751Z-lyra/result.json",
+        "samples": "runs/20260828T045410587751Z-lyra/samples.csv",
+        "resultSha256": "c6852bc5b0bbc4413b0efdd5523768ad0bf5a758b6c1948a1eac376e1e68bccb",
+        "samplesSha256": "346d189908b7d3c39a82e2029706660f1baaf04abf0f6b20aa8d67d06f0a8c57"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045415575018Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045415575018Z-lyra/result.json",
+        "samples": "runs/20260828T045415575018Z-lyra/samples.csv",
+        "resultSha256": "545d580c6250696f592767fab821d446444c2f96d02cadab4a193d295bee19ba",
+        "samplesSha256": "2ee4a2d75b5b126fba498376a577ab71ec5031e71f1313d4a3cb52c5f1085e40"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045444860792Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045444860792Z-lyra/result.json",
+        "samples": "runs/20260828T045444860792Z-lyra/samples.csv",
+        "resultSha256": "66b2305e77a0c988069192a8369efa6c1e35e54679a8e6161a8f30199b9692c4",
+        "samplesSha256": "73b7d7416bff47db38aff9cb5f766daba32c295613771d8594820a5e8bf0853f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045455613907Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045455613907Z-lyra/result.json",
+        "samples": "runs/20260828T045455613907Z-lyra/samples.csv",
+        "resultSha256": "12c4b90780848b1a5a2783f9ab0f906b93fc0f336c66bb131044980a0785cd8f",
+        "samplesSha256": "c46e8661a5668502d6e89a92b06e2743b333c823a3cfab1090a4a2492ea4c737"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045503767590Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045503767590Z-lyra/result.json",
+        "samples": "runs/20260828T045503767590Z-lyra/samples.csv",
+        "resultSha256": "de51f78f8b37091bba6da1beb3cf72458b51fa0437945a3ac449f5f88014f761",
+        "samplesSha256": "034494008bf05ba5887d7b08b73c8775c674fdcaf3e5810e7038ae00900894ed"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045511134714Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=1).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045511134714Z-lyra/result.json",
+        "samples": "runs/20260828T045511134714Z-lyra/samples.csv",
+        "resultSha256": "1e1089c71e6ddef81b92f1b8fb8f640c7b1b9fa3c169a18541fd20944e29c7ff",
+        "samplesSha256": "98e75bc76206efff89df1f1c757ada90a5880fbcef72bd3de133cd36e845b6d8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045550279257Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=4).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045550279257Z-lyra/result.json",
+        "samples": "runs/20260828T045550279257Z-lyra/samples.csv",
+        "resultSha256": "691dc40f2384f3907e67ede059c1ce83d304664c72fd5a253e5c8e43ea6a4dd7",
+        "samplesSha256": "4b333b6707fbb0e49da7e680f7ef14b4da064110877646ca9f3acd7a8f4d2cd3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045603588654Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=8).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045603588654Z-lyra/result.json",
+        "samples": "runs/20260828T045603588654Z-lyra/samples.csv",
+        "resultSha256": "de6cbf9581983139db1f242d7c4bb177b7f45a982d1d3efa1d5d12e41e34ef1b",
+        "samplesSha256": "7bf6cb1f3d82f35b05f7cc5936edc65dbaa4b630c1b10efe60de6290e71ced44"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T045613955365Z-lyra",
+      "status": "preliminary",
+      "incrementId": "fftw-partial-column-pruned-outer-sharding-v2",
+      "statusReason": "Clean M4 Max matched-outer-worker feasibility cohort; preliminary pending integration in issue #7 and replication on another Apple-silicon machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using separable-row-r2c-selected-kx-column-c2c-v1 (internal=1, outer=12).",
+      "issues": [
+        12
+      ],
+      "experiments": [
+        "issue-012-pruned-horizontal-transforms"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T045613955365Z-lyra/result.json",
+        "samples": "runs/20260828T045613955365Z-lyra/samples.csv",
+        "resultSha256": "c907132ec99b67425ded9e33e925a7995f6e5a7ef6a5a1e2ba419e00efa2f03f",
+        "samplesSha256": "87f31e7f6adbc881735ec4b700d54c78cc5d000190a4108f2e2e67749da5f030"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

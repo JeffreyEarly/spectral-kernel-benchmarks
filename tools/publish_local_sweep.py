@@ -39,6 +39,11 @@ def main() -> int:
     manifest = load_json(manifest_path)
     if not isinstance(manifest.get("runs"), list) or not manifest["runs"]:
         parser.error("manifest contains no runs")
+    increment_id = manifest.get("incrementId")
+    if increment_id is not None and (
+        not isinstance(increment_id, str) or not increment_id.strip()
+    ):
+        parser.error("manifest incrementId must be a non-empty string when present")
 
     published_dir = repository_root / "results" / "published"
     catalog_path = published_dir / "catalog.json"
@@ -101,6 +106,7 @@ def main() -> int:
         )
         publication = {
             "id": run_id,
+            **({"incrementId": increment_id} if increment_id is not None else {}),
             "status": arguments.status,
             "statusReason": arguments.status_reason,
             "summary": summary,

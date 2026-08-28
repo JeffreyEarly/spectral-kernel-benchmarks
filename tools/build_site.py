@@ -1751,7 +1751,9 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
 
 
 def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
-    ratios_by_topology: dict[tuple[str, int, int], dict[str, list[float]]] = {}
+    outer_increment_id = "fftw-partial-column-pruned-outer-sharding-v2"
+    initial_by_topology: dict[tuple[str, int, int], dict[str, list[float]]] = {}
+    outer_increment_by_topology: dict[tuple[str, int, int], dict[str, list[float]]] = {}
     errors: list[float] = []
     scratch_bytes: list[int] = []
     for bundle in bundles:
@@ -1773,13 +1775,18 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
             int(scheduling.get("internalWorkers", pruned.get("workers", 1))),
             int(scheduling.get("outerWorkers", 1)),
         )
+        cohort = (
+            outer_increment_by_topology
+            if bundle.publication.get("incrementId") == outer_increment_id
+            else initial_by_topology
+        )
         for direction in ("forward", "inverse"):
             full_total = timing(full, "uninstrumented-total", direction)
             pruned_total = timing(pruned, "uninstrumented-total", direction)
             if full_total is None or pruned_total is None:
                 continue
             ratio = float(pruned_total["medianSeconds"]) / float(full_total["medianSeconds"])
-            ratios_by_topology.setdefault(
+            cohort.setdefault(
                 topology, {"forward": [], "inverse": []}
             )[direction].append(ratio)
         scratch_bytes.append(int(pruned["memory"]["scratchBytes"]))
@@ -1789,10 +1796,10 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
             for name in ("maximumRelativeError", "relativeL2Error")
             if metric.get(name) is not None
         )
-    if not ratios_by_topology:
+    if not initial_by_topology:
         return ""
 
-    def topology_summary(predicate) -> str:
+    def topology_summary(ratios_by_topology, predicate) -> str:
         return "; ".join(
             f"internal={internal}, outer={outer}: " + ", ".join(
             f"{direction} {math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× "
@@ -1808,20 +1815,33 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
 
     initial_ratios = [
         value
-        for (_, _, outer), directions in ratios_by_topology.items()
+        for directions in initial_by_topology.values()
+        for values in directions.values()
+        for value in values
+    ]
+    outer_control_ratios = [
+        value
+        for (_, _, outer), directions in outer_increment_by_topology.items()
         if outer == 1
         for values in directions.values()
         for value in values
     ]
     outer_ratios = [
         value
-        for (_, _, outer), directions in ratios_by_topology.items()
+        for (_, _, outer), directions in outer_increment_by_topology.items()
         if outer > 1
         for values in directions.values()
         for value in values
     ]
-    initial_summary = topology_summary(lambda _id, _internal, outer: outer == 1)
-    outer_summary = topology_summary(lambda _id, _internal, outer: outer > 1)
+    initial_summary = topology_summary(
+        initial_by_topology, lambda _id, _internal, _outer: True
+    )
+    outer_control_summary = topology_summary(
+        outer_increment_by_topology, lambda _id, _internal, outer: outer == 1
+    )
+    outer_summary = topology_summary(
+        outer_increment_by_topology, lambda _id, _internal, outer: outer > 1
+    )
     initial_geometric = math.exp(
         sum(math.log(value) for value in initial_ratios) / len(initial_ratios)
     )
@@ -1840,7 +1860,7 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
                     outer,
                     directions[direction],
                 )
-                for (_, internal, outer), directions in ratios_by_topology.items()
+                for (_, internal, outer), directions in outer_increment_by_topology.items()
                 if outer > 1 and directions[direction]
             ]
             if candidates:
@@ -1849,9 +1869,33 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
                     f"best {direction}: internal={internal}, outer={outer}, {geometric:.3f}× "
                     f"geometric ({sum(value < 1.0 for value in values)}/{len(values)} wins)"
                 )
-        if any(value < 1.0 for value in outer_ratios):
+        fully_pruned_topologies = [
+            (internal, outer)
+            for (_, internal, outer), directions in outer_increment_by_topology.items()
+            if outer > 1
+            and all(directions[direction] for direction in ("forward", "inverse"))
+            and all(
+                value < 1.0
+                for direction in ("forward", "inverse")
+                for value in directions[direction]
+            )
+        ]
+        if fully_pruned_topologies:
+            advancing = ", ".join(
+                f"internal={internal}, outer={outer}"
+                for internal, outer in sorted(fully_pruned_topologies)
+            )
             conclusion = (
-                "At least one outer-sharded cell is competitive; the direction-specific consistency and regression limits determine whether a tuple advances to issue #7."
+                f"The fully pruned candidate therefore advances to issue #7 at {advancing}: "
+                "each of those matched topologies wins every measured workload in both directions. "
+                "This cohort does not require a full-forward/pruned-inverse hybrid, although issue #7 "
+                "must retest the candidate against its broader algorithm set."
+            )
+        elif any(value < 1.0 for value in outer_ratios):
+            conclusion = (
+                "Some direction-specific cells are competitive, but no tested topology wins every "
+                "workload in both directions; issue #7 should carry only the viable direction-specific "
+                "path rather than a fully pruned tuple."
             )
         else:
             conclusion = (
@@ -1860,6 +1904,7 @@ def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
         outer_section = f"""
       <h3>Persistent outer plane/field sharding increment</h3>
       <p>This append-only follow-on fixes FFTW internal pthreads at one and partitions planes/fields over persistent workers. The matched full reference uses the same worker count for its two-dimensional plans and radial adapters. The candidate partitions one aggregate full-row-spectrum scratch allocation into disjoint worker slices; it does not multiply aggregate scratch capacity. Empty scheduler dispatch is measured separately, and all complete calls remain out-of-place and allocation-free.</p>
+      <p>The same-revision single-worker control is not pooled into the parallel cells: {outer_control_summary if outer_control_ratios else 'not published'}.</p>
       <p>Across {len(outer_ratios)} outer-sharded workload/topology/direction cells, the candidate/full retained ratio is {outer_geometric:.3f}× geometrically and spans {min(outer_ratios):.3f}×–{max(outer_ratios):.3f}×. Topologies: {outer_summary}. {'; '.join(outer_direction_best)}. {conclusion}</p>
       <p>Deeper within-column pruning, reduced aggregate scratch, split storage, generated transforms, efficiency-core-specific scheduling, and caller-visible in-place operation remain outside this increment.</p>
         """

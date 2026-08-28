@@ -199,7 +199,7 @@ The accompanying CSV contains one row per timing sample and is intended for stat
 
 ## Append-only publication
 
-`results/published/catalog.json` is the mutable index of immutable evidence. Every run has a permanent `run.id`, one publication status (`preliminary`, `reference`, `superseded`, or `withdrawn`), issue and experiment associations, a status explanation, and SHA-256 hashes for its JSON and CSV artifacts. Numerical pass/fail status is independent of publication status.
+`results/published/catalog.json` is the mutable index of immutable evidence. Every run has a permanent `run.id`, one publication status (`preliminary`, `reference`, `superseded`, or `withdrawn`), issue and experiment associations, a status explanation, and SHA-256 hashes for its JSON and CSV artifacts. A sweep may also supply a stable `incrementId`; the publisher preserves it so issue-level synthesis can distinguish successive algorithms or scheduling methods while leaving earlier runs intact. Numerical pass/fail status is independent of publication status.
 
 New bundles use `results/published/runs/<run-id>/result.json` and `results/published/runs/<run-id>/samples.csv`. Once published, those files and their catalog artifact paths and hashes cannot change or disappear. Status, explanation, experiment association, and supersession metadata may evolve without hiding the original evidence. Only `reference` runs from clean trees and passing numerical tests may enter adoption statistics.
 

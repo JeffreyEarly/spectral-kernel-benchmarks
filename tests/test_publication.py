@@ -36,6 +36,13 @@ class PublicationValidationTests(unittest.TestCase):
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
         self.assertEqual(11, len(catalog["experiments"]))
+        outer_increment = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "fftw-partial-column-pruned-outer-sharding-v2"
+        ]
+        self.assertEqual(24, len(outer_increment))
+        self.assertTrue(all(not bundle.result["environment"]["gitDirty"] for bundle in outer_increment))
 
     def test_duplicate_run_id_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

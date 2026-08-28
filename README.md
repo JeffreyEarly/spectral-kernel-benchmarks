@@ -111,7 +111,7 @@ python3 tools/run_ordering_packing_sweep.py --dry-run --allow-dirty-tree
 python3 tools/run_ordering_packing_sweep.py
 ```
 
-Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. The original M4 bundle remains byte-identical at its legacy paths.
+Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries
 
