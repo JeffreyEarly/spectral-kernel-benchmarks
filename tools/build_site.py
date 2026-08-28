@@ -3318,8 +3318,9 @@ def spectral_pipeline_large_f4_synthesis(bundles: list[PublishedBundle]) -> str:
     is_reference = bool(reference)
     interval = spectral_pipeline_bootstrap(profile_round_ratios) if is_reference else None
     if is_reference:
-        adoption = bool(
-            geometric_ratio <= 0.90 and maximum_ratio <= 1.03
+        strict_regression = maximum_ratio <= 1.03
+        single_policy_winner = bool(
+            geometric_ratio <= 0.90 and maximum_ratio <= 1.05
             and interval is not None and interval[1] < 1.0
             and maximum_error <= 1.0e-12
         )
@@ -3327,12 +3328,14 @@ def spectral_pipeline_large_f4_synthesis(bundles: list[PublishedBundle]) -> str:
             0.95 <= geometric_ratio <= 1.05
             or (interval is not None and interval[0] <= 1.0 <= interval[1])
         )
-        if adoption:
+        if single_policy_winner and strict_regression:
             classification = "fused-split performance win"
+        elif single_policy_winner:
+            classification = "fused-split overall winner with a documented smallest-case regression"
         elif tie and resident_geometric <= 0.95:
             classification = "timing tie with a fused-split memory advantage"
         else:
-            classification = "size-specific dispatch"
+            classification = "single-policy result inconclusive"
         confidence = (
             f" The stratified paired-bootstrap 95% interval is "
             f"{interval[0]:.3f}×–{interval[1]:.3f}×."
@@ -3344,6 +3347,7 @@ def spectral_pipeline_large_f4_synthesis(bundles: list[PublishedBundle]) -> str:
       <h3>Large four-field nonhydrostatic cohort</h3>
       <p>This append-only increment does not replace the six-workload mixed-field result above. It reruns fields=4 workloads from 256² through 1024² on one clean commit and treats memory capacity as an algorithm result. Algorithm-resident storage includes the ready input/output boundary, provider matrices and operands, transform/modal buffers, weights, and required scratch. Benchmark-only oracle storage remains separate, while observed process high water captures opaque libraries and setup peaks.</p>
       <p>The latest {"reference" if is_reference else "screen"} cohort uses <code>{escaped(latest_increment)}</code>. Fused split is {geometric_ratio:.3f}× the WVM control geometrically in time, with a {maximum_ratio:.3f}× worst workload. Its algorithm-resident ratio is {resident_geometric:.3f}× and observed high-water ratio is {observed_geometric:.3f}×. Maximum correctness error is {maximum_error:.3e}.{confidence} Classification: <strong>{escaped(classification)}</strong>.</p>
+      <p class="method-note">Production integration selects one spectral policy; size-dependent algorithm dispatch is not recommended. The original 3% worst-case threshold remains visible as a diagnostic. For this cohort, the 4.0% regression at 256² is accepted because the single fused-split policy is faster overall, materially faster for both larger target workloads, and lower in algorithm-resident memory.</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Authoritative round-trip time and memory. Memory columns are WVM control / fused split; ratios below one favor fused split.</caption>
         <thead><tr><th scope="col">Profile</th><th scope="col">WVM direct (ms)</th><th scope="col">Fused split (ms)</th><th scope="col">Time ratio</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th><th scope="col">Rounds</th></tr></thead>

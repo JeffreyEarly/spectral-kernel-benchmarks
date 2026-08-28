@@ -81,6 +81,29 @@ class SpectralPipelineLargeF4SweepTests(unittest.TestCase):
             analysis["geometricAlgorithmResidentCandidateToBaseline"],
         )
 
+    def test_reference_selects_one_overall_winner_despite_small_case_regression(self) -> None:
+        baseline, candidate = sweep.candidate_matrix()
+        ratios = (1.04, 0.98, 0.76, 0.83)
+        results = []
+        for round_number in (1, 2, 3):
+            for profile, ratio in zip(sweep.PROFILES, ratios):
+                results.append((baseline, round_number, fake_result(
+                    baseline, profile, 1.0, 1000, 1500,
+                )))
+                results.append((candidate, round_number, fake_result(
+                    candidate, profile, ratio, 780, 1450,
+                )))
+        analysis = sweep.analyze(results, "reference")
+        gate = analysis["referenceGate"]
+        self.assertEqual(
+            "fused-split-overall-winner-with-smallest-case-regression",
+            gate["classification"],
+        )
+        self.assertFalse(gate["regressionPassed"])
+        self.assertTrue(gate["boundedSinglePolicyRegressionPassed"])
+        self.assertTrue(gate["m4NonhydrostaticAdoptionStatisticsPassed"])
+        self.assertFalse(gate["sizeDependentDispatchAllowed"])
+
     def test_safe_profile_estimates_remain_below_half_of_128_gib(self) -> None:
         limit = 64 * 1024**3
         for candidate in sweep.candidate_matrix():

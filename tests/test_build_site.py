@@ -226,7 +226,12 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("algorithm-resident ratio is 0.778×", issue_9_html)
             self.assertIn("observed high-water ratio is 0.994×", issue_9_html)
             self.assertIn("0.885×–0.909×", issue_9_html)
-            self.assertIn("size-specific dispatch", issue_9_html)
+            self.assertIn(
+                "fused-split overall winner with a documented smallest-case regression",
+                issue_9_html,
+            )
+            self.assertIn("size-dependent algorithm dispatch is not recommended", issue_9_html)
+            self.assertNotIn("size-specific dispatch", issue_9_html)
             self.assertIn("wvm-current-256-nz129-f4", issue_9_html)
             self.assertIn("wvm-current-512-nz257-f4", issue_9_html)
             self.assertIn("wvm-large-1024-nz129-f4", issue_9_html)

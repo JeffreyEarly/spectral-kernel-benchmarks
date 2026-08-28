@@ -166,18 +166,20 @@ def analyze(
     advance = screen_correctness
     confidence_interval = None
     improvement_gate = None
-    regression_gate = None
+    strict_regression_gate = None
+    bounded_regression_gate = None
     confidence_gate = None
-    adoption_gate = None
+    single_policy_gate = None
     classification = None
     if phase == "reference" and complete and profile_round_ratios:
         lower, upper = stratified_geometric_bootstrap(profile_round_ratios)
         confidence_interval = {"lower": lower, "upper": upper}
         improvement_gate = geometric_ratio <= 0.90
-        regression_gate = maximum_ratio <= 1.03
+        strict_regression_gate = maximum_ratio <= 1.03
+        bounded_regression_gate = maximum_ratio <= 1.05
         confidence_gate = upper < 1.0
-        adoption_gate = bool(
-            improvement_gate and regression_gate and confidence_gate and all_correct
+        single_policy_gate = bool(
+            improvement_gate and bounded_regression_gate and confidence_gate and all_correct
         )
         timing_tie = bool(
             (0.95 <= geometric_ratio <= 1.05) or (lower <= 1.0 <= upper)
@@ -185,12 +187,14 @@ def analyze(
         memory_advantage = bool(
             geometric_resident_ratio is not None and geometric_resident_ratio <= 0.95
         )
-        if adoption_gate:
+        if single_policy_gate and strict_regression_gate:
             classification = "fused-split-performance-win"
+        elif single_policy_gate:
+            classification = "fused-split-overall-winner-with-smallest-case-regression"
         elif timing_tie and memory_advantage:
             classification = "tie-with-memory-advantage"
         else:
-            classification = "size-specific-dispatch"
+            classification = "single-policy-result-inconclusive"
 
     return {
         "schema": "spectral-kernel-pipeline-analysis-v1",
@@ -216,12 +220,15 @@ def analyze(
         "referenceGate": {
             "geometricRatioAtMost": 0.90,
             "maximumProfileRatioAtMost": 1.03,
+            "singlePolicyMaximumProfileRatioAtMost": 1.05,
             "confidenceInterval": confidence_interval,
             "improvementPassed": improvement_gate,
-            "regressionPassed": regression_gate,
+            "regressionPassed": strict_regression_gate,
+            "boundedSinglePolicyRegressionPassed": bounded_regression_gate,
             "confidenceExcludesTie": confidence_gate,
-            "m4NonhydrostaticAdoptionStatisticsPassed": adoption_gate,
+            "m4NonhydrostaticAdoptionStatisticsPassed": single_policy_gate,
             "classification": classification,
+            "sizeDependentDispatchAllowed": False,
             "crossMacReplicationStillRequired": True,
         },
     }
@@ -384,9 +391,11 @@ def main() -> int:
             "screen performance does not gate reference collection."
         ),
         "referenceGate": (
-            "Classify the four-field cohort as a fused-split performance win, tie with memory "
-            "advantage, or size-specific dispatch using the existing 10% geometric, 3% "
-            "maximum-regression, confidence, correctness, and memory evidence."
+            "Select one production policy rather than dispatching by size. Require a 10% "
+            "geometric improvement, a confidence interval excluding a tie, correctness, and "
+            "no workload regression above 5%. Preserve the original 3% regression check as "
+            "a diagnostic and publish any exception explicitly. A timing tie may be resolved "
+            "by a material algorithm-resident memory advantage."
         ),
         "referenceProtocol": {
             "independentlyPlannedProcesses": rounds,

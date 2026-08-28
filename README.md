@@ -149,6 +149,8 @@ The one-round screen advances to the three-round reference campaign only when fu
 
 The append-only nonhydrostatic extension reruns a same-commit fields=4 cohort at `256²/Nz=129`, `512²/Nz=129`, `512²/Nz=257`, and `1024²/Nz=129`. Its screen is a correctness and memory-capability gate rather than a performance filter: if both graphs complete within the 50%-of-physical-memory preflight rule and all metrics remain within `1e-12`, all four workloads advance to three reference rounds even when the screen is a tie or regression.
 
+The fields=4 decision selects one production algorithm rather than dispatching by size. Reference evidence requires at least 10% geometric improvement, a confidence interval excluding a tie, and no workload regression above 5%; the original 3% threshold remains published as a diagnostic. A bounded small-workload exception is documented rather than converted into a second production path.
+
 ```sh
 python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase screen --dry-run --allow-dirty-tree
 python3 tools/run_spectral_pipeline_large_f4_sweep.py --phase screen
