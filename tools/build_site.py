@@ -4219,7 +4219,6 @@ def dealiased_convolution_reference_synthesis(
         bundle for bundle in bundles
         if bundle.publication.get("incrementId") ==
         "wvm-derived-horizontal-advection-reference-v1"
-        and bundle.publication.get("status") == "reference"
     ]
     if not cohort:
         return ""
@@ -4345,7 +4344,7 @@ def dealiased_convolution_reference_synthesis(
         "The reference gate does not pass; the preliminary FFTW++ result is not promoted."
     )
     return f"""
-      <h3>Rotated finalist-only M4 reference campaign</h3>
+      <h3>Rotated finalist-only M4 reference-depth campaign</h3>
       <p>Each finalist runs alone after an independent correctness oracle is destroyed and FFTW wisdom is cleared. Three process rounds rotate both candidate and workload order; every process uses three warmups and 21 samples. The authoritative boundary remains 15 ready compact spectra to four ready compact outputs.</p>
       <p>FFTW++ is {geometric_time:.3f}× explicit FFTW geometrically, with a stratified paired-bootstrap 95% interval of {lower:.3f}×–{upper:.3f}× and a worst profile of {maximum_ratio:.3f}×. Counted algorithm-resident storage is {geometric_resident:.3f}× geometrically and maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong></p>
       <div class="table-scroll"><table class="experiment-evidence-table">
@@ -4358,7 +4357,7 @@ def dealiased_convolution_reference_synthesis(
         <thead><tr><th scope="col">Profile</th><th scope="col">Explicit resident</th><th scope="col">FFTW++ resident</th><th scope="col">Ratio</th><th scope="col">Harness explicit / FFTW++</th><th scope="col">Observed high water explicit / FFTW++</th></tr></thead>
         <tbody>{"".join(memory_rows)}</tbody>
       </table></div>
-      <p class="method-note">The same-commit allocator interposer verifies zero steady-state application allocations. This reference conclusion covers only the isolated WVM-derived horizontal quadratic operator on the measured M4 Max. It does not include vertical transforms, coefficient accumulation, the complete nonlinear flux, Float32, or a general-Mac recommendation.</p>
+      <p class="method-note">The same-commit allocator interposer verifies zero steady-state application allocations. This reference-depth conclusion covers only the isolated WVM-derived horizontal quadratic operator on the measured M4 Max. It does not include vertical transforms, coefficient accumulation, the complete nonlinear flux, Float32, or a general-Mac recommendation.</p>
     """
 
 

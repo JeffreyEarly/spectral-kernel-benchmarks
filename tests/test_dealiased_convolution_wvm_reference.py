@@ -142,7 +142,7 @@ class DealiasedConvolutionWvmReferenceTests(unittest.TestCase):
                 result=result,
             ))
         synthesis = build_site.dealiased_convolution_reference_synthesis(bundles)
-        self.assertIn("Rotated finalist-only M4 reference campaign", synthesis)
+        self.assertIn("Rotated finalist-only M4 reference-depth campaign", synthesis)
         self.assertIn("FFTW++ is 0.850× explicit FFTW", synthesis)
         self.assertIn("passes the M4 horizontal-kernel reference gate", synthesis)
         self.assertIn("complete nonlinear flux", synthesis)

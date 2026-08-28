@@ -22064,6 +22064,474 @@
         "samplesSha256": "ade027cfb25264f8d25c312cf0c05f12dd3afa9588d92d62c3190225d7255660"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T194650Z-issue17-ref-n256-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194650Z-issue17-ref-n256-explicit-parallel/result.json",
+        "samples": "runs/20260828T194650Z-issue17-ref-n256-explicit-parallel/samples.csv",
+        "resultSha256": "daa6a05fd87df0d7f7fde329954aee704d4c652829af0177deacdc0aa4c9e89d",
+        "samplesSha256": "9d834b6e342beeffe0a6ac3e11ffa1e990231f1a924066ed068b8dd7b0c31354"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194650Z-issue17-ref-n256-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194650Z-issue17-ref-n256-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194650Z-issue17-ref-n256-fftwpp-parallel/samples.csv",
+        "resultSha256": "27a6a17ab22600e39aa3e44d3f0892b1bb6c071a0a9e5358395a6b1caa85fe45",
+        "samplesSha256": "4d6a30467934be9b6bc759514e8c2128e77f5772af8808cc102ea65bf821b21e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194650Z-issue17-ref-n512-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194650Z-issue17-ref-n512-explicit-parallel/result.json",
+        "samples": "runs/20260828T194650Z-issue17-ref-n512-explicit-parallel/samples.csv",
+        "resultSha256": "3b520bc2efe4cf62b534a86cf76bf253571659ffe027ae63ccc510c56006559f",
+        "samplesSha256": "6341420e73c96c6c3634e4abc84e3969a8d65785e171a1eeb6dba4bf1854455f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194651Z-issue17-ref-n512-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194651Z-issue17-ref-n512-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194651Z-issue17-ref-n512-fftwpp-parallel/samples.csv",
+        "resultSha256": "ddd3ed57851cf6e977499c9ac750a1ab4cb3299c378c34613b4297ff925581d0",
+        "samplesSha256": "5a826612eb734ef6d1167e3185353db0912d22ba1a7c93010db1759532c55798"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194651Z-issue17-ref-n1024-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194651Z-issue17-ref-n1024-explicit-parallel/result.json",
+        "samples": "runs/20260828T194651Z-issue17-ref-n1024-explicit-parallel/samples.csv",
+        "resultSha256": "6e9d409dfea2cdf05e7a2633ddca8bc41af6e9c7809736c8cfb8f2c791dd33bd",
+        "samplesSha256": "df54581267474d2f5de92ece990de5e82e1e66d44e7083907f03a076c79e56b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194652Z-issue17-ref-n1024-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194652Z-issue17-ref-n1024-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194652Z-issue17-ref-n1024-fftwpp-parallel/samples.csv",
+        "resultSha256": "5f90b221af00cfd51cee1dbfce134c03acefa49a95f5608d8e0e1838eee223de",
+        "samplesSha256": "f8d75c10a37138caf428992ac45c7f7c481537d67cc2374d47622dd7d9072747"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194653Z-issue17-ref-n512-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194653Z-issue17-ref-n512-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194653Z-issue17-ref-n512-fftwpp-parallel/samples.csv",
+        "resultSha256": "e7893a02a1b893c5a7d6205f54c4168c3447ea3da520aaa14a218d0ebf7600d5",
+        "samplesSha256": "d6339f76d552b84e66b0b1288bcceb35f52be22e03b018f02008572edb871e9e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194654Z-issue17-ref-n512-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194654Z-issue17-ref-n512-explicit-parallel/result.json",
+        "samples": "runs/20260828T194654Z-issue17-ref-n512-explicit-parallel/samples.csv",
+        "resultSha256": "961d64d2aac505334bad973f049ea84c2dcb7dfef3f8a357cef73340dd9e60c4",
+        "samplesSha256": "11e4ae5a42c4a3d0157f34e2fc72595578ceb6f6a0c7a3568bb4d5b3873c2c89"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194654Z-issue17-ref-n1024-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194654Z-issue17-ref-n1024-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194654Z-issue17-ref-n1024-fftwpp-parallel/samples.csv",
+        "resultSha256": "8c134b2cffc7bd1a93cef4550f5e8e738ba4f759d5033384493162a5d9681ef6",
+        "samplesSha256": "3e13c74cf33c7f9aac97de488ee0e0e9789497385be734bd839062105b214350"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194655Z-issue17-ref-n1024-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194655Z-issue17-ref-n1024-explicit-parallel/result.json",
+        "samples": "runs/20260828T194655Z-issue17-ref-n1024-explicit-parallel/samples.csv",
+        "resultSha256": "abb484db44896431740fb913a5a42601d229e2520afc11fa66efd90f0b824e16",
+        "samplesSha256": "aeefe84866592879126f9e9e9453792e42984cd26c9514b1330dcd3ea28397af"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194656Z-issue17-ref-n256-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194656Z-issue17-ref-n256-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194656Z-issue17-ref-n256-fftwpp-parallel/samples.csv",
+        "resultSha256": "1434944df0faef3de3025b3567cf89840d5a99d06e792bab541776f422b104a2",
+        "samplesSha256": "1923100bc5509001dde60e4202724c335d15797b5a26fb65631155269c464619"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194657Z-issue17-ref-n256-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194657Z-issue17-ref-n256-explicit-parallel/result.json",
+        "samples": "runs/20260828T194657Z-issue17-ref-n256-explicit-parallel/samples.csv",
+        "resultSha256": "041025edd762279a58c48d8b60ddb9ea22dc9c3550313c08756ea973995713e9",
+        "samplesSha256": "0355288a29a9d0302402c02c6ebe54ec7565104d317b61f3532a8594f280e495"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194657Z-issue17-ref-n1024-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194657Z-issue17-ref-n1024-explicit-parallel/result.json",
+        "samples": "runs/20260828T194657Z-issue17-ref-n1024-explicit-parallel/samples.csv",
+        "resultSha256": "82c04ed31a5478b0148684090ea20de2487c980d7e74e835cb8218872a8d083f",
+        "samplesSha256": "f13268b654ef7dbe5295ba2a72461d3815aac38dd5f7d8075a45a9b3da33b93c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194658Z-issue17-ref-n1024-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194658Z-issue17-ref-n1024-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194658Z-issue17-ref-n1024-fftwpp-parallel/samples.csv",
+        "resultSha256": "335db955131a367ffcf7a300df9324371fcd4086ac5317b4c106206aa774a482",
+        "samplesSha256": "70a975a926d2402b5cfb2186e1dfb4f8994242bb467532256a16333abe07bc18"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194659Z-issue17-ref-n256-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194659Z-issue17-ref-n256-explicit-parallel/result.json",
+        "samples": "runs/20260828T194659Z-issue17-ref-n256-explicit-parallel/samples.csv",
+        "resultSha256": "e5528c212380878dacac26bec6ce68f09720f9eda467da86062ab35dd5ef5ef8",
+        "samplesSha256": "c490e4d174db5330afea9cf85d3b30f650f5b4200c46b53e01211fe2cb789832"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194659Z-issue17-ref-n256-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194659Z-issue17-ref-n256-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194659Z-issue17-ref-n256-fftwpp-parallel/samples.csv",
+        "resultSha256": "e9c2a65b8df41e8ce97ddc5b3bc42f4ef6e09010a42271b7327e6c7e91757dbd",
+        "samplesSha256": "290ff6a206f5bfcf406e98653732da372e79d8b13b969dede60487d749c0df3f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194659Z-issue17-ref-n512-explicit-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using explicit-full-grid-shared-advectors-parallel-target-wvm-advection-15to4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194659Z-issue17-ref-n512-explicit-parallel/result.json",
+        "samples": "runs/20260828T194659Z-issue17-ref-n512-explicit-parallel/samples.csv",
+        "resultSha256": "9eb26591e1bdcaa3ee453d4c13d02bcd03b2d03cefd935a61ba87846c0b066e6",
+        "samplesSha256": "0535ac2fef29b103c0469a9eb868af7daccd17fa428684280e832f9aa0db60a5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T194700Z-issue17-ref-n512-fftwpp-parallel",
+      "incrementId": "wvm-derived-horizontal-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "Complete three-round finalist-only M4 reference-depth campaign; correctness, placement, confidence, regression, allocation, and memory gates pass, but the 0.9021 geometric time ratio narrowly misses the preregistered 0.9000 reference threshold.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-parallel-target-wvm-advection-6to1x4 (internal=1, outer=4).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T194700Z-issue17-ref-n512-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T194700Z-issue17-ref-n512-fftwpp-parallel/samples.csv",
+        "resultSha256": "a9a72a2c73514b4345473ce0e27f8f0d7fb45c981d959e31fd7b91e6ff2f7e95",
+        "samplesSha256": "2baee3e54ae80124a85e6b34248ee911c89fe86feab34380ddc8f0a0fec7c07c"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

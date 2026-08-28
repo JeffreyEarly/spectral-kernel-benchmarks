@@ -260,6 +260,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("0.661× its counted algorithm-resident storage", issue_17_html)
             self.assertIn("1024 × 1024", issue_17_html)
             self.assertIn("not a reference result or full-flux claim", issue_17_html)
+            self.assertIn("Rotated finalist-only M4 reference-depth campaign", issue_17_html)
+            self.assertIn("FFTW++ is 0.902× explicit FFTW geometrically", issue_17_html)
+            self.assertIn("0.900×–0.917×", issue_17_html)
+            self.assertIn("The reference gate does not pass", issue_17_html)
+            self.assertIn("reference-depth conclusion", issue_17_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )
