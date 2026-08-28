@@ -23,6 +23,9 @@ std::uint64_t probeDealiasedConvolutionSteadyStateAllocationsForTesting(
     void (*beginTracking)(), std::uint64_t (*endTracking)());
 std::uint64_t probeWvmAdvectiveConvolutionSteadyStateAllocationsForTesting(
     std::size_t n, void (*beginTracking)(), std::uint64_t (*endTracking)());
+std::uint64_t probeVerticallyBatchedAdvectionSteadyStateAllocationsForTesting(
+    std::size_t n, std::size_t nz,
+    void (*beginTracking)(), std::uint64_t (*endTracking)());
 }
 #endif
 
@@ -1951,6 +1954,52 @@ int main() {
                     }),
                 "tiled streaming inverse adapter timing");
 
+#if SKBENCH_TEST_HAVE_FFTWPP
+        for (const std::string candidate : {
+                 "explicit-parallel", "fftwpp-parallel"}) {
+            skbench::RunOptions composedOptions;
+            composedOptions.kernel = "vertically-batched-advection";
+            composedOptions.profile = "smoke";
+            composedOptions.verticalGemmFamily = "k2-grouped";
+            composedOptions.verticalGemmSchedule = "outer-dynamic";
+            composedOptions.verticalGemmOuterWorkers = 2;
+            composedOptions.convolutionCandidate = candidate;
+            composedOptions.warmups = 1;
+            composedOptions.samples = 2;
+            const auto composedReport = skbench::runBenchmark(composedOptions);
+            require(composedReport.status == "passed",
+                    "vertically batched advection smoke benchmark failed");
+            require(composedReport.providers.size() == 1,
+                    "vertically batched advection isolated provider count");
+            const auto& provider = composedReport.providers.front();
+            require(provider.correctness.size() == 9 && std::all_of(
+                        provider.correctness.begin(), provider.correctness.end(),
+                        [](const skbench::CorrectnessMetric& item) {
+                            return item.passed;
+                        }),
+                    "vertically batched advection correctness contract");
+            require(provider.algorithmResidentBytes ==
+                        provider.explicitPersistentBytes + provider.scratchBytes,
+                    "vertically batched advection resident memory partition");
+            require(provider.algorithmResidentBytes +
+                        provider.benchmarkHarnessBytes ==
+                        provider.estimatedProcessPeakBytes,
+                    "vertically batched advection process peak partition");
+            require(provider.estimatedProcessPeakBytes ==
+                        composedReport.spectralPipelineEstimatedExplicitPeakBytes,
+                    "vertically batched advection report peak");
+            require(std::any_of(
+                        provider.timings.begin(), provider.timings.end(),
+                        [](const skbench::TimingSeries& timing) {
+                            return timing.scope == "uninstrumented-total" &&
+                                timing.stage ==
+                                    "vertically batched WVM-derived advection pipeline" &&
+                                timing.seconds.size() == 2;
+                        }),
+                    "vertically batched advection authoritative total");
+        }
+#endif
+
         if (skbench::test::allocationTrackingSupported() &&
             accelerateAllocationAssertionsEnabled()) {
             requireAllocationFreeVerticalExecution(
@@ -2005,6 +2054,11 @@ int main() {
                     8, skbench::test::beginAllocationTracking,
                     skbench::test::endAllocationTracking) == 0,
                 "WVM-like advective convolution steady-state execution allocated memory");
+            require(
+                skbench::probeVerticallyBatchedAdvectionSteadyStateAllocationsForTesting(
+                    8, 7, skbench::test::beginAllocationTracking,
+                    skbench::test::endAllocationTracking) == 0,
+                "vertically batched advection steady-state execution allocated memory");
 #endif
         }
 

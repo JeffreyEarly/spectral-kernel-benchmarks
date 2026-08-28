@@ -245,6 +245,7 @@ struct VerticalGemmProvider::Impl {
     std::size_t modalCount = 0;
     std::size_t matrixElementsPerGroup = 0;
     VerticalGemmLayout layout = VerticalGemmLayout::complexInterleaved;
+    VerticalGemmBufferPolicy bufferPolicy = VerticalGemmBufferPolicy::bidirectional;
     VerticalGemmStrategy strategy;
     bool available = SKBENCH_HAVE_ACCELERATE != 0;
     std::string capabilityText;
@@ -278,8 +279,11 @@ struct VerticalGemmProvider::Impl {
     int nj = 0;
 
     Impl(const Workload& inputWorkload, const GroupedVerticalOperators& operators,
-         VerticalGemmLayout inputLayout, VerticalGemmStrategy inputStrategy)
-        : workload(inputWorkload), layout(inputLayout), strategy(inputStrategy), groups(operators.groups) {
+         VerticalGemmLayout inputLayout, VerticalGemmStrategy inputStrategy,
+         VerticalGemmBufferPolicy inputBufferPolicy)
+        : workload(inputWorkload), layout(inputLayout),
+          bufferPolicy(inputBufferPolicy), strategy(inputStrategy),
+          groups(operators.groups) {
         if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
             throw std::invalid_argument("Vertical GEMM operator dimensions do not match the workload.");
         }
@@ -324,24 +328,36 @@ struct VerticalGemmProvider::Impl {
         }
 
         const auto allocationStart = Clock::now();
+        const bool allocateForward =
+            bufferPolicy != VerticalGemmBufferPolicy::inverseOnly;
+        const bool allocateInverse =
+            bufferPolicy != VerticalGemmBufferPolicy::forwardOnly;
         if (layout == VerticalGemmLayout::complexInterleaved) {
-            complexForwardMatrix.allocate(familyElements);
-            complexInverseMatrix.allocate(familyElements);
-            complexPhysicalInput.allocate(physicalCount);
-            complexModalInput.allocate(modalCount);
-            complexModalOutput.allocate(modalCount);
-            complexPhysicalOutput.allocate(physicalCount);
+            if (allocateForward) {
+                complexForwardMatrix.allocate(familyElements);
+                complexPhysicalInput.allocate(physicalCount);
+                complexModalOutput.allocate(modalCount);
+            }
+            if (allocateInverse) {
+                complexInverseMatrix.allocate(familyElements);
+                complexModalInput.allocate(modalCount);
+                complexPhysicalOutput.allocate(physicalCount);
+            }
         } else {
-            realForwardMatrix.allocate(familyElements);
-            realInverseMatrix.allocate(familyElements);
-            physicalInputReal.allocate(physicalCount);
-            physicalInputImaginary.allocate(physicalCount);
-            modalInputReal.allocate(modalCount);
-            modalInputImaginary.allocate(modalCount);
-            modalOutputReal.allocate(modalCount);
-            modalOutputImaginary.allocate(modalCount);
-            physicalOutputReal.allocate(physicalCount);
-            physicalOutputImaginary.allocate(physicalCount);
+            if (allocateForward) {
+                realForwardMatrix.allocate(familyElements);
+                physicalInputReal.allocate(physicalCount);
+                physicalInputImaginary.allocate(physicalCount);
+                modalOutputReal.allocate(modalCount);
+                modalOutputImaginary.allocate(modalCount);
+            }
+            if (allocateInverse) {
+                realInverseMatrix.allocate(familyElements);
+                modalInputReal.allocate(modalCount);
+                modalInputImaginary.allocate(modalCount);
+                physicalOutputReal.allocate(physicalCount);
+                physicalOutputImaginary.allocate(physicalCount);
+            }
         }
         allocationTime = elapsedSeconds(allocationStart);
 
@@ -355,11 +371,15 @@ struct VerticalGemmProvider::Impl {
                     const auto forwardIndex = offset + j + operators.nj * z;
                     const auto inverseIndex = offset + z + operators.nz * j;
                     if (layout == VerticalGemmLayout::complexInterleaved) {
-                        complexForwardMatrix.data()[forwardIndex] = {forwardValue, 0.0};
-                        complexInverseMatrix.data()[inverseIndex] = {inverseValue, 0.0};
+                        if (allocateForward)
+                            complexForwardMatrix.data()[forwardIndex] = {forwardValue, 0.0};
+                        if (allocateInverse)
+                            complexInverseMatrix.data()[inverseIndex] = {inverseValue, 0.0};
                     } else {
-                        realForwardMatrix.data()[forwardIndex] = forwardValue;
-                        realInverseMatrix.data()[inverseIndex] = inverseValue;
+                        if (allocateForward)
+                            realForwardMatrix.data()[forwardIndex] = forwardValue;
+                        if (allocateInverse)
+                            realInverseMatrix.data()[inverseIndex] = inverseValue;
                     }
                 }
             }
@@ -375,6 +395,22 @@ struct VerticalGemmProvider::Impl {
 
     void requireAvailable() const {
         if (!available) throw std::runtime_error(capabilityText);
+    }
+
+    void requireForward() const {
+        requireAvailable();
+        if (bufferPolicy == VerticalGemmBufferPolicy::inverseOnly) {
+            throw std::logic_error(
+                "Forward GEMM component requested from an inverse-only provider.");
+        }
+    }
+
+    void requireInverse() const {
+        requireAvailable();
+        if (bufferPolicy == VerticalGemmBufferPolicy::forwardOnly) {
+            throw std::logic_error(
+                "Inverse GEMM component requested from a forward-only provider.");
+        }
     }
 
     void requireSplit() const {
@@ -398,7 +434,7 @@ struct VerticalGemmProvider::Impl {
     }
 
     void packPhysicalInputFromWvm(const std::vector<RetainedMode>& modes, const Complex* wvmSpectrum) {
-        requireAvailable();
+        requireForward();
         validateRetainedModes(modes);
         for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
             const auto& mode = modes[modeIndex];
@@ -420,7 +456,7 @@ struct VerticalGemmProvider::Impl {
     }
 
     void embedPhysicalOutputToWvm(const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const {
-        requireAvailable();
+        requireInverse();
         validateRetainedModes(modes);
         std::fill_n(wvmSpectrum, workload.spectrumElements(), Complex{});
         for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
@@ -574,7 +610,16 @@ VerticalGemmProvider::VerticalGemmProvider(const Workload& workload,
 VerticalGemmProvider::VerticalGemmProvider(const Workload& workload,
                                            const GroupedVerticalOperators& operators,
                                            VerticalGemmLayout layout, VerticalGemmStrategy strategy)
-    : impl_(std::make_unique<Impl>(workload, operators, layout, strategy)) {}
+    : VerticalGemmProvider(
+          workload, operators, layout, strategy,
+          VerticalGemmBufferPolicy::bidirectional) {}
+
+VerticalGemmProvider::VerticalGemmProvider(
+    const Workload& workload, const GroupedVerticalOperators& operators,
+    VerticalGemmLayout layout, VerticalGemmStrategy strategy,
+    VerticalGemmBufferPolicy bufferPolicy)
+    : impl_(std::make_unique<Impl>(
+          workload, operators, layout, strategy, bufferPolicy)) {}
 
 VerticalGemmProvider::~VerticalGemmProvider() = default;
 VerticalGemmProvider::VerticalGemmProvider(VerticalGemmProvider&&) noexcept = default;
@@ -616,7 +661,7 @@ std::string VerticalGemmProvider::libraryIdentity() const {
 }
 
 void VerticalGemmProvider::loadPhysicalInput(const Complex* input) {
-    impl_->requireAvailable();
+    impl_->requireForward();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         for (std::size_t index = 0; index < impl_->physicalCount; ++index) {
             impl_->complexPhysicalInput.data()[index] = {input[index].real, input[index].imag};
@@ -635,7 +680,7 @@ void VerticalGemmProvider::packPhysicalInputFromWvm(
 }
 
 void VerticalGemmProvider::loadModalInput(const Complex* input) {
-    impl_->requireAvailable();
+    impl_->requireInverse();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         for (std::size_t index = 0; index < impl_->modalCount; ++index) {
             impl_->complexModalInput.data()[index] = {input[index].real, input[index].imag};
@@ -649,7 +694,7 @@ void VerticalGemmProvider::loadModalInput(const Complex* input) {
 }
 
 void VerticalGemmProvider::executeForward() {
-    impl_->requireAvailable();
+    impl_->requireForward();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -669,7 +714,7 @@ void VerticalGemmProvider::executeForward() {
 }
 
 void VerticalGemmProvider::executeInverse() {
-    impl_->requireAvailable();
+    impl_->requireInverse();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -689,6 +734,7 @@ void VerticalGemmProvider::executeInverse() {
 }
 
 void VerticalGemmProvider::executeForwardReal() {
+    impl_->requireForward();
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -700,6 +746,7 @@ void VerticalGemmProvider::executeForwardReal() {
 }
 
 void VerticalGemmProvider::executeForwardImaginary() {
+    impl_->requireForward();
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -711,6 +758,7 @@ void VerticalGemmProvider::executeForwardImaginary() {
 }
 
 void VerticalGemmProvider::executeInverseReal() {
+    impl_->requireInverse();
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -722,6 +770,7 @@ void VerticalGemmProvider::executeInverseReal() {
 }
 
 void VerticalGemmProvider::executeInverseImaginary() {
+    impl_->requireInverse();
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -740,71 +789,83 @@ void VerticalGemmProvider::executeSchedulerNoop() {
 }
 
 Complex* VerticalGemmProvider::interleavedPhysicalInputData() {
+    impl_->requireForward();
     impl_->requireInterleaved();
     static_assert(sizeof(Complex) == sizeof(BlasComplex));
     return reinterpret_cast<Complex*>(impl_->complexPhysicalInput.data());
 }
 
 Complex* VerticalGemmProvider::interleavedModalInputData() {
+    impl_->requireInverse();
     impl_->requireInterleaved();
     static_assert(sizeof(Complex) == sizeof(BlasComplex));
     return reinterpret_cast<Complex*>(impl_->complexModalInput.data());
 }
 
 const Complex* VerticalGemmProvider::interleavedModalOutputData() const {
+    impl_->requireForward();
     impl_->requireInterleaved();
     static_assert(sizeof(Complex) == sizeof(BlasComplex));
     return reinterpret_cast<const Complex*>(impl_->complexModalOutput.data());
 }
 
 const Complex* VerticalGemmProvider::interleavedPhysicalOutputData() const {
+    impl_->requireInverse();
     impl_->requireInterleaved();
     static_assert(sizeof(Complex) == sizeof(BlasComplex));
     return reinterpret_cast<const Complex*>(impl_->complexPhysicalOutput.data());
 }
 
 double* VerticalGemmProvider::splitPhysicalInputRealData() {
+    impl_->requireForward();
     impl_->requireSplit();
     return impl_->physicalInputReal.data();
 }
 
 double* VerticalGemmProvider::splitPhysicalInputImaginaryData() {
+    impl_->requireForward();
     impl_->requireSplit();
     return impl_->physicalInputImaginary.data();
 }
 
 double* VerticalGemmProvider::splitModalInputRealData() {
+    impl_->requireInverse();
     impl_->requireSplit();
     return impl_->modalInputReal.data();
 }
 
 double* VerticalGemmProvider::splitModalInputImaginaryData() {
+    impl_->requireInverse();
     impl_->requireSplit();
     return impl_->modalInputImaginary.data();
 }
 
 const double* VerticalGemmProvider::splitModalOutputRealData() const {
+    impl_->requireForward();
     impl_->requireSplit();
     return impl_->modalOutputReal.data();
 }
 
 const double* VerticalGemmProvider::splitModalOutputImaginaryData() const {
+    impl_->requireForward();
     impl_->requireSplit();
     return impl_->modalOutputImaginary.data();
 }
 
 const double* VerticalGemmProvider::splitPhysicalOutputRealData() const {
+    impl_->requireInverse();
     impl_->requireSplit();
     return impl_->physicalOutputReal.data();
 }
 
 const double* VerticalGemmProvider::splitPhysicalOutputImaginaryData() const {
+    impl_->requireInverse();
     impl_->requireSplit();
     return impl_->physicalOutputImaginary.data();
 }
 
 void VerticalGemmProvider::copyForwardOutput(Complex* output) const {
-    impl_->requireAvailable();
+    impl_->requireForward();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         for (std::size_t index = 0; index < impl_->modalCount; ++index) {
             output[index] = {impl_->complexModalOutput.data()[index].real(),
@@ -818,7 +879,7 @@ void VerticalGemmProvider::copyForwardOutput(Complex* output) const {
 }
 
 void VerticalGemmProvider::copyInverseOutput(Complex* output) const {
-    impl_->requireAvailable();
+    impl_->requireInverse();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         for (std::size_t index = 0; index < impl_->physicalCount; ++index) {
             output[index] = {impl_->complexPhysicalOutput.data()[index].real(),

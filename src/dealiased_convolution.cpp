@@ -945,6 +945,280 @@ CorrectnessMetric correctnessTarget(const std::vector<Complex>& actual,
             maximum, tolerance, maximum <= tolerance && l2 <= tolerance, l2};
 }
 
+struct ComposedModeSet {
+    std::vector<RetainedMode> logical;
+    std::vector<StoredMode> stored;
+};
+
+ComposedModeSet composedModeSet(std::size_t n) {
+    auto stored = storedDisk(n);
+    std::stable_sort(stored.begin(), stored.end(), [](const auto& first,
+                                                       const auto& second) {
+        const auto firstSquared = first.k * first.k + first.l * first.l;
+        const auto secondSquared = second.k * second.k + second.l * second.l;
+        if (firstSquared != secondSquared) return firstSquared < secondSquared;
+        if (first.k != second.k) return first.k < second.k;
+        return first.l < second.l;
+    });
+
+    std::vector<RetainedMode> logical;
+    logical.reserve(stored.size());
+    for (const auto& mode : stored) {
+        const auto storedKx = mode.k < 0
+            ? n - static_cast<std::size_t>(-mode.k)
+            : static_cast<std::size_t>(mode.k);
+        logical.push_back({
+            mode.k, mode.l, storedKx, static_cast<std::size_t>(mode.l),
+            false, std::hypot(static_cast<double>(mode.k),
+                              static_cast<double>(mode.l))});
+    }
+    return {std::move(logical), std::move(stored)};
+}
+
+std::vector<Complex> composedModalFixture(
+    const Workload& workload, const std::vector<StoredMode>& modes,
+    std::uint64_t seed) {
+    const auto radius = static_cast<int>(workload.nx / 3);
+    const auto missing = std::numeric_limits<std::size_t>::max();
+    std::vector<std::size_t> zeroLineByK(
+        static_cast<std::size_t>(2 * radius + 1), missing);
+    for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+        if (modes[mode].l == 0) {
+            zeroLineByK[static_cast<std::size_t>(modes[mode].k + radius)] = mode;
+        }
+    }
+
+    std::mt19937_64 generator(seed);
+    std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+    std::vector<Complex> values(
+        modes.size() * workload.retainedVerticalModes() * workload.fields);
+    for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+        const auto& key = modes[mode];
+        if (key.l == 0 && key.k < 0) continue;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                Complex value{distribution(generator), distribution(generator)};
+                if (key.k == 0 && key.l == 0) value.imag = 0.0;
+                values[modalSpectrumIndex(workload, mode, j, field)] = value;
+                if (key.l == 0 && key.k > 0) {
+                    const auto conjugateMode = zeroLineByK[
+                        static_cast<std::size_t>(-key.k + radius)];
+                    if (conjugateMode == missing) {
+                        throw std::logic_error(
+                            "Composed modal fixture lacks a Hermitian boundary partner.");
+                    }
+                    values[modalSpectrumIndex(
+                        workload, conjugateMode, j, field)] = conjugate(value);
+                }
+            }
+        }
+    }
+    return values;
+}
+
+void packInterleavedLevel(const Workload& workload, std::size_t modeCount,
+                          std::size_t z, const Complex* physical,
+                          std::vector<Complex>& level) {
+    for (std::size_t field = 0; field < workload.fields; ++field) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            level[field * modeCount + mode] = physical[
+                retainedSpectrumIndex(workload, mode, z, field)];
+        }
+    }
+}
+
+void packSplitLevel(const Workload& workload, std::size_t modeCount,
+                    std::size_t z, const VerticalGemmProvider& provider,
+                    std::vector<Complex>& level) {
+    const auto* real = provider.splitPhysicalOutputRealData();
+    const auto* imaginary = provider.splitPhysicalOutputImaginaryData();
+    for (std::size_t field = 0; field < workload.fields; ++field) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            const auto index = retainedSpectrumIndex(workload, mode, z, field);
+            level[field * modeCount + mode] = {real[index], imaginary[index]};
+        }
+    }
+}
+
+void scatterInterleavedLevel(const Workload& workload, std::size_t modeCount,
+                             std::size_t z, const std::vector<Complex>& level,
+                             Complex* physical) {
+    for (std::size_t field = 0; field < workload.fields; ++field) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            physical[retainedSpectrumIndex(workload, mode, z, field)] =
+                level[field * modeCount + mode];
+        }
+    }
+}
+
+void scatterSplitLevel(const Workload& workload, std::size_t modeCount,
+                       std::size_t z, const std::vector<Complex>& level,
+                       VerticalGemmProvider& provider) {
+    auto* real = provider.splitPhysicalInputRealData();
+    auto* imaginary = provider.splitPhysicalInputImaginaryData();
+    for (std::size_t field = 0; field < workload.fields; ++field) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            const auto index = retainedSpectrumIndex(workload, mode, z, field);
+            const auto value = level[field * modeCount + mode];
+            real[index] = value.real;
+            imaginary[index] = value.imag;
+        }
+    }
+}
+
+template <class HorizontalPath>
+void executeComposedSplit(
+    const Workload& inputWorkload, const Workload& outputWorkload,
+    std::size_t modeCount, VerticalGemmProvider& reconstruction,
+    HorizontalPath& horizontal, VerticalGemmProvider& projection,
+    std::vector<Complex>& levelInput) {
+    reconstruction.executeInverse();
+    for (std::size_t z = 0; z < inputWorkload.nz; ++z) {
+        packSplitLevel(
+            inputWorkload, modeCount, z, reconstruction, levelInput);
+        horizontal.execute(levelInput);
+        scatterSplitLevel(
+            outputWorkload, modeCount, z, horizontal.output(), projection);
+    }
+    projection.executeForward();
+}
+
+CorrectnessMetric splitMetric(
+    std::string name, const double* actualReal, const double* actualImaginary,
+    const Complex* expected, std::size_t count) {
+    double maximumDifference = 0.0;
+    double maximumReference = 0.0;
+    long double squaredDifference = 0.0;
+    long double squaredReference = 0.0;
+    for (std::size_t index = 0; index < count; ++index) {
+        const Complex difference{
+            actualReal[index] - expected[index].real,
+            actualImaginary[index] - expected[index].imag};
+        maximumDifference = std::max(maximumDifference, magnitude(difference));
+        maximumReference = std::max(maximumReference, magnitude(expected[index]));
+        squaredDifference +=
+            static_cast<long double>(difference.real) * difference.real +
+            static_cast<long double>(difference.imag) * difference.imag;
+        squaredReference +=
+            static_cast<long double>(expected[index].real) * expected[index].real +
+            static_cast<long double>(expected[index].imag) * expected[index].imag;
+    }
+    const double maximum = maximumDifference / std::max(maximumReference, 1.0);
+    const double l2 = squaredReference == 0.0
+        ? std::sqrt(static_cast<double>(squaredDifference))
+        : std::sqrt(static_cast<double>(squaredDifference / squaredReference));
+    return {std::move(name), maximum, tolerance,
+            maximum <= tolerance && l2 <= tolerance, l2};
+}
+
+CorrectnessMetric splitTargetMetric(
+    std::size_t target, const Workload& workload, std::size_t modeCount,
+    const double* actualReal, const double* actualImaginary,
+    const std::vector<Complex>& expected) {
+    double maximumDifference = 0.0;
+    double maximumReference = 0.0;
+    long double squaredDifference = 0.0;
+    long double squaredReference = 0.0;
+    for (std::size_t mode = 0; mode < modeCount; ++mode) {
+        for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+            const auto index = modalSpectrumIndex(workload, mode, j, target);
+            const Complex difference{
+                actualReal[index] - expected[index].real,
+                actualImaginary[index] - expected[index].imag};
+            maximumDifference = std::max(maximumDifference, magnitude(difference));
+            maximumReference = std::max(maximumReference, magnitude(expected[index]));
+            squaredDifference +=
+                static_cast<long double>(difference.real) * difference.real +
+                static_cast<long double>(difference.imag) * difference.imag;
+            squaredReference +=
+                static_cast<long double>(expected[index].real) * expected[index].real +
+                static_cast<long double>(expected[index].imag) * expected[index].imag;
+        }
+    }
+    const double maximum = maximumDifference / std::max(maximumReference, 1.0);
+    const double l2 = squaredReference == 0.0
+        ? std::sqrt(static_cast<double>(squaredDifference))
+        : std::sqrt(static_cast<double>(squaredDifference / squaredReference));
+    return {"projected advective target " + std::to_string(target) +
+                " versus composed oracle",
+            maximum, tolerance, maximum <= tolerance && l2 <= tolerance, l2};
+}
+
+CorrectnessMetric splitProbeMetric(
+    const std::vector<std::size_t>& indices,
+    const std::vector<Complex>& expected,
+    const VerticalGemmProvider& reconstruction) {
+    const auto* real = reconstruction.splitPhysicalOutputRealData();
+    const auto* imaginary = reconstruction.splitPhysicalOutputImaginaryData();
+    std::vector<Complex> actual(indices.size());
+    for (std::size_t probe = 0; probe < indices.size(); ++probe) {
+        actual[probe] = {real[indices[probe]], imaginary[indices[probe]]};
+    }
+    const auto maximum = maximumRelativeError(
+        actual.data(), expected.data(), actual.size());
+    const auto l2 = relativeL2Error(actual.data(), expected.data(), actual.size());
+    return {"inverse vertical reconstruction probes versus independent complex GEMM",
+            maximum, tolerance, maximum <= tolerance && l2 <= tolerance, l2};
+}
+
+CorrectnessMetric splitHermitianBoundaryMetric(
+    const Workload& workload, const std::vector<StoredMode>& modes,
+    const double* real, const double* imaginary) {
+    const auto radius = static_cast<int>(workload.nx / 3);
+    const auto missing = std::numeric_limits<std::size_t>::max();
+    std::vector<std::size_t> zeroLineByK(
+        static_cast<std::size_t>(2 * radius + 1), missing);
+    for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+        if (modes[mode].l == 0)
+            zeroLineByK[static_cast<std::size_t>(modes[mode].k + radius)] = mode;
+    }
+    double maximumDifference = 0.0;
+    double maximumReference = 0.0;
+    long double squaredDifference = 0.0;
+    long double squaredReference = 0.0;
+    for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+        if (modes[mode].l != 0 || modes[mode].k < 0) continue;
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            for (std::size_t j = 0; j < workload.retainedVerticalModes(); ++j) {
+                const auto positive = modalSpectrumIndex(
+                    workload, mode, j, field);
+                Complex difference;
+                Complex reference{real[positive], imaginary[positive]};
+                if (modes[mode].k == 0) {
+                    difference = {0.0, imaginary[positive]};
+                } else {
+                    const auto negativeMode = zeroLineByK[
+                        static_cast<std::size_t>(-modes[mode].k + radius)];
+                    if (negativeMode == missing)
+                        throw std::logic_error(
+                            "Composed output lacks a Hermitian boundary partner.");
+                    const auto negative = modalSpectrumIndex(
+                        workload, negativeMode, j, field);
+                    difference = {
+                        real[negative] - reference.real,
+                        imaginary[negative] + reference.imag};
+                }
+                maximumDifference = std::max(
+                    maximumDifference, magnitude(difference));
+                maximumReference = std::max(
+                    maximumReference, magnitude(reference));
+                squaredDifference +=
+                    static_cast<long double>(difference.real) * difference.real +
+                    static_cast<long double>(difference.imag) * difference.imag;
+                squaredReference +=
+                    static_cast<long double>(reference.real) * reference.real +
+                    static_cast<long double>(reference.imag) * reference.imag;
+            }
+        }
+    }
+    const double maximum = maximumDifference / std::max(maximumReference, 1.0);
+    const double l2 = squaredReference == 0.0
+        ? std::sqrt(static_cast<double>(squaredDifference))
+        : std::sqrt(static_cast<double>(squaredDifference / squaredReference));
+    return {"DC and stored Hermitian boundary constraints",
+            maximum, tolerance, maximum <= tolerance && l2 <= tolerance, l2};
+}
+
 ExecutionContract convolutionContract(std::size_t n, std::size_t products,
                                       bool nativeInPlace, bool implicit) {
     DirectionExecutionContract forward;
@@ -1476,6 +1750,464 @@ BenchmarkReport runWvmAdvectiveConvolutionBenchmark(const RunOptions& options) {
         std::move(implicitParallel)};
     return report;
 }
+
+BenchmarkReport runVerticallyBatchedAdvectionBenchmarkImpl(
+    const RunOptions& options) {
+    if (options.convolutionCandidate != "explicit-parallel" &&
+        options.convolutionCandidate != "fftwpp-parallel") {
+        throw std::invalid_argument(
+            "vertically-batched-advection requires --convolution-candidate "
+            "explicit-parallel or fftwpp-parallel.");
+    }
+    if (options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument(
+            "vertically-batched-advection requires --vertical-gemm-family "
+            "k2-grouped.");
+    }
+    const auto selected = profileNamed(options.profile);
+    if (selected.workload.nx != selected.workload.ny) {
+        throw std::invalid_argument(
+            "vertically-batched-advection requires a square horizontal grid.");
+    }
+    if (options.workers != 0) {
+        throw std::invalid_argument(
+            "vertically-batched-advection uses the fixed four-target horizontal "
+            "schedule and independent vertical worker controls; omit --workers.");
+    }
+    const VerticalGemmStrategy verticalStrategy{
+        verticalGemmScheduleNamed(options.verticalGemmSchedule),
+        options.verticalGemmOuterWorkers};
+    if (verticalStrategy.schedule == VerticalGemmSchedule::serial &&
+        verticalStrategy.outerWorkers != 1) {
+        throw std::invalid_argument(
+            "A serial vertical schedule requires one outer worker.");
+    }
+
+    const auto n = selected.workload.nx;
+    const auto nz = selected.workload.nz;
+    const auto warmups = options.warmups == 0 ? 1 : options.warmups;
+    const auto samples = options.samples == 0 ? 3 : options.samples;
+    if (samples == 0) {
+        throw std::invalid_argument(
+            "vertically-batched-advection requires at least one sample.");
+    }
+
+    Workload outputWorkload = selected.workload;
+    outputWorkload.fields = 4;
+    Workload inputWorkload = outputWorkload;
+    inputWorkload.fields = 15;
+    const auto modeSet = composedModeSet(n);
+    const auto modeCount = modeSet.stored.size();
+    const auto nj = outputWorkload.retainedVerticalModes();
+    const auto fixtureStart = Clock::now();
+    auto vertical = squaredWavenumberVerticalFixture(
+        outputWorkload, modeSet.logical);
+    const auto fixtureSeconds =
+        std::chrono::duration<double>(Clock::now() - fixtureStart).count();
+    const auto inputModal = composedModalFixture(
+        inputWorkload, modeSet.stored, options.seed);
+
+    BenchmarkReport report;
+    report.environment = environmentRecord();
+    auto id = report.environment.timestampUtc;
+    id.erase(std::remove_if(
+                 id.begin(), id.end(),
+                 [](char character) {
+                     return character == '-' || character == ':';
+                 }),
+             id.end());
+    report.runId = id + "-issue18-n" + std::to_string(n) + "-nz" +
+        std::to_string(nz) + "-" + options.convolutionCandidate;
+    report.profile = options.profile;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = samples;
+    report.workload = outputWorkload;
+    report.retainedHorizontalModeCount = modeCount;
+    report.retainedModeOrderHash = modeOrderHash(modeSet.logical);
+    report.fullRealBytes = static_cast<std::uint64_t>(
+        n * n * inputWorkload.fields) * sizeof(double);
+    report.fullSpectrumBytes = static_cast<std::uint64_t>(
+        n * (n / 2 + 1) * inputWorkload.fields) * sizeof(Complex);
+    const auto inputPhysicalCount = modeCount * nz * inputWorkload.fields;
+    const auto outputPhysicalCount = modeCount * nz * outputWorkload.fields;
+    const auto inputModalCount = modeCount * nj * inputWorkload.fields;
+    const auto outputModalCount = modeCount * nj * outputWorkload.fields;
+    report.retainedSpectrumBytes = static_cast<std::uint64_t>(
+        inputPhysicalCount + outputPhysicalCount) * sizeof(Complex);
+    report.modalSpectrumBytes = static_cast<std::uint64_t>(
+        inputModalCount + outputModalCount) * sizeof(Complex);
+    report.verticalMatrixFamilySourceBytes = static_cast<std::uint64_t>(
+        vertical.forward.size() + vertical.inverse.size()) * sizeof(double);
+    report.verticalMatrixFamilyId = vertical.id;
+    report.verticalGroupCount = vertical.groups.size();
+    report.verticalGroupOrderHash = verticalModeGroupHash(vertical.groups);
+    std::vector<double> groupModes;
+    std::vector<double> groupColumns;
+    groupModes.reserve(vertical.groups.size());
+    groupColumns.reserve(vertical.groups.size());
+    for (const auto& group : vertical.groups) {
+        groupModes.push_back(static_cast<double>(group.modeCount));
+        groupColumns.push_back(static_cast<double>(
+            group.modeCount * inputWorkload.fields));
+    }
+    report.minimumVerticalGroupModes = static_cast<std::size_t>(
+        *std::min_element(groupModes.begin(), groupModes.end()));
+    report.medianVerticalGroupModes = median(groupModes);
+    report.maximumVerticalGroupModes = static_cast<std::size_t>(
+        *std::max_element(groupModes.begin(), groupModes.end()));
+    report.minimumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::min_element(groupColumns.begin(), groupColumns.end()));
+    report.medianVerticalGroupColumns = median(groupColumns);
+    report.maximumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::max_element(groupColumns.begin(), groupColumns.end()));
+
+    std::vector<Complex> oraclePhysicalOutput(outputPhysicalCount);
+    std::vector<Complex> expectedModal(outputModalCount);
+    std::vector<std::size_t> reconstructionProbeIndices;
+    std::vector<Complex> reconstructionProbeExpected;
+    {
+        VerticalGemmProvider reconstructionOracle(
+            inputWorkload, vertical, VerticalGemmLayout::complexInterleaved,
+            {VerticalGemmSchedule::serial, 1},
+            VerticalGemmBufferPolicy::inverseOnly);
+        VerticalGemmProvider projectionOracle(
+            outputWorkload, vertical, VerticalGemmLayout::complexInterleaved,
+            {VerticalGemmSchedule::serial, 1},
+            VerticalGemmBufferPolicy::forwardOnly);
+        if (!reconstructionOracle.supported()) {
+            throw std::runtime_error(reconstructionOracle.capability());
+        }
+        if (!projectionOracle.supported()) {
+            throw std::runtime_error(projectionOracle.capability());
+        }
+        reconstructionOracle.loadModalInput(inputModal.data());
+        reconstructionOracle.executeInverse();
+        std::vector<Complex> oraclePhysicalInput(inputPhysicalCount);
+        reconstructionOracle.copyInverseOutput(oraclePhysicalInput.data());
+
+        const std::array<std::size_t, 3> probeModes{
+            0, modeCount / 2, modeCount - 1};
+        const std::array<std::size_t, 3> probeLevels{
+            0, nz / 2, nz - 1};
+        const std::array<std::size_t, 2> probeFields{
+            0, inputWorkload.fields - 1};
+        for (const auto mode : probeModes) {
+            for (const auto field : probeFields) {
+                for (const auto z : probeLevels) {
+                    const auto index = retainedSpectrumIndex(
+                        inputWorkload, mode, z, field);
+                    if (std::find(
+                            reconstructionProbeIndices.begin(),
+                            reconstructionProbeIndices.end(), index) ==
+                        reconstructionProbeIndices.end()) {
+                        reconstructionProbeIndices.push_back(index);
+                        reconstructionProbeExpected.push_back(
+                            oraclePhysicalInput[index]);
+                    }
+                }
+            }
+        }
+
+        std::vector<Complex> levelInput(
+            modeCount * inputWorkload.fields);
+        ExplicitAdvectiveConvolution horizontalOracle(n, modeSet.stored);
+        for (std::size_t z = 0; z < nz; ++z) {
+            packInterleavedLevel(
+                inputWorkload, modeCount, z, oraclePhysicalInput.data(),
+                levelInput);
+            horizontalOracle.execute(levelInput);
+            scatterInterleavedLevel(
+                outputWorkload, modeCount, z, horizontalOracle.output(),
+                oraclePhysicalOutput.data());
+        }
+        projectionOracle.loadPhysicalInput(oraclePhysicalOutput.data());
+        projectionOracle.executeForward();
+        projectionOracle.copyForwardOutput(expectedModal.data());
+    }
+    fftw_forget_wisdom();
+
+    auto benchmarkPath = [&](auto& path, double horizontalSetupSeconds,
+                             bool implicit, bool nativeInPlace,
+                             const std::string& optimizerParameters) {
+        VerticalGemmProvider reconstruction(
+            inputWorkload, vertical, VerticalGemmLayout::split,
+            verticalStrategy, VerticalGemmBufferPolicy::inverseOnly);
+        VerticalGemmProvider projection(
+            outputWorkload, vertical, VerticalGemmLayout::split,
+            verticalStrategy, VerticalGemmBufferPolicy::forwardOnly);
+        if (!reconstruction.supported()) {
+            throw std::runtime_error(reconstruction.capability());
+        }
+        if (!projection.supported()) {
+            throw std::runtime_error(projection.capability());
+        }
+        reconstruction.loadModalInput(inputModal.data());
+        std::vector<Complex> levelInput(
+            modeCount * inputWorkload.fields);
+        executeComposedSplit(
+            inputWorkload, outputWorkload, modeCount, reconstruction,
+            path, projection, levelInput);
+
+        const auto reconstructionMetric = splitProbeMetric(
+            reconstructionProbeIndices, reconstructionProbeExpected,
+            reconstruction);
+        const auto physicalMetric = splitMetric(
+            "vertically batched horizontal outputs versus explicit oracle",
+            projection.splitPhysicalInputRealData(),
+            projection.splitPhysicalInputImaginaryData(),
+            oraclePhysicalOutput.data(), oraclePhysicalOutput.size());
+        const auto modalMetric = splitMetric(
+            "complete vertically batched modal output versus composed oracle",
+            projection.splitModalOutputRealData(),
+            projection.splitModalOutputImaginaryData(),
+            expectedModal.data(), expectedModal.size());
+        const auto preservationMetric = splitMetric(
+            "caller modal input preserved across repeated execution",
+            reconstruction.splitModalInputRealData(),
+            reconstruction.splitModalInputImaginaryData(),
+            inputModal.data(), inputModal.size());
+        const auto hermitianMetric = splitHermitianBoundaryMetric(
+            outputWorkload, modeSet.stored,
+            projection.splitModalOutputRealData(),
+            projection.splitModalOutputImaginaryData());
+
+        ProviderRecord provider;
+        provider.id = implicit
+            ? "composed-fftwpp-parallel-target-wvm-advection"
+            : "composed-fftw-explicit-parallel-target-wvm-advection";
+        provider.version = implicit
+            ? "FFTW++ 3.04 + FFTW 3.3.11 + Apple Accelerate"
+            : "FFTW 3.3.11 + Apple Accelerate";
+        provider.libraryIdentity = implicit
+            ? "FFTW++ pinned at " SKBENCH_FFTWPP_COMMIT
+                ", FFTW 3.3.11, and Apple Accelerate"
+            : "FFTW 3.3.11 pthread build and Apple Accelerate";
+        provider.algorithmId = implicit
+            ? "split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1"
+            : "split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1";
+        provider.nativeRepresentationId = implicit
+            ? "directional-k2-compact-split+centered-rectangular-hermitian"
+            : "directional-k2-compact-split+full-fftw-half-spectrum";
+        provider.modeOrderId =
+            "k2-grouped-floor-n-over-3-radial-hermitian-with-stored-zero-line";
+        provider.schedulingId =
+            "vertical-" + std::string(verticalGemmScheduleName(
+                reconstruction.strategy().schedule)) + "-" +
+            std::to_string(reconstruction.outerWorkers()) +
+            ";horizontal-persistent-outer-static-4-targets;vertical-levels-streamed";
+        provider.sourceIdentity = implicit
+            ? "https://github.com/dealias/fftwpp/commit/" SKBENCH_FFTWPP_COMMIT
+            : "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz";
+        provider.configureFlags = implicit
+            ? "FFTWPP_SINGLE_THREAD=1; " + optimizerParameters
+            : "FFTW --host=aarch64-apple-darwin --enable-neon --enable-threads";
+        provider.compilerFlags = report.environment.compilerFlags;
+        provider.planningConfiguration =
+            "FFTW_MEASURE|FFTW_UNALIGNED|cold; Float64; horizontal radius=floor(N/3); "
+            "Nj=floor(2*(Nz-1)/3); directional split K2-grouped vertical GEMM";
+        provider.workers = std::max<std::size_t>(
+            4, reconstruction.outerWorkers());
+        provider.internalWorkers = 1;
+        provider.outerWorkers = reconstruction.outerWorkers();
+        provider.gemmCallsPerExecution =
+            reconstruction.gemmCallsPerExecution() +
+            projection.gemmCallsPerExecution();
+        provider.execution = advectiveConvolutionContract(
+            n, implicit && nativeInPlace, implicit,
+            "directional-vertical-reconstruction-then-level-streaming-then-directional-projection");
+        provider.execution.forward.nativeInputRepresentationId =
+            "radial-k2-grouped-split-modal-15-fields";
+        provider.execution.forward.nativeOutputRepresentationId =
+            "radial-k2-grouped-split-modal-4-fields";
+        provider.execution.forward.adapterInputRepresentationId =
+            "mode-keyed-retained-truncated-modal-15-fields";
+        provider.execution.forward.adapterOutputRepresentationId =
+            "mode-keyed-retained-truncated-modal-4-fields";
+        provider.execution.forward.physicalExtents =
+            "Nx=Ny=" + std::to_string(n) + "; Nz=" +
+            std::to_string(nz) + "; Nj=" + std::to_string(nj) +
+            "; inputs=15; outputs=4; horizontal radius=floor(N/3)";
+        provider.execution.forward.stridesElements =
+            "modal/physical split: j-or-z fastest, then field, then K2-grouped mode; "
+            "one reusable field-major interleaved level adapter";
+        provider.execution.forward.paddingElements =
+            implicit ? 4 * (2 * (n / 3) + 1) * (n / 3 + 1) :
+                15 * n * (n / 2 + 1);
+        provider.execution.forward.minimumAlignmentBytes = 64;
+        provider.execution.forward.aliasing =
+            "caller modal input, directional vertical buffers, reusable level adapter, "
+            "horizontal provider storage, and projected modal output do not overlap";
+
+        const auto verticalPersistent =
+            reconstruction.persistentBytes() + projection.persistentBytes();
+        const auto horizontalPersistent = path.residentBytes();
+        const auto levelScratch = static_cast<std::uint64_t>(
+            levelInput.size()) * sizeof(Complex);
+        provider.explicitPersistentBytes =
+            verticalPersistent + horizontalPersistent;
+        provider.scratchBytes = levelScratch;
+        provider.algorithmResidentBytes =
+            provider.explicitPersistentBytes + provider.scratchBytes;
+        provider.benchmarkHarnessBytes =
+            static_cast<std::uint64_t>(inputModal.size() +
+                                       oraclePhysicalOutput.size() +
+                                       expectedModal.size()) * sizeof(Complex) +
+            report.verticalMatrixFamilySourceBytes +
+            static_cast<std::uint64_t>(
+                reconstructionProbeExpected.size()) * sizeof(Complex);
+        provider.estimatedProcessPeakBytes =
+            provider.algorithmResidentBytes + provider.benchmarkHarnessBytes;
+        report.spectralPipelineEstimatedExplicitPeakBytes =
+            provider.estimatedProcessPeakBytes;
+        provider.opaqueProviderMemory = true;
+        provider.otherSetupSeconds = fixtureSeconds +
+            reconstruction.matrixPreparationSeconds() +
+            projection.matrixPreparationSeconds() +
+            reconstruction.schedulerSetupSeconds() +
+            projection.schedulerSetupSeconds();
+        provider.allocationSeconds =
+            reconstruction.allocationSeconds() + projection.allocationSeconds();
+        provider.planningSeconds = horizontalSetupSeconds;
+        provider.correctness = {
+            reconstructionMetric, physicalMetric, modalMetric,
+            preservationMetric, hermitianMetric};
+        for (std::size_t target = 0; target < outputWorkload.fields; ++target) {
+            provider.correctness.push_back(splitTargetMetric(
+                target, outputWorkload, modeCount,
+                projection.splitModalOutputRealData(),
+                projection.splitModalOutputImaginaryData(), expectedModal));
+        }
+
+        const auto inputVerticalBytes = static_cast<std::uint64_t>(2) *
+            (reconstruction.matrixBytesPerDirection() +
+             inputModalCount * sizeof(double) +
+             inputPhysicalCount * sizeof(double));
+        const auto outputVerticalBytes = static_cast<std::uint64_t>(2) *
+            (projection.matrixBytesPerDirection() +
+             outputPhysicalCount * sizeof(double) +
+             outputModalCount * sizeof(double));
+        const auto movementBytes = static_cast<std::uint64_t>(2) *
+            (inputPhysicalCount + outputPhysicalCount) * sizeof(Complex);
+        const auto oneLevelBytes = static_cast<std::uint64_t>(
+            (inputWorkload.fields + outputWorkload.fields) * modeCount) *
+            sizeof(Complex);
+        packSplitLevel(
+            inputWorkload, modeCount, nz / 2, reconstruction, levelInput);
+        const auto horizontalState = implicit
+            ? StageState::fused : StageState::executed;
+        provider.timings = {
+            {"setup-shared-component", "K2-grouped vertical fixture generation",
+             "shared", StageState::setupOnly,
+             report.verticalMatrixFamilySourceBytes, {fixtureSeconds}},
+            {"setup-component", "directional vertical matrix preparation",
+             "shared", StageState::setupOnly,
+             reconstruction.matrixBytesPerDirection() +
+                 projection.matrixBytesPerDirection(),
+             {reconstruction.matrixPreparationSeconds() +
+              projection.matrixPreparationSeconds()}},
+            {"setup-component", "horizontal planning and persistent scheduler setup",
+             "shared", StageState::setupOnly, horizontalPersistent,
+             {horizontalSetupSeconds}},
+            {"primitive", "raw inverse vertical GEMM (15 fields)", "inverse",
+             StageState::executed, inputVerticalBytes,
+             timed(warmups, samples, [] {},
+                   [&] { reconstruction.executeInverse(); })},
+            {implicit ? "fused-primitive" : "operator-component",
+             "one physical-level four-target horizontal advection", "horizontal",
+             horizontalState, oneLevelBytes,
+             timed(warmups, samples, [] {},
+                   [&] { path.execute(levelInput); })},
+            {"adapter-component",
+             "all-level split/field-major packing and projected-output scatter",
+             "horizontal", StageState::executed, movementBytes,
+             timed(warmups, samples, [] {}, [&] {
+                 for (std::size_t z = 0; z < nz; ++z) {
+                     packSplitLevel(
+                         inputWorkload, modeCount, z, reconstruction,
+                         levelInput);
+                     scatterSplitLevel(
+                         outputWorkload, modeCount, z, path.output(),
+                         projection);
+                 }
+             })},
+            {"component",
+             "vertically batched horizontal advection including level movement",
+             "horizontal", StageState::executed,
+             movementBytes + static_cast<std::uint64_t>(nz) * oneLevelBytes,
+             timed(warmups, samples, [] {}, [&] {
+                 for (std::size_t z = 0; z < nz; ++z) {
+                     packSplitLevel(
+                         inputWorkload, modeCount, z, reconstruction,
+                         levelInput);
+                     path.execute(levelInput);
+                     scatterSplitLevel(
+                         outputWorkload, modeCount, z, path.output(),
+                         projection);
+                 }
+             })},
+            {"primitive", "raw forward vertical GEMM (4 fields)", "forward",
+             StageState::executed, outputVerticalBytes,
+             timed(warmups, samples, [] {},
+                   [&] { projection.executeForward(); })},
+            {"uninstrumented-total",
+             "vertically batched WVM-derived advection pipeline", "forward",
+             StageState::executed,
+             inputVerticalBytes + outputVerticalBytes + movementBytes +
+                 static_cast<std::uint64_t>(nz) * oneLevelBytes,
+             timed(warmups, samples, [] {}, [&] {
+                 executeComposedSplit(
+                     inputWorkload, outputWorkload, modeCount,
+                     reconstruction, path, projection, levelInput);
+             })}};
+        provider.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "K2-grouped fixture, directional split matrices, horizontal plans, and persistent schedulers"},
+            {"vertical reconstruction", StageState::executed,
+             "inverse-only split GEMM reconstructs 15 inputs over physical levels"},
+            {"horizontal input ordering", StageState::executed,
+             "one reusable level is packed from mode-major split to field-major interleaved compact spectra"},
+            {"horizontal convolution", horizontalState,
+             implicit
+                 ? "four persistent FFTW++ 6-to-1 applications execute per physical level"
+                 : "shared explicit advectors and four persistent target tasks execute per physical level"},
+            {"horizontal retention", StageState::fused,
+             "each level writes the fixed floor(N/3) radial compact disk"},
+            {"vertical projection", StageState::executed,
+             "forward-only split GEMM retains Nj=floor(2*(Nz-1)/3) modes"},
+            {"steady-state allocation", StageState::elided,
+             "all buffers and schedulers are persistent; allocator interposer is a focused test"},
+            {"authoritative total", StageState::executed,
+             "ready 15-input modal coefficients to four ready projected modal outputs"},
+            {"complete nonlinear WVM flux", StageState::unsupported,
+             "phase evolution, coefficient accumulation, remaining flux bookkeeping, and time stepping are excluded"}};
+        provider.observedProcessHighWaterBytes = processHighWaterBytes();
+        return provider;
+    };
+
+    if (options.convolutionCandidate == "explicit-parallel") {
+        const auto setupStart = Clock::now();
+        ExplicitParallelAdvectiveConvolution path(n, modeSet.stored);
+        const auto setupSeconds =
+            std::chrono::duration<double>(Clock::now() - setupStart).count();
+        report.providers.push_back(benchmarkPath(
+            path, setupSeconds, false, false, ""));
+    } else {
+        const auto setupStart = Clock::now();
+        ImplicitParallelAdvectiveConvolution path(n, modeSet.stored);
+        const auto setupSeconds =
+            std::chrono::duration<double>(Clock::now() - setupStart).count();
+        report.providers.push_back(benchmarkPath(
+            path, setupSeconds, true, path.nativeInPlace(),
+            path.optimizerParameters()));
+    }
+    report.status = std::all_of(
+        report.providers.front().correctness.begin(),
+        report.providers.front().correctness.end(),
+        [](const CorrectnessMetric& metric) { return metric.passed; })
+        ? "passed" : "failed";
+    return report;
+}
 #endif
 
 } // namespace
@@ -1607,6 +2339,18 @@ BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options) {
 #endif
 }
 
+BenchmarkReport runVerticallyBatchedAdvectionBenchmark(
+    const RunOptions& options) {
+#if !SKBENCH_HAVE_FFTWPP
+    (void)options;
+    throw std::runtime_error(
+        "vertically-batched-advection requires configuring with "
+        "SKBENCH_ENABLE_FFTWPP=ON");
+#else
+    return runVerticallyBatchedAdvectionBenchmarkImpl(options);
+#endif
+}
+
 std::uint64_t probeDealiasedConvolutionSteadyStateAllocationsForTesting(
     std::size_t n, std::size_t products,
     void (*beginTracking)(), std::uint64_t (*endTracking)()) {
@@ -1660,6 +2404,71 @@ std::uint64_t probeWvmAdvectiveConvolutionSteadyStateAllocationsForTesting(
     streamedPath.execute(input);
     allTargetPath.execute(input);
     implicitParallelPath.execute(input);
+    return endTracking();
+#endif
+}
+
+std::uint64_t probeVerticallyBatchedAdvectionSteadyStateAllocationsForTesting(
+    std::size_t n, std::size_t nz,
+    void (*beginTracking)(), std::uint64_t (*endTracking)()) {
+#if !SKBENCH_HAVE_FFTWPP
+    (void)n;
+    (void)nz;
+    (void)beginTracking;
+    (void)endTracking;
+    throw std::runtime_error(
+        "Vertically batched allocation probe is unavailable in this build.");
+#else
+    Workload outputWorkload{n, n, nz, 4, 1.0, 1.0, true};
+    Workload inputWorkload = outputWorkload;
+    inputWorkload.fields = 15;
+    const auto modeSet = composedModeSet(n);
+    const auto vertical = squaredWavenumberVerticalFixture(
+        outputWorkload, modeSet.logical);
+    const auto inputModal = composedModalFixture(
+        inputWorkload, modeSet.stored, 129);
+    const VerticalGemmStrategy strategy{
+        VerticalGemmSchedule::outerDynamic, 2};
+
+    VerticalGemmProvider explicitReconstruction(
+        inputWorkload, vertical, VerticalGemmLayout::split, strategy,
+        VerticalGemmBufferPolicy::inverseOnly);
+    VerticalGemmProvider explicitProjection(
+        outputWorkload, vertical, VerticalGemmLayout::split, strategy,
+        VerticalGemmBufferPolicy::forwardOnly);
+    VerticalGemmProvider implicitReconstruction(
+        inputWorkload, vertical, VerticalGemmLayout::split, strategy,
+        VerticalGemmBufferPolicy::inverseOnly);
+    VerticalGemmProvider implicitProjection(
+        outputWorkload, vertical, VerticalGemmLayout::split, strategy,
+        VerticalGemmBufferPolicy::forwardOnly);
+    explicitReconstruction.loadModalInput(inputModal.data());
+    implicitReconstruction.loadModalInput(inputModal.data());
+
+    ExplicitParallelAdvectiveConvolution explicitPath(n, modeSet.stored);
+    ImplicitParallelAdvectiveConvolution implicitPath(n, modeSet.stored);
+    std::vector<Complex> explicitLevel(
+        modeSet.stored.size() * inputWorkload.fields);
+    std::vector<Complex> implicitLevel(explicitLevel.size());
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        executeComposedSplit(
+            inputWorkload, outputWorkload, modeSet.stored.size(),
+            explicitReconstruction, explicitPath, explicitProjection,
+            explicitLevel);
+        executeComposedSplit(
+            inputWorkload, outputWorkload, modeSet.stored.size(),
+            implicitReconstruction, implicitPath, implicitProjection,
+            implicitLevel);
+    }
+    beginTracking();
+    executeComposedSplit(
+        inputWorkload, outputWorkload, modeSet.stored.size(),
+        explicitReconstruction, explicitPath, explicitProjection,
+        explicitLevel);
+    executeComposedSplit(
+        inputWorkload, outputWorkload, modeSet.stored.size(),
+        implicitReconstruction, implicitPath, implicitProjection,
+        implicitLevel);
     return endTracking();
 #endif
 }

@@ -208,6 +208,24 @@ python3 tools/run_dealiased_convolution_wvm_reference.py
 
 The runner first executes the same-commit allocator-interposer test. Reference status records that the complete controlled campaign is suitable for later decisions, independently of which candidate wins. Its separate preregistered adoption gate requires correctness within $$10^{-12}$$, valid out-of-place adapter and input-lifetime contracts, at least 10% geometric time improvement, no profile above 1.03× the control, a stratified paired-bootstrap 95% interval excluding a tie, and at least 20% geometric algorithm-resident-memory reduction. Passing the adoption gate would support carrying the candidate into a composed-operator decision; the campaign still does not measure the complete nonlinear flux or authorize a general-Mac default.
 
+Issue #18 composes the two fixed #17 finalists with vertical reconstruction and projection without implementing the remaining nonlinear-flux calculation. Its input contains 15 ready retained and vertically truncated modal fields. An inverse-only split K²-grouped GEMM reconstructs those fields across physical levels; one reusable level adapter feeds the explicit or FFTW++ four-target horizontal operator; a forward-only split GEMM projects the four outputs to $$N_j = \lfloor 2(N_z - 1)/3 \rfloor$$ modes. Directional vertical providers deliberately omit unused opposite-direction matrices and operands so the memory comparison does not count avoidable benchmark storage.
+
+The first composition increment isolates each candidate at `256²/Nz=129/fields=4`, reports raw inverse and forward vertical GEMM, one-level horizontal execution, all-level movement, the vertically batched horizontal stage, and the authoritative uninstrumented total, and verifies zero steady-state allocations:
+
+```sh
+build/issue18/skbench run --kernel vertically-batched-advection \
+  --profile wvm-current-256-nz129-f4 \
+  --vertical-gemm-family k2-grouped \
+  --vertical-gemm-schedule outer-dynamic \
+  --vertical-gemm-outer-workers 12 \
+  --convolution-candidate explicit-parallel
+
+python3 tools/run_vertically_batched_advection_screen.py --dry-run --allow-dirty-tree
+python3 tools/run_vertically_batched_advection_screen.py
+```
+
+This preliminary screen recommends reference depth when both paths remain correct and FFTW++ either reaches 0.98× the composed time or retains at most 0.80× the algorithm-resident memory without exceeding 1.05× the time. That is only a continuation gate. The eventual 0.9000 adoption threshold applies to the multi-workload composed reference campaign.
+
 The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
 
 ```sh

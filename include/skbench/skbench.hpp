@@ -127,6 +127,12 @@ enum class VerticalGemmLayout {
 
 std::string_view verticalGemmLayoutName(VerticalGemmLayout layout) noexcept;
 
+enum class VerticalGemmBufferPolicy {
+    bidirectional,
+    forwardOnly,
+    inverseOnly
+};
+
 enum class VerticalGemmSchedule {
     serial,
     outerStatic,
@@ -149,6 +155,9 @@ public:
                          VerticalGemmLayout layout);
     VerticalGemmProvider(const Workload& workload, const GroupedVerticalOperators& operators,
                          VerticalGemmLayout layout, VerticalGemmStrategy strategy);
+    VerticalGemmProvider(const Workload& workload, const GroupedVerticalOperators& operators,
+                         VerticalGemmLayout layout, VerticalGemmStrategy strategy,
+                         VerticalGemmBufferPolicy bufferPolicy);
     ~VerticalGemmProvider();
     VerticalGemmProvider(VerticalGemmProvider&&) noexcept;
     VerticalGemmProvider& operator=(VerticalGemmProvider&&) noexcept;
@@ -801,6 +810,7 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options);
 BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options);
+BenchmarkReport runVerticallyBatchedAdvectionBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
 EnvironmentRecord environmentRecord();
 double median(std::vector<double> values);

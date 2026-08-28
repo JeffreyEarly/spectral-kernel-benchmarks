@@ -4372,6 +4372,8 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
 }
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
+    if (options.kernel == "vertically-batched-advection")
+        return runVerticallyBatchedAdvectionBenchmark(options);
     if (options.kernel == "dealiased-convolution") return runDealiasedConvolutionBenchmark(options);
     if (options.kernel == "pruned-horizontal") return runPrunedHorizontalBenchmark(options);
     if (options.kernel == "vertical-gemm") return runVerticalGemmBenchmark(options);
@@ -4382,7 +4384,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         throw std::invalid_argument(
             "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', "
             "'ordering-packing', 'spectral-boundary', 'spectral-pipeline', or "
-            "'dealiased-convolution'.");
+            "'dealiased-convolution', or 'vertically-batched-advection'.");
     }
     auto selected = profileNamed(options.profile);
     if (options.providers != "both" && options.providers != "fftw") {
