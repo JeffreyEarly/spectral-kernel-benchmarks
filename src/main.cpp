@@ -16,6 +16,7 @@ void usage(std::ostream& output) {
            << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing] [--profile NAME] [--providers both|fftw] [--workers N]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
+           << "              [--fftw-spectrum-order wvm|plane-major]\n"
            << "              [--fftw-alignment aligned|unaligned] [--fftw-wisdom cold|generated-import]\n"
            << "              [--fftw-internal-workers N] [--fftw-outer-workers N]\n"
            << "              [--fftw-planning-time-limit SECONDS]\n"
@@ -70,6 +71,9 @@ void list() {
               << "  interleaved\n"
               << "  split\n"
               << "  paired\n"
+              << "FFTW spectrum orders:\n"
+              << "  wvm\n"
+              << "  plane-major\n"
               << "vDSP strategies:\n"
               << "  in-place\n"
               << "  in-place-explicit-scratch\n"
@@ -140,6 +144,7 @@ int main(int argc, char** argv) {
                 else if (key == "--profile") options.profile = requireValue(argc, argv, index);
                 else if (key == "--providers") options.providers = requireValue(argc, argv, index);
                 else if (key == "--fftw-layout") options.fftwLayout = requireValue(argc, argv, index);
+                else if (key == "--fftw-spectrum-order") options.fftwSpectrumOrder = requireValue(argc, argv, index);
                 else if (key == "--fftw-planning") options.fftwPlanning = requireValue(argc, argv, index);
                 else if (key == "--fftw-alignment") options.fftwAlignment = requireValue(argc, argv, index);
                 else if (key == "--fftw-wisdom") options.fftwWisdom = requireValue(argc, argv, index);

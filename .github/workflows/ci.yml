@@ -34,5 +34,5 @@ jobs:
         run: python3 tools/validate_publication.py --baseline-ref "${{ github.event.before }}"
       - name: Test and build benchmark archive
         run: |
-          python3 -m unittest tests/test_publication.py tests/test_build_site.py
+          python3 -m unittest tests/test_publication.py tests/test_build_site.py tests/test_fftw_native_order_sweep.py
           python3 tools/build_site.py --output _site

@@ -98,7 +98,8 @@ void requireAllocationFreePrunedExecution(
 
 void requireAllocationFreeRetainedOuterExecution(
     const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
-    std::size_t outerWorkers) {
+    std::size_t outerWorkers,
+    skbench::FFTWSpectrumOrder spectrumOrder = skbench::FFTWSpectrumOrder::wvmFrequencyMajor) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
     auto retained = alignedBuffer<skbench::Complex>(modes.size() * workload.planes());
@@ -114,7 +115,8 @@ void requireAllocationFreeRetainedOuterExecution(
         1,
         outerWorkers,
         0.0,
-        skbench::FFTWDataLayout::interleaved});
+        skbench::FFTWDataLayout::interleaved,
+        spectrumOrder});
     for (std::size_t repetition = 0; repetition < 3; ++repetition) {
         provider.forward(input.get(), spectrum.get());
         provider.gatherRetainedOuter(modes, spectrum.get(), retained.get());
@@ -342,6 +344,12 @@ int main() {
             const auto name = skbench::fftwDataLayoutName(layout);
             require(skbench::fftwDataLayoutNamed(name) == layout, "FFTW data layout name round trip");
         }
+        for (const auto order : {skbench::FFTWSpectrumOrder::wvmFrequencyMajor,
+                                 skbench::FFTWSpectrumOrder::planeMajor}) {
+            const auto name = skbench::fftwSpectrumOrderName(order);
+            require(skbench::fftwSpectrumOrderNamed(name) == order,
+                    "FFTW spectrum order name round trip");
+        }
         for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
                                   skbench::VerticalGemmLayout::split}) {
             require(!skbench::verticalGemmLayoutName(layout).empty(), "vertical GEMM layout name");
@@ -475,9 +483,10 @@ int main() {
         require(fftwRecord.wisdomGenerationSeconds > 0.0 && fftwRecord.wisdomImportSeconds > 0.0,
                 "FFTW wisdom accounting");
         require(fftwRecord.wisdomBytes > 0, "FFTW wisdom bytes");
-        require(fftwRecord.correctness.size() == 3, "FFTW strategy correctness metrics");
-        require(fftwRecord.correctness[0].passed && fftwRecord.correctness[1].passed && fftwRecord.correctness[2].passed,
-                "FFTW strategy correctness");
+        require(fftwRecord.correctness.size() == 5, "FFTW strategy correctness metrics");
+        for (const auto& metric : fftwRecord.correctness) {
+            require(metric.passed, "FFTW strategy correctness");
+        }
         bool foundScheduler = false;
         for (const auto& timing : fftwRecord.timings) {
             if (timing.stage == "batch scheduler empty dispatch") {
@@ -501,7 +510,7 @@ int main() {
         require(splitRecord.execution.forward.paddingElements == 0 &&
                 splitRecord.execution.inverse.paddingElements == 0,
                 "split FFTW out-of-place padding contract");
-        require(splitRecord.correctness.size() == 8, "split FFTW correctness metric count");
+        require(splitRecord.correctness.size() == 9, "split FFTW correctness metric count");
         bool foundForwardConversion = false;
         bool foundRetainedTotal = false;
         bool foundInPlaceCapability = false;
@@ -512,13 +521,37 @@ int main() {
             if (timing.stage == "persistent split retained horizontal operator" && timing.direction == "forward") {
                 foundRetainedTotal = timing.state == skbench::StageState::executed && timing.seconds.size() == 2;
             }
-            if (timing.stage == "exact WVM-order split in-place") {
+            if (timing.stage == "multidimensional split in-place") {
                 foundInPlaceCapability = timing.state == skbench::StageState::unsupported && timing.seconds.empty();
             }
         }
         require(foundForwardConversion, "split FFTW conversion timing");
         require(foundRetainedTotal, "split FFTW retained total timing");
         require(foundInPlaceCapability, "split FFTW in-place capability timing");
+
+        auto planeMajorOptions = fftwOptions;
+        planeMajorOptions.fftwSpectrumOrder = "plane-major";
+        planeMajorOptions.fftwPlanning = "estimate";
+        planeMajorOptions.fftwAlignment = "unaligned";
+        planeMajorOptions.fftwWisdom = "cold";
+        const auto planeMajorReport = skbench::runBenchmark(planeMajorOptions);
+        require(planeMajorReport.status == "passed",
+                "plane-major paired FFTW benchmark failed");
+        require(planeMajorReport.providers.size() == 2,
+                "plane-major paired FFTW provider selection failed");
+        require(planeMajorReport.providers[0].nativeRepresentationId ==
+                    "plane-major-interleaved-half-spectrum" &&
+                planeMajorReport.providers[1].nativeRepresentationId ==
+                    "plane-major-split-half-spectrum",
+                "plane-major FFTW native representations");
+        for (const auto& provider : planeMajorReport.providers) {
+            require(provider.execution.forward.stridesElements.find("kx=1") !=
+                        std::string::npos,
+                    "plane-major FFTW physical stride contract");
+            for (const auto& metric : provider.correctness) {
+                require(metric.passed, "plane-major FFTW correctness");
+            }
+        }
 
         const auto splitInput = skbench::makeFixture(workload, skbench::FixtureKind::random, 441);
         auto splitStrategy = skbench::FFTWStrategy{
@@ -625,6 +658,8 @@ int main() {
             requireAllocationFreePrunedExecution(workload, prunedModes, 1);
             requireAllocationFreePrunedExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
+            requireAllocationFreeRetainedOuterExecution(
+                workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
         }
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);

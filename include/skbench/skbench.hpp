@@ -268,6 +268,14 @@ enum class FFTWDataLayout {
 std::string_view fftwDataLayoutName(FFTWDataLayout layout) noexcept;
 FFTWDataLayout fftwDataLayoutNamed(std::string_view name);
 
+enum class FFTWSpectrumOrder {
+    wvmFrequencyMajor,
+    planeMajor
+};
+
+std::string_view fftwSpectrumOrderName(FFTWSpectrumOrder order) noexcept;
+FFTWSpectrumOrder fftwSpectrumOrderNamed(std::string_view name);
+
 struct FFTWStrategy {
     FFTWPlanningMode planningMode = FFTWPlanningMode::measure;
     FFTWAlignmentStrategy alignment = FFTWAlignmentStrategy::unaligned;
@@ -276,6 +284,7 @@ struct FFTWStrategy {
     std::size_t outerWorkers = 1;
     double planningTimeLimitSeconds = 0.0;
     FFTWDataLayout layout = FFTWDataLayout::interleaved;
+    FFTWSpectrumOrder spectrumOrder = FFTWSpectrumOrder::wvmFrequencyMajor;
 };
 
 class FFTWProvider {
@@ -296,6 +305,12 @@ public:
                             const Complex* retainedSpectrum, Complex* wvmSpectrum);
     void forwardSplit(const double* input, double* wvmSpectrumReal, double* wvmSpectrumImag);
     void inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output);
+    void gatherRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                  const double* spectrumReal, const double* spectrumImag,
+                                  double* retainedReal, double* retainedImag);
+    void embedRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                 const double* retainedReal, const double* retainedImag,
+                                 double* spectrumReal, double* spectrumImag);
     void executeSchedulerNoop();
     bool splitInPlaceWvmOrderSupported() const noexcept;
     std::string splitInPlaceWvmOrderCapability() const;
@@ -596,6 +611,7 @@ struct RunOptions {
     std::string profile = "quick";
     std::string providers = "both";
     std::string fftwLayout = "interleaved";
+    std::string fftwSpectrumOrder = "wvm";
     std::string fftwPlanning = "measure";
     std::string fftwAlignment = "unaligned";
     std::string fftwWisdom = "cold";

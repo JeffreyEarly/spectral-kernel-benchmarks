@@ -587,6 +587,28 @@ def fftw_candidate_name(provider: dict) -> str:
     return f"{algorithm} · {topology}"
 
 
+def fftw_primary_provider(result: dict) -> dict | None:
+    interleaved = next(
+        (item for item in result["providers"] if item["id"] == "fftw"), None
+    )
+    if interleaved is not None:
+        return interleaved
+    return next(
+        (item for item in result["providers"] if item["id"] == "fftw-split"), None
+    )
+
+
+def fftw_candidate_signature(provider: dict) -> tuple[str, str, int, int, str]:
+    scheduling = provider["scheduling"]
+    return (
+        provider["algorithmId"],
+        provider["schedulingId"],
+        int(scheduling["internalWorkers"]),
+        int(scheduling["outerWorkers"]),
+        provider["nativeRepresentationId"],
+    )
+
+
 def fftw_split_evidence_table(bundles: list[PublishedBundle]) -> str:
     rows: list[str] = []
     for bundle in bundles:
@@ -687,6 +709,13 @@ def fftw_screen_cohort(bundles: list[PublishedBundle]) -> list[PublishedBundle]:
     status = "reference" if any(bundle.publication["status"] == "reference" for bundle in current) else "preliminary"
     same_status = [bundle for bundle in current if bundle.publication["status"] == status]
     latest = max(same_status, key=lambda bundle: bundle.result["environment"]["timestampUtc"])
+    increment_id = latest.publication.get("incrementId")
+    if increment_id:
+        return [
+            bundle
+            for bundle in same_status
+            if bundle.publication.get("incrementId") == increment_id
+        ]
     commit = latest.result["environment"]["gitCommit"]
     return [
         bundle
@@ -698,10 +727,13 @@ def fftw_screen_cohort(bundles: list[PublishedBundle]) -> list[PublishedBundle]:
 def fftw_screen_classifications(bundles: list[PublishedBundle]) -> tuple[dict[str, str], list[PublishedBundle]]:
     cohort = fftw_screen_cohort(bundles)
     classifications: dict[str, str] = {}
-    workload_groups: dict[tuple[int, int, int, int], list[tuple[PublishedBundle, tuple[float, float, float]]]] = {}
+    workload_groups: dict[
+        tuple[int, int, int, int],
+        dict[tuple[str, str, int, int, str], list[tuple[PublishedBundle, tuple[float, float, float]]]],
+    ] = {}
     for bundle in cohort:
         result = bundle.result
-        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        provider = fftw_primary_provider(result)
         if provider is None:
             continue
         run_id = result["run"]["id"]
@@ -720,17 +752,30 @@ def fftw_screen_classifications(bundles: list[PublishedBundle]) -> tuple[dict[st
             float(raw_inverse["medianSeconds"]),
             float(provider["setup"]["totalSeconds"]),
         )
-        workload_groups.setdefault(key, []).append((bundle, objectives))
+        workload_groups.setdefault(key, {}).setdefault(
+            fftw_candidate_signature(provider), []
+        ).append((bundle, objectives))
 
-    for records in workload_groups.values():
-        for bundle, objectives in records:
+    for candidates in workload_groups.values():
+        aggregates = [
+            (
+                signature,
+                records,
+                tuple(statistics.median(objective[index] for _, objective in records)
+                      for index in range(3)),
+            )
+            for signature, records in candidates.items()
+        ]
+        for signature, records, objectives in aggregates:
             dominated = any(
-                other is not bundle
+                other_signature != signature
                 and all(left <= right for left, right in zip(other_objectives, objectives))
                 and any(left < right for left, right in zip(other_objectives, objectives))
-                for other, other_objectives in records
+                for other_signature, _, other_objectives in aggregates
             )
-            classifications[bundle.result["run"]["id"]] = "dominated" if dominated else "Pareto"
+            classification = "dominated" if dominated else "Pareto"
+            for bundle, _ in records:
+                classifications[bundle.result["run"]["id"]] = classification
     return classifications, cohort
 
 
@@ -741,7 +786,9 @@ def fftw_strategy_evidence_table(bundles: list[PublishedBundle]) -> str:
 
     def sort_key(bundle: PublishedBundle) -> tuple[int, int, int, str, int, int]:
         result = bundle.result
-        provider = next(item for item in result["providers"] if item["id"] == "fftw")
+        provider = fftw_primary_provider(result)
+        if provider is None:
+            return (0, 0, 9, "missing", 0, 0)
         workload = result["workload"]
         rank = {"Pareto": 0, "dominated": 1, "infeasible within planning budget": 2}.get(
             classifications.get(result["run"]["id"], "archived cohort"), 3
@@ -758,7 +805,7 @@ def fftw_strategy_evidence_table(bundles: list[PublishedBundle]) -> str:
 
     for bundle in sorted(bundles, key=sort_key):
         result = bundle.result
-        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        provider = fftw_primary_provider(result)
         if provider is None:
             continue
         workload = result["workload"]
@@ -850,11 +897,24 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
     records: list[tuple[dict, dict, str]] = []
     for bundle in cohort:
         result = bundle.result
-        provider = next((item for item in result["providers"] if item["id"] == "fftw"), None)
+        provider = fftw_primary_provider(result)
         if provider is not None:
             records.append((result, provider, classifications[result["run"]["id"]]))
     if not records:
         return ""
+
+    grouped_records: dict[
+        tuple[int, int, int, int, tuple[str, str, int, int, str]],
+        list[tuple[dict, dict, str]],
+    ] = {}
+    for record in records:
+        result, provider, _ = record
+        workload = result["workload"]
+        key = (
+            workload["Nx"], workload["Ny"], workload["Nz"], workload["fields"],
+            fftw_candidate_signature(provider),
+        )
+        grouped_records.setdefault(key, []).append(record)
 
     rows: list[str] = []
     workload_keys = sorted(
@@ -865,29 +925,42 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
     )
     for key in workload_keys:
         workload_records = [
-            record
-            for record in records
-            if (
-                record[0]["workload"]["Nx"],
-                record[0]["workload"]["Ny"],
-                record[0]["workload"]["Nz"],
-                record[0]["workload"]["fields"],
-            ) == key
+            candidate_records
+            for group_key, candidate_records in grouped_records.items()
+            if group_key[:4] == key
         ]
         pareto = sorted(
-            (record for record in workload_records if record[2] == "Pareto"),
-            key=lambda record: float(record[1]["setup"]["totalSeconds"]),
+            (candidate_records for candidate_records in workload_records
+             if candidate_records[0][2] == "Pareto"),
+            key=lambda candidate_records: statistics.median(
+                float(record[1]["setup"]["totalSeconds"])
+                for record in candidate_records
+            ),
         )
         entries = []
-        for _, provider, _ in pareto:
-            forward = timing(provider, "primitive", "forward")
-            inverse = timing(provider, "primitive", "inverse")
-            if forward is None or inverse is None:
+        for candidate_records in pareto:
+            provider = candidate_records[0][1]
+            forward_values = [
+                float(item["medianSeconds"])
+                for _, candidate_provider, _ in candidate_records
+                if (item := timing(candidate_provider, "primitive", "forward")) is not None
+            ]
+            inverse_values = [
+                float(item["medianSeconds"])
+                for _, candidate_provider, _ in candidate_records
+                if (item := timing(candidate_provider, "primitive", "inverse")) is not None
+            ]
+            if not forward_values or not inverse_values:
                 continue
+            setup_value = statistics.median(
+                float(candidate_provider["setup"]["totalSeconds"])
+                for _, candidate_provider, _ in candidate_records
+            )
             entries.append(
                 f'<strong>{escaped(fftw_candidate_name(provider))}</strong><br>'
-                f'<span class="muted">{format_ms(forward["medianSeconds"])} / '
-                f'{format_ms(inverse["medianSeconds"])} ms; setup {format_ms(provider["setup"]["totalSeconds"])} ms</span>'
+                f'<span class="muted">{format_ms(statistics.median(forward_values))} / '
+                f'{format_ms(statistics.median(inverse_values))} ms; setup '
+                f'{format_ms(setup_value)} ms; {len(candidate_records)} process run(s)</span>'
             )
         rows.append(
             "<tr>"
@@ -896,7 +969,10 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
             "</tr>"
         )
 
-    counts = {name: list(classifications.values()).count(name) for name in set(classifications.values())}
+    group_classifications = [candidate_records[0][2] for candidate_records in grouped_records.values()]
+    counts = {
+        name: group_classifications.count(name) for name in set(group_classifications)
+    }
     max_error = max(maximum_correctness_error(provider) or 0.0 for _, provider, _ in records)
     commit = cohort[0].result["environment"]["gitCommit"]
     status = cohort[0].publication["status"]
@@ -929,8 +1005,8 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
         split_scope_note = "It includes a bounded paired split/interleaved screen, but still excludes most production fields/workloads and provider-native split orders with different strides."
     return f"""
       <h3>Reproducible Pareto screen</h3>
-      <p>The current {escaped(status)} cohort is commit <code>{escaped(commit)}</code>. Within each workload, a candidate is Pareto when no other eligible candidate is no slower in raw forward FFT, raw inverse FFT, and total setup while being strictly better in at least one. Total setup includes allocation, planning, and wisdom generation/import. Memory is reported but is identical within each workload in this increment; nine-sample CVs are reported rather than used as a hard gate.</p>
-      <p>{counts.get("Pareto", 0)} workload-candidates are Pareto, {counts.get("dominated", 0)} are dominated, and {counts.get("infeasible within planning budget", 0)} are marked infeasible within the configured per-plan feasibility budget. All {len(records)} runs passed the fixed-reference and round-trip checks; the cohort maximum relative error is {format_error(max_error)}.</p>
+      <p>The current {escaped(status)} cohort is commit <code>{escaped(commit)}</code>. Within each workload, repeated processes with the same algorithm, representation, and worker topology are combined by the median of their process medians. A candidate is Pareto when no other eligible candidate is no slower in aggregate raw forward FFT, raw inverse FFT, and total setup while being strictly better in at least one. Total setup includes allocation, planning, and wisdom generation/import.</p>
+      <p>{counts.get("Pareto", 0)} workload-candidates are Pareto, {counts.get("dominated", 0)} are dominated, and {counts.get("infeasible within planning budget", 0)} are marked infeasible within the configured per-plan feasibility budget. All {len(records)} process runs passed the fixed-reference, retained-operator, and round-trip checks; the cohort maximum relative error is {format_error(max_error)}.</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Pareto candidates ordered by total setup. Times are raw forward / inverse medians followed by total setup; all are milliseconds.</caption>
         <thead><tr><th scope="col">Workload</th><th scope="col">Non-dominated candidates</th></tr></thead>

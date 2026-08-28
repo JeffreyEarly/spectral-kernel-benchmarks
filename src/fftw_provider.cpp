@@ -189,6 +189,20 @@ FFTWDataLayout fftwDataLayoutNamed(std::string_view name) {
     throw std::invalid_argument("Unknown FFTW data layout: " + std::string(name));
 }
 
+std::string_view fftwSpectrumOrderName(FFTWSpectrumOrder order) noexcept {
+    switch (order) {
+        case FFTWSpectrumOrder::wvmFrequencyMajor: return "wvm";
+        case FFTWSpectrumOrder::planeMajor: return "plane-major";
+    }
+    return "unknown";
+}
+
+FFTWSpectrumOrder fftwSpectrumOrderNamed(std::string_view name) {
+    if (name == "wvm") return FFTWSpectrumOrder::wvmFrequencyMajor;
+    if (name == "plane-major") return FFTWSpectrumOrder::planeMajor;
+    throw std::invalid_argument("Unknown FFTW spectrum order: " + std::string(name));
+}
+
 class FFTWProvider::Impl {
 public:
     struct PlanPair {
@@ -328,6 +342,27 @@ public:
         executor_->run(&executeShard, &context);
     }
 
+    void gatherRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                  const double* spectrumReal, const double* spectrumImag,
+                                  double* retainedReal, double* retainedImag) {
+        requireLayout(FFTWDataLayout::split);
+        SplitRetainedContext context{
+            this, &modes, spectrumReal, spectrumImag, retainedReal, retainedImag,
+            nullptr, nullptr, nullptr, nullptr};
+        executor_->run(&gatherRetainedSplitShard, &context);
+    }
+
+    void embedRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                 const double* retainedReal, const double* retainedImag,
+                                 double* spectrumReal, double* spectrumImag) {
+        requireLayout(FFTWDataLayout::split);
+        SplitRetainedContext context{
+            this, &modes, nullptr, nullptr, nullptr, nullptr,
+            retainedReal, retainedImag, spectrumReal, spectrumImag};
+        executor_->run(&zeroSpectrumSplitShard, &context);
+        executor_->run(&embedRetainedSplitShard, &context);
+    }
+
     void schedulerNoop() { executor_->run(&noopShard, nullptr); }
 
     Workload workload_;
@@ -368,6 +403,25 @@ private:
         Complex* spectrumOutput;
     };
 
+    struct SplitRetainedContext {
+        Impl* provider;
+        const std::vector<RetainedMode>* modes;
+        const double* spectrumRealInput;
+        const double* spectrumImagInput;
+        double* retainedRealOutput;
+        double* retainedImagOutput;
+        const double* retainedRealInput;
+        const double* retainedImagInput;
+        double* spectrumRealOutput;
+        double* spectrumImagOutput;
+    };
+
+    std::size_t spectrumOffset(std::size_t plane, std::size_t frequency = 0) const noexcept {
+        return strategy_.spectrumOrder == FFTWSpectrumOrder::planeMajor
+            ? frequency + workload_.ny * workload_.nxHalf() * plane
+            : plane + workload_.planes() * frequency;
+    }
+
     void requireLayout(FFTWDataLayout expected) const {
         if (strategy_.layout != expected) {
             throw std::logic_error("FFTW execution entry point does not match the planned data layout.");
@@ -401,10 +455,13 @@ private:
             plan.planeCount = end - begin;
             auto* real = realSurrogate_ + begin * workload_.realPlaneElements();
             plan.realAlignmentClass = fftw_alignment_of(real);
-            auto* spectrum = strategy_.layout == FFTWDataLayout::interleaved ? spectrumSurrogate_ + begin : nullptr;
-            auto* spectrumReal = strategy_.layout == FFTWDataLayout::split ? spectrumSplitSurrogate_ + begin : nullptr;
+            const auto nativeOffset = spectrumOffset(begin);
+            auto* spectrum = strategy_.layout == FFTWDataLayout::interleaved
+                ? spectrumSurrogate_ + nativeOffset : nullptr;
+            auto* spectrumReal = strategy_.layout == FFTWDataLayout::split
+                ? spectrumSplitSurrogate_ + nativeOffset : nullptr;
             auto* spectrumImag = strategy_.layout == FFTWDataLayout::split
-                ? spectrumSplitSurrogate_ + workload_.spectrumElements() + begin
+                ? spectrumSplitSurrogate_ + workload_.spectrumElements() + nativeOffset
                 : nullptr;
             if (strategy_.layout == FFTWDataLayout::interleaved) {
                 plan.spectrumAlignmentClass = fftw_alignment_of(reinterpret_cast<double*>(spectrum));
@@ -438,11 +495,24 @@ private:
                               double* spectrumReal, double* spectrumImag, unsigned flags) const {
         const auto planes = workload_.planes();
         const auto nxHalf = workload_.nxHalf();
+        const auto halfPlane = workload_.ny * nxHalf;
+        const auto planeMajor = strategy_.spectrumOrder == FFTWSpectrumOrder::planeMajor;
         fftw_iodim64 dimensions[2] = {
-            {static_cast<ptrdiff_t>(workload_.ny), static_cast<ptrdiff_t>(workload_.nx), static_cast<ptrdiff_t>(planes * nxHalf)},
-            {static_cast<ptrdiff_t>(workload_.nx), 1, static_cast<ptrdiff_t>(planes)}};
+            {static_cast<ptrdiff_t>(workload_.ny), static_cast<ptrdiff_t>(workload_.nx),
+             static_cast<ptrdiff_t>(planeMajor ? nxHalf : planes * nxHalf)},
+            {static_cast<ptrdiff_t>(workload_.nx), 1,
+             static_cast<ptrdiff_t>(planeMajor ? 1 : planes)}};
         if (strategy_.outerWorkers == 1) {
             const auto realPlane = workload_.realPlaneElements();
+            if (planeMajor) {
+                fftw_iodim64 batch = {
+                    static_cast<ptrdiff_t>(planes), static_cast<ptrdiff_t>(realPlane),
+                    static_cast<ptrdiff_t>(halfPlane)};
+                return strategy_.layout == FFTWDataLayout::interleaved
+                    ? fftw_plan_guru64_dft_r2c(2, dimensions, 1, &batch, real, spectrum, flags)
+                    : fftw_plan_guru64_split_dft_r2c(
+                        2, dimensions, 1, &batch, real, spectrumReal, spectrumImag, flags);
+            }
             fftw_iodim64 batches[2] = {
                 {static_cast<ptrdiff_t>(workload_.nz), static_cast<ptrdiff_t>(realPlane), 1},
                 {static_cast<ptrdiff_t>(workload_.fields), static_cast<ptrdiff_t>(realPlane * workload_.nz), static_cast<ptrdiff_t>(workload_.nz)}};
@@ -451,7 +521,8 @@ private:
                 : fftw_plan_guru64_split_dft_r2c(2, dimensions, 2, batches, real, spectrumReal, spectrumImag, flags);
         }
         fftw_iodim64 batch = {static_cast<ptrdiff_t>(shard.planeCount),
-                              static_cast<ptrdiff_t>(workload_.realPlaneElements()), 1};
+                              static_cast<ptrdiff_t>(workload_.realPlaneElements()),
+                              static_cast<ptrdiff_t>(planeMajor ? halfPlane : 1)};
         return strategy_.layout == FFTWDataLayout::interleaved
             ? fftw_plan_guru64_dft_r2c(2, dimensions, 1, &batch, real, spectrum, flags)
             : fftw_plan_guru64_split_dft_r2c(2, dimensions, 1, &batch, real, spectrumReal, spectrumImag, flags);
@@ -461,11 +532,25 @@ private:
                               double* spectrumReal, double* spectrumImag, double* real, unsigned flags) const {
         const auto planes = workload_.planes();
         const auto nxHalf = workload_.nxHalf();
+        const auto halfPlane = workload_.ny * nxHalf;
+        const auto planeMajor = strategy_.spectrumOrder == FFTWSpectrumOrder::planeMajor;
         fftw_iodim64 dimensions[2] = {
-            {static_cast<ptrdiff_t>(workload_.ny), static_cast<ptrdiff_t>(planes * nxHalf), static_cast<ptrdiff_t>(workload_.nx)},
-            {static_cast<ptrdiff_t>(workload_.nx), static_cast<ptrdiff_t>(planes), 1}};
+            {static_cast<ptrdiff_t>(workload_.ny),
+             static_cast<ptrdiff_t>(planeMajor ? nxHalf : planes * nxHalf),
+             static_cast<ptrdiff_t>(workload_.nx)},
+            {static_cast<ptrdiff_t>(workload_.nx),
+             static_cast<ptrdiff_t>(planeMajor ? 1 : planes), 1}};
         if (strategy_.outerWorkers == 1) {
             const auto realPlane = workload_.realPlaneElements();
+            if (planeMajor) {
+                fftw_iodim64 batch = {
+                    static_cast<ptrdiff_t>(planes), static_cast<ptrdiff_t>(halfPlane),
+                    static_cast<ptrdiff_t>(realPlane)};
+                return strategy_.layout == FFTWDataLayout::interleaved
+                    ? fftw_plan_guru64_dft_c2r(2, dimensions, 1, &batch, spectrum, real, flags)
+                    : fftw_plan_guru64_split_dft_c2r(
+                        2, dimensions, 1, &batch, spectrumReal, spectrumImag, real, flags);
+            }
             fftw_iodim64 batches[2] = {
                 {static_cast<ptrdiff_t>(workload_.nz), 1, static_cast<ptrdiff_t>(realPlane)},
                 {static_cast<ptrdiff_t>(workload_.fields), static_cast<ptrdiff_t>(workload_.nz), static_cast<ptrdiff_t>(realPlane * workload_.nz)}};
@@ -473,7 +558,8 @@ private:
                 ? fftw_plan_guru64_dft_c2r(2, dimensions, 2, batches, spectrum, real, flags)
                 : fftw_plan_guru64_split_dft_c2r(2, dimensions, 2, batches, spectrumReal, spectrumImag, real, flags);
         }
-        fftw_iodim64 batch = {static_cast<ptrdiff_t>(shard.planeCount), 1,
+        fftw_iodim64 batch = {static_cast<ptrdiff_t>(shard.planeCount),
+                              static_cast<ptrdiff_t>(planeMajor ? halfPlane : 1),
                               static_cast<ptrdiff_t>(workload_.realPlaneElements())};
         return strategy_.layout == FFTWDataLayout::interleaved
             ? fftw_plan_guru64_dft_c2r(2, dimensions, 1, &batch, spectrum, real, flags)
@@ -491,25 +577,27 @@ private:
         if (context.forward) {
             auto* input = const_cast<double*>(context.forwardInput) +
                 shard.beginPlane * provider.workload_.realPlaneElements();
+            const auto nativeOffset = provider.spectrumOffset(shard.beginPlane);
             if (provider.strategy_.layout == FFTWDataLayout::interleaved) {
-                auto* output = reinterpret_cast<fftw_complex*>(context.forwardOutput) + shard.beginPlane;
+                auto* output = reinterpret_cast<fftw_complex*>(context.forwardOutput) + nativeOffset;
                 fftw_execute_dft_r2c(shard.forward, input, output);
             } else {
                 fftw_execute_split_dft_r2c(shard.forward,
                                            input,
-                                           context.splitReal + shard.beginPlane,
-                                           context.splitImag + shard.beginPlane);
+                                           context.splitReal + nativeOffset,
+                                           context.splitImag + nativeOffset);
             }
         } else {
             auto* output = context.inverseOutput +
                 shard.beginPlane * provider.workload_.realPlaneElements();
+            const auto nativeOffset = provider.spectrumOffset(shard.beginPlane);
             if (provider.strategy_.layout == FFTWDataLayout::interleaved) {
-                auto* input = reinterpret_cast<fftw_complex*>(context.inverseInput) + shard.beginPlane;
+                auto* input = reinterpret_cast<fftw_complex*>(context.inverseInput) + nativeOffset;
                 fftw_execute_dft_c2r(shard.inverse, input, output);
             } else {
                 fftw_execute_split_dft_c2r(shard.inverse,
-                                           context.splitReal + shard.beginPlane,
-                                           context.splitImag + shard.beginPlane,
+                                           context.splitReal + nativeOffset,
+                                           context.splitImag + nativeOffset,
                                            output);
             }
         }
@@ -526,7 +614,7 @@ private:
             const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
             for (std::size_t plane = shard.beginPlane;
                  plane < shard.beginPlane + shard.planeCount; ++plane) {
-                auto value = context.spectrumInput[plane + planes * frequency];
+                auto value = context.spectrumInput[provider.spectrumOffset(plane, frequency)];
                 if (mode.conjugatesStoredValue) value = conjugate(value);
                 context.retainedOutput[plane + planes * modeIndex] = value;
             }
@@ -555,13 +643,74 @@ private:
                  plane < shard.beginPlane + shard.planeCount; ++plane) {
                 const auto compact = context.retainedInput[plane + planes * modeIndex];
                 const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
-                context.spectrumOutput[plane + planes * frequency] = stored;
+                context.spectrumOutput[provider.spectrumOffset(plane, frequency)] = stored;
                 if (mode.storedKx == 0 && mode.storedKy != 0 &&
                     2 * mode.storedKy != provider.workload_.ny) {
                     const auto conjugateKy =
                         (provider.workload_.ny - mode.storedKy) % provider.workload_.ny;
                     const auto conjugateFrequency = nxHalf * conjugateKy;
-                    context.spectrumOutput[plane + planes * conjugateFrequency] = conjugate(stored);
+                    context.spectrumOutput[provider.spectrumOffset(plane, conjugateFrequency)] = conjugate(stored);
+                }
+            }
+        }
+    }
+
+    static void gatherRetainedSplitShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<SplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                const auto native = provider.spectrumOffset(plane, frequency);
+                const auto retained = plane + planes * modeIndex;
+                context.retainedRealOutput[retained] = context.spectrumRealInput[native];
+                context.retainedImagOutput[retained] = mode.conjugatesStoredValue
+                    ? -context.spectrumImagInput[native]
+                    : context.spectrumImagInput[native];
+            }
+        }
+    }
+
+    static void zeroSpectrumSplitShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<SplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto count = provider.workload_.spectrumElements();
+        const auto begin = count * shardIndex / provider.strategy_.outerWorkers;
+        const auto end = count * (shardIndex + 1) / provider.strategy_.outerWorkers;
+        std::fill(context.spectrumRealOutput + begin, context.spectrumRealOutput + end, 0.0);
+        std::fill(context.spectrumImagOutput + begin, context.spectrumImagOutput + end, 0.0);
+    }
+
+    static void embedRetainedSplitShard(void* rawContext, std::size_t shardIndex) {
+        auto& context = *static_cast<SplitRetainedContext*>(rawContext);
+        const auto& provider = *context.provider;
+        const auto& shard = provider.plans_[shardIndex];
+        const auto planes = provider.workload_.planes();
+        const auto nxHalf = provider.workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < context.modes->size(); ++modeIndex) {
+            const auto& mode = (*context.modes)[modeIndex];
+            const auto frequency = mode.storedKx + nxHalf * mode.storedKy;
+            for (std::size_t plane = shard.beginPlane;
+                 plane < shard.beginPlane + shard.planeCount; ++plane) {
+                const auto retained = plane + planes * modeIndex;
+                const auto native = provider.spectrumOffset(plane, frequency);
+                const auto storedImag = mode.conjugatesStoredValue
+                    ? -context.retainedImagInput[retained]
+                    : context.retainedImagInput[retained];
+                context.spectrumRealOutput[native] = context.retainedRealInput[retained];
+                context.spectrumImagOutput[native] = storedImag;
+                if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                    2 * mode.storedKy != provider.workload_.ny) {
+                    const auto conjugateKy =
+                        (provider.workload_.ny - mode.storedKy) % provider.workload_.ny;
+                    const auto conjugateNative = provider.spectrumOffset(plane, nxHalf * conjugateKy);
+                    context.spectrumRealOutput[conjugateNative] = context.retainedRealInput[retained];
+                    context.spectrumImagOutput[conjugateNative] = -storedImag;
                 }
             }
         }
@@ -573,7 +722,7 @@ private:
         if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
         for (const auto& shard : plans_) {
             auto* real = const_cast<double*>(input) + shard.beginPlane * workload_.realPlaneElements();
-            auto* spectrum = reinterpret_cast<double*>(output + shard.beginPlane);
+            auto* spectrum = reinterpret_cast<double*>(output + spectrumOffset(shard.beginPlane));
             if (fftw_alignment_of(real) != shard.realAlignmentClass ||
                 fftw_alignment_of(spectrum) != shard.spectrumAlignmentClass) {
                 throw std::invalid_argument("Aligned FFTW execution buffers do not match the planning alignment classes.");
@@ -584,7 +733,7 @@ private:
     void validateInverseAlignment(Complex* input, double* output) const {
         if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
         for (const auto& shard : plans_) {
-            auto* spectrum = reinterpret_cast<double*>(input + shard.beginPlane);
+            auto* spectrum = reinterpret_cast<double*>(input + spectrumOffset(shard.beginPlane));
             auto* real = output + shard.beginPlane * workload_.realPlaneElements();
             if (fftw_alignment_of(spectrum) != shard.spectrumAlignmentClass ||
                 fftw_alignment_of(real) != shard.realAlignmentClass) {
@@ -598,8 +747,8 @@ private:
         if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
         for (const auto& shard : plans_) {
             auto* real = const_cast<double*>(input) + shard.beginPlane * workload_.realPlaneElements();
-            auto* spectrumReal = outputReal + shard.beginPlane;
-            auto* spectrumImag = outputImag + shard.beginPlane;
+            auto* spectrumReal = outputReal + spectrumOffset(shard.beginPlane);
+            auto* spectrumImag = outputImag + spectrumOffset(shard.beginPlane);
             if (fftw_alignment_of(real) != shard.realAlignmentClass ||
                 fftw_alignment_of(spectrumReal) != shard.spectrumRealAlignmentClass ||
                 fftw_alignment_of(spectrumImag) != shard.spectrumImagAlignmentClass) {
@@ -612,8 +761,8 @@ private:
         validateSplitSeparation(inputReal, inputImag);
         if (strategy_.alignment == FFTWAlignmentStrategy::unaligned) return;
         for (const auto& shard : plans_) {
-            auto* spectrumReal = inputReal + shard.beginPlane;
-            auto* spectrumImag = inputImag + shard.beginPlane;
+            auto* spectrumReal = inputReal + spectrumOffset(shard.beginPlane);
+            auto* spectrumImag = inputImag + spectrumOffset(shard.beginPlane);
             auto* real = output + shard.beginPlane * workload_.realPlaneElements();
             if (fftw_alignment_of(spectrumReal) != shard.spectrumRealAlignmentClass ||
                 fftw_alignment_of(spectrumImag) != shard.spectrumImagAlignmentClass ||
@@ -681,6 +830,20 @@ void FFTWProvider::forwardSplit(const double* input, double* wvmSpectrumReal, do
 }
 void FFTWProvider::inverseSplit(double* wvmSpectrumReal, double* wvmSpectrumImag, double* output) {
     impl_->inverseSplit(wvmSpectrumReal, wvmSpectrumImag, output);
+}
+void FFTWProvider::gatherRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                            const double* spectrumReal,
+                                            const double* spectrumImag,
+                                            double* retainedReal,
+                                            double* retainedImag) {
+    impl_->gatherRetainedSplitOuter(modes, spectrumReal, spectrumImag, retainedReal, retainedImag);
+}
+void FFTWProvider::embedRetainedSplitOuter(const std::vector<RetainedMode>& modes,
+                                           const double* retainedReal,
+                                           const double* retainedImag,
+                                           double* spectrumReal,
+                                           double* spectrumImag) {
+    impl_->embedRetainedSplitOuter(modes, retainedReal, retainedImag, spectrumReal, spectrumImag);
 }
 void FFTWProvider::executeSchedulerNoop() { impl_->schedulerNoop(); }
 bool FFTWProvider::splitInPlaceWvmOrderSupported() const noexcept { return false; }
