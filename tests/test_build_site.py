@@ -59,6 +59,7 @@ class BuildSiteTests(unittest.TestCase):
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
             issue_16_page = output / "experiments" / "issue-016-streaming-pruned-compact-split" / "index.html"
             issue_17_page = output / "experiments" / "issue-017-implicit-hybrid-dealiased-convolution" / "index.html"
+            issue_18_page = output / "experiments" / "issue-018-vertically-batched-advection-pipeline" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
@@ -83,6 +84,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(float32_page.is_file())
             self.assertTrue(issue_16_page.is_file())
             self.assertTrue(issue_17_page.is_file())
+            self.assertTrue(issue_18_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertIn("What this experiment measures", issue_3_page.read_text(encoding="utf-8"))
@@ -266,6 +268,17 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("campaign is reference-quality", issue_17_html)
             self.assertIn("does not meet the M4 adoption threshold", issue_17_html)
             self.assertIn("reference-depth conclusion", issue_17_html)
+            issue_18_html = issue_18_page.read_text(encoding="utf-8")
+            self.assertIn("First vertically batched composition", issue_18_html)
+            self.assertIn("15 ready retained and vertically truncated modal inputs", issue_18_html)
+            self.assertIn("complete nonlinear flux remain excluded", issue_18_html)
+            self.assertIn("FFTW++ is 0.971× explicit", issue_18_html)
+            self.assertIn("algorithm-resident storage is 0.995×", issue_18_html)
+            self.assertIn("preliminary continuation gate passes", issue_18_html)
+            self.assertIn("0.9000 multi-workload adoption threshold", issue_18_html)
+            self.assertIn("169–171 ms is movement alone", issue_18_html)
+            self.assertIn("20260828T222553Z-issue18-n256-nz129-explicit-parallel", issue_18_html)
+            self.assertIn("20260828T222558Z-issue18-n256-nz129-fftwpp-parallel", issue_18_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

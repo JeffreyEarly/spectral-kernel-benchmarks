@@ -4534,6 +4534,114 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+def vertically_batched_advection_synthesis(bundles: list[PublishedBundle]) -> str:
+    increment_id = "vertically-batched-advection-first-composition-v1"
+    candidate_bundles: dict[str, PublishedBundle] = {}
+    for bundle in sorted(bundles, key=lambda item: item.result["run"]["id"]):
+        if bundle.publication.get("incrementId") != increment_id:
+            continue
+        candidate_id = bundle.publication.get("campaignCandidateId")
+        if candidate_id in ("explicit-parallel", "fftwpp-parallel"):
+            candidate_bundles[candidate_id] = bundle
+    if not all(candidate in candidate_bundles for candidate in ("explicit-parallel", "fftwpp-parallel")):
+        return ""
+
+    candidates = (
+        ("explicit-parallel", "Explicit FFTW"),
+        ("fftwpp-parallel", "FFTW++"),
+    )
+    evidence: dict[str, dict] = {}
+    timing_rows: list[str] = []
+    memory_rows: list[str] = []
+    for candidate_id, label in candidates:
+        bundle = candidate_bundles[candidate_id]
+        provider = bundle.result["providers"][0]
+        inverse_vertical = stage_timing(
+            provider, "primitive", "raw inverse vertical GEMM (15 fields)", "inverse",
+        )
+        horizontal = stage_timing(
+            provider, "component",
+            "vertically batched horizontal advection including level movement", "horizontal",
+        )
+        movement = stage_timing(
+            provider, "adapter-component",
+            "all-level split/field-major packing and projected-output scatter", "horizontal",
+        )
+        forward_vertical = stage_timing(
+            provider, "primitive", "raw forward vertical GEMM (4 fields)", "forward",
+        )
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "vertically batched WVM-derived advection pipeline", "forward",
+        )
+        if any(item is None for item in (
+            inverse_vertical, horizontal, movement, forward_vertical, total,
+        )):
+            return ""
+        memory = provider["memory"]
+        error = maximum_correctness_error(provider)
+        evidence[candidate_id] = {
+            "total": total["medianSeconds"],
+            "resident": int(memory["algorithmResidentBytes"]),
+            "error": error,
+        }
+        run_id = bundle.result["run"]["id"]
+        timing_rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(label)}</a></td>'
+            f'<td class="numeric">{format_ms(inverse_vertical["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(horizontal["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(movement["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(forward_vertical["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_ms(total["medianSeconds"])}</td>'
+            f'<td class="numeric">{format_error(error)}</td>'
+            "</tr>"
+        )
+        memory_rows.append(
+            "<tr>"
+            f"<td>{escaped(label)}</td>"
+            f'<td class="numeric">{format_bytes(int(memory["algorithmResidentBytes"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(memory["scratchBytes"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(memory["benchmarkHarnessBytes"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(memory["estimatedProcessPeakBytes"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(memory["observedProcessHighWaterBytes"]))}</td>'
+            "</tr>"
+        )
+
+    explicit = evidence["explicit-parallel"]
+    fftwpp = evidence["fftwpp-parallel"]
+    time_ratio = fftwpp["total"] / explicit["total"]
+    memory_ratio = fftwpp["resident"] / explicit["resident"]
+    maximum_error = max(
+        error for error in (explicit["error"], fftwpp["error"]) if error is not None
+    )
+    continuation_passed = bool(
+        maximum_error <= 1.0e-12
+        and (time_ratio <= 0.98 or (memory_ratio <= 0.80 and time_ratio <= 1.05))
+    )
+    continuation = (
+        "The preliminary continuation gate passes, so a multi-workload reference campaign is warranted."
+        if continuation_passed else
+        "The preliminary continuation gate does not pass."
+    )
+    return f"""
+      <h2>First vertically batched composition</h2>
+      <p>This increment composes the fixed issue #17 horizontal finalists with the same directional split K²-grouped vertical reconstruction and projection. Its exact boundary is 15 ready retained and vertically truncated modal inputs through 129 streamed physical levels to four ready modal outputs at 256²/N<sub>z</sub>=129. Phase evolution, coefficient accumulation, the remaining nonlinear-flux bookkeeping, and the complete nonlinear flux remain excluded.</p>
+      <p>FFTW++ is {time_ratio:.3f}× explicit in the authoritative composed total, while its counted algorithm-resident storage is {memory_ratio:.3f}×. Maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(continuation)}</strong> This one-process, three-sample result is preliminary and does not meet or test the separate 0.9000 multi-workload adoption threshold.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Component medians and the authoritative uninstrumented total, in milliseconds. The horizontal component includes level movement; movement is also timed alone as a diagnostic and must not be added to it again.</caption>
+        <thead><tr><th scope="col">Candidate</th><th scope="col">Inverse vertical</th><th scope="col">Horizontal + movement</th><th scope="col">Movement alone</th><th scope="col">Forward vertical</th><th scope="col">Total</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{"".join(timing_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Memory ledgers distinguish algorithm state from benchmark-only oracle and fixture storage.</caption>
+        <thead><tr><th scope="col">Candidate</th><th scope="col">Algorithm resident</th><th scope="col">Scratch</th><th scope="col">Harness only</th><th scope="col">Estimated peak</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{"".join(memory_rows)}</tbody>
+      </table></div>
+      <p class="method-note">Both candidates run in isolated processes with one warmup and three samples, outer-dynamic-12 vertical scheduling, and zero warmed steady-state application allocations. Approximately 169–171 ms is movement alone, so the isolated horizontal speed and memory advantage is largely diluted by level packing/scatter and vertical storage. Observed process high water includes the independent correctness oracle that ran earlier in each process; estimated peak is the fairer live benchmark ledger. Component medians need not sum to the separately measured total.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-009-combined-spectral-pipeline":
         return spectral_pipeline_evidence_table(bundles)
@@ -4628,6 +4736,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = streaming_pruned_pipeline_synthesis(related)
     elif experiment_id == "issue-017-implicit-hybrid-dealiased-convolution":
         synthesis = dealiased_convolution_synthesis(related)
+    elif experiment_id == "issue-018-vertically-batched-advection-pipeline":
+        synthesis = vertically_batched_advection_synthesis(related)
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":

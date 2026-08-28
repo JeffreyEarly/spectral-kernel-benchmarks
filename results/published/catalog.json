@@ -22532,6 +22532,68 @@
         "samplesSha256": "2baee3e54ae80124a85e6b34248ee911c89fe86feab34380ddc8f0a0fec7c07c"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T222553Z-issue18-n256-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-first-composition-v1",
+      "campaignPhase": "first-composition",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "preliminary",
+      "statusReason": "First correct 256-squared/Nz=129 four-field composition; FFTW++ is 0.9711x in authoritative total time and 0.9947x in algorithm-resident memory. This is a single-process preliminary screen; reference depth and the remaining production workloads are pending.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T222553Z-issue18-n256-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260828T222553Z-issue18-n256-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "2077e5f4942e087f4796acd69196e34cd644e0145b283be7b6b7c8abb499a580",
+        "samplesSha256": "894e7b56ca665c62664b305d1651b7920b3da16c920b398c90be676871de2053"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T222558Z-issue18-n256-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-first-composition-v1",
+      "campaignPhase": "first-composition",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "preliminary",
+      "statusReason": "First correct 256-squared/Nz=129 four-field composition; FFTW++ is 0.9711x in authoritative total time and 0.9947x in algorithm-resident memory. This is a single-process preliminary screen; reference depth and the remaining production workloads are pending.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T222558Z-issue18-n256-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T222558Z-issue18-n256-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "080d46da69f2f4ec46796cc8b933630f354015e3188b091c2c9fd72bb2f241b3",
+        "samplesSha256": "680053e4f9ee0aff107f136cdb71e5094f5c1b6e2fb8452a092918e190cd7d60"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -23083,7 +23145,7 @@
     {
       "id": "issue-018-vertically-batched-advection-pipeline",
       "issue": 18,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Vertically batched WVM-derived advection pipeline",
       "question": "Does the fixed FFTW++ four-target implicit/hybrid policy improve a vertically batched antialiased WVM-derived operator after vertical reconstruction, truncation, layout movement, and scheduling are included, while materially reducing memory?",
       "baseline": "Compare with the strongest fixed WVM-compatible explicit FFTW and split vertical-GEMM composition from issues #8, #9, and #13, using issue #17 as the horizontal-kernel evidence.",
