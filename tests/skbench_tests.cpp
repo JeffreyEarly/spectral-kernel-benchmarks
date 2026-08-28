@@ -137,6 +137,46 @@ void requireAllocationFreeRetainedOuterExecution(
             "outer-sharded full retained FFTW execution allocated memory");
 }
 
+void requireAllocationFreeSplitRetainedOuterExecution(
+    const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers, skbench::FFTWSpectrumOrder spectrumOrder) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto split = alignedBuffer<double>(2 * workload.spectrumElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    auto* spectrumReal = split.get();
+    auto* spectrumImag = split.get() + workload.spectrumElements();
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 37) / 37.0;
+    }
+
+    skbench::FFTWProvider provider(workload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        outerWorkers,
+        0.0,
+        skbench::FFTWDataLayout::split,
+        spectrumOrder});
+    const auto execute = [&] {
+        provider.forwardSplit(input.get(), spectrumReal, spectrumImag);
+        provider.gatherRetainedSplitOuter(
+            modes, spectrumReal, spectrumImag, retainedReal.get(), retainedImag.get());
+        provider.embedRetainedSplitOuter(
+            modes, retainedReal.get(), retainedImag.get(), spectrumReal, spectrumImag);
+        provider.inverseSplit(spectrumReal, spectrumImag, output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "outer-sharded split retained FFTW execution allocated memory");
+}
+
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                                             const skbench::GroupedVerticalOperators& operators,
                                             skbench::VerticalGemmLayout layout,
@@ -659,6 +699,8 @@ int main() {
             requireAllocationFreePrunedExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
+                workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
+            requireAllocationFreeSplitRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
         }
 

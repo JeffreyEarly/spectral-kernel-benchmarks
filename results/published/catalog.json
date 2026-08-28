@@ -6350,6 +6350,2856 @@
         "samplesSha256": "87f31e7f6adbc881735ec4b700d54c78cc5d000190a4108f2e2e67749da5f030"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T051836165900Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051836165900Z-lyra/result.json",
+        "samples": "runs/20260828T051836165900Z-lyra/samples.csv",
+        "resultSha256": "ccecb84909f48222dc4df4a3d389d5828286edc60641b2ad527854483a5ba723",
+        "samplesSha256": "9ceff1a113e615a85572f13f885790a6d658a0ef0323989b0ba1c7b439ca202d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051837089747Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051837089747Z-lyra/result.json",
+        "samples": "runs/20260828T051837089747Z-lyra/samples.csv",
+        "resultSha256": "8b809e734fb56f73dc1f5be7c5bba409bb6ef7efc5b268d9dd8402c0079e5bec",
+        "samplesSha256": "da7a595006006b43c5281e8ba9d813c9537aa9d3e8f24a032c74e317bd920b2e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051837934507Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051837934507Z-lyra/result.json",
+        "samples": "runs/20260828T051837934507Z-lyra/samples.csv",
+        "resultSha256": "83d3db78cc3a66e3234db1f278f313a6c58dd1156a228ec7a08ca03f62b359f9",
+        "samplesSha256": "c5faa2e96c69a1fdddf4dcc1611014cbb44bc00980ed770ad6304dfe20857ee9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051838823274Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051838823274Z-lyra/result.json",
+        "samples": "runs/20260828T051838823274Z-lyra/samples.csv",
+        "resultSha256": "7cd5ffa7c0a0de3bf0d14a3c8fb46b521141745d16be0a45b0524fa637f1bc3b",
+        "samplesSha256": "f891f3473753dedb5bd342dbbf35bad636d2a65bfa2fa829574b3e9896c5f8f1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051839755863Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051839755863Z-lyra/result.json",
+        "samples": "runs/20260828T051839755863Z-lyra/samples.csv",
+        "resultSha256": "07e1969250c9efd83a234fff2c75c5fe5c86b6402d4d9b326f490a32168c8862",
+        "samplesSha256": "21b6a08fc60d365b106a552e76cdda2c18593ce5994a0f24658083dee56ada60"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051841585114Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051841585114Z-lyra/result.json",
+        "samples": "runs/20260828T051841585114Z-lyra/samples.csv",
+        "resultSha256": "e99f6fa25218f6bb956294417431e69d2cd7ff8ea7ed5bd15679990c70cc696b",
+        "samplesSha256": "2b9fe7bc9253d44b0bc80a0d234575366b4e408d2eba23aea9ce6eef29c720e7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051843226609Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051843226609Z-lyra/result.json",
+        "samples": "runs/20260828T051843226609Z-lyra/samples.csv",
+        "resultSha256": "1197b632a333535b949c7e5af63b1bfc30dd17f5315db1ad453cc4dec624decf",
+        "samplesSha256": "4f768de93ca593773bf2c4e8f60d565df5769ec0cd72ab9fc1f60d82f4c18caa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051844857721Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051844857721Z-lyra/result.json",
+        "samples": "runs/20260828T051844857721Z-lyra/samples.csv",
+        "resultSha256": "d0b3cb609588b30c55f5ce164952767fbae3c458e381015202b0e5897223fe92",
+        "samplesSha256": "b5ba4a1b3342ad5a71aae237c77f36a4a05c9bd4162a2fad878b63bfc1eea475"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051846612307Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-split-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051846612307Z-lyra/result.json",
+        "samples": "runs/20260828T051846612307Z-lyra/samples.csv",
+        "resultSha256": "a417639b6672894d4522f231b768c90839df97f8fd216ecf5c15f2a0334310f7",
+        "samplesSha256": "0300ef041029f2a0ffb4a71dbe1cd68d94604db9aaebfd53577ad013b860835f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051850197713Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051850197713Z-lyra/result.json",
+        "samples": "runs/20260828T051850197713Z-lyra/samples.csv",
+        "resultSha256": "c80ffa2e867c0c2d179d9625bdfe4f3a6aed6e13063d5572b124348ce1ce538d",
+        "samplesSha256": "9db64a4d022921ab71e08adb418c7aaec3df339f83cdee74924a82a5c51b770c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051853284111Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051853284111Z-lyra/result.json",
+        "samples": "runs/20260828T051853284111Z-lyra/samples.csv",
+        "resultSha256": "eada28e01295f1cbb85e095beeeb382648ccf7af8aa07008bd2eee66e31ba80f",
+        "samplesSha256": "2b426cfaa608e6693474a4ffeaadb1fd52e70cfbf593d79806e3158f8c94f80d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051856381277Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051856381277Z-lyra/result.json",
+        "samples": "runs/20260828T051856381277Z-lyra/samples.csv",
+        "resultSha256": "5394ab34a47579c921f0958e0eb42360e7af70f58c7327c0d271a3e3ce2aa35f",
+        "samplesSha256": "8c965a18c4f21be11855512a8693c12b281fe462456527a355e733b74252c9df"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051859726038Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051859726038Z-lyra/result.json",
+        "samples": "runs/20260828T051859726038Z-lyra/samples.csv",
+        "resultSha256": "659b1e165e23e7a3a1e099b03595ea5ad343c818d32200879b33a0ce318c6927",
+        "samplesSha256": "6414bb77bacaa1455d877f7aad2ce9bd10d06ed7a9c7e5a10d192ff9c55f4e02"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051907004626Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051907004626Z-lyra/result.json",
+        "samples": "runs/20260828T051907004626Z-lyra/samples.csv",
+        "resultSha256": "ebf7f7da76d091ec5d927a28c1660c3a247109398f7dab1978637a039451ad35",
+        "samplesSha256": "95baa9864d2f83fc64fa32f0b38e67e0fe7ea6e525755bdf8b0cf03325b7bc1b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051913543031Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051913543031Z-lyra/result.json",
+        "samples": "runs/20260828T051913543031Z-lyra/samples.csv",
+        "resultSha256": "54a62755bcc08a87b399480e7b461c4abd744c2510a2e00119c24f4545ace28b",
+        "samplesSha256": "709a1c7ed316b1f93bf8a7997a68d88a0769f545f36c3945abae10bbdb0d1451"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051920391686Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051920391686Z-lyra/result.json",
+        "samples": "runs/20260828T051920391686Z-lyra/samples.csv",
+        "resultSha256": "d7ba3d0b1b3aef7639c91052bff90cd7c009e5dcf86a2a0d53240fd168856ae0",
+        "samplesSha256": "f2966f43d80ef04df9aff30128ad6bee5fc9207794f672c805f3c1fd06faf522"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051928114803Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051928114803Z-lyra/result.json",
+        "samples": "runs/20260828T051928114803Z-lyra/samples.csv",
+        "resultSha256": "d2a98d764714c6e6531561acfb7a7a3ffeac2f33920d8b70e048d5acb1f578f1",
+        "samplesSha256": "49014c432b9d58e27d74123fe70a455ec3882ceab28344e677e91a900fe77ef1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051944798028Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051944798028Z-lyra/result.json",
+        "samples": "runs/20260828T051944798028Z-lyra/samples.csv",
+        "resultSha256": "5b0b5d210214d53766f152513ddd5c46b459aa36103b1c35d35e2aa82266b7f2",
+        "samplesSha256": "33b65b424262d0b50890b882c23fb6f23075e9a38138cdb5318dd2cd26e84699"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T051959246047Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T051959246047Z-lyra/result.json",
+        "samples": "runs/20260828T051959246047Z-lyra/samples.csv",
+        "resultSha256": "c59a142f19b3e702135f9728a41ac6567eedf0754c6ce69053d88c6a2ab2fd08",
+        "samplesSha256": "d68887bc305f94d3c8074af268b72385c3ffbcdaa44791cd689aa6f1019287ab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052013823402Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052013823402Z-lyra/result.json",
+        "samples": "runs/20260828T052013823402Z-lyra/samples.csv",
+        "resultSha256": "7164567365fc124f9dff7afe58b23fc17d10791cbe9f5670044a6248a2524a2d",
+        "samplesSha256": "c7a391bcbd5463fb51dfae8fb721f890e91949ac91c541dc3d26696952f80621"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052029310544Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-split-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052029310544Z-lyra/result.json",
+        "samples": "runs/20260828T052029310544Z-lyra/samples.csv",
+        "resultSha256": "d9fb61bed1481b156d78c67b69bfb310dd325327aa93c8f83e34ff08775c36e0",
+        "samplesSha256": "2e9dc03a9b059c3320292efe69e2211c12c35c762f7d8351bfb1891d1dd6632b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052103260492Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052103260492Z-lyra/result.json",
+        "samples": "runs/20260828T052103260492Z-lyra/samples.csv",
+        "resultSha256": "2714727c22e48d7427dfac6cdc66256098ba6e2faecf8aa7d46598a489b06b4f",
+        "samplesSha256": "999e2ec4386bc23f850d56853f969f04e001aeafa224e2d238db479d73050977"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052130541821Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052130541821Z-lyra/result.json",
+        "samples": "runs/20260828T052130541821Z-lyra/samples.csv",
+        "resultSha256": "b09e763b3b53b306ae347567414df75cafbf2c1b26e5d7d67be7d8800185873a",
+        "samplesSha256": "0d3715021506505175973071e493eb79c78aa4967f8a94d6a63cda7b86804492"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052158099964Z-lyra",
+      "incrementId": "fftw-native-spectrum-order-screen-v2",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max native-order feasibility screen across two representative workloads; used to select the production reference finalists and retained as preliminary evidence.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-split-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052158099964Z-lyra/result.json",
+        "samples": "runs/20260828T052158099964Z-lyra/samples.csv",
+        "resultSha256": "37bd974bd17ed946a195f7478a61dd6466b12f6369abb855cd8ac9f7dd82fa3e",
+        "samplesSha256": "d83261eaacbb5a7ee5e3abcf99e94fe5470e513af55e09bde1f9291740cd815f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052303222287Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052303222287Z-lyra/result.json",
+        "samples": "runs/20260828T052303222287Z-lyra/samples.csv",
+        "resultSha256": "ead1f75f129b73fc4055ee261c5b9eac47a5fe3b6c33713e8ea540fa0dfda82c",
+        "samplesSha256": "5052caa3339cafa3cb16929a7dd2a7b4007091ccb3daf6096b5d030552f63d83"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052303996289Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052303996289Z-lyra/result.json",
+        "samples": "runs/20260828T052303996289Z-lyra/samples.csv",
+        "resultSha256": "6475c42da2a6b3a74961e42dc3fc49f8a4560dddfde97359cd7a2019016028a3",
+        "samplesSha256": "a9881a9e617a59e4dd0117c99974887a1cd74ec356d94c3294e4e8b39b8f2a8c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052306114132Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052306114132Z-lyra/result.json",
+        "samples": "runs/20260828T052306114132Z-lyra/samples.csv",
+        "resultSha256": "dadbb78e167567e7fe642de4ae4e88f03e3b575a0294957ab12e685400241439",
+        "samplesSha256": "c1649da18c7b8a391b4789b128d6fcb9ee495eb86cef31d00344477dbc399512"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052307928295Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052307928295Z-lyra/result.json",
+        "samples": "runs/20260828T052307928295Z-lyra/samples.csv",
+        "resultSha256": "2653c20d9de37512c78b070b659c56b8cd3500d797317dc9bd7c1c130b7561af",
+        "samplesSha256": "82d96b459bc2c655160ed56dfb2bcfd7ca0b971fbd184789434e69169806a321"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052309750668Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052309750668Z-lyra/result.json",
+        "samples": "runs/20260828T052309750668Z-lyra/samples.csv",
+        "resultSha256": "629c2e2d0c3e24cb862fcca8f460de963c26b678bf8c095bf341a9a1a10707a4",
+        "samplesSha256": "217c8a7cc6d8cac9a24a08858163ec6d2513478f5b2f48f07944c1919ec8090e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052311695825Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052311695825Z-lyra/result.json",
+        "samples": "runs/20260828T052311695825Z-lyra/samples.csv",
+        "resultSha256": "7f4b1c74f249fc0aa5b3c07c2f4a4990c59a3da2b94906ecd9924d28cd5ad286",
+        "samplesSha256": "0a56e7c2df858cbf7a06fa4f44b87d195e69589c84ff7a25046ba61912fb05b6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052312891725Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052312891725Z-lyra/result.json",
+        "samples": "runs/20260828T052312891725Z-lyra/samples.csv",
+        "resultSha256": "4fc3bc444fdf7a8392a27509dee00c15e4d73bad21f1efaa61509ad29f83d655",
+        "samplesSha256": "25cdad371fb4bdea04e22bf90ac753c0b5cc94d016458777e152277c6067fc1b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052316285417Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052316285417Z-lyra/result.json",
+        "samples": "runs/20260828T052316285417Z-lyra/samples.csv",
+        "resultSha256": "b53d0020ffad07d26d4fa79608eb3abecfe2ca45deb4e0c33fdbed14255e1e0a",
+        "samplesSha256": "67ac9bfc25f347a705d897f33784584985b31b05d57ab9cfcf3f4e2caafbb277"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052319224416Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052319224416Z-lyra/result.json",
+        "samples": "runs/20260828T052319224416Z-lyra/samples.csv",
+        "resultSha256": "7d7d7e3d754250b5a870ecfe6c564d7a200108486a9b4bb6782719374c8d4a62",
+        "samplesSha256": "0dada408443538d523008d1d9c74c3e52ba6d454990dfc428497e8cdfdafe304"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052322150942Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052322150942Z-lyra/result.json",
+        "samples": "runs/20260828T052322150942Z-lyra/samples.csv",
+        "resultSha256": "e3ef0aa0e8233fa1438ae6e25d2ee23d080d4dfbb47329f1482a077161d38a7c",
+        "samplesSha256": "90a456e67d595e6dec349c84c7760bf05e861f491fd9d9d1fbaf338554e3e547"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052325279345Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052325279345Z-lyra/result.json",
+        "samples": "runs/20260828T052325279345Z-lyra/samples.csv",
+        "resultSha256": "87773475e6bb45423179a6c8826e535c9e28bb1656145da894547293ab64b8d9",
+        "samplesSha256": "32ac49115e1145bdf09fe1fe503fe7ee3d94168a674cf551c2adf9e704092d4f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052328170483Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052328170483Z-lyra/result.json",
+        "samples": "runs/20260828T052328170483Z-lyra/samples.csv",
+        "resultSha256": "3833250b0e64ae9d304bbd145e977bc2910c196f6ff602710e975e3d54457f7c",
+        "samplesSha256": "03d27044bb4af772ee7ba0601752467ebf65199c928c610777e7ef4d5d87cbbc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052337512865Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052337512865Z-lyra/result.json",
+        "samples": "runs/20260828T052337512865Z-lyra/samples.csv",
+        "resultSha256": "fa74c50f7ae7d46cf35adf42ae75376921502a0a90b8077210f44c8fd143a4e5",
+        "samplesSha256": "729fa87b48fff386346641615e4697b42d07e0ee2c13b53c597342d808aec6b8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052345353737Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052345353737Z-lyra/result.json",
+        "samples": "runs/20260828T052345353737Z-lyra/samples.csv",
+        "resultSha256": "36f2453e39f5772516d7a5b6121aa458ffc6d1be210d28f78a362936138b83af",
+        "samplesSha256": "e5cad0238cee50b03187d8a33a5eaae506dde0a564f8c72faf94f526586dc234"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052353216435Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052353216435Z-lyra/result.json",
+        "samples": "runs/20260828T052353216435Z-lyra/samples.csv",
+        "resultSha256": "1519d01f465c2f84b13751b34b4dad5f570636b286b5ddd17d50ce60c6759ca6",
+        "samplesSha256": "6de3e20a2052a45f1adfe0c3ae9146bfc47609519b28f738bdfa028b008f9677"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052401382114Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052401382114Z-lyra/result.json",
+        "samples": "runs/20260828T052401382114Z-lyra/samples.csv",
+        "resultSha256": "7a8e7e0df6c4078338ac7616b9413de1a7983ea3a6eb1f370d5f5946aadc07c0",
+        "samplesSha256": "e9ea3ca8072c63840e66b1df055ab4e1e75f4710c733e41006f993848e4c90b8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052407610906Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052407610906Z-lyra/result.json",
+        "samples": "runs/20260828T052407610906Z-lyra/samples.csv",
+        "resultSha256": "958cd9af104f2560f79a5e7424702f435664cb3368e836d4970236c617b4f612",
+        "samplesSha256": "2e14bfc80384a40b806fe71731bf96e261b9967c406e76db45ca92e20d4d917e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052427377914Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052427377914Z-lyra/result.json",
+        "samples": "runs/20260828T052427377914Z-lyra/samples.csv",
+        "resultSha256": "b9c001e5cdbe30588b81c0c07b71a7b4bd1adee38926067918533a37960edbfd",
+        "samplesSha256": "3274114aa0b7671b19bf09e87de0a086c7ce6fb837765012fa5703ac67a5d0c5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052443921119Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052443921119Z-lyra/result.json",
+        "samples": "runs/20260828T052443921119Z-lyra/samples.csv",
+        "resultSha256": "65ec1a9a1bb8103abee3d0600f9350d38177a17926075ed52c05924fc7358bd8",
+        "samplesSha256": "5ba37bf8aa4cf5b254fdb8f39ab5cd93d2a7891bbfed59266d18c9b6f474480e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052500546733Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052500546733Z-lyra/result.json",
+        "samples": "runs/20260828T052500546733Z-lyra/samples.csv",
+        "resultSha256": "76d7d6c3b07ff918cd4da83204afa631ef3d625e0b72339b5b43e5b922af653a",
+        "samplesSha256": "5ef12ee0cd88987e41aa4ee4d52a7fafb05d4f03d2c91bbffd9fbf9dce27fa74"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052518343607Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052518343607Z-lyra/result.json",
+        "samples": "runs/20260828T052518343607Z-lyra/samples.csv",
+        "resultSha256": "2ccd3743a13bc6bc5360bc8e2606a177b0331b37f54cadc391f5fa0e56cc47c2",
+        "samplesSha256": "76ae88dbfc217eaedb35d4f3bae3d5f9dfee4796967bc44e077f3a4d43aab629"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052527860322Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052527860322Z-lyra/result.json",
+        "samples": "runs/20260828T052527860322Z-lyra/samples.csv",
+        "resultSha256": "6090144c41ee964543b4591605681140bf07bffbab8c9d977189402e18f5ffdf",
+        "samplesSha256": "a7fb40c2899ce2e4e3f4fb8f34f7db2d1cd76bd0ab5a778e35f3c1b27b63a199"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052559465023Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052559465023Z-lyra/result.json",
+        "samples": "runs/20260828T052559465023Z-lyra/samples.csv",
+        "resultSha256": "b19748c7fb4813fedbececfa433e00a08fa1cfcfc0aa46bef3cc4271ea5622cd",
+        "samplesSha256": "021922a844306f9a93587da97372c19d13ecb5eae8359572baa67d74b6a2df96"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052625687542Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052625687542Z-lyra/result.json",
+        "samples": "runs/20260828T052625687542Z-lyra/samples.csv",
+        "resultSha256": "d445c8bc053114c73abec93aa49f2ee0fdd18ffd0050aadc07d063ca21d61609",
+        "samplesSha256": "1441d18777fd3a72f376a4d18eb348b8e9fcfd42e0f5e5e76f68a0213e4588f5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052652424350Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052652424350Z-lyra/result.json",
+        "samples": "runs/20260828T052652424350Z-lyra/samples.csv",
+        "resultSha256": "ecdb0f807ba675575dbe3cfc00531def7c02b8fd7abbb21422cfcd990eadab59",
+        "samplesSha256": "94ef97002d4c8aa30487441a376813e64d4ae3e53a26075b9745ad07c00041b6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052720698409Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052720698409Z-lyra/result.json",
+        "samples": "runs/20260828T052720698409Z-lyra/samples.csv",
+        "resultSha256": "ca49f535235c5022e1a42a300af98f01d284c24b0ec4c5ba1fb7d242885b355f",
+        "samplesSha256": "62563feeca1912aa11606dd8e91055742f1dd5fa0f97beead72e32ad4edd0c8b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052732513855Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052732513855Z-lyra/result.json",
+        "samples": "runs/20260828T052732513855Z-lyra/samples.csv",
+        "resultSha256": "d227a91a7d08a9a1a5f13b09597c73960faf2e3f050100117cb2a7cd8b7f79bd",
+        "samplesSha256": "eeed479bb5707c159fa20c9be8e914854626a4d65821a6a725c45bef48ea7b6f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052812191118Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052812191118Z-lyra/result.json",
+        "samples": "runs/20260828T052812191118Z-lyra/samples.csv",
+        "resultSha256": "5dba3029f03913a9f8b927e3518e93ae1578d96b189af48b5ce6aa5e182ae731",
+        "samplesSha256": "563a569d6ac7dd81fdf90069b80ddd7f34129b1234271d96b7505ab824de706c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052844512260Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052844512260Z-lyra/result.json",
+        "samples": "runs/20260828T052844512260Z-lyra/samples.csv",
+        "resultSha256": "05648b0bfeca882ae87f6314c1c30159b3021ce28863656f4fed9768439c0e54",
+        "samplesSha256": "6d02adcce45d402b7c21652032a5211669ce6c58759055b4999b17e13bf1b330"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052917439676Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052917439676Z-lyra/result.json",
+        "samples": "runs/20260828T052917439676Z-lyra/samples.csv",
+        "resultSha256": "387b3126327828c7160be5de3599ffaa07e8743951346e184783106a0c5b519e",
+        "samplesSha256": "38e2b40535f3c59704ab4d70bef0dc7c4fb9ff23c627212095e5e30d2d4eff26"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052952498517Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052952498517Z-lyra/result.json",
+        "samples": "runs/20260828T052952498517Z-lyra/samples.csv",
+        "resultSha256": "af4d535edef668734dda3b47feced397233fbce5033eaf9bd9e08937f206ae3b",
+        "samplesSha256": "331d0cc78e1747b63359f1bf1cd7edfd10b85a05688c47b1182b6dfd74ea83f6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052955926755Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052955926755Z-lyra/result.json",
+        "samples": "runs/20260828T052955926755Z-lyra/samples.csv",
+        "resultSha256": "9bd6c0a7a5933a5397062e057ef5ba0137d0c8a5eca6a1166fdc4af2c824e8ee",
+        "samplesSha256": "6f17820c1205d922ab0be637b78bfa72ef86dfd079d32b45194341abb5ce734a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T052958876468Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T052958876468Z-lyra/result.json",
+        "samples": "runs/20260828T052958876468Z-lyra/samples.csv",
+        "resultSha256": "5ed8f03654cb65d36dbafcc84880bc46a67252e3f3253bb62eec575b5a2a499a",
+        "samplesSha256": "897630e050185c14da77177a935e856625f4f63895abb1530d3d42c405315d3e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053001829696Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053001829696Z-lyra/result.json",
+        "samples": "runs/20260828T053001829696Z-lyra/samples.csv",
+        "resultSha256": "d9faaf65c63990671ae46d0a292f9db33e01efc60e01b3055b7eac35d7eaf6d6",
+        "samplesSha256": "d68b8a52db60c4efc488fc6fabc56a718900148a86dbba80e49889e0a80c01e1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053004963470Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053004963470Z-lyra/result.json",
+        "samples": "runs/20260828T053004963470Z-lyra/samples.csv",
+        "resultSha256": "65b3ce7b3df1168ef0acfd092f6bfdf67d912819226de8b4cc2d0c1b1eedc350",
+        "samplesSha256": "4d5f1accd7c9bf5d5851ae510d7a6a1a61564feb66440723d6bdf419cfa78c53"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053006174124Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053006174124Z-lyra/result.json",
+        "samples": "runs/20260828T053006174124Z-lyra/samples.csv",
+        "resultSha256": "8b723c5d8fabf91787b67da81cb0d5da53b2b017e9533d12eb25af437b6260c9",
+        "samplesSha256": "149ea964f94d61700eaee187ebab0f255d7fc6d49143efd1cd3c56cb32ab6801"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053015580330Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053015580330Z-lyra/result.json",
+        "samples": "runs/20260828T053015580330Z-lyra/samples.csv",
+        "resultSha256": "4ae507ad14aca0e8b252eda1304b6431da7b7228b8300224088a93c8bca20895",
+        "samplesSha256": "30e8e6c2eadb87c9b0954f1450d60b87216f7dc9fe69462ccc22cbb49e642cf4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053023467809Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053023467809Z-lyra/result.json",
+        "samples": "runs/20260828T053023467809Z-lyra/samples.csv",
+        "resultSha256": "cc118ee275f1e6019bd9cd44606863146d4dedea07a12428d2e7b25520af24b7",
+        "samplesSha256": "b2afa3a170cada96ac8b1b31f02be91322f29bd0fb28c7fa38493a127f4a210a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053031337846Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053031337846Z-lyra/result.json",
+        "samples": "runs/20260828T053031337846Z-lyra/samples.csv",
+        "resultSha256": "cd51cfeebd1a60d66b7204db8ebfc62018888571d2ee709b911ae3b84eaf967a",
+        "samplesSha256": "1fcbcf176a8c45c65633baa2c819aaf0a99153f5cc420a93b91008ec9e036174"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053039528127Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053039528127Z-lyra/result.json",
+        "samples": "runs/20260828T053039528127Z-lyra/samples.csv",
+        "resultSha256": "2c86f4f9c2d2a4de6968b7d6dba8868aa55c0efdb63354eeaa75d802abb9d31f",
+        "samplesSha256": "1e621eab454d60b28c6d7b0f741e7c37d891a6ba870468ddcb4a10d434595e1c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053042492594Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053042492594Z-lyra/result.json",
+        "samples": "runs/20260828T053042492594Z-lyra/samples.csv",
+        "resultSha256": "08c5a41d2d47f8fc644ab4304e039cd9fc22c91215c5bf8d53abfbfb8ca2df88",
+        "samplesSha256": "847d38188deb2766af1400b8f291855aa44d578ca73bdf3e33be4912e334119d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053102183234Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053102183234Z-lyra/result.json",
+        "samples": "runs/20260828T053102183234Z-lyra/samples.csv",
+        "resultSha256": "470f1c5c8ba8bb35709704c49e9ad1c555bfad3ab697c6e616d2572e5c6cfef5",
+        "samplesSha256": "842c6c10f8e5293ab1ec025e69669239702d8d7158bf0e947816911e7a2a713a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053118465742Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053118465742Z-lyra/result.json",
+        "samples": "runs/20260828T053118465742Z-lyra/samples.csv",
+        "resultSha256": "616eb526e759904425a055e9085689c8896f8ad2c73c27c244b3a147baecac0b",
+        "samplesSha256": "96158b4be0bdc08d766c2b67df7ca81bbefa721e32db73db150fbe7566817b90"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053135012758Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053135012758Z-lyra/result.json",
+        "samples": "runs/20260828T053135012758Z-lyra/samples.csv",
+        "resultSha256": "1b6a9f05da02238a6c8006ed138f8154c9b5adfb39a97e3ee673c95b68bbaf8e",
+        "samplesSha256": "faff9fd6d3a3ab9cc2a88fd95573c370224985c5e17d9d07b4adc6b63a7b4d6e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053152796202Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053152796202Z-lyra/result.json",
+        "samples": "runs/20260828T053152796202Z-lyra/samples.csv",
+        "resultSha256": "1ea7e3fed72e98a45ec7717555a691fb9a483f4d3e5ceb3660de9dcc3113fbb7",
+        "samplesSha256": "d258472ee81a6c5fd0fb33fe22374414fafc5667bbdb02bbcbcb4a9f0cb6968e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053159027900Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053159027900Z-lyra/result.json",
+        "samples": "runs/20260828T053159027900Z-lyra/samples.csv",
+        "resultSha256": "70440c0c396dc2415459479294bdee33de2946ca8c0e2cf929464d8224003b94",
+        "samplesSha256": "d2a78b3531b253ff69e42d79b679a46f7e9deb4e91266d8381a0798a101858e5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053230664974Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053230664974Z-lyra/result.json",
+        "samples": "runs/20260828T053230664974Z-lyra/samples.csv",
+        "resultSha256": "990bdacf2d9e0911e9eefb5b596e137e9e2a643fbf0994a43def6e4fd412053b",
+        "samplesSha256": "cd9e6e9c6914b991de3c45a62e667556fdbd0872acb49e104afc092a5dd367e5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053257439905Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053257439905Z-lyra/result.json",
+        "samples": "runs/20260828T053257439905Z-lyra/samples.csv",
+        "resultSha256": "9e8991736ceff61ee3171a1282bf021d9cbace02a96d7f75d35330f90be25a71",
+        "samplesSha256": "43659346c0472d0bfd286e5f3e7d2f1d9a1f70d6a9ab53c23ef5dc0834c0d323"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053324194244Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053324194244Z-lyra/result.json",
+        "samples": "runs/20260828T053324194244Z-lyra/samples.csv",
+        "resultSha256": "948117eb9ebd97bf79cab4011525dc199034f67ee6421478ae47f142ddee28a6",
+        "samplesSha256": "2af119247c0aa5b8ffe3324236b5646e4f711b2d7bc993acadbfd8914ba9591e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053352441635Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053352441635Z-lyra/result.json",
+        "samples": "runs/20260828T053352441635Z-lyra/samples.csv",
+        "resultSha256": "cbf846176987af37d168163f8758db94d80b3e827b0341748cd056eba9d2031a",
+        "samplesSha256": "db119a099bb380d248f901715030cfd6f11af7db548b32c0f85a3bd2d297c320"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053402085039Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053402085039Z-lyra/result.json",
+        "samples": "runs/20260828T053402085039Z-lyra/samples.csv",
+        "resultSha256": "e8b64636fdcf788708f5d5a7ad15e3704431bd0d611132c49f5b400a6135b325",
+        "samplesSha256": "7db3e66d3975cc45bb3e8fc58b29b02c1273d49f45185e7746cbc805ddba3aca"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053441660159Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053441660159Z-lyra/result.json",
+        "samples": "runs/20260828T053441660159Z-lyra/samples.csv",
+        "resultSha256": "7a5a5b0c228d4f881663b1ca6bb493a1973caa873eabcfa877a5174eb489a588",
+        "samplesSha256": "4df221bd361bd8aad9931d90c5e4d73289c426bbd9eb1816ba58f8afa7b2aa00"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053514021665Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053514021665Z-lyra/result.json",
+        "samples": "runs/20260828T053514021665Z-lyra/samples.csv",
+        "resultSha256": "c01cd7abce99dd6fd07c040b97c1550d690598103a6f9bbff23de077f6a3dee3",
+        "samplesSha256": "dfb4463e42651247f71dbbe0597566c934e8f49abc3a8c19abbffbc99a689ff3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053546840077Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053546840077Z-lyra/result.json",
+        "samples": "runs/20260828T053546840077Z-lyra/samples.csv",
+        "resultSha256": "42c9fefc67c430c60cba45d5832eb4b4c5647017baeb90943f5e2aafde5a7150",
+        "samplesSha256": "290062c862a814445cc945e9b1b5b1575f4c394c5b6bfe5e5a35d41df2e53eb1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053621942675Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053621942675Z-lyra/result.json",
+        "samples": "runs/20260828T053621942675Z-lyra/samples.csv",
+        "resultSha256": "a23be75d9c480def0281a75e71f46b77f10589940a13eadb56763d07c10800d6",
+        "samplesSha256": "0c81035d43aabcd4c7cb0d5bff49d303460eadb7abf319dbae9147234676904d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053633765804Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053633765804Z-lyra/result.json",
+        "samples": "runs/20260828T053633765804Z-lyra/samples.csv",
+        "resultSha256": "f52aa96874d63a954677e306ce9ae452926e22acc8fbbecd2e1f03a3de65882f",
+        "samplesSha256": "b735b7955c967b7045dad0e2608c8e19b9d9ad65b5d31cb972450a071286fd1e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053635914413Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053635914413Z-lyra/result.json",
+        "samples": "runs/20260828T053635914413Z-lyra/samples.csv",
+        "resultSha256": "83cc53375c717dace8f46e927b6138b626d07a8b2a88c4be5ece9fdac5fd8cc1",
+        "samplesSha256": "32b0fbdcdf18bb75ad248ef0c3bc818831d79394086592c93030ca035bd07f62"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053637748026Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053637748026Z-lyra/result.json",
+        "samples": "runs/20260828T053637748026Z-lyra/samples.csv",
+        "resultSha256": "62a65daea849081e16280236f0aad6580f3d80a4434d91175ab502c5fa75d0f8",
+        "samplesSha256": "fb646159b1fe0facb808cb46899288a16898af4f34702b00e6236d332b268338"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053639587157Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053639587157Z-lyra/result.json",
+        "samples": "runs/20260828T053639587157Z-lyra/samples.csv",
+        "resultSha256": "c94defcd870fc8a88b8486552593b4dc00b9ed59c2f1e4fc927047894833f9e0",
+        "samplesSha256": "f5c13d589c51c18576def1ea238d7d0234f91ce63f2236740e9935619fd830e5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053641546675Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053641546675Z-lyra/result.json",
+        "samples": "runs/20260828T053641546675Z-lyra/samples.csv",
+        "resultSha256": "a7ca7733f8eb7d048e1fe60c4f6081a0a407d95836dd2fa8e1e95d2b91427c14",
+        "samplesSha256": "e56e226107d1ab365ceede502dfebddd48b4fe806fe3b17b5904cce2da9e3c28"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053642314765Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053642314765Z-lyra/result.json",
+        "samples": "runs/20260828T053642314765Z-lyra/samples.csv",
+        "resultSha256": "b44d9b8b331515ab3507c4b4d231106e1f90e6ea29562012a4f4bc27346307d0",
+        "samplesSha256": "e7e23c3cf830feb216f7e1f3acd254e422bc617f10759367230eb3921412f5d6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053650048689Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053650048689Z-lyra/result.json",
+        "samples": "runs/20260828T053650048689Z-lyra/samples.csv",
+        "resultSha256": "78953749f915d36b40430c70370d73c73199b45c988401e4cc92f2fd7da228bc",
+        "samplesSha256": "6649577259e29096e4d0b33b0d5df2777df4f71259834253de2e89b7c256b227"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053657869876Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053657869876Z-lyra/result.json",
+        "samples": "runs/20260828T053657869876Z-lyra/samples.csv",
+        "resultSha256": "a8b2a146ba5a70ce3c6d14dbb90c94fbad9b6d4ab7bb91796c2966a59d408d75",
+        "samplesSha256": "22cee75eac07d39b3bb39eaa58f8c7830a65b9c011ad8ae9234a3dacc2adf525"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053706056105Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053706056105Z-lyra/result.json",
+        "samples": "runs/20260828T053706056105Z-lyra/samples.csv",
+        "resultSha256": "7c85b0e1a48f44692d4c21d0673369afe546345a886a5ead79a7ba938ff4dd05",
+        "samplesSha256": "38a99a5b0a1a31022f4e82175609c1ecf37017f6c976a5b00ae219349b7b7e57"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053709015234Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053709015234Z-lyra/result.json",
+        "samples": "runs/20260828T053709015234Z-lyra/samples.csv",
+        "resultSha256": "7bbbf79c7e60958e9913a3718135a3e73023c44c83480aa2136a0264729b99e9",
+        "samplesSha256": "a4cde8f21da6ee8a4ac6b7dc9ae6bab6cfd0733e89c52e9a8a6b07e5bb93b836"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053718343424Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053718343424Z-lyra/result.json",
+        "samples": "runs/20260828T053718343424Z-lyra/samples.csv",
+        "resultSha256": "d3b44fafbb21e907415cd9321e207cc23c43a0fcebe9e6b1b5f4b30e1b29bca0",
+        "samplesSha256": "f9f5ab057abb564a17effb1d4de2af7deb8f59da1ca84512b209db3a3621bb23"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053734618703Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053734618703Z-lyra/result.json",
+        "samples": "runs/20260828T053734618703Z-lyra/samples.csv",
+        "resultSha256": "71ac9f4ffb925d96fc0b952b44f8648fdbc800a9fc3e0bf53948db9619a1b761",
+        "samplesSha256": "8739668daf9e5a2d4aa265936653e276ea3675d7f54d5673af33c1ed0b743b05"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053751190418Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053751190418Z-lyra/result.json",
+        "samples": "runs/20260828T053751190418Z-lyra/samples.csv",
+        "resultSha256": "c23b461797e2da74e0db93194242397e86daf4331e238c2b3d348a1b69b27b0f",
+        "samplesSha256": "1699f0ba1c7bb2819a7108a721def68643331cb6c9fc9a68a99fa136a7e9f374"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053808990001Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053808990001Z-lyra/result.json",
+        "samples": "runs/20260828T053808990001Z-lyra/samples.csv",
+        "resultSha256": "510fd0e88e9fb4e420998df885e198b6f3e25d5516af51870a8a0007abf13ce1",
+        "samplesSha256": "42e003b84ad32fffea89859402f28b44edbac49099f34141e76af28528458a99"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053815251694Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053815251694Z-lyra/result.json",
+        "samples": "runs/20260828T053815251694Z-lyra/samples.csv",
+        "resultSha256": "997076ea8cec3073c9d65988e823dbcb24379e5fd2c2c7af839edacf339eb54c",
+        "samplesSha256": "802897a9070de9085ffa35a39324a41e8d2d3b86958c382259552bbfea27ae5a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053834946012Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053834946012Z-lyra/result.json",
+        "samples": "runs/20260828T053834946012Z-lyra/samples.csv",
+        "resultSha256": "98d36f3d2cf8cfbc2d600a42bad9ec83f8827b72d3ea3328b79a68c492d86994",
+        "samplesSha256": "f24fab25eae8ab3c694bc871648e1bb829fc1a0360e341f436af457d9ccbc330"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053901140496Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053901140496Z-lyra/result.json",
+        "samples": "runs/20260828T053901140496Z-lyra/samples.csv",
+        "resultSha256": "3a471e102ac221161be81a26f7f1c557fa470bf3e379ca319bcac631ab97c945",
+        "samplesSha256": "988adeffa254904c9a35aa7d5d6c3d53ca8f4d57f9d48db427b29d418f46dadb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053927881619Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053927881619Z-lyra/result.json",
+        "samples": "runs/20260828T053927881619Z-lyra/samples.csv",
+        "resultSha256": "be182b566c6af00bf4e26c66887acd4ad77589a8d7d8c2591d8eb1fdc854cb3d",
+        "samplesSha256": "c296960dafc56e415d874d58375ade4965ce412ba47b083505b345078d24768e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T053955987140Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T053955987140Z-lyra/result.json",
+        "samples": "runs/20260828T053955987140Z-lyra/samples.csv",
+        "resultSha256": "aa6f999641ed7cae715410203c59c59a921705f03c7c94255384f323eb6f3f37",
+        "samplesSha256": "4f541f293d08cb5769840035cd5277eeff47a48935d8ea0940d8b02db2a9ec61"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054005718289Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054005718289Z-lyra/result.json",
+        "samples": "runs/20260828T054005718289Z-lyra/samples.csv",
+        "resultSha256": "4f9b577e8945f3928c0c0bb320575b91e353ce77288e38a4a5f96b35ed3220dc",
+        "samplesSha256": "907691efa27459a597a75c26914a293c110ea41aec02c2920f11fb9f6a181abb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054037389030Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054037389030Z-lyra/result.json",
+        "samples": "runs/20260828T054037389030Z-lyra/samples.csv",
+        "resultSha256": "8635f8dba21ac11e5dd7ff8a56d75656441a64e6adb884261a2004c420c6d1a2",
+        "samplesSha256": "1b3603aaf8fc763674c58d93536bc7e44430a0b0d0180090f5d890d42dfd1d3e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054109709393Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054109709393Z-lyra/result.json",
+        "samples": "runs/20260828T054109709393Z-lyra/samples.csv",
+        "resultSha256": "df5e8edef7e95f77f01bb07795be5530c03366323db39c3196abfd44e3cf771f",
+        "samplesSha256": "129a73d78f20b01feacb94b969563901caaada67e2e444084c687fe9729aec7b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054142721001Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054142721001Z-lyra/result.json",
+        "samples": "runs/20260828T054142721001Z-lyra/samples.csv",
+        "resultSha256": "92948080e175ea1fe7cdd654007e255f6fb7b0a6406cbdf7de77ff64121200dd",
+        "samplesSha256": "e921c38967f53f15bcefc2d40d22371d6693fa4a6ed1b5695412068670dab8fa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054217790405Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054217790405Z-lyra/result.json",
+        "samples": "runs/20260828T054217790405Z-lyra/samples.csv",
+        "resultSha256": "9fcce5a7f6b6065accabc2e202149c5311848e2bc7ff3b19c67d7a032beaad7d",
+        "samplesSha256": "8600cbff05294ebb2d8e84410130b07d8ad74aadcd0493f4a2695be995ff6755"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054229464056Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054229464056Z-lyra/result.json",
+        "samples": "runs/20260828T054229464056Z-lyra/samples.csv",
+        "resultSha256": "5a0626ef1998dce1deb90c4cf3c5df716b351968f312e90dd10c7ba5708ee06c",
+        "samplesSha256": "651aee34fbc75db2307978b48082b24e74588537be2b5f8524dadcbb1bb58c13"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054309139597Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054309139597Z-lyra/result.json",
+        "samples": "runs/20260828T054309139597Z-lyra/samples.csv",
+        "resultSha256": "6b90f91faa82977ce9ead2a419154447750a378b9e25e3fa39ae6b8e0f0f7fbe",
+        "samplesSha256": "f514f3f4bb56da92ad3be79c77292294b94ddebece01983436ef655fdaa0f1c2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054310970159Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054310970159Z-lyra/result.json",
+        "samples": "runs/20260828T054310970159Z-lyra/samples.csv",
+        "resultSha256": "28b8bbaffe6ba646baf283e1c631042ad80dcb94cb8a1c4c72e37da11c65fe21",
+        "samplesSha256": "7368733f7829b1628b6292a32e836efaad530032c5d2fefeacf9113f7a5806a2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054312810153Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054312810153Z-lyra/result.json",
+        "samples": "runs/20260828T054312810153Z-lyra/samples.csv",
+        "resultSha256": "4024ddcf8f6cbe4793b853fca5d887d2a64cf4253d8874c260e5bb4adf19e006",
+        "samplesSha256": "3a83c7579254601d46c7dddccda3c5964a4560c604d8e441e1e0793ae57fd9ce"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054314766955Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054314766955Z-lyra/result.json",
+        "samples": "runs/20260828T054314766955Z-lyra/samples.csv",
+        "resultSha256": "a66381d8b9704f236c891fec02773bf799f3979b963d005773c0e3a27accb9de",
+        "samplesSha256": "2107a0233be2956e16d4822fb7e8b4d7d27dfe9df027e9653013ab65b3b41a78"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054315532253Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054315532253Z-lyra/result.json",
+        "samples": "runs/20260828T054315532253Z-lyra/samples.csv",
+        "resultSha256": "b43be890bee95df834626783cbdc3456f7bf7492abcf6cc73e8ffc9b3290b02e",
+        "samplesSha256": "1e8a63e619cef52da130182faccdf12e478693248529bf7354fadd867b3dcbf8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054317683357Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054317683357Z-lyra/result.json",
+        "samples": "runs/20260828T054317683357Z-lyra/samples.csv",
+        "resultSha256": "058089a8aa784a53ab93d852c74a39920dd235fad20d4f8b48c792b51db7821d",
+        "samplesSha256": "289b9e5f7673d84b843506a0c94918b546e41ee48623f4d807717c485dca7922"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054320619195Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=1, outer=16).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054320619195Z-lyra/result.json",
+        "samples": "runs/20260828T054320619195Z-lyra/samples.csv",
+        "resultSha256": "8d5321e57fcc675bdb16ca42694a33af89df080a365960f5035d3ea67a483542",
+        "samplesSha256": "716f1e4024c88d10878a74a331eda1df6af9ad2c774b0c7f1d0aeb33a0774c15"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054323572146Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-measure-unaligned-cold (internal=4, outer=3).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054323572146Z-lyra/result.json",
+        "samples": "runs/20260828T054323572146Z-lyra/samples.csv",
+        "resultSha256": "1ad534477d79cc1d7f7295ac1a98a823ca0407a2b59bff8c119b14cf0d1c116d",
+        "samplesSha256": "94e7d3738cafaad0db67a8a6761442738945991dd47e9176b8859383d9875364"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054326706159Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=1, outer=12).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054326706159Z-lyra/result.json",
+        "samples": "runs/20260828T054326706159Z-lyra/samples.csv",
+        "resultSha256": "560b13f54025b420b803fb2a419a902cb6ead7056caec2274b6f038dc3da37ec",
+        "samplesSha256": "a268fb372a005de33cba7a1462338da4c7591eb58f2ae23f9769001fdd3dcac6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T054327942634Z-lyra",
+      "incrementId": "fftw-production-pareto-reference-v3",
+      "status": "reference",
+      "statusReason": "Clean M4 Max final issue #4 campaign: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads; all correctness and provenance checks passed.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using plane-major-guru64-interleaved-estimate-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        4
+      ],
+      "experiments": [
+        "issue-004-fftw-strategy-sweep"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T054327942634Z-lyra/result.json",
+        "samples": "runs/20260828T054327942634Z-lyra/samples.csv",
+        "resultSha256": "775a8ff8df91acc9b7fb03e73cbebe71d1547831e30a247b28b1fb7f27cc00f0",
+        "samplesSha256": "3ec2c61ee489019c272d6b9797d66dcbc43c54508617bd98b7e9d28882e84ac0"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -6395,7 +9245,7 @@
     {
       "id": "issue-004-fftw-strategy-sweep",
       "issue": 4,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "FFTW strategy sweep",
       "question": "Do FFTW planning, alignment, layout, or scheduling strategies improve on the production baseline without unacceptable setup or memory costs?",
       "baseline": "Compare every candidate with issue #3 and retain a Pareto set for issue #7.",
@@ -6409,8 +9259,8 @@
       ],
       "definition": {
         "unitOfWork": "The same full real-2-D transform batches as issue #3; layout increments may additionally preserve the provider representation through separately reported horizontal retention and embedding.",
-        "candidates": "Aligned and unaligned plans; ESTIMATE, MEASURE, PATIENT, and EXHAUSTIVE; wisdom; interleaved and split APIs; internal, outer, and hybrid threading.",
-        "workloads": "The production workload matrix established by issue #3.",
+        "candidates": "Aligned and unaligned plans; ESTIMATE, MEASURE, PATIENT, and EXHAUSTIVE; wisdom; WVM frequency-major and plane-major spectrum orders; interleaved and split APIs; internal, outer, and hybrid threading.",
+        "workloads": "The final reference campaign covers six production profiles spanning 256- and 512-square grids, fields 1/3/4, and Nz 65/129/257.",
         "controlledVariables": "Mathematical transforms, fixtures, precision, dimensions, sampling, compiler, and machine protocol.",
         "changedVariables": "Planning effort, alignment, representation, wisdom state, and scheduling.",
         "timedBoundary": "Raw provider execution is always reported separately from planning, allocation, wisdom, conversion, retained-mode selection or embedding, adapters, and persistent-layout totals.",

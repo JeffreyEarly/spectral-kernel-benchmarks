@@ -848,7 +848,7 @@ void FFTWProvider::embedRetainedSplitOuter(const std::vector<RetainedMode>& mode
 void FFTWProvider::executeSchedulerNoop() { impl_->schedulerNoop(); }
 bool FFTWProvider::splitInPlaceWvmOrderSupported() const noexcept { return false; }
 std::string FFTWProvider::splitInPlaceWvmOrderCapability() const {
-    return "unsupported: FFTW 3.3.11 documents rank-greater-than-one guru split real transforms as out-of-place only; both exact WVM-order planners return null";
+    return "unsupported: FFTW 3.3.11 documents rank-greater-than-one guru split real transforms as out-of-place only; exact WVM-order alias probes also return null, so no in-place split candidate is exposed for either spectrum order";
 }
 double FFTWProvider::otherSetupSeconds() const noexcept { return impl_->otherSetupSeconds_; }
 double FFTWProvider::allocationSeconds() const noexcept { return impl_->allocationSeconds_; }

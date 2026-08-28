@@ -883,8 +883,8 @@ def fftw_strategy_evidence_table(bundles: list[PublishedBundle]) -> str:
     if split_table:
         return (
             split_table
-            + '<h3>Append-only interleaved strategy archive</h3>'
-            + '<p>The earlier planning, alignment, wisdom, and scheduling screen remains visible in full. The interleaved partner from each newer paired run extends that archive without replacing the original cohort.</p>'
+            + '<h3>Append-only FFTW strategy archive</h3>'
+            + '<p>The earlier planning, alignment, wisdom, scheduling, split-layout, and native-order increments remain visible in full. New reference runs extend this archive without replacing their preliminary baselines.</p>'
             + strategy_table
         )
     return strategy_table
@@ -977,7 +977,9 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
     commit = cohort[0].result["environment"]["gitCommit"]
     status = cohort[0].publication["status"]
     paired = []
-    for bundle in cohort:
+    for bundle in bundles:
+        if bundle.publication["status"] not in ("reference", "preliminary"):
+            continue
         interleaved = next((item for item in bundle.result["providers"] if item["id"] == "fftw"), None)
         split = next((item for item in bundle.result["providers"] if item["id"] == "fftw-split"), None)
         if interleaved is not None and split is not None:
@@ -1003,6 +1005,90 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
       <p>FFTW 3.3.11 documents rank-greater-than-one guru split real transforms as out-of-place only, and both exact WVM-order in-place planners reject the tested alias. The measured new-array path therefore uses one contiguous allocation with a fixed [real][imaginary] component separation matching the planning buffers. Provider-native layouts with different strides remain a later algorithm experiment.</p>
       """
         split_scope_note = "It includes a bounded paired split/interleaved screen, but still excludes most production fields/workloads and provider-native split orders with different strides."
+
+    native_order_synthesis = ""
+    comparison_pairs: list[
+        tuple[list[tuple[dict, dict, str]], list[tuple[dict, dict, str]]]
+    ] = []
+    for key in workload_keys:
+        workload_candidates = [
+            candidate_records
+            for group_key, candidate_records in grouped_records.items()
+            if group_key[:4] == key
+        ]
+        baseline = next(
+            (
+                candidate_records
+                for candidate_records in workload_candidates
+                if candidate_records[0][1]["nativeRepresentationId"] ==
+                    "wvm-frequency-major-interleaved-half-spectrum"
+                and candidate_records[0][1]["scheduling"]["internalWorkers"] == 1
+                and candidate_records[0][1]["scheduling"]["outerWorkers"] == 12
+            ),
+            None,
+        )
+        plane_major = next(
+            (
+                candidate_records
+                for candidate_records in workload_candidates
+                if candidate_records[0][1]["nativeRepresentationId"] ==
+                    "plane-major-interleaved-half-spectrum"
+                and candidate_records[0][1]["scheduling"]["internalWorkers"] == 1
+                and candidate_records[0][1]["scheduling"]["outerWorkers"] == 12
+            ),
+            None,
+        )
+        if baseline is not None and plane_major is not None:
+            comparison_pairs.append((baseline, plane_major))
+
+    if comparison_pairs:
+        def aggregate_timing(
+            candidate_records: list[tuple[dict, dict, str]], scope: str, direction: str
+        ) -> float:
+            values = [
+                float(item["medianSeconds"])
+                for _, provider, _ in candidate_records
+                if (item := timing(provider, scope, direction)) is not None
+            ]
+            return statistics.median(values)
+
+        def comparison(scope: str, direction: str) -> tuple[float, float, float, int]:
+            ratios = [
+                aggregate_timing(plane_major, scope, direction) /
+                aggregate_timing(baseline, scope, direction)
+                for baseline, plane_major in comparison_pairs
+            ]
+            return (
+                math.exp(statistics.fmean(math.log(value) for value in ratios)),
+                min(ratios),
+                max(ratios),
+                sum(value < 1.0 for value in ratios),
+            )
+
+        def comparison_text(scope: str, direction: str) -> str:
+            geometric, minimum, maximum, wins = comparison(scope, direction)
+            return (
+                f"{geometric:.3f}× ({wins}/{len(comparison_pairs)} wins; "
+                f"range {minimum:.3f}×–{maximum:.3f}×)"
+            )
+
+        native_order_synthesis = f"""
+      <h3>Provider-native order result</h3>
+      <p>The matched production comparison holds FFTW <code>MEASURE</code>, unaligned execution, one internal worker, and 12 persistent outer workers fixed while changing only the complete half-spectrum order. Plane-major divided by WVM frequency-major is {comparison_text("primitive", "forward")} for raw forward FFT and {comparison_text("primitive", "inverse")} for raw inverse FFT.</p>
+      <p>When plane-major storage persists through mode-keyed antialiasing, the complete retained-operator ratios improve to {comparison_text("uninstrumented-total", "forward")} forward and {comparison_text("uninstrumented-total", "inverse")} inverse. In contrast, materializing the complete WVM-compatible order costs {comparison_text("adapter-total", "forward")} forward and {comparison_text("adapter-total", "inverse")} inverse. Thus the native order is an issue #7 survivor only as a persistent representation with direct retained selection/embedding; it is not a faster drop-in full-spectrum WVM adapter.</p>
+      <p>The reference campaign used {len(records)} clean process runs: three independently planned processes, 21 steady-state samples per process, five finalists, and six production workloads. The raw/setup Pareto set is shape-specific and retains low-setup internal-12, outer-12, outer-16, or hybrid 4×3 plane-major policies where non-dominated. The WVM outer-12 baseline is dominated in the final raw/setup frontier but remains the matched production comparator.</p>
+      """
+
+    completion_note = (
+        "This is the final issue #4 M4 Max reference Pareto set, not a WVM adoption decision. "
+        "Issue #7 must compare these full-FFT survivors with the pruned retained transform, "
+        "and the later combined pipeline determines adoption."
+        if status == "reference"
+        else (
+            "This is a bounded strategy screen, not the final issue #4 Pareto set or a WVM "
+            f"adoption decision. {split_scope_note}"
+        )
+    )
     return f"""
       <h3>Reproducible Pareto screen</h3>
       <p>The current {escaped(status)} cohort is commit <code>{escaped(commit)}</code>. Within each workload, repeated processes with the same algorithm, representation, and worker topology are combined by the median of their process medians. A candidate is Pareto when no other eligible candidate is no slower in aggregate raw forward FFT, raw inverse FFT, and total setup while being strictly better in at least one. Total setup includes allocation, planning, and wisdom generation/import.</p>
@@ -1012,8 +1098,9 @@ def fftw_strategy_synthesis(bundles: list[PublishedBundle]) -> str:
         <thead><tr><th scope="col">Workload</th><th scope="col">Non-dominated candidates</th></tr></thead>
         <tbody>{"".join(rows)}</tbody>
       </table></div>
+      {native_order_synthesis}
       {split_synthesis}
-      <p class="method-note">This is a bounded strategy screen, not the final issue #4 Pareto set or a WVM adoption decision. {escaped(split_scope_note)} Budget-limited PATIENT and EXHAUSTIVE plans remain valid measured transforms, but this experiment cannot claim that their requested search completed.</p>
+      <p class="method-note">{escaped(completion_note)} Budget-limited PATIENT and EXHAUSTIVE plans remain visible as preliminary feasibility evidence and are not part of this reference cohort.</p>
     """
 
 
