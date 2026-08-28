@@ -103,7 +103,17 @@
           }
         },
         "stridesElements": {"type": "object"},
-        "bytes": {"type": "object"},
+        "bytes": {
+          "type": "object",
+          "properties": {
+            "real": {"type": "integer", "minimum": 0},
+            "fullSpectrum": {"type": "integer", "minimum": 0},
+            "retainedSpectrum": {"type": "integer", "minimum": 0},
+            "modalSpectrum": {"type": "integer", "minimum": 0},
+            "verticalMatrixFamilySource": {"type": "integer", "minimum": 0},
+            "verticalBenchmarkEstimatedExplicitPeak": {"type": "integer", "minimum": 0}
+          }
+        },
         "permutationHashes": {"type": "object"}
       }
     },

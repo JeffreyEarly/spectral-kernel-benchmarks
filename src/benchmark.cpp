@@ -873,6 +873,14 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
 
     const auto physicalBytes = bytes(physicalElements, sizeof(Complex));
     const auto modalBytes = bytes(modalElements, sizeof(Complex));
+    const auto externalOperandBytes = physicalBytes + modalBytes;
+    const auto providerPersistentBytes = static_cast<std::uint64_t>(
+        complexProvider.persistentBytes() + splitProvider.persistentBytes());
+    const auto constructionPeakBytes = report.verticalMatrixFamilySourceBytes +
+        providerPersistentBytes + externalOperandBytes;
+    const auto outputInspectionPeakBytes = providerPersistentBytes + 3 * externalOperandBytes;
+    report.verticalBenchmarkEstimatedExplicitPeakBytes = std::max(
+        constructionPeakBytes, outputInspectionPeakBytes);
 
     auto makeRecord = [&](VerticalGemmProvider& provider, std::string id, std::string algorithmId,
                           std::vector<CorrectnessMetric> correctness) {

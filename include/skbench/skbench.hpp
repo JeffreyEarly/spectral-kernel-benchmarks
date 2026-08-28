@@ -466,6 +466,7 @@ struct BenchmarkReport {
     std::uint64_t retainedSpectrumBytes = 0;
     std::uint64_t modalSpectrumBytes = 0;
     std::uint64_t verticalMatrixFamilySourceBytes = 0;
+    std::uint64_t verticalBenchmarkEstimatedExplicitPeakBytes = 0;
     std::string verticalMatrixFamilyId = "orthonormal-dct2-truncated-v1";
     std::size_t verticalGroupCount = 0;
     std::size_t minimumVerticalGroupModes = 0;

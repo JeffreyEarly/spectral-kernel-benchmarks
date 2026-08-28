@@ -117,6 +117,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("20260828T015555382629Z-lyra", issue_8_html)
             self.assertIn("0.540× / 0.496×", issue_8_html)
             self.assertIn("K²-grouped matrix-family penalty", issue_8_html)
+            self.assertIn("explicit peak is the harness allocation high-water estimate", issue_8_html)
             self.assertIn("2045", issue_8_html)
             self.assertIn("7486", issue_8_html)
             self.assertIn("2.18× / 5.48×", issue_8_html)

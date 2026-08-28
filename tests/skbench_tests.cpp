@@ -606,6 +606,11 @@ int main() {
         require(groupedReport.verticalMatrixFamilySourceBytes ==
                     2 * groupedVertical.forward.size() * sizeof(double),
                 "grouped vertical GEMM source-matrix bytes");
+        const auto groupedProviderBytes = groupedReport.providers[0].explicitPersistentBytes +
+            groupedReport.providers[1].explicitPersistentBytes;
+        require(groupedReport.verticalBenchmarkEstimatedExplicitPeakBytes >
+                    groupedReport.verticalMatrixFamilySourceBytes + groupedProviderBytes,
+                "grouped vertical GEMM explicit peak-memory estimate");
         for (const auto& provider : groupedReport.providers) {
             require(provider.algorithmId.find("k2-group-serial") != std::string::npos,
                     "grouped vertical GEMM algorithm identity");

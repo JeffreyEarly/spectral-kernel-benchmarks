@@ -1075,6 +1075,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
             split_provider, "setup-component", "matrix preparation", "shared"
         )
         grouping = workload.get("grouping", {})
+        estimated_peak = workload.get("bytes", {}).get("verticalBenchmarkEstimatedExplicitPeak", 0)
         grouped = "k2-group-" in complex_provider["algorithmId"]
         family = "K²-grouped synthetic" if grouped else "Common DCT-II"
         group_count = int(grouping.get("verticalGroupCount", 1))
@@ -1105,7 +1106,8 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
             f'{format_ms(split_setup["medianSeconds"]) if split_setup else "—"}</td>'
             f'<td class="numeric">{format_bytes(complex_provider["memory"]["persistentBytes"])} / '
             f'{format_bytes(split_provider["memory"]["persistentBytes"])}<br><span class="muted">source setup-only '
-            f'{format_bytes(workload.get("bytes", {}).get("verticalMatrixFamilySource", 0))}</span></td>'
+            f'{format_bytes(workload.get("bytes", {}).get("verticalMatrixFamilySource", 0))}; explicit peak '
+            f'{format_bytes(estimated_peak) if estimated_peak else "legacy —"}</span></td>'
             f'<td class="numeric">{format_error(maximum_error)} / {format_error(maximum_l2)}</td>'
             "</tr>"
         )
@@ -1113,7 +1115,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return f"""
       <div class="table-scroll"><table class="experiment-evidence-table">
-        <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Setup is logical family generation / complex preparation / split preparation. Persistent memory is complex / split. No packing or representation conversion is timed.</caption>
+        <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Setup is logical family generation / complex preparation / split preparation. Persistent memory is complex / split; explicit peak is the harness allocation high-water estimate, not sampled RSS. No packing or representation conversion is timed.</caption>
         <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Matrix family</th><th scope="col">Scheduling</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Setup ms</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
         <tbody>{''.join(rows)}</tbody>
       </table></div>
