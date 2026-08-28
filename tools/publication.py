@@ -106,7 +106,10 @@ def _validate_result(path: Path, result: dict, run_id: str, grandfathered: bool)
             contract = execution[direction]
             _require_keys(contract, direction_keys, f"{context}.executionContract.{direction}")
             for placement_key in ("nativePlacement", "adapterPlacement"):
-                if contract[placement_key] not in {"in-place", "out-of-place", "unsupported"}:
+                allowed_placements = {"in-place", "out-of-place", "unsupported"}
+                if placement_key == "adapterPlacement":
+                    allowed_placements.add("out-of-place-view")
+                if contract[placement_key] not in allowed_placements:
                     raise ValueError(f"{context}.executionContract.{direction}.{placement_key}: invalid placement")
 
 

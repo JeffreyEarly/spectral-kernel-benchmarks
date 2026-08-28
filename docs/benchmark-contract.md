@@ -81,7 +81,7 @@ Every new run declares one numeric type, currently `float64` or `float32`, and i
 Every provider and algorithm records distinct forward and inverse execution contracts. Each direction states:
 
 - whether the provider-native operation is in-place, out-of-place, or unsupported;
-- whether the complete adapter is in-place, out-of-place, or unsupported;
+- whether the complete adapter is in-place, out-of-place, an out-of-place provider result exposed through a zero-copy logical view, or unsupported;
 - whether native execution destroys its input and whether the adapter preserves the caller's input;
 - whether repeated execution requires restoration or a preservation copy, and whether that work is included in primitive and adapter timing;
 - native and adapter input/output representation identifiers;

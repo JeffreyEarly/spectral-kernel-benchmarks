@@ -43,6 +43,19 @@ class PublicationValidationTests(unittest.TestCase):
         ]
         self.assertEqual(24, len(outer_increment))
         self.assertTrue(all(not bundle.result["environment"]["gitDirty"] for bundle in outer_increment))
+        retained_views = [
+            provider
+            for bundle in bundles
+            for provider in bundle.result["providers"]
+            if provider["id"] == "fftw-plane-major-retained-view"
+        ]
+        self.assertEqual(24, len(retained_views))
+        self.assertTrue(all(
+            provider["executionContract"][direction]["adapterPlacement"] ==
+                "out-of-place-view"
+            for provider in retained_views
+            for direction in ("forward", "inverse")
+        ))
 
     def test_duplicate_run_id_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

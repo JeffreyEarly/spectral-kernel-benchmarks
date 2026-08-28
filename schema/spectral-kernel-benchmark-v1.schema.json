@@ -288,7 +288,7 @@
       ],
       "properties": {
         "nativePlacement": {"enum": ["in-place", "out-of-place", "unsupported"]},
-        "adapterPlacement": {"enum": ["in-place", "out-of-place", "unsupported"]},
+        "adapterPlacement": {"enum": ["in-place", "out-of-place", "out-of-place-view", "unsupported"]},
         "destroysNativeInput": {"type": "boolean"},
         "adapterPreservesCallerInput": {"type": "boolean"},
         "requiresPreservationCopyForRepeatedExecution": {"type": "boolean"},

@@ -2352,6 +2352,7 @@ def retained_horizontal_closeout_synthesis(
     profiles = sorted({key[1] for key in records})
     rows: list[str] = []
     summaries: list[str] = []
+    ratio_stats: dict[str, list[tuple[str, str, float]]] = {}
     for provider_id in candidate_ids:
         ratios: list[float] = []
         wins = 0
@@ -2368,6 +2369,9 @@ def retained_horizontal_closeout_synthesis(
                 candidate_seconds = statistics.median(records[key])
                 ratio = candidate_seconds / min(controls)
                 ratios.append(ratio)
+                ratio_stats.setdefault(provider_id, []).append(
+                    (profile, direction, ratio)
+                )
                 wins += int(ratio < 1.0)
                 provider = providers_by_id[provider_id][0][1]
                 rows.append(
@@ -2458,11 +2462,29 @@ def retained_horizontal_closeout_synthesis(
         )
 
     status = "reference" if reference else "preliminary screen"
+    handoff = ""
+    if reference:
+        view_regressions = [
+            (profile, direction, ratio)
+            for profile, direction, ratio in ratio_stats.get(
+                "fftw-plane-major-retained-view", [],
+            )
+            if ratio >= 1.0
+        ]
+        regression_text = "; ".join(
+            f"{profile} {direction} {ratio:.3f}×"
+            for profile, direction, ratio in view_regressions
+        )
+        handoff = f"""
+      <h4>Issue #7 handoff</h4>
+      <p>The small policy set carried into issues #13 and #9 is: (1) the plane-major retained view as the conditional latency winner, with ready-inverse-representation construction charged downstream; (2) pruned outer-12 interleaved compact storage as the self-contained materialized control; and (3) full plane-major fused split only as the representation bridge to split vertical GEMM. The view loses to the faster materialized control in {len(view_regressions)} cells ({escaped(regression_text)}), so it is not a universal shape-independent winner. Fused split has no reference cell win and is not a standalone horizontal recommendation. Pruned fused split and Float64 vDSP stop as published negative evidence.</p>
+        """
     return f"""
       <h3>Representation-boundary close-out</h3>
       <p>This append-only {status} increment asks whether an immutable plane-major retained view or fused compact split selection can improve on the established plane-major full and partial-column-pruned outer-12 controls. It fixes the logical radial two-thirds operator, six production workloads, Float64 precision, FFTW build and planning effort, worker topology, fixtures, and normalization. It changes only the full/pruned algorithm, retained representation, and whether selection, conversion, zero fill, embedding, and optional normalization are fused.</p>
       <p>The retained view times no forward gather. Its inverse total starts from a ready disposable zero-padded provider-order spectrum because multidimensional FFTW c2r may destroy input; producing that representation remains work for issue #13, not an elided production cost. Compact split candidates include their fused movement in the complete total. Raw primitives, movement components, complete totals, explicit representation storage, placement/liveness, and correctness remain separate below.{normalization_note}</p>
       <ul>{''.join(f'<li>{summary}</li>' for summary in summaries)}</ul>
+      {handoff}
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Candidate complete retained median versus the faster matched plane-major full or pruned control. Values below one favor the candidate.</caption>
         <thead><tr><th scope="col">Profile</th><th scope="col">Candidate</th><th scope="col">Direction</th><th scope="col">Median</th><th scope="col">Ratio</th><th scope="col">Processes</th></tr></thead>
@@ -2486,7 +2508,11 @@ def retained_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
             total_inverse = timing(provider, "uninstrumented-total", "inverse")
             if total_forward is None or total_inverse is None:
                 continue
-            if bundle.publication["status"] == "reference":
+            if (
+                bundle.publication["status"] == "reference"
+                and bundle.publication.get("incrementId") ==
+                    "retained-horizontal-finalist-reference-v1"
+            ):
                 name = retained_horizontal_candidate_name(provider)
                 reference.setdefault((profile, name, "forward"), []).append(
                     float(total_forward["medianSeconds"])
