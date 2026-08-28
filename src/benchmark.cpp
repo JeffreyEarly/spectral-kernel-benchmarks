@@ -1011,6 +1011,378 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     return report;
 }
 
+BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options) {
+    if (options.providers != "both") {
+        throw std::invalid_argument(
+            "ordering-packing currently compares both Accelerate GEMM representations; omit --providers.");
+    }
+    if (options.workers != 0) {
+        throw std::invalid_argument(
+            "ordering-packing thread limits are process settings; use VECLIB_MAXIMUM_THREADS in an isolated run.");
+    }
+    if (options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument(
+            "the first ordering-packing increment requires --vertical-gemm-family k2-grouped.");
+    }
+    const VerticalGemmStrategy requestedStrategy{
+        verticalGemmScheduleNamed(options.verticalGemmSchedule), options.verticalGemmOuterWorkers};
+    if (requestedStrategy.schedule == VerticalGemmSchedule::serial && requestedStrategy.outerWorkers != 1) {
+        throw std::invalid_argument(
+            "ordering-packing serial scheduling requires --vertical-gemm-outer-workers 1.");
+    }
+
+    const auto selected = profileNamed(options.profile);
+    const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
+    const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
+    if (sampleCount == 0) throw std::invalid_argument("ordering-packing requires at least one sample.");
+
+    BenchmarkReport report;
+    report.profile = selected.name;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = sampleCount;
+    report.workload = selected.workload;
+    report.environment = environmentRecord();
+    report.runId = utcTimestamp(true) + "-" + report.environment.hostname;
+    const auto configuredThreads = configuredAccelerateThreads(report.environment);
+    if (requestedStrategy.outerWorkers > 1 && configuredThreads != 1) {
+        throw std::invalid_argument(
+            "ordering-packing outer scheduling requires VECLIB_MAXIMUM_THREADS=1 to avoid nested BLAS oversubscription.");
+    }
+
+    const auto& workload = report.workload;
+    const auto modes = retainedHorizontalModes(workload);
+    const auto fixtureStart = Clock::now();
+    auto vertical = squaredWavenumberVerticalFixture(workload, modes);
+    const auto fixtureGenerationSeconds =
+        std::chrono::duration<double>(Clock::now() - fixtureStart).count();
+    const auto equivalenceScanStart = Clock::now();
+    const auto adjacentEquivalentPairs = adjacentEquivalentVerticalGroupPairs(vertical);
+    const auto equivalenceScanSeconds =
+        std::chrono::duration<double>(Clock::now() - equivalenceScanStart).count();
+    const auto columns = modes.size() * workload.fields;
+    const auto physicalElements = workload.nz * columns;
+    const auto modalElements = vertical.nj * columns;
+
+    report.retainedHorizontalModeCount = modes.size();
+    report.retainedModeOrderHash = modeOrderHash(modes);
+    report.wvmFullSpectrumOrderHash = wvmSpectrumOrderHash(workload);
+    report.fullRealBytes = bytes(workload.realElements(), sizeof(double));
+    report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
+    report.retainedSpectrumBytes = bytes(physicalElements, sizeof(Complex));
+    report.modalSpectrumBytes = bytes(modalElements, sizeof(Complex));
+    report.verticalMatrixFamilySourceBytes = bytes(
+        vertical.forward.size() + vertical.inverse.size(), sizeof(double));
+    report.verticalMatrixFamilyId = vertical.id;
+    report.verticalGroupCount = vertical.groups.size();
+    report.verticalGroupOrderHash = verticalModeGroupHash(vertical.groups);
+    std::vector<double> groupModes;
+    std::vector<double> groupColumns;
+    groupModes.reserve(vertical.groups.size());
+    groupColumns.reserve(vertical.groups.size());
+    for (const auto& group : vertical.groups) {
+        groupModes.push_back(static_cast<double>(group.modeCount));
+        groupColumns.push_back(static_cast<double>(group.modeCount * workload.fields));
+    }
+    report.minimumVerticalGroupModes =
+        static_cast<std::size_t>(*std::min_element(groupModes.begin(), groupModes.end()));
+    report.medianVerticalGroupModes = median(groupModes);
+    report.maximumVerticalGroupModes =
+        static_cast<std::size_t>(*std::max_element(groupModes.begin(), groupModes.end()));
+    report.minimumVerticalGroupColumns =
+        static_cast<std::size_t>(*std::min_element(groupColumns.begin(), groupColumns.end()));
+    report.medianVerticalGroupColumns = median(groupColumns);
+    report.maximumVerticalGroupColumns =
+        static_cast<std::size_t>(*std::max_element(groupColumns.begin(), groupColumns.end()));
+
+    const auto physicalInput = verticalComplexFixture(
+        physicalElements, options.seed ^ UINT64_C(0x243f6a8885a308d3));
+    const auto modalInput = verticalComplexFixture(
+        modalElements, options.seed ^ UINT64_C(0x13198a2e03707344));
+    std::vector<Complex> fullInput(workload.spectrumElements());
+    embedRetained(workload, modes, physicalInput.data(), fullInput.data());
+    const auto probes = verticalProbeColumns(columns);
+    const auto forwardOracle = directVerticalForwardProbes(
+        vertical, workload, probes, physicalInput.data());
+    const auto inverseOracle = directVerticalInverseProbes(
+        vertical, workload, probes, modalInput.data());
+
+    VerticalGemmProvider complexProvider(
+        workload, vertical, VerticalGemmLayout::complexInterleaved, requestedStrategy);
+    VerticalGemmProvider splitProvider(
+        workload, vertical, VerticalGemmLayout::split, requestedStrategy);
+    if (!complexProvider.supported() || !splitProvider.supported()) {
+        throw std::runtime_error(
+            !complexProvider.supported() ? complexProvider.capability() : splitProvider.capability());
+    }
+    complexProvider.packPhysicalInputFromWvm(modes, fullInput.data());
+    splitProvider.packPhysicalInputFromWvm(modes, fullInput.data());
+    complexProvider.loadModalInput(modalInput.data());
+    splitProvider.loadModalInput(modalInput.data());
+    vertical.forward = {};
+    vertical.inverse = {};
+
+    complexProvider.executeForward();
+    complexProvider.executeInverse();
+    splitProvider.executeForward();
+    splitProvider.executeInverse();
+    std::vector<Complex> complexForward(modalElements);
+    std::vector<Complex> complexInverse(physicalElements);
+    std::vector<Complex> splitForward(modalElements);
+    std::vector<Complex> splitInverse(physicalElements);
+    complexProvider.copyForwardOutput(complexForward.data());
+    complexProvider.copyInverseOutput(complexInverse.data());
+    splitProvider.copyForwardOutput(splitForward.data());
+    splitProvider.copyInverseOutput(splitInverse.data());
+    const auto complexForwardProbes = gatherVerticalProbes(complexForward.data(), vertical.nj, probes);
+    const auto complexInverseProbes = gatherVerticalProbes(complexInverse.data(), workload.nz, probes);
+    const auto splitForwardProbes = gatherVerticalProbes(splitForward.data(), vertical.nj, probes);
+    const auto splitInverseProbes = gatherVerticalProbes(splitInverse.data(), workload.nz, probes);
+
+    std::vector<Complex> expectedFull(workload.spectrumElements());
+    std::vector<Complex> complexFull(workload.spectrumElements());
+    std::vector<Complex> splitFull(workload.spectrumElements());
+    embedRetained(workload, modes, complexInverse.data(), expectedFull.data());
+    complexProvider.embedPhysicalOutputToWvm(modes, complexFull.data());
+    splitProvider.embedPhysicalOutputToWvm(modes, splitFull.data());
+    std::vector<Complex> complexGathered(physicalElements);
+    std::vector<Complex> splitGathered(physicalElements);
+    gatherRetained(workload, modes, complexFull.data(), complexGathered.data());
+    gatherRetained(workload, modes, splitFull.data(), splitGathered.data());
+
+    const auto physicalBytes = report.retainedSpectrumBytes;
+    const auto modalBytes = report.modalSpectrumBytes;
+    const auto fullBytes = report.fullSpectrumBytes;
+    const auto conjugateBoundaryModes = static_cast<std::uint64_t>(std::count_if(
+        modes.begin(), modes.end(), [&](const RetainedMode& mode) {
+            return mode.storedKx == 0 && mode.storedKy != 0 &&
+                2 * mode.storedKy != workload.ny;
+        }));
+    const auto conjugateBoundaryBytes = conjugateBoundaryModes *
+        static_cast<std::uint64_t>(workload.planes()) * sizeof(Complex);
+    const auto forwardPackingBytes = 2 * physicalBytes;
+    const auto inverseEmbeddingBytes = fullBytes + 2 * physicalBytes + conjugateBoundaryBytes;
+    const auto providerPersistentBytes = static_cast<std::uint64_t>(
+        complexProvider.persistentBytes() + splitProvider.persistentBytes());
+    const auto constructionPeak = report.verticalMatrixFamilySourceBytes + providerPersistentBytes +
+        physicalBytes + modalBytes + fullBytes;
+    const auto inspectionPeak = providerPersistentBytes + 5 * physicalBytes + 3 * modalBytes +
+        4 * fullBytes + bytes(forwardOracle.size() + inverseOracle.size(), sizeof(Complex));
+    report.orderingPackingEstimatedExplicitPeakBytes = std::max(constructionPeak, inspectionPeak);
+
+    auto makeRecord = [&](VerticalGemmProvider& provider, std::string id,
+                          std::vector<CorrectnessMetric> correctness,
+                          std::vector<Complex>& embeddedOutput) {
+        ProviderRecord record;
+        const auto split = provider.layout() == VerticalGemmLayout::split;
+        const auto representation = split
+            ? "vertical-columns-split-complex"
+            : "vertical-columns-interleaved-complex";
+        const auto providerStrategy = provider.strategy();
+        const auto schedulingId = verticalGemmSchedulingId(providerStrategy);
+        record.id = std::move(id);
+        record.version = "system";
+        record.libraryIdentity = provider.libraryIdentity();
+        record.algorithmId = split
+            ? "matlab-radial-gather-to-split-k2-" + options.verticalGemmSchedule
+            : "matlab-radial-gather-to-interleaved-k2-" + options.verticalGemmSchedule;
+        record.nativeRepresentationId = representation;
+        record.modeOrderId = "WVM-frequency-major-to-k2-group-contiguous;column=field+fields*radial-mode";
+        record.schedulingId = schedulingId;
+        record.sourceIdentity = "Apple Accelerate system framework plus skbench movement adapter";
+        record.configureFlags = "system framework";
+        record.compilerFlags = report.environment.compilerFlags;
+        record.planningConfiguration = vertical.id + "; MATLAB-style radial gather baseline; K=" +
+            std::to_string(columns) + "; groups=" + std::to_string(vertical.groups.size()) +
+            "; exactly equivalent adjacent matrix pairs=" +
+            std::to_string(adjacentEquivalentPairs) + "; reuse counts=2,4,8; " + schedulingId;
+        record.workers = configuredThreads * provider.outerWorkers();
+        record.internalWorkers = configuredThreads;
+        record.outerWorkers = provider.outerWorkers();
+        record.execution = verticalGemmExecutionContract(provider, workload);
+        record.execution.forward.adapterInputRepresentationId =
+            "wvm-frequency-major-interleaved-half-spectrum";
+        record.execution.forward.adapterOutputRepresentationId = representation;
+        record.execution.forward.adapterPreservesCallerInput = true;
+        record.execution.forward.reusableWorkBytes = physicalBytes;
+        record.execution.inverse.adapterInputRepresentationId = representation;
+        record.execution.inverse.adapterOutputRepresentationId =
+            "wvm-frequency-major-interleaved-half-spectrum";
+        record.execution.inverse.adapterPreservesCallerInput = true;
+        record.execution.inverse.reusableWorkBytes = fullBytes;
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.scratchBytes = 0;
+        record.opaqueProviderMemory = provider.hasOpaqueSchedulerMemory();
+        record.otherSetupSeconds = provider.matrixPreparationSeconds() + provider.schedulerSetupSeconds();
+        record.allocationSeconds = provider.allocationSeconds();
+        record.planningSeconds = 0.0;
+        record.ledger = {
+            {"setup/planning", StageState::setupOnly,
+             "prepare immutable K-squared matrix family and persistent outer scheduler"},
+            {"raw forward FFT", StageState::unsupported,
+             "excluded from this first issue #13 movement increment"},
+            {"horizontal retention", StageState::executed,
+             "gather retained modes by logical mode key from WVM frequency-major storage"},
+            {"representation conversion", split ? StageState::fused : StageState::elided,
+             split ? "interleaved-to-split conversion is fused into the gather"
+                   : "gather remains interleaved"},
+            {"permutation/packing", StageState::executed,
+             "MATLAB-style radial order and vertical-contiguous columns are materialized"},
+            {"raw forward vertical MM", StageState::executed,
+             "issue #8 K-squared grouped finalist primitive"},
+            {"modal work", StageState::unsupported,
+             "modal physics and nonlinear flux are excluded"},
+            {"raw inverse vertical MM", StageState::executed,
+             "issue #8 K-squared grouped finalist primitive"},
+            {"horizontal embedding", StageState::executed,
+             "zero full half-spectrum and scatter retained modes with Hermitian boundary repair"},
+            {"raw inverse FFT", StageState::unsupported,
+             "excluded from this first issue #13 movement increment"},
+            {"uninstrumented total", StageState::executed,
+             "synthetic movement-plus-vertical totals only; complete pipeline belongs to issue #9"}};
+        record.correctness = std::move(correctness);
+
+        const auto matrixBytes = static_cast<std::uint64_t>(provider.matrixBytesPerDirection());
+        const auto matrixReads = split ? 2 * matrixBytes : matrixBytes;
+        const auto rawForwardBytes = matrixReads + physicalBytes + modalBytes;
+        const auto rawInverseBytes = matrixReads + modalBytes + physicalBytes;
+        record.timings.push_back(series(
+            "setup-shared-component", "logical matrix-family fixture generation", "shared",
+            StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+            {fixtureGenerationSeconds}));
+        record.timings.push_back(series(
+            "setup-shared-component", "adjacent matrix equivalence scan", "shared",
+            StageState::setupOnly, report.verticalMatrixFamilySourceBytes,
+            {equivalenceScanSeconds}));
+        record.timings.push_back(series(
+            "setup-component", "matrix preparation", "shared", StageState::setupOnly,
+            2 * matrixBytes, {provider.matrixPreparationSeconds()}));
+        record.timings.push_back(series(
+            "setup-component", "persistent outer scheduler creation", "shared",
+            StageState::setupOnly, provider.schedulerPersistentBytes(),
+            {provider.schedulerSetupSeconds()}));
+        record.timings.push_back(series(
+            "primitive", "raw vertical GEMM", "forward", StageState::executed,
+            rawForwardBytes,
+            measure(warmups, sampleCount, [&] { provider.executeForward(); })));
+        record.timings.push_back(series(
+            "primitive", "raw vertical GEMM", "inverse", StageState::executed,
+            rawInverseBytes,
+            measure(warmups, sampleCount, [&] { provider.executeInverse(); })));
+        record.timings.push_back(series(
+            "adapter-component", "WVM retained gather and radial pack", "forward",
+            StageState::executed, forwardPackingBytes,
+            measure(warmups, sampleCount, [&] {
+                provider.packPhysicalInputFromWvm(modes, fullInput.data());
+            })));
+        record.timings.push_back(series(
+            "adapter-component", "WVM scatter and Hermitian embed", "inverse",
+            StageState::executed, inverseEmbeddingBytes,
+            measure(warmups, sampleCount, [&] {
+                provider.embedPhysicalOutputToWvm(modes, embeddedOutput.data());
+            })));
+        record.timings.push_back(series(
+            "adapter-total", "one-shot movement plus vertical GEMM", "forward",
+            StageState::executed, forwardPackingBytes + rawForwardBytes,
+            measure(warmups, sampleCount, [&] {
+                provider.packPhysicalInputFromWvm(modes, fullInput.data());
+                provider.executeForward();
+            })));
+        record.timings.push_back(series(
+            "adapter-total", "one-shot movement plus vertical GEMM", "inverse",
+            StageState::executed, rawInverseBytes + inverseEmbeddingBytes,
+            measure(warmups, sampleCount, [&] {
+                provider.executeInverse();
+                provider.embedPhysicalOutputToWvm(modes, embeddedOutput.data());
+            })));
+
+        for (const std::size_t reuseCount : {2U, 4U, 8U}) {
+            const auto suffix = "-r" + std::to_string(reuseCount);
+            record.timings.push_back(series(
+                "reuse-total", "boundary-movement-each-use", "forward" + suffix,
+                StageState::executed,
+                reuseCount * (forwardPackingBytes + rawForwardBytes),
+                measure(warmups, sampleCount, [&] {
+                    for (std::size_t use = 0; use < reuseCount; ++use) {
+                        provider.packPhysicalInputFromWvm(modes, fullInput.data());
+                        provider.executeForward();
+                    }
+                })));
+            record.timings.push_back(series(
+                "reuse-total", "persistent-compact-boundary-once", "forward" + suffix,
+                StageState::executed,
+                forwardPackingBytes + reuseCount * rawForwardBytes,
+                measure(warmups, sampleCount, [&] {
+                    provider.packPhysicalInputFromWvm(modes, fullInput.data());
+                    for (std::size_t use = 0; use < reuseCount; ++use) {
+                        provider.executeForward();
+                    }
+                })));
+            record.timings.push_back(series(
+                "reuse-total", "boundary-movement-each-use", "inverse" + suffix,
+                StageState::executed,
+                reuseCount * (rawInverseBytes + inverseEmbeddingBytes),
+                measure(warmups, sampleCount, [&] {
+                    for (std::size_t use = 0; use < reuseCount; ++use) {
+                        provider.executeInverse();
+                        provider.embedPhysicalOutputToWvm(modes, embeddedOutput.data());
+                    }
+                })));
+            record.timings.push_back(series(
+                "reuse-total", "persistent-compact-boundary-once", "inverse" + suffix,
+                StageState::executed,
+                reuseCount * rawInverseBytes + inverseEmbeddingBytes,
+                measure(warmups, sampleCount, [&] {
+                    for (std::size_t use = 0; use < reuseCount; ++use) {
+                        provider.executeInverse();
+                    }
+                    provider.embedPhysicalOutputToWvm(modes, embeddedOutput.data());
+                })));
+        }
+        return record;
+    };
+
+    report.providers.push_back(makeRecord(
+        complexProvider,
+        "ordering-pack-accelerate-zgemm",
+        {
+            metric("forward selected modes versus independent scalar oracle",
+                   complexForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+            metric("inverse selected modes versus independent scalar oracle",
+                   complexInverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+            metric("forward full compact output versus split formulation",
+                   complexForward.data(), splitForward.data(), complexForward.size()),
+            metric("inverse full compact output versus split formulation",
+                   complexInverse.data(), splitInverse.data(), complexInverse.size()),
+            metric("reverse WVM embedding versus independent embedding",
+                   complexFull.data(), expectedFull.data(), complexFull.size()),
+            metric("reverse embedding mode-key round trip",
+                   complexGathered.data(), complexInverse.data(), complexInverse.size()),
+        },
+        complexFull));
+    report.providers.push_back(makeRecord(
+        splitProvider,
+        "ordering-pack-accelerate-split-dgemm",
+        {
+            metric("forward selected modes versus independent scalar oracle",
+                   splitForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+            metric("inverse selected modes versus independent scalar oracle",
+                   splitInverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+            metric("forward full compact output versus complex formulation",
+                   splitForward.data(), complexForward.data(), splitForward.size()),
+            metric("inverse full compact output versus complex formulation",
+                   splitInverse.data(), complexInverse.data(), splitInverse.size()),
+            metric("reverse WVM embedding versus independent embedding",
+                   splitFull.data(), expectedFull.data(), splitFull.size()),
+            metric("reverse embedding mode-key round trip",
+                   splitGathered.data(), splitInverse.data(), splitInverse.size()),
+        },
+        splitFull));
+    report.status = std::all_of(report.providers.begin(), report.providers.end(), correctnessPassed)
+        ? "passed" : "failed";
+    return report;
+}
+
 ValidationReport validateBenchmark(std::string_view profileName) {
     const auto requested = profileNamed(profileName);
     Workload workload = requested.name == "smoke" ? requested.workload : Workload{8, 8, 7, 2, 1.0, 1.0, true};
@@ -1120,7 +1492,10 @@ ValidationReport validateBenchmark(std::string_view profileName) {
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
     if (options.kernel == "vertical-gemm") return runVerticalGemmBenchmark(options);
-    if (options.kernel != "fft") throw std::invalid_argument("kernel must be either 'fft' or 'vertical-gemm'.");
+    if (options.kernel == "ordering-packing") return runOrderingPackingBenchmark(options);
+    if (options.kernel != "fft") {
+        throw std::invalid_argument("kernel must be 'fft', 'vertical-gemm', or 'ordering-packing'.");
+    }
     auto selected = profileNamed(options.profile);
     if (options.providers != "both" && options.providers != "fftw") {
         throw std::invalid_argument("providers must be either 'both' or 'fftw'.");

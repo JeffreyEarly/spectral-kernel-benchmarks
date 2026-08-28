@@ -154,7 +154,7 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
     stream << "\"fullSpectrum\":{\"z\":1,\"field\":" << workload.nz << ",\"kx\":" << workload.planes() << ",\"ky\":" << workload.planes() * workload.nxHalf() << "},";
     stream << "\"retainedSpectrum\":{\"z\":1,\"field\":" << workload.nz << ",\"mode\":" << workload.planes() << "},";
     stream << "\"modalSpectrum\":{\"j\":1,\"field\":" << workload.retainedVerticalModes() << ",\"mode\":" << workload.retainedVerticalModes() * workload.fields << "}},\n";
-    stream << "    \"bytes\":{\"real\":" << report.fullRealBytes << ",\"fullSpectrum\":" << report.fullSpectrumBytes << ",\"retainedSpectrum\":" << report.retainedSpectrumBytes << ",\"modalSpectrum\":" << report.modalSpectrumBytes << ",\"verticalMatrixFamilySource\":" << report.verticalMatrixFamilySourceBytes << ",\"verticalBenchmarkEstimatedExplicitPeak\":" << report.verticalBenchmarkEstimatedExplicitPeakBytes << "},\n";
+    stream << "    \"bytes\":{\"real\":" << report.fullRealBytes << ",\"fullSpectrum\":" << report.fullSpectrumBytes << ",\"retainedSpectrum\":" << report.retainedSpectrumBytes << ",\"modalSpectrum\":" << report.modalSpectrumBytes << ",\"verticalMatrixFamilySource\":" << report.verticalMatrixFamilySourceBytes << ",\"verticalBenchmarkEstimatedExplicitPeak\":" << report.verticalBenchmarkEstimatedExplicitPeakBytes << ",\"orderingPackingEstimatedExplicitPeak\":" << report.orderingPackingEstimatedExplicitPeakBytes << "},\n";
     stream << "    \"permutationHashes\":{\"retainedModeOrder\":"; quote(stream, report.retainedModeOrderHash);
     stream << ",\"wvmFullSpectrumOrder\":"; quote(stream, report.wvmFullSpectrumOrderHash); stream << "}\n";
     stream << "  },\n";

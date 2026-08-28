@@ -111,7 +111,8 @@
             "retainedSpectrum": {"type": "integer", "minimum": 0},
             "modalSpectrum": {"type": "integer", "minimum": 0},
             "verticalMatrixFamilySource": {"type": "integer", "minimum": 0},
-            "verticalBenchmarkEstimatedExplicitPeak": {"type": "integer", "minimum": 0}
+            "verticalBenchmarkEstimatedExplicitPeak": {"type": "integer", "minimum": 0},
+            "orderingPackingEstimatedExplicitPeak": {"type": "integer", "minimum": 0}
           }
         },
         "permutationHashes": {"type": "object"}

@@ -1471,6 +1471,170 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+def ordering_packing_crossover(provider: dict, direction: str) -> tuple[int | None, float | None]:
+    final_speedup: float | None = None
+    crossover: int | None = None
+    for reuse_count in (2, 4, 8):
+        direction_id = f"{direction}-r{reuse_count}"
+        repeated = stage_timing(
+            provider, "reuse-total", "boundary-movement-each-use", direction_id
+        )
+        persistent = stage_timing(
+            provider, "reuse-total", "persistent-compact-boundary-once", direction_id
+        )
+        if repeated is None or persistent is None:
+            continue
+        speedup = float(repeated["medianSeconds"]) / float(persistent["medianSeconds"])
+        if crossover is None and speedup > 1.0:
+            crossover = reuse_count
+        if reuse_count == 8:
+            final_speedup = speedup
+    return crossover, final_speedup
+
+
+def ordering_packing_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in sorted(
+        bundles,
+        key=lambda item: (
+            item.result["workload"]["Nx"],
+            item.result["workload"]["Nz"],
+            item.result["workload"]["fields"],
+            item.result["providers"][0]["scheduling"]["outerWorkers"],
+            item.result["run"]["id"],
+        ),
+    ):
+        result = bundle.result
+        workload = result["workload"]
+        run = result["run"]
+        peak = int(workload.get("bytes", {}).get("orderingPackingEstimatedExplicitPeak", 0))
+        for provider in result["providers"]:
+            raw_forward = timing(provider, "primitive", "forward")
+            raw_inverse = timing(provider, "primitive", "inverse")
+            pack = timing(provider, "adapter-component", "forward")
+            embed = timing(provider, "adapter-component", "inverse")
+            combined_forward = timing(provider, "adapter-total", "forward")
+            combined_inverse = timing(provider, "adapter-total", "inverse")
+            if None in (
+                raw_forward,
+                raw_inverse,
+                pack,
+                embed,
+                combined_forward,
+                combined_inverse,
+            ):
+                raise ValueError(f"Incomplete ordering/packing evidence in {run['id']}")
+            forward_crossover, forward_r8 = ordering_packing_crossover(provider, "forward")
+            inverse_crossover, inverse_r8 = ordering_packing_crossover(provider, "inverse")
+            forward_r8_text = "not measured" if forward_r8 is None else f"{forward_r8:.2f}×"
+            inverse_r8_text = "not measured" if inverse_r8 is None else f"{inverse_r8:.2f}×"
+            maximum_error = maximum_correctness_error(provider)
+            maximum_l2 = maximum_l2_error(provider)
+            representation = "Split" if "split" in provider["algorithmId"] else "Interleaved"
+            schedule = (
+                "dynamic" if "outer-dynamic" in provider["algorithmId"] else "static"
+            )
+            rows.append(
+                "<tr>"
+                f'<td><a href="../../runs/{quote(run["id"])}/index.html">{escaped(run["id"])}</a><br>'
+                f'<span class="muted">{publication_badge(bundle.publication["status"])}</span></td>'
+                f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
+                f'fields={workload["fields"]}</span></td>'
+                f'<td>{representation}<br><span class="muted">{schedule}-{provider["scheduling"]["outerWorkers"]}</span></td>'
+                f'<td class="numeric">{timing_with_interval(pack)} / {timing_with_interval(embed)}<br>'
+                f'<span class="muted">{format_bytes(pack["bytesMoved"])} / {format_bytes(embed["bytesMoved"])}</span></td>'
+                f'<td class="numeric">{timing_with_interval(raw_forward)} / {timing_with_interval(raw_inverse)}</td>'
+                f'<td class="numeric">{timing_with_interval(combined_forward)} / '
+                f'{timing_with_interval(combined_inverse)}</td>'
+                f'<td class="numeric">{float(pack["medianSeconds"]) / float(raw_forward["medianSeconds"]):.3f}× / '
+                f'{float(embed["medianSeconds"]) / float(raw_inverse["medianSeconds"]):.3f}×</td>'
+                f'<td class="numeric">R={forward_crossover if forward_crossover is not None else "none"} / '
+                f'R={inverse_crossover if inverse_crossover is not None else "none"}<br>'
+                f'<span class="muted">R8 {forward_r8_text} / {inverse_r8_text}</span></td>'
+                f'<td class="numeric">{format_bytes(provider["memory"]["persistentBytes"])}<br>'
+                f'<span class="muted">peak {format_bytes(peak) if peak else "not reported"}</span></td>'
+                f'<td class="numeric">{format_error(maximum_error)} / {format_error(maximum_l2)}</td>'
+                "</tr>"
+            )
+    if not rows:
+        return ""
+    return f"""
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Forward / inverse medians with deterministic percentile-bootstrap 95% intervals. Movement is WVM retained gather/radial pack / zero-fill scatter/Hermitian embed. Primitive GEMM excludes movement; combined is the uninstrumented one-shot movement-plus-GEMM boundary. Movement/primitive is not an additive reconstruction of combined time. Crossover is the first sampled reuse count where one boundary movement around persistent compact storage beats movement on every use; R8 reports repeated-boundary / persistent speedup.</caption>
+        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Representation and schedule</th><th scope="col">Movement ms and bytes</th><th scope="col">Primitive GEMM ms</th><th scope="col">Combined ms</th><th scope="col">Movement / primitive</th><th scope="col">Persistent crossover F/I</th><th scope="col">Memory</th><th scope="col">Max / L2 error</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+    """
+
+
+def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
+    if not bundles:
+        return ""
+    latest_commit = max(
+        {bundle.result["environment"]["gitCommit"] for bundle in bundles},
+        key=lambda commit: max(
+            bundle.result["environment"]["timestampUtc"]
+            for bundle in bundles
+            if bundle.result["environment"]["gitCommit"] == commit
+        ),
+    )
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.result["environment"]["gitCommit"] == latest_commit
+    ]
+    profiles = sorted({bundle.result["run"]["profile"] for bundle in cohort})
+    if not profiles:
+        return ""
+    schedule_winners = {"dynamic": 0, "static": 0}
+    representation_winners = {"split": 0, "interleaved": 0}
+    movement_ratios: list[float] = []
+    crossovers: list[int | None] = []
+    peak_bytes: list[int] = []
+    errors: list[float] = []
+    for profile in profiles:
+        candidates: list[tuple[float, dict, str]] = []
+        for bundle in cohort:
+            if bundle.result["run"]["profile"] != profile:
+                continue
+            peak_bytes.append(int(bundle.result["workload"]["bytes"].get(
+                "orderingPackingEstimatedExplicitPeak", 0
+            )))
+            for provider in bundle.result["providers"]:
+                for direction in ("forward", "inverse"):
+                    raw = timing(provider, "primitive", direction)
+                    movement = timing(provider, "adapter-component", direction)
+                    combined = timing(provider, "adapter-total", direction)
+                    movement_ratios.append(
+                        float(movement["medianSeconds"]) / float(raw["medianSeconds"])
+                    )
+                    crossovers.append(ordering_packing_crossover(provider, direction)[0])
+                    candidates.append((float(combined["medianSeconds"]), provider, direction))
+                errors.extend(
+                    float(metric[name])
+                    for metric in provider["correctness"]
+                    for name in ("maximumRelativeError", "relativeL2Error")
+                    if metric.get(name) is not None
+                )
+        for direction in ("forward", "inverse"):
+            _, winner, _ = min(
+                (item for item in candidates if item[2] == direction),
+                key=lambda item: item[0],
+            )
+            schedule_winners[
+                "dynamic" if "outer-dynamic" in winner["algorithmId"] else "static"
+            ] += 1
+            representation_winners[
+                "split" if "split" in winner["algorithmId"] else "interleaved"
+            ] += 1
+    sampled_crossovers = [value for value in crossovers if value is not None]
+    return f"""
+      <h3>First bounded MATLAB-style baseline</h3>
+      <p>This increment measures one concrete policy, not a required mathematical order. It starts with a WVM frequency-major interleaved half-spectrum, gathers retained modes directly into the final radial/K²-grouped vertical input, executes the issue #8 static-12 or dynamic-16 kernel, and performs the reverse zero-fill scatter/Hermitian embed. It holds fixtures, logical mode keys, matrix family, precision, and one requested BLAS thread fixed. Raw FFT execution, modal physics, nonlinear flux, 512-class workloads, no-reorder kernels, provider-native fusion, and tiled packing remain outside the timed boundary.</p>
+      <p>The latest same-commit cohort contains {len(cohort)} runs across {len(profiles)} profiles and {2 * len(profiles)} forward/inverse combined winners. Dynamic scheduling wins {schedule_winners["dynamic"]} cells and static {schedule_winners["static"]}; split storage wins {representation_winners["split"]} and interleaved {representation_winners["interleaved"]}. Movement costs span {min(movement_ratios):.3f}×–{max(movement_ratios):.3f}× of the separately measured primitive. Persistent compact storage first wins at a sampled reuse count in {len(sampled_crossovers)} of {len(crossovers)} representation/schedule/direction cells; {sum(value == 2 for value in sampled_crossovers)} cross at R=2. Explicit peaks span {format_bytes(min(peak_bytes))}–{format_bytes(max(peak_bytes))}, and the largest correctness error is {format_error(max(errors))}.</p>
+      <p>This establishes the movement denominator and policies to compare next. It cannot yet answer whether movement is worthwhile versus a correct strided/no-reorder vertical kernel because that competing algorithm has not been implemented.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
@@ -1478,6 +1642,8 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
         return vdsp_batch_evidence_table(bundles)
     if experiment["id"] == "issue-008-vertical-projection-gemm":
         return vertical_gemm_evidence_table(bundles)
+    if experiment["id"] == "issue-013-ordering-packing-crossover":
+        return ordering_packing_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
     if provider_id is None or not bundles:
         return ""
@@ -1555,6 +1721,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = vdsp_batch_synthesis(related)
     elif experiment_id == "issue-008-vertical-projection-gemm":
         synthesis = vertical_gemm_synthesis(related)
+    elif experiment_id == "issue-013-ordering-packing-crossover":
+        synthesis = ordering_packing_synthesis(related)
     else:
         synthesis = ""
     content = f"""

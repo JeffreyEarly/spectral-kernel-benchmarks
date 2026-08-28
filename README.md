@@ -30,6 +30,7 @@ build/release/skbench run --profile wvm-historical-256-nz65-f3 --vdsp-batch-stra
 VECLIB_MAXIMUM_THREADS=12 build/release/skbench run --kernel vertical-gemm --profile wvm-historical-256-nz65-f3
 VECLIB_MAXIMUM_THREADS=12 build/release/skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --profile wvm-historical-256-nz65-f3
 VECLIB_MAXIMUM_THREADS=1 build/release/skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 12 --profile wvm-historical-256-nz65-f3
+VECLIB_MAXIMUM_THREADS=1 build/release/skbench run --kernel ordering-packing --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 16 --profile wvm-historical-256-nz65-f3
 build/release/skbench compare --input results/local/<run>.csv
 ```
 
@@ -80,6 +81,13 @@ python3 tools/run_vertical_gemm_sweep.py --family k2-grouped --thread-limits 1 -
 ```
 
 These bounded increments publish primitive complex and split-real GEMM times, forward and inverse directions, group distributions and call counts, matrix and scheduler setup, explicit persistent memory, opaque thread-stack memory, an estimated explicit allocation high-water mark, empty-dispatch overhead, correctness, confidence intervals, and variability. The grouped/common comparison measures the combined BLAS-call and small-GEMM efficiency penalty. The scheduling comparison measures complete group-loop wall time against a same-commit one-thread serial baseline. `--topologies` selects exact schedule/worker finalists instead of forming a cross-product. Before launching a K²-grouped process, the driver estimates the benchmark's explicit peak from its matrix family, provider buffers, external operands, and inspected outputs; it rejects a case above half of physical memory unless explicitly overridden. Evidence collection also requires a clean source tree and verifies that the binary's embedded commit and dirty state match it; `--allow-dirty-tree` is reserved for explicitly exploratory runs. The installed public Accelerate headers expose no variable-size grouped GEMM batch API, and an exact setup-time equality scan records whether adjacent matrix groups could be consolidated without moving data. None of these issue #8 measurements charges the cost of creating group order. Third-party grouped APIs, blocking, and the packing crossover owned by issue #13 remain open.
+
+`--kernel ordering-packing` begins issue #13 with the explicit MATLAB-style baseline. It gathers the retained logical modes directly from WVM frequency-major interleaved half-spectrum storage into the final interleaved or split vertical input, thereby materializing radial/K²-group order and vertical-contiguous columns. The reverse path executes the inverse vertical projection, zeros a full WVM half-spectrum, scatters the retained coefficients, and repairs the stored Hermitian boundary. Movement-only, raw vertical GEMM, one-shot movement-plus-GEMM, and uninstrumented reuse sequences are timed separately. Reuse counts 2, 4, and 8 compare boundary movement on every use with one boundary movement around a persistent compact representation. Both paths are out-of-place and allocation-free in steady state. Raw FFT execution, modal physics, nonlinear flux, provider-native fusion, no-reorder strided kernels, and tiled pack-and-GEMM are excluded from this first increment.
+
+```sh
+python3 tools/run_ordering_packing_sweep.py --dry-run --allow-dirty-tree
+python3 tools/run_ordering_packing_sweep.py
+```
 
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. The original M4 bundle remains byte-identical at its legacy paths.
 

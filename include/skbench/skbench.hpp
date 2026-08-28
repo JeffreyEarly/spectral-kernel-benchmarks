@@ -159,6 +159,7 @@ public:
 
     void loadPhysicalInput(const Complex* input);
     void loadModalInput(const Complex* input);
+    void packPhysicalInputFromWvm(const std::vector<RetainedMode>& modes, const Complex* wvmSpectrum);
     void executeForward();
     void executeInverse();
     void executeForwardReal();
@@ -168,6 +169,7 @@ public:
     void executeSchedulerNoop();
     void copyForwardOutput(Complex* output) const;
     void copyInverseOutput(Complex* output) const;
+    void embedPhysicalOutputToWvm(const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const;
 
 private:
     struct Impl;
@@ -467,6 +469,7 @@ struct BenchmarkReport {
     std::uint64_t modalSpectrumBytes = 0;
     std::uint64_t verticalMatrixFamilySourceBytes = 0;
     std::uint64_t verticalBenchmarkEstimatedExplicitPeakBytes = 0;
+    std::uint64_t orderingPackingEstimatedExplicitPeakBytes = 0;
     std::string verticalMatrixFamilyId = "orthonormal-dct2-truncated-v1";
     std::size_t verticalGroupCount = 0;
     std::size_t minimumVerticalGroupModes = 0;
@@ -522,6 +525,7 @@ struct ValidationReport {
 
 BenchmarkReport runBenchmark(const RunOptions& options);
 BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
+BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
 EnvironmentRecord environmentRecord();
 double median(std::vector<double> values);

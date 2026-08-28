@@ -105,6 +105,49 @@ void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
             "Accelerate vertical GEMM steady-state execution allocated memory");
 }
 
+void requireAllocationFreeOrderingPacking(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    const skbench::GroupedVerticalOperators& operators,
+    skbench::VerticalGemmLayout layout,
+    skbench::VerticalGemmStrategy strategy) {
+    const auto physicalCount = workload.nz * modes.size() * workload.fields;
+    const auto modalCount = operators.nj * modes.size() * workload.fields;
+    std::vector<skbench::Complex> physical(physicalCount);
+    std::vector<skbench::Complex> modal(modalCount);
+    std::vector<skbench::Complex> fullInput(workload.spectrumElements());
+    std::vector<skbench::Complex> fullOutput(workload.spectrumElements());
+    for (std::size_t index = 0; index < physical.size(); ++index) {
+        physical[index] = {static_cast<double>(index % 31) / 31.0,
+                           -static_cast<double>(index % 29) / 29.0};
+    }
+    for (std::size_t index = 0; index < modal.size(); ++index) {
+        modal[index] = {static_cast<double>(index % 23) / 23.0,
+                        -static_cast<double>(index % 19) / 19.0};
+    }
+    skbench::embedRetained(workload, modes, physical.data(), fullInput.data());
+
+    skbench::VerticalGemmProvider provider(workload, operators, layout, strategy);
+    require(provider.supported(), "Accelerate ordering/packing provider is unavailable");
+    provider.loadModalInput(modal.data());
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.packPhysicalInputFromWvm(modes, fullInput.data());
+        provider.executeForward();
+        provider.executeInverse();
+        provider.embedPhysicalOutputToWvm(modes, fullOutput.data());
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.packPhysicalInputFromWvm(modes, fullInput.data());
+        provider.executeForward();
+        provider.executeInverse();
+        provider.embedPhysicalOutputToWvm(modes, fullOutput.data());
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "ordering/packing steady-state execution allocated memory");
+}
+
 void requireExactSplitInPlaceWvmOrderUnsupported(const skbench::Workload& workload) {
     const auto storageCount = 2 * workload.spectrumElements();
     auto* storage = static_cast<double*>(fftw_malloc(storageCount * sizeof(double)));
@@ -510,6 +553,20 @@ int main() {
                     "vertical GEMM forward equivalence");
             require(skbench::maximumRelativeError(gemmPhysical.data(), physicalAgain.data(), physicalAgain.size()) < 1.0e-12,
                     "vertical GEMM inverse equivalence");
+
+            std::vector<skbench::Complex> fullInput(workload.spectrumElements());
+            std::vector<skbench::Complex> fullOutput(workload.spectrumElements());
+            std::vector<skbench::Complex> gatheredOutput(physicalAgain.size());
+            skbench::embedRetained(workload, modes, retained.data(), fullInput.data());
+            provider.packPhysicalInputFromWvm(modes, fullInput.data());
+            provider.executeForward();
+            provider.executeInverse();
+            provider.embedPhysicalOutputToWvm(modes, fullOutput.data());
+            skbench::gatherRetained(
+                workload, modes, fullOutput.data(), gatheredOutput.data());
+            require(skbench::maximumRelativeError(
+                        gatheredOutput.data(), gemmPhysical.data(), gatheredOutput.size()) < 1.0e-12,
+                    "vertical GEMM direct WVM pack/embed equivalence");
         }
 
         for (const auto schedule : {skbench::VerticalGemmSchedule::outerStatic,
@@ -630,6 +687,48 @@ int main() {
             require(foundFamilySetup, "grouped vertical GEMM shared setup accounting");
         }
 
+        skbench::RunOptions orderingOptions = verticalOptions;
+        orderingOptions.kernel = "ordering-packing";
+        orderingOptions.verticalGemmFamily = "k2-grouped";
+        const auto orderingReport = skbench::runBenchmark(orderingOptions);
+        require(orderingReport.status == "passed", "ordering/packing smoke benchmark failed");
+        require(orderingReport.providers.size() == 2, "ordering/packing candidate count");
+        require(orderingReport.orderingPackingEstimatedExplicitPeakBytes >
+                    orderingReport.fullSpectrumBytes + orderingReport.retainedSpectrumBytes,
+                "ordering/packing explicit peak-memory estimate");
+        for (const auto& provider : orderingReport.providers) {
+            require(provider.correctness.size() == 6, "ordering/packing correctness count");
+            bool foundPack = false;
+            bool foundEmbed = false;
+            bool foundCombinedForward = false;
+            bool foundCombinedInverse = false;
+            std::size_t reuseSeries = 0;
+            for (const auto& timing : provider.timings) {
+                foundPack = foundPack ||
+                    (timing.scope == "adapter-component" && timing.direction == "forward" &&
+                     timing.stage == "WVM retained gather and radial pack" &&
+                     timing.state == skbench::StageState::executed && !timing.seconds.empty());
+                foundEmbed = foundEmbed ||
+                    (timing.scope == "adapter-component" && timing.direction == "inverse" &&
+                     timing.stage == "WVM scatter and Hermitian embed" &&
+                     timing.state == skbench::StageState::executed && !timing.seconds.empty());
+                foundCombinedForward = foundCombinedForward ||
+                    (timing.scope == "adapter-total" && timing.direction == "forward" &&
+                     timing.state == skbench::StageState::executed);
+                foundCombinedInverse = foundCombinedInverse ||
+                    (timing.scope == "adapter-total" && timing.direction == "inverse" &&
+                     timing.state == skbench::StageState::executed);
+                if (timing.scope == "reuse-total") ++reuseSeries;
+            }
+            require(foundPack && foundEmbed, "ordering/packing movement timing series");
+            require(foundCombinedForward && foundCombinedInverse,
+                    "ordering/packing combined timing series");
+            require(reuseSeries == 12, "ordering/packing reuse timing matrix");
+            for (const auto& correctness : provider.correctness) {
+                require(correctness.passed, "ordering/packing correctness");
+            }
+        }
+
         if (skbench::test::allocationTrackingSupported()) {
             requireAllocationFreeVerticalExecution(
                 workload, commonVertical, skbench::VerticalGemmLayout::complexInterleaved);
@@ -647,6 +746,12 @@ int main() {
                 requireAllocationFreeVerticalExecution(
                     workload, groupedVertical, skbench::VerticalGemmLayout::split,
                     {schedule, 2});
+            }
+            for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
+                                      skbench::VerticalGemmLayout::split}) {
+                requireAllocationFreeOrderingPacking(
+                    workload, modes, groupedVertical, layout,
+                    {skbench::VerticalGemmSchedule::outerDynamic, 2});
             }
         }
 

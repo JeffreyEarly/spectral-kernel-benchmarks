@@ -382,6 +382,62 @@ struct VerticalGemmProvider::Impl {
         }
     }
 
+    void validateRetainedModes(const std::vector<RetainedMode>& modes) const {
+        if (modes.size() != horizontalModeCount) {
+            throw std::invalid_argument("Retained-mode count does not match the vertical GEMM columns.");
+        }
+    }
+
+    void packPhysicalInputFromWvm(const std::vector<RetainedMode>& modes, const Complex* wvmSpectrum) {
+        requireAvailable();
+        validateRetainedModes(modes);
+        for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+            const auto& mode = modes[modeIndex];
+            for (std::size_t field = 0; field < workload.fields; ++field) {
+                for (std::size_t z = 0; z < workload.nz; ++z) {
+                    auto value = wvmSpectrum[wvmSpectrumIndex(
+                        workload, mode.storedKx, mode.storedKy, z, field)];
+                    if (mode.conjugatesStoredValue) value = conjugate(value);
+                    const auto retainedIndex = retainedSpectrumIndex(workload, modeIndex, z, field);
+                    if (layout == VerticalGemmLayout::complexInterleaved) {
+                        complexPhysicalInput.data()[retainedIndex] = {value.real, value.imag};
+                    } else {
+                        physicalInputReal.data()[retainedIndex] = value.real;
+                        physicalInputImaginary.data()[retainedIndex] = value.imag;
+                    }
+                }
+            }
+        }
+    }
+
+    void embedPhysicalOutputToWvm(const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const {
+        requireAvailable();
+        validateRetainedModes(modes);
+        std::fill_n(wvmSpectrum, workload.spectrumElements(), Complex{});
+        for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+            const auto& mode = modes[modeIndex];
+            for (std::size_t field = 0; field < workload.fields; ++field) {
+                for (std::size_t z = 0; z < workload.nz; ++z) {
+                    const auto retainedIndex = retainedSpectrumIndex(workload, modeIndex, z, field);
+                    const Complex compact = layout == VerticalGemmLayout::complexInterleaved
+                        ? Complex{complexPhysicalOutput.data()[retainedIndex].real(),
+                                  complexPhysicalOutput.data()[retainedIndex].imag()}
+                        : Complex{physicalOutputReal.data()[retainedIndex],
+                                  physicalOutputImaginary.data()[retainedIndex]};
+                    const auto stored = mode.conjugatesStoredValue ? conjugate(compact) : compact;
+                    wvmSpectrum[wvmSpectrumIndex(
+                        workload, mode.storedKx, mode.storedKy, z, field)] = stored;
+                    if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                        2 * mode.storedKy != workload.ny) {
+                        const auto conjugateKy = (workload.ny - mode.storedKy) % workload.ny;
+                        wvmSpectrum[wvmSpectrumIndex(workload, 0, conjugateKy, z, field)] =
+                            conjugate(stored);
+                    }
+                }
+            }
+        }
+    }
+
     std::size_t persistentBytes() const noexcept {
         return complexForwardMatrix.bytes() + complexInverseMatrix.bytes() +
             complexPhysicalInput.bytes() + complexModalInput.bytes() + complexModalOutput.bytes() +
@@ -564,6 +620,11 @@ void VerticalGemmProvider::loadPhysicalInput(const Complex* input) {
     }
 }
 
+void VerticalGemmProvider::packPhysicalInputFromWvm(
+    const std::vector<RetainedMode>& modes, const Complex* wvmSpectrum) {
+    impl_->packPhysicalInputFromWvm(modes, wvmSpectrum);
+}
+
 void VerticalGemmProvider::loadModalInput(const Complex* input) {
     impl_->requireAvailable();
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
@@ -695,6 +756,11 @@ void VerticalGemmProvider::copyInverseOutput(Complex* output) const {
     for (std::size_t index = 0; index < impl_->physicalCount; ++index) {
         output[index] = {impl_->physicalOutputReal.data()[index], impl_->physicalOutputImaginary.data()[index]};
     }
+}
+
+void VerticalGemmProvider::embedPhysicalOutputToWvm(
+    const std::vector<RetainedMode>& modes, Complex* wvmSpectrum) const {
+    impl_->embedPhysicalOutputToWvm(modes, wvmSpectrum);
 }
 
 } // namespace skbench
