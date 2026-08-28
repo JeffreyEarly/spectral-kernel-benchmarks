@@ -1050,6 +1050,7 @@ std::vector<Profile> profiles() {
         {"wvm-current-512-nz257-f1", "Current WVM 512-cubed-class workload, one field.", {512, 512, 257, 1, 1.0, 1.0, true}, totalWorkers, 3, 20},
         {"wvm-current-512-nz257-f3", "Current WVM 512-cubed-class workload, three fields.", {512, 512, 257, 3, 1.0, 1.0, true}, totalWorkers, 3, 20},
         {"wvm-current-512-nz257-f4", "Current WVM 512-cubed-class workload, four fields.", {512, 512, 257, 4, 1.0, 1.0, true}, totalWorkers, 3, 20},
+        {"wvm-large-512-nz513-f4", "Large-vertical nonhydrostatic decision workload, four fields.", {512, 512, 513, 4, 1.0, 1.0, true}, totalWorkers, 3, 20},
         {"wvm-large-1024-nz129-f4", "Large-horizontal nonhydrostatic decision workload, four fields.", {1024, 1024, 129, 4, 1.0, 1.0, true}, totalWorkers, 3, 20}};
 }
 

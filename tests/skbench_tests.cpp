@@ -716,13 +716,15 @@ int main() {
                 "historical workload profile");
         require(skbench::profileNamed("wvm-current-512-nz257-f4").workload.planes() == 1028,
                 "current workload profile");
+        require(skbench::profileNamed("wvm-large-512-nz513-f4").workload.planes() == 2052,
+                "large-vertical workload profile");
         const auto largeProfile = skbench::profileNamed("wvm-large-1024-nz129-f4");
         const auto largeModes = skbench::retainedHorizontalModes(largeProfile.workload);
         require(largeModes.size() == 183037,
                 "large four-field retained-mode count");
         require(skbench::squaredWavenumberGroups(largeModes).size() == 27779,
                 "large four-field squared-wavenumber group count");
-        require(profileList.size() == 14, "unexpected profile count");
+        require(profileList.size() == 15, "unexpected profile count");
 
         const auto prunedModes = skbench::retainedHorizontalModes(workload);
         skbench::FFTWPrunedProvider prunedProvider(

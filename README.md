@@ -226,6 +226,15 @@ python3 tools/run_vertically_batched_advection_screen.py
 
 This preliminary screen recommends reference depth when both paths remain correct and FFTW++ either reaches 0.98× the composed time or retains at most 0.80× the algorithm-resident memory without exceeding 1.05× the time. That is only a continuation gate. The eventual 0.9000 adoption threshold applies to the multi-workload composed reference campaign.
 
+The reference campaign keeps both policies fixed and adds the four-field production matrix: `256²/Nz=129`, `512²/Nz=257`, `512²/Nz=513`, and `1024²/Nz=129`. Each finalist runs alone for three rotated rounds with three warmups and 21 samples. A conservative per-process memory preflight runs before any benchmark; a case that exceeds 75% of physical memory is reported as a capacity exclusion rather than forced through swap.
+
+```sh
+python3 tools/run_vertically_batched_advection_reference.py --dry-run --allow-dirty-tree
+python3 tools/run_vertically_batched_advection_reference.py
+```
+
+The composed adoption gate requires a complete matched matrix, correctness within $$10^{-12}$$, valid out-of-place input-preservation contracts, at least 10% geometric time improvement, no workload above 1.03× the control, a stratified paired-bootstrap 95% interval excluding a tie, and at least 20% geometric algorithm-resident-memory reduction. Primitive vertical GEMM, one-level horizontal execution, level movement, setup, memory, and the authoritative uninstrumented total remain separate. No size-dependent dispatch is permitted, and even a passing M4 result still requires cross-Mac replication and does not constitute a complete nonlinear-flux benchmark.
+
 The append-only locality follow-up keeps one FFT half-spectrum plane per worker but replaces page-strided direct split access with a bounded plane-major compact tile and a 32-mode cache-blocked transpose. It screens fixed tile widths 4, 8, and 16 against both the original tile-1 streaming graph and the same-commit fused-split control:
 
 ```sh

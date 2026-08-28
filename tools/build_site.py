@@ -4534,7 +4534,225 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+def vertically_batched_advection_reference_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+        "vertically-batched-advection-reference-v1"
+        and bundle.publication.get("status") == "reference"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "explicit-parallel"
+    candidate_id = "fftwpp-parallel"
+    profile_order = (
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-512-nz513-f4",
+        "wvm-large-1024-nz129-f4",
+    )
+    cells: dict[tuple[str, str, int], dict[str, float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        campaign_candidate = bundle.publication.get("campaignCandidateId")
+        round_number = bundle.publication.get("campaignRound")
+        if campaign_candidate not in {baseline_id, candidate_id}:
+            continue
+        if not isinstance(round_number, int):
+            continue
+        provider = bundle.result["providers"][0]
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "vertically batched WVM-derived advection pipeline", "forward",
+        )
+        inverse_vertical = stage_timing(
+            provider, "primitive", "raw inverse vertical GEMM (15 fields)",
+            "inverse",
+        )
+        horizontal = stage_timing(
+            provider, "component",
+            "vertically batched horizontal advection including level movement",
+            "horizontal",
+        )
+        movement = stage_timing(
+            provider, "adapter-component",
+            "all-level split/field-major packing and projected-output scatter",
+            "horizontal",
+        )
+        forward_vertical = stage_timing(
+            provider, "primitive", "raw forward vertical GEMM (4 fields)",
+            "forward",
+        )
+        matrix_setup = stage_timing(
+            provider, "setup-component", "directional vertical matrix preparation",
+            "shared",
+        )
+        horizontal_setup = stage_timing(
+            provider, "setup-component",
+            "horizontal planning and persistent scheduler setup", "shared",
+        )
+        required = (
+            total, inverse_vertical, horizontal, movement, forward_vertical,
+            matrix_setup, horizontal_setup,
+        )
+        if any(item is None for item in required):
+            continue
+        memory = provider["memory"]
+        cells[(
+            campaign_candidate, bundle.result["run"]["profile"], round_number,
+        )] = {
+            "total": float(total["medianSeconds"]),
+            "inverse": float(inverse_vertical["medianSeconds"]),
+            "horizontal": float(horizontal["medianSeconds"]),
+            "movement": float(movement["medianSeconds"]),
+            "forward": float(forward_vertical["medianSeconds"]),
+            "matrixSetup": float(matrix_setup["medianSeconds"]),
+            "horizontalSetup": float(horizontal_setup["medianSeconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "scratch": float(memory["scratchBytes"]),
+            "harness": float(memory["benchmarkHarnessBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    rows: list[str] = []
+    component_rows: list[str] = []
+    memory_rows: list[str] = []
+    profile_ratios: dict[str, list[float]] = {}
+    summary_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    for profile_index, profile in enumerate(profile_order):
+        baseline = {
+            round_number: cells[(baseline_id, profile, round_number)]
+            for round_number in range(1, 4)
+            if (baseline_id, profile, round_number) in cells
+        }
+        candidate = {
+            round_number: cells[(candidate_id, profile, round_number)]
+            for round_number in range(1, 4)
+            if (candidate_id, profile, round_number) in cells
+        }
+        if len(baseline) != 3 or len(candidate) != 3:
+            return ""
+        ratios = [
+            candidate[round_number]["total"] /
+            baseline[round_number]["total"]
+            for round_number in range(1, 4)
+        ]
+        profile_ratios[profile] = ratios
+        baseline_total = statistics.median(
+            baseline[round_number]["total"] for round_number in range(1, 4)
+        )
+        candidate_total = statistics.median(
+            candidate[round_number]["total"] for round_number in range(1, 4)
+        )
+        ratio = candidate_total / baseline_total
+        summary_ratios.append(ratio)
+        lower, upper = paired_round_bootstrap(ratios, 181 + profile_index)
+        baseline_resident = statistics.median(
+            baseline[round_number]["resident"] for round_number in range(1, 4)
+        )
+        candidate_resident = statistics.median(
+            candidate[round_number]["resident"] for round_number in range(1, 4)
+        )
+        resident_ratio = candidate_resident / baseline_resident
+        resident_ratios.append(resident_ratio)
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(baseline_total)}</td>'
+            f'<td class="numeric">{format_ms(candidate_total)}</td>'
+            f'<td class="numeric">{ratio:.3f}×</td>'
+            f'<td class="numeric">{lower:.3f}×–{upper:.3f}×</td>'
+            f'<td class="numeric">{format_ms(statistics.median(baseline[round_number]["matrixSetup"] for round_number in range(1, 4)))} / '
+            f'{format_ms(statistics.median(candidate[round_number]["matrixSetup"] for round_number in range(1, 4)))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(baseline[round_number]["horizontalSetup"] for round_number in range(1, 4)))} / '
+            f'{format_ms(statistics.median(candidate[round_number]["horizontalSetup"] for round_number in range(1, 4)))}</td>'
+            "</tr>"
+        )
+
+        def paired_component(key: str) -> str:
+            baseline_value = statistics.median(
+                baseline[round_number][key] for round_number in range(1, 4)
+            )
+            candidate_value = statistics.median(
+                candidate[round_number][key] for round_number in range(1, 4)
+            )
+            return f"{format_ms(baseline_value)} / {format_ms(candidate_value)}"
+
+        component_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{paired_component("inverse")}</td>'
+            f'<td class="numeric">{paired_component("horizontal")}</td>'
+            f'<td class="numeric">{paired_component("movement")}</td>'
+            f'<td class="numeric">{paired_component("forward")}</td>'
+            "</tr>"
+        )
+        memory_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_bytes(int(baseline_resident))} / '
+            f'{format_bytes(int(candidate_resident))}</td>'
+            f'<td class="numeric">{resident_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(baseline[round_number]["scratch"] for round_number in range(1, 4))))} / '
+            f'{format_bytes(int(statistics.median(candidate[round_number]["scratch"] for round_number in range(1, 4))))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(baseline[round_number]["estimated"] for round_number in range(1, 4))))} / '
+            f'{format_bytes(int(statistics.median(candidate[round_number]["estimated"] for round_number in range(1, 4))))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(baseline[round_number]["observed"] for round_number in range(1, 4))))} / '
+            f'{format_bytes(int(statistics.median(candidate[round_number]["observed"] for round_number in range(1, 4))))}</td>'
+            "</tr>"
+        )
+
+    geometric_time = math.exp(statistics.fmean(
+        math.log(value) for value in summary_ratios
+    ))
+    geometric_resident = math.exp(statistics.fmean(
+        math.log(value) for value in resident_ratios
+    ))
+    lower, upper = spectral_pipeline_bootstrap(profile_ratios)
+    maximum_ratio = max(summary_ratios)
+    maximum_error = max(errors) if errors else math.inf
+    adoption_passed = bool(
+        geometric_time <= 0.90 and maximum_ratio <= 1.03
+        and upper < 1.0 and geometric_resident <= 0.80
+        and maximum_error <= 1.0e-12
+    )
+    conclusion = (
+        "The fixed FFTW++ composition passes the M4 adoption-statistics gate; cross-Mac replication and a bounded model prototype remain required."
+        if adoption_passed else
+        "The campaign is reference-quality, but the fixed FFTW++ composition does not meet the M4 adoption threshold."
+    )
+    return f"""
+      <h2>Four-workload composed M4 reference campaign</h2>
+      <p>Three isolated process rounds rotate both fixed candidates and all four production workloads. Each process uses three warmups and 21 samples after the same-commit allocator test. The exact boundary remains 15 ready retained and vertically truncated modal inputs through vertical reconstruction, 129–513 streamed physical levels and four horizontal advective expressions, to four ready modal outputs.</p>
+      <p>FFTW++ is {geometric_time:.3f}× explicit geometrically, with a stratified paired-bootstrap 95% interval of {lower:.3f}×–{upper:.3f}× and a worst workload of {maximum_ratio:.3f}×. Algorithm-resident storage is {geometric_resident:.3f}× geometrically and maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong></p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Authoritative composed medians and paired inference. Setup columns are explicit / FFTW++ and remain outside the timed boundary.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Explicit total (ms)</th><th scope="col">FFTW++ total (ms)</th><th scope="col">Ratio</th><th scope="col">Paired 95% interval</th><th scope="col">Matrix setup</th><th scope="col">Horizontal planning</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Component medians are explicit / FFTW++ in milliseconds. Horizontal includes movement; movement is repeated only as a diagnostic and is not added to the authoritative total.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Inverse vertical</th><th scope="col">Horizontal + movement</th><th scope="col">Movement alone</th><th scope="col">Forward vertical</th></tr></thead>
+        <tbody>{"".join(component_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Memory is explicit / FFTW++ where paired. Algorithm resident is the decision measure; scratch, estimated live peak and process high water remain separate.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Algorithm resident</th><th scope="col">Ratio</th><th scope="col">Scratch</th><th scope="col">Estimated peak</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{"".join(memory_rows)}</tbody>
+      </table></div>
+      <p class="method-note">No size-dependent dispatch is permitted. Primitive vertical GEMM and horizontal evidence remain independently published in issues #8 and #17. This synthetic composition still excludes phase evolution, coefficient accumulation, remaining nonlinear-flux bookkeeping, the complete nonlinear flux, and time integration.</p>
+    """
+
+
 def vertically_batched_advection_synthesis(bundles: list[PublishedBundle]) -> str:
+    reference_section = vertically_batched_advection_reference_synthesis(bundles)
     increment_id = "vertically-batched-advection-first-composition-v1"
     candidate_bundles: dict[str, PublishedBundle] = {}
     for bundle in sorted(bundles, key=lambda item: item.result["run"]["id"]):
@@ -4544,7 +4762,7 @@ def vertically_batched_advection_synthesis(bundles: list[PublishedBundle]) -> st
         if candidate_id in ("explicit-parallel", "fftwpp-parallel"):
             candidate_bundles[candidate_id] = bundle
     if not all(candidate in candidate_bundles for candidate in ("explicit-parallel", "fftwpp-parallel")):
-        return ""
+        return reference_section
 
     candidates = (
         ("explicit-parallel", "Explicit FFTW"),
@@ -4639,6 +4857,7 @@ def vertically_batched_advection_synthesis(bundles: list[PublishedBundle]) -> st
         <tbody>{"".join(memory_rows)}</tbody>
       </table></div>
       <p class="method-note">Both candidates run in isolated processes with one warmup and three samples, outer-dynamic-12 vertical scheduling, and zero warmed steady-state application allocations. Approximately 169–171 ms is movement alone, so the isolated horizontal speed and memory advantage is largely diluted by level packing/scatter and vertical storage. Observed process high water includes the independent correctness oracle that ran earlier in each process; estimated peak is the fairer live benchmark ledger. Component medians need not sum to the separately measured total.</p>
+      {reference_section}
     """
 
 
