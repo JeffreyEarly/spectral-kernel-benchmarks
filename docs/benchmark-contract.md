@@ -30,7 +30,15 @@ $$
 (N_z\times N_j)(N_j\times K),
 $$
 
-where $K=N_{kl}\times\mathrm{fields}$. A column key is $mathrm{field}+\mathrm{fields}\times\mathrm{mode}$, and the vertical coordinate is contiguous within each column. This order is a controlled input representation for the primitive test, not a mathematical requirement or evidence that its upstream packing cost is negligible.
+where $K=N_{kl}\times\mathrm{fields}$. A column key is $\mathrm{field}+\mathrm{fields}\times\mathrm{mode}$, and the vertical coordinate is contiguous within each column. This order is a controlled input representation for the primitive test, not a mathematical requirement or evidence that its upstream packing cost is negligible.
+
+The grouped issue #8 increment partitions the radially ordered retained modes by exact integer
+
+$$
+K^2 = k^2 + l^2
+$$
+
+on the square benchmark domains. Equal keys are contiguous in the existing radial order. Each group receives a deterministic dense orthonormal matrix pair produced by pairwise rotations of the common truncated DCT-II rows. This synthetic family changes matrix values without changing dimensions, conditioning, or projection rank. It is a performance and correctness fixture, not a claim about a particular stratification profile.
 
 ## Horizontal retention
 
@@ -97,7 +105,9 @@ Complete native batch wall time is the authoritative primitive measurement for e
 
 The bounded issue #8 common-matrix screen compares one `cblas_zgemm` with two `cblas_dgemm` calls. The complex candidate expands the immutable real matrix into complex storage during setup. The split candidate retains one real matrix and separate persistent real and imaginary operands. Both candidates are out-of-place and use prearranged column-major operands. Primitive timing contains only the complete forward or inverse GEMM formulation: packing, split/interleaved conversion, horizontal ordering, allocation, and matrix preparation are excluded. Matrix preparation and explicit persistent memory are still reported separately. The split formulation also exposes its real and imaginary GEMMs as non-additive component diagnostics.
 
-Accelerate thread-limit candidates run in isolated processes with `VECLIB_MAXIMUM_THREADS` set before program startup. The recorded value is a requested process limit, not a claim about the number of workers Accelerate actually schedules. The bounded screen uses the historical $256^2$, $N_z=65$, fields $=3$ and $512^2$, $N_z=129$, fields $=3$ cases. Grouped $K^2$ matrix families, fields 1/4, $N_z=257$, blocking, and packing-plus-GEMM remain outside this first increment.
+The grouped screen replaces the single large product with one BLAS call per $K^2$ group for complex storage and a component-major pair of group loops for split storage. The authoritative primitive interval includes every per-group BLAS call. Result metadata records group count, minimum, median, and maximum modes and columns per group, matrix-family identity, group-order hash, and GEMM calls per direction. Matched grouped/common ratios therefore capture both repeated-call overhead and the loss of large-GEMM efficiency. They do not include gathering or permuting columns into group order.
+
+Accelerate thread-limit candidates run in isolated processes with `VECLIB_MAXIMUM_THREADS` set before program startup. The recorded value is a requested process limit, not a claim about the number of workers Accelerate actually schedules. The bounded common and grouped screens use the historical $256^2$, $N_z=65$, fields $=3$ and $512^2$, $N_z=129$, fields $=3$ cases. Fields 1/4, $N_z=257$, alternative grouped or batched APIs, blocking, and packing-plus-GEMM remain outside these increments.
 
 Correctness uses independent scalar products on 17 deterministic columns spanning the operand and full-output equivalence between the complex and split formulations. It records both scale-normalized maximum error and relative $L_2$ error with the Float64 $10^{-12}$ tolerance. A test-side allocator interposer verifies zero explicit allocation across repeated warmed-up forward and inverse primitive calls.
 

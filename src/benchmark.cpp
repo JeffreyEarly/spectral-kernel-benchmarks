@@ -200,17 +200,33 @@ std::vector<std::size_t> verticalProbeColumns(std::size_t columns) {
     return result;
 }
 
-std::vector<Complex> directVerticalForwardProbes(const VerticalOperators& operators,
+std::size_t verticalGroupForColumn(const GroupedVerticalOperators& operators,
+                                   const Workload& workload, std::size_t column) {
+    const auto mode = column / workload.fields;
+    const auto match = std::find_if(
+        operators.groups.begin(), operators.groups.end(), [mode](const VerticalModeGroup& group) {
+            return mode >= group.firstMode && mode < group.firstMode + group.modeCount;
+        });
+    if (match == operators.groups.end()) {
+        throw std::logic_error("Vertical probe column is outside the matrix-family groups.");
+    }
+    return static_cast<std::size_t>(std::distance(operators.groups.begin(), match));
+}
+
+std::vector<Complex> directVerticalForwardProbes(const GroupedVerticalOperators& operators,
+                                                 const Workload& workload,
                                                  const std::vector<std::size_t>& columns,
                                                  const Complex* physical) {
     std::vector<Complex> result(columns.size() * operators.nj);
+    const auto matrixElements = operators.nj * operators.nz;
     for (std::size_t probe = 0; probe < columns.size(); ++probe) {
         const auto column = columns[probe];
+        const auto matrixOffset = verticalGroupForColumn(operators, workload, column) * matrixElements;
         for (std::size_t j = 0; j < operators.nj; ++j) {
             Complex sum;
             for (std::size_t z = 0; z < operators.nz; ++z) {
                 const auto value = physical[z + operators.nz * column];
-                const auto factor = operators.forward[j * operators.nz + z];
+                const auto factor = operators.forward[matrixOffset + j * operators.nz + z];
                 sum.real += factor * value.real;
                 sum.imag += factor * value.imag;
             }
@@ -220,17 +236,20 @@ std::vector<Complex> directVerticalForwardProbes(const VerticalOperators& operat
     return result;
 }
 
-std::vector<Complex> directVerticalInverseProbes(const VerticalOperators& operators,
+std::vector<Complex> directVerticalInverseProbes(const GroupedVerticalOperators& operators,
+                                                 const Workload& workload,
                                                  const std::vector<std::size_t>& columns,
                                                  const Complex* modal) {
     std::vector<Complex> result(columns.size() * operators.nz);
+    const auto matrixElements = operators.nj * operators.nz;
     for (std::size_t probe = 0; probe < columns.size(); ++probe) {
         const auto column = columns[probe];
+        const auto matrixOffset = verticalGroupForColumn(operators, workload, column) * matrixElements;
         for (std::size_t z = 0; z < operators.nz; ++z) {
             Complex sum;
             for (std::size_t j = 0; j < operators.nj; ++j) {
                 const auto value = modal[j + operators.nj * column];
-                const auto factor = operators.inverse[z * operators.nj + j];
+                const auto factor = operators.inverse[matrixOffset + z * operators.nj + j];
                 sum.real += factor * value.real;
                 sum.imag += factor * value.imag;
             }
@@ -305,21 +324,24 @@ ExecutionContract verticalGemmExecutionContract(const VerticalGemmProvider& prov
     return contract;
 }
 
-std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout) {
+std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout, std::size_t groupCount) {
     const auto split = layout == VerticalGemmLayout::split;
+    const auto groupText = std::to_string(groupCount) + " contiguous matrix group(s)";
     return {
         {"setup/planning", StageState::setupOnly,
-         split ? "transpose immutable real forward/inverse matrices into BLAS column-major storage"
-               : "transpose and expand immutable real forward/inverse matrices into complex BLAS column-major storage"},
+         split ? "transpose immutable real forward/inverse matrix families into BLAS column-major storage; " + groupText
+               : "transpose and expand immutable real forward/inverse matrix families into complex BLAS column-major storage; " + groupText},
         {"raw forward FFT", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"horizontal retention", StageState::unsupported, "inputs already contain the retained horizontal columns"},
         {"representation conversion", StageState::elided, "operands are pre-arranged before primitive timing"},
         {"permutation/packing", StageState::elided, "excluded from issue #8 primitive timing and owned by issue #13"},
         {"raw forward vertical MM", StageState::executed,
-         split ? "two cblas_dgemm calls over split real and imaginary operands" : "one cblas_zgemm call with a real matrix expanded to complex"},
+         split ? "component-major loop of two cblas_dgemm calls per matrix group over split operands"
+               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex"},
         {"modal work", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"raw inverse vertical MM", StageState::executed,
-         split ? "two cblas_dgemm calls over split real and imaginary operands" : "one cblas_zgemm call with a real matrix expanded to complex"},
+         split ? "component-major loop of two cblas_dgemm calls per matrix group over split operands"
+               : "one cblas_zgemm call per matrix group with each real matrix expanded to complex"},
         {"horizontal embedding", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"raw inverse FFT", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
         {"uninstrumented total", StageState::unsupported, "complete spectral pipeline belongs to issue #9"}};
@@ -705,6 +727,9 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     if (options.workers != 0) {
         throw std::invalid_argument("vertical-gemm thread limits are process settings; use VECLIB_MAXIMUM_THREADS in an isolated run.");
     }
+    if (options.verticalGemmFamily != "common" && options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument("vertical-gemm family must be either 'common' or 'k2-grouped'.");
+    }
 
     const auto selected = profileNamed(options.profile);
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
@@ -722,7 +747,12 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
 
     const auto& workload = report.workload;
     const auto modes = retainedHorizontalModes(workload);
-    const auto vertical = orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes());
+    const auto fixtureStart = Clock::now();
+    auto vertical = options.verticalGemmFamily == "common"
+        ? commonVerticalFixture(
+            modes.size(), orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes()))
+        : squaredWavenumberVerticalFixture(workload, modes);
+    const auto fixtureGenerationSeconds = std::chrono::duration<double>(Clock::now() - fixtureStart).count();
     const auto columns = modes.size() * workload.fields;
     const auto physicalElements = workload.nz * columns;
     const auto modalElements = vertical.nj * columns;
@@ -733,15 +763,34 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
     report.retainedSpectrumBytes = bytes(physicalElements, sizeof(Complex));
     report.modalSpectrumBytes = bytes(modalElements, sizeof(Complex));
+    report.verticalMatrixFamilySourceBytes = bytes(
+        vertical.forward.size() + vertical.inverse.size(), sizeof(double));
+    report.verticalMatrixFamilyId = vertical.id;
+    report.verticalGroupCount = vertical.groups.size();
+    report.verticalGroupOrderHash = verticalModeGroupHash(vertical.groups);
+    std::vector<double> groupModes;
+    std::vector<double> groupColumns;
+    groupModes.reserve(vertical.groups.size());
+    groupColumns.reserve(vertical.groups.size());
+    for (const auto& group : vertical.groups) {
+        groupModes.push_back(static_cast<double>(group.modeCount));
+        groupColumns.push_back(static_cast<double>(group.modeCount * workload.fields));
+    }
+    report.minimumVerticalGroupModes = static_cast<std::size_t>(*std::min_element(groupModes.begin(), groupModes.end()));
+    report.medianVerticalGroupModes = median(groupModes);
+    report.maximumVerticalGroupModes = static_cast<std::size_t>(*std::max_element(groupModes.begin(), groupModes.end()));
+    report.minimumVerticalGroupColumns = static_cast<std::size_t>(*std::min_element(groupColumns.begin(), groupColumns.end()));
+    report.medianVerticalGroupColumns = median(groupColumns);
+    report.maximumVerticalGroupColumns = static_cast<std::size_t>(*std::max_element(groupColumns.begin(), groupColumns.end()));
 
     const auto physicalInput = verticalComplexFixture(physicalElements, options.seed ^ UINT64_C(0x243f6a8885a308d3));
     const auto modalInput = verticalComplexFixture(modalElements, options.seed ^ UINT64_C(0x13198a2e03707344));
     const auto probes = verticalProbeColumns(columns);
-    const auto forwardOracle = directVerticalForwardProbes(vertical, probes, physicalInput.data());
-    const auto inverseOracle = directVerticalInverseProbes(vertical, probes, modalInput.data());
+    const auto forwardOracle = directVerticalForwardProbes(vertical, workload, probes, physicalInput.data());
+    const auto inverseOracle = directVerticalInverseProbes(vertical, workload, probes, modalInput.data());
 
-    VerticalGemmProvider complexProvider(workload, modes.size(), vertical, VerticalGemmLayout::complexInterleaved);
-    VerticalGemmProvider splitProvider(workload, modes.size(), vertical, VerticalGemmLayout::split);
+    VerticalGemmProvider complexProvider(workload, vertical, VerticalGemmLayout::complexInterleaved);
+    VerticalGemmProvider splitProvider(workload, vertical, VerticalGemmLayout::split);
     if (!complexProvider.supported() || !splitProvider.supported()) {
         throw std::runtime_error(!complexProvider.supported() ? complexProvider.capability() : splitProvider.capability());
     }
@@ -749,6 +798,8 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     complexProvider.loadModalInput(modalInput.data());
     splitProvider.loadPhysicalInput(physicalInput.data());
     splitProvider.loadModalInput(modalInput.data());
+    vertical.forward = {};
+    vertical.inverse = {};
 
     complexProvider.executeForward();
     complexProvider.executeInverse();
@@ -782,13 +833,17 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         record.nativeRepresentationId = provider.layout() == VerticalGemmLayout::split
             ? "vertical-columns-split-complex"
             : "vertical-columns-interleaved-complex";
-        record.modeOrderId = "vertical-contiguous;column=field+fields*radial-mode";
+        record.modeOrderId = options.verticalGemmFamily == "common"
+            ? "vertical-contiguous;column=field+fields*radial-mode"
+            : "vertical-contiguous;k2-group-contiguous;column=field+fields*radial-mode";
         record.schedulingId = schedulingId;
         record.sourceIdentity = "Apple Accelerate system framework";
         record.configureFlags = "system framework";
         record.compilerFlags = report.environment.compilerFlags;
-        record.planningConfiguration = "common orthonormal DCT-II fixture; column-major; K=" +
-            std::to_string(columns) + "; " + schedulingId;
+        record.planningConfiguration = vertical.id + "; column-major; K=" +
+            std::to_string(columns) + "; groups=" + std::to_string(vertical.groups.size()) +
+            "; GEMM calls per direction=" + std::to_string(provider.gemmCallsPerExecution()) +
+            "; " + schedulingId;
         record.workers = configuredThreads;
         record.internalWorkers = configuredThreads;
         record.outerWorkers = 1;
@@ -799,12 +854,14 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
         record.otherSetupSeconds = provider.matrixPreparationSeconds();
         record.allocationSeconds = provider.allocationSeconds();
         record.planningSeconds = 0.0;
-        record.ledger = verticalGemmLedger(provider.layout());
+        record.ledger = verticalGemmLedger(provider.layout(), vertical.groups.size());
         record.correctness = std::move(correctness);
 
-        const auto matrixBytes = bytes(workload.nz * vertical.nj,
-                                       provider.layout() == VerticalGemmLayout::split ? sizeof(double) : sizeof(Complex));
+        const auto matrixBytes = static_cast<std::uint64_t>(provider.matrixBytesPerDirection());
         const auto matrixReads = provider.layout() == VerticalGemmLayout::split ? 2 * matrixBytes : matrixBytes;
+        record.timings.push_back(series(
+            "setup-shared-component", "logical matrix-family fixture generation", "shared", StageState::setupOnly,
+            report.verticalMatrixFamilySourceBytes, {fixtureGenerationSeconds}));
         record.timings.push_back(series(
             "setup-component", "matrix preparation", "shared", StageState::setupOnly,
             2 * matrixBytes, {provider.matrixPreparationSeconds()}));
@@ -842,7 +899,9 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     report.providers.push_back(makeRecord(
         complexProvider,
         "accelerate-zgemm",
-        "accelerate-zgemm-real-matrix-expanded-common",
+        options.verticalGemmFamily == "common"
+            ? "accelerate-zgemm-real-matrix-expanded-common"
+            : "accelerate-zgemm-k2-group-loop-real-matrices-expanded",
         {
             metric("forward selected columns versus independent scalar oracle",
                    complexForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
@@ -856,7 +915,9 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
     report.providers.push_back(makeRecord(
         splitProvider,
         "accelerate-split-dgemm",
-        "accelerate-two-dgemm-split-common",
+        options.verticalGemmFamily == "common"
+            ? "accelerate-two-dgemm-split-common"
+            : "accelerate-two-dgemm-k2-group-loop-split",
         {
             metric("forward selected columns versus independent scalar oracle",
                    splitForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),

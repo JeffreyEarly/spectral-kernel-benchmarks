@@ -20,6 +20,7 @@ void usage(std::ostream& output) {
            << "              [--fftw-internal-workers N] [--fftw-outer-workers N]\n"
            << "              [--fftw-planning-time-limit SECONDS]\n"
            << "              [--vdsp-strategy NAME] [--vdsp-batch-strategy NAME]\n"
+           << "              [--vertical-gemm-family common|k2-grouped]\n"
            << "              [--warmups N] [--samples N] [--seed N] [--output PATH]\n"
            << "  skbench compare --input SAMPLES.csv\n";
 }
@@ -43,6 +44,9 @@ void list() {
               << "kernels:\n"
               << "  fft\n"
               << "  vertical-gemm\n"
+              << "vertical GEMM matrix families:\n"
+              << "  common\n"
+              << "  k2-grouped\n"
               << "FFTW planning modes:\n"
               << "  estimate\n"
               << "  measure\n"
@@ -136,6 +140,7 @@ int main(int argc, char** argv) {
                 else if (key == "--fftw-planning-time-limit") options.fftwPlanningTimeLimitSeconds = std::stod(requireValue(argc, argv, index));
                 else if (key == "--vdsp-strategy") options.vdspStrategy = requireValue(argc, argv, index);
                 else if (key == "--vdsp-batch-strategy") options.vdspBatchStrategy = requireValue(argc, argv, index);
+                else if (key == "--vertical-gemm-family") options.verticalGemmFamily = requireValue(argc, argv, index);
                 else if (key == "--workers") options.workers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));

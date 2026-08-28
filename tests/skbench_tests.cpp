@@ -3,6 +3,7 @@
 
 #include <fftw3.h>
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -68,9 +69,10 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
 }
 
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
-                                            std::size_t horizontalModeCount,
-                                            const skbench::VerticalOperators& operators,
+                                            const skbench::GroupedVerticalOperators& operators,
                                             skbench::VerticalGemmLayout layout) {
+    std::size_t horizontalModeCount = 0;
+    for (const auto& group : operators.groups) horizontalModeCount += group.modeCount;
     const auto physicalCount = workload.nz * horizontalModeCount * workload.fields;
     const auto modalCount = operators.nj * horizontalModeCount * workload.fields;
     std::vector<skbench::Complex> physical(physicalCount);
@@ -84,7 +86,7 @@ void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                         -static_cast<double>(index % 19) / 19.0};
     }
 
-    skbench::VerticalGemmProvider provider(workload, horizontalModeCount, operators, layout);
+    skbench::VerticalGemmProvider provider(workload, operators, layout);
     require(provider.supported(), "Accelerate vertical GEMM provider is unavailable");
     provider.loadPhysicalInput(physical.data());
     provider.loadModalInput(modal.data());
@@ -402,6 +404,19 @@ int main() {
         require(!modes.empty(), "retained modes are empty");
         require(modes.front().k == 0 && modes.front().l == 0, "DC is not first");
         require(skbench::modeOrderHash(modes) == skbench::modeOrderHash(modes), "mode hash is unstable");
+        const auto k2Groups = skbench::squaredWavenumberGroups(modes);
+        require(k2Groups.size() == 5, "smoke K-squared group count");
+        require(k2Groups.front().squaredModeKey == 0 && k2Groups.front().firstMode == 0,
+                "K-squared DC group");
+        std::size_t groupedModeCount = 0;
+        for (const auto& group : k2Groups) {
+            require(group.firstMode == groupedModeCount && group.modeCount > 0,
+                    "K-squared groups are not contiguous");
+            groupedModeCount += group.modeCount;
+        }
+        require(groupedModeCount == modes.size(), "K-squared groups do not cover retained modes");
+        require(skbench::verticalModeGroupHash(k2Groups) == "fnv1a64:69843c1f93cead00",
+                "K-squared group hash");
 
         std::vector<skbench::Complex> wvm(workload.spectrumElements());
         for (std::size_t index = 0; index < wvm.size(); ++index) {
@@ -437,6 +452,30 @@ int main() {
                 "split retained gather/embed round trip");
 
         const auto vertical = skbench::orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes());
+        const auto commonVertical = skbench::commonVerticalFixture(modes.size(), vertical);
+        const auto groupedVertical = skbench::squaredWavenumberVerticalFixture(workload, modes);
+        require(commonVertical.groups.size() == 1 && commonVertical.groups.front().modeCount == modes.size(),
+                "common vertical matrix family");
+        require(groupedVertical.groups == k2Groups, "grouped vertical fixture groups");
+        require(groupedVertical.forward.size() == k2Groups.size() * vertical.nz * vertical.nj,
+                "grouped vertical forward matrix storage");
+        require(groupedVertical.inverse.size() == groupedVertical.forward.size(),
+                "grouped vertical inverse matrix storage");
+        for (std::size_t groupIndex = 0; groupIndex < groupedVertical.groups.size(); ++groupIndex) {
+            const auto offset = groupIndex * vertical.nz * vertical.nj;
+            for (std::size_t first = 0; first < vertical.nj; ++first) {
+                for (std::size_t second = 0; second < vertical.nj; ++second) {
+                    double product = 0.0;
+                    for (std::size_t z = 0; z < vertical.nz; ++z) {
+                        product += groupedVertical.forward[offset + first * vertical.nz + z] *
+                                   groupedVertical.forward[offset + second * vertical.nz + z];
+                    }
+                    const double expected = first == second ? 1.0 : 0.0;
+                    require(std::abs(product - expected) < 1.0e-12,
+                            "grouped vertical matrix rows are not orthonormal");
+                }
+            }
+        }
         std::vector<skbench::Complex> modal(modes.size() * workload.fields * workload.retainedVerticalModes());
         std::vector<skbench::Complex> physicalAgain(retained.size());
         std::vector<skbench::Complex> modalAgain(modal.size());
@@ -452,6 +491,10 @@ int main() {
             require(provider.columns() == modes.size() * workload.fields, "vertical GEMM K dimension");
             require(provider.physicalElements() == retained.size(), "vertical GEMM physical element count");
             require(provider.modalElements() == modal.size(), "vertical GEMM modal element count");
+            require(provider.groupCount() == 1, "common vertical GEMM group count");
+            require(provider.gemmCallsPerExecution() ==
+                        (layout == skbench::VerticalGemmLayout::split ? 2 : 1),
+                    "common vertical GEMM call count");
             require(provider.minimumAlignmentBytes() == 64, "vertical GEMM alignment");
             require(provider.persistentBytes() > 0, "vertical GEMM persistent-memory accounting");
             provider.loadPhysicalInput(retained.data());
@@ -477,6 +520,7 @@ int main() {
         require(verticalReport.status == "passed", "vertical GEMM smoke benchmark failed");
         require(verticalReport.providers.size() == 2, "vertical GEMM candidate count");
         require(verticalReport.modalSpectrumBytes > 0, "vertical GEMM modal byte accounting");
+        require(verticalReport.verticalGroupCount == 1, "common vertical GEMM report group count");
         for (const auto& provider : verticalReport.providers) {
             require(!provider.opaqueProviderMemory, "vertical GEMM memory should be explicit");
             require(provider.correctness.size() == 4, "vertical GEMM correctness metric count");
@@ -502,11 +546,54 @@ int main() {
             require(foundElidedPacking, "vertical GEMM excluded packing contract");
         }
 
+        skbench::RunOptions groupedOptions = verticalOptions;
+        groupedOptions.verticalGemmFamily = "k2-grouped";
+        const auto groupedReport = skbench::runBenchmark(groupedOptions);
+        require(groupedReport.status == "passed", "grouped vertical GEMM smoke benchmark failed");
+        require(groupedReport.verticalMatrixFamilyId == groupedVertical.id,
+                "grouped vertical GEMM family identity");
+        require(groupedReport.verticalGroupCount == k2Groups.size(), "grouped vertical GEMM group count");
+        require(groupedReport.minimumVerticalGroupModes == 1 &&
+                groupedReport.medianVerticalGroupModes == 2.0 &&
+                groupedReport.maximumVerticalGroupModes == 4,
+                "grouped vertical GEMM mode distribution");
+        require(groupedReport.minimumVerticalGroupColumns == 2 &&
+                groupedReport.medianVerticalGroupColumns == 4.0 &&
+                groupedReport.maximumVerticalGroupColumns == 8,
+                "grouped vertical GEMM column distribution");
+        require(groupedReport.verticalGroupOrderHash == skbench::verticalModeGroupHash(k2Groups),
+                "grouped vertical GEMM order hash");
+        require(groupedReport.verticalMatrixFamilySourceBytes ==
+                    2 * groupedVertical.forward.size() * sizeof(double),
+                "grouped vertical GEMM source-matrix bytes");
+        for (const auto& provider : groupedReport.providers) {
+            require(provider.algorithmId.find("k2-group-loop") != std::string::npos,
+                    "grouped vertical GEMM algorithm identity");
+            require(provider.correctness.size() == 4, "grouped vertical GEMM correctness count");
+            for (const auto& correctness : provider.correctness) {
+                require(correctness.passed, "grouped vertical GEMM correctness");
+            }
+            bool foundFamilySetup = false;
+            for (const auto& timing : provider.timings) {
+                if (timing.scope == "setup-shared-component" &&
+                    timing.stage == "logical matrix-family fixture generation") {
+                    foundFamilySetup = timing.state == skbench::StageState::setupOnly &&
+                        timing.seconds.size() == 1 &&
+                        timing.bytesMoved == groupedReport.verticalMatrixFamilySourceBytes;
+                }
+            }
+            require(foundFamilySetup, "grouped vertical GEMM shared setup accounting");
+        }
+
         if (skbench::test::allocationTrackingSupported()) {
             requireAllocationFreeVerticalExecution(
-                workload, modes.size(), vertical, skbench::VerticalGemmLayout::complexInterleaved);
+                workload, commonVertical, skbench::VerticalGemmLayout::complexInterleaved);
             requireAllocationFreeVerticalExecution(
-                workload, modes.size(), vertical, skbench::VerticalGemmLayout::split);
+                workload, commonVertical, skbench::VerticalGemmLayout::split);
+            requireAllocationFreeVerticalExecution(
+                workload, groupedVertical, skbench::VerticalGemmLayout::complexInterleaved);
+            requireAllocationFreeVerticalExecution(
+                workload, groupedVertical, skbench::VerticalGemmLayout::split);
         }
 
         std::cout << "skbench unit tests passed\n";

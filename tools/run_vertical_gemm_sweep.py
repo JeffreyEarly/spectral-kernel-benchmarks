@@ -73,6 +73,12 @@ def main() -> int:
     )
     parser.add_argument("--profiles", nargs="*", help="Subset of the representative 256 and 512 profiles")
     parser.add_argument(
+        "--family",
+        choices=("common", "k2-grouped"),
+        default="common",
+        help="Vertical matrix family; packing remains excluded for both",
+    )
+    parser.add_argument(
         "--thread-limits",
         default="1,performance,total",
         help="Comma-separated VECLIB_MAXIMUM_THREADS limits or aliases",
@@ -92,7 +98,7 @@ def main() -> int:
     commands: list[tuple[str, int, list[str], Path]] = []
     for profile in profiles:
         for thread_limit in limits:
-            stem = f"{profile}--veclib-threads-{thread_limit}"
+            stem = f"{profile}--{arguments.family}--veclib-threads-{thread_limit}"
             result_path = arguments.output / f"{stem}.json"
             command = [
                 str(arguments.executable),
@@ -101,6 +107,8 @@ def main() -> int:
                 "vertical-gemm",
                 "--profile",
                 profile,
+                "--vertical-gemm-family",
+                arguments.family,
                 "--warmups",
                 str(arguments.warmups),
                 "--samples",
@@ -123,7 +131,8 @@ def main() -> int:
         "schema": "spectral-kernel-local-sweep-v1",
         "experimentId": "issue-008-vertical-projection-gemm",
         "createdAtUtc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        "scope": "bounded common-matrix Float64 vertical projection; packing excluded",
+        "scope": f"bounded {arguments.family} Float64 vertical projection; packing excluded",
+        "verticalGemmFamily": arguments.family,
         "profiles": profiles,
         "threadEnvironment": "VECLIB_MAXIMUM_THREADS",
         "threadLimits": limits,

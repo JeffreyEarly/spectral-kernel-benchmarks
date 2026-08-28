@@ -1035,6 +1035,7 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
         bundles,
         key=lambda item: (
             item.result["workload"]["Nx"],
+            "k2-group-loop" in item.result["providers"][0]["algorithmId"],
             item.result["providers"][0]["workers"],
             item.result["run"]["id"],
         ),
@@ -1064,20 +1065,45 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
             maximum_l2_error(complex_provider) or 0.0,
             maximum_l2_error(split_provider) or 0.0,
         )
+        family_setup = stage_timing(
+            complex_provider, "setup-shared-component", "logical matrix-family fixture generation", "shared"
+        )
+        complex_setup = stage_timing(
+            complex_provider, "setup-component", "matrix preparation", "shared"
+        )
+        split_setup = stage_timing(
+            split_provider, "setup-component", "matrix preparation", "shared"
+        )
+        grouping = workload.get("grouping", {})
+        grouped = "k2-group-loop" in complex_provider["algorithmId"]
+        family = "K²-grouped synthetic" if grouped else "Common DCT-II"
+        group_count = int(grouping.get("verticalGroupCount", 1))
+        group_columns = grouping.get("verticalGroupColumns", {})
+        group_description = (
+            f'{group_count} groups<br>columns min/median/max '
+            f'{group_columns.get("minimum", "—")}/{group_columns.get("median", "—")}/{group_columns.get("maximum", "—")}'
+            if grouped
+            else "1 group"
+        )
         rows.append(
             "<tr>"
             f'<td><a href="../../runs/{quote(run["id"])}/index.html">{escaped(run["id"])}</a><br>'
             f'<span class="muted">{publication_badge(bundle.publication["status"])}</span></td>'
             f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
             f'N<sub>j</sub>={workload["Nj"]}, fields={workload["fields"]}, K={workload["Nkl"] * workload["fields"]}</span></td>'
+            f'<td>{family}<br><span class="muted">{group_description}</span></td>'
             f'<td class="numeric">{complex_provider["workers"]}</td>'
             f'<td class="numeric">{timing_with_interval(complex_forward)} / {timing_with_interval(complex_inverse)}<br>'
             f'<span class="muted">CV {coefficient_of_variation(complex_forward)} / {coefficient_of_variation(complex_inverse)}</span></td>'
             f'<td class="numeric">{timing_with_interval(split_forward)} / {timing_with_interval(split_inverse)}<br>'
             f'<span class="muted">CV {coefficient_of_variation(split_forward)} / {coefficient_of_variation(split_inverse)}</span></td>'
             f'<td class="numeric">{forward_ratio:.3f}× / {inverse_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_ms(family_setup["medianSeconds"]) if family_setup else "legacy —"} / '
+            f'{format_ms(complex_setup["medianSeconds"]) if complex_setup else "—"} / '
+            f'{format_ms(split_setup["medianSeconds"]) if split_setup else "—"}</td>'
             f'<td class="numeric">{format_bytes(complex_provider["memory"]["persistentBytes"])} / '
-            f'{format_bytes(split_provider["memory"]["persistentBytes"])}</td>'
+            f'{format_bytes(split_provider["memory"]["persistentBytes"])}<br><span class="muted">source setup-only '
+            f'{format_bytes(workload.get("bytes", {}).get("verticalMatrixFamilySource", 0))}</span></td>'
             f'<td class="numeric">{format_error(maximum_error)} / {format_error(maximum_l2)}</td>'
             "</tr>"
         )
@@ -1085,15 +1111,15 @@ def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
         return ""
     return f"""
       <div class="table-scroll"><table class="experiment-evidence-table">
-        <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Persistent memory is complex / split. No packing or representation conversion is timed.</caption>
-        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">VECLIB thread limit</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
+        <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Setup is logical family generation / complex preparation / split preparation. Persistent memory is complex / split. No packing or representation conversion is timed.</caption>
+        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">Matrix family</th><th scope="col">VECLIB thread limit</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Setup ms</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
         <tbody>{''.join(rows)}</tbody>
       </table></div>
     """
 
 
 def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
-    records: list[tuple[dict, dict, dict]] = []
+    records: list[tuple[dict, dict, dict, str]] = []
     for bundle in bundles:
         complex_provider = next(
             (item for item in bundle.result["providers"] if item["id"] == "accelerate-zgemm"), None
@@ -1102,13 +1128,15 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
             (item for item in bundle.result["providers"] if item["id"] == "accelerate-split-dgemm"), None
         )
         if complex_provider is not None and split_provider is not None:
-            records.append((bundle.result, complex_provider, split_provider))
+            family = "grouped" if "k2-group-loop" in complex_provider["algorithmId"] else "common"
+            records.append((bundle.result, complex_provider, split_provider, family))
     if not records:
         return ""
 
-    rows: list[str] = []
-    for profile in sorted({result["run"]["profile"] for result, _, _ in records}):
-        candidates = [record for record in records if record[0]["run"]["profile"] == profile]
+    common_records = [record for record in records if record[3] == "common"]
+    common_rows: list[str] = []
+    for profile in sorted({result["run"]["profile"] for result, _, _, _ in common_records}):
+        candidates = [record for record in common_records if record[0]["run"]["profile"] == profile]
         result = candidates[0][0]
         workload = result["workload"]
         values: list[str] = []
@@ -1128,21 +1156,78 @@ def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
                 f'{format_ms(complex_time["medianSeconds"])} (limit {best_complex[1]["workers"]}) / '
                 f'{format_ms(split_time["medianSeconds"])} (limit {best_split[2]["workers"]}) / {ratio:.3f}×'
             )
-        rows.append(
+        common_rows.append(
             "<tr>"
             f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</span></th>'
             f'<td class="numeric">{values[0]}</td><td class="numeric">{values[1]}</td>'
             "</tr>"
         )
-    return f"""
+    common_section = f"""
       <h3>Bounded common-matrix screen</h3>
       <p>This first issue #8 increment tests only the shared deterministic DCT-II matrix family with fields=3. Each row below reports best complex / best split / split-to-complex ratio across the isolated thread-limit runs. It establishes primitive behavior, not the complete issue #8 winner.</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Best observed primitive medians in milliseconds. Thread settings are process-isolated <code>VECLIB_MAXIMUM_THREADS</code> limits; they are not claims about the exact worker count selected internally by Accelerate.</caption>
         <thead><tr><th scope="col">Workload</th><th scope="col">Forward: complex / split / ratio</th><th scope="col">Inverse: complex / split / ratio</th></tr></thead>
-        <tbody>{''.join(rows)}</tbody>
+        <tbody>{''.join(common_rows)}</tbody>
       </table></div>
-      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition is setup-only. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Grouped K² matrix families, fields 1/4, N<sub>z</sub>=257, blocking, and full reference-depth sampling remain open.</p>
+    """
+
+    grouped_records = [record for record in records if record[3] == "grouped"]
+    grouped_rows: list[str] = []
+    for grouped in sorted(
+        grouped_records,
+        key=lambda record: (record[0]["workload"]["Nx"], record[1]["workers"]),
+    ):
+        result, complex_provider, split_provider, _ = grouped
+        matched = next(
+            (
+                record for record in common_records
+                if record[0]["run"]["profile"] == result["run"]["profile"]
+                and record[1]["workers"] == complex_provider["workers"]
+            ),
+            None,
+        )
+        if matched is None:
+            continue
+        workload = result["workload"]
+        grouping = workload.get("grouping", {})
+        ratios: list[str] = []
+        split_vs_complex: list[str] = []
+        for direction in ("forward", "inverse"):
+            grouped_complex = timing(complex_provider, "primitive", direction)
+            grouped_split = timing(split_provider, "primitive", direction)
+            common_complex = timing(matched[1], "primitive", direction)
+            common_split = timing(matched[2], "primitive", direction)
+            ratios.append(
+                f'{float(grouped_complex["medianSeconds"]) / float(common_complex["medianSeconds"]):.2f}× / '
+                f'{float(grouped_split["medianSeconds"]) / float(common_split["medianSeconds"]):.2f}×'
+            )
+            split_vs_complex.append(
+                f'{float(grouped_split["medianSeconds"]) / float(grouped_complex["medianSeconds"]):.3f}×'
+            )
+        columns = grouping.get("verticalGroupColumns", {})
+        grouped_rows.append(
+            "<tr>"
+            f'<th scope="row">{workload["Nx"]}², limit {complex_provider["workers"]}</th>'
+            f'<td class="numeric">{grouping.get("verticalGroupCount", "—")}<br>'
+            f'<span class="muted">{columns.get("minimum", "—")}/{columns.get("median", "—")}/{columns.get("maximum", "—")} columns</span></td>'
+            f'<td class="numeric">{ratios[0]}</td><td class="numeric">{ratios[1]}</td>'
+            f'<td class="numeric">{split_vs_complex[0]} / {split_vs_complex[1]}</td>'
+            "</tr>"
+        )
+    grouped_section = ""
+    if grouped_rows:
+        grouped_section = f"""
+      <h3>K²-grouped matrix-family penalty</h3>
+      <p>The grouped increment gives every exact integer K² group its own deterministic dense orthonormal matrix pair. The table compares each grouped run with the matched common-matrix run at the same workload and thread limit. Ratios include BLAS call overhead and the loss of large-GEMM efficiency, but still exclude producing the grouped order.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Grouped / common ratios are complex / split for forward and inverse; values above 1 are the primitive grouping penalty. Split / complex is measured within the grouped run.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Groups and min/median/max size</th><th scope="col">Forward grouped/common</th><th scope="col">Inverse grouped/common</th><th scope="col">Grouped split/complex F/I</th></tr></thead>
+        <tbody>{''.join(grouped_rows)}</tbody>
+      </table></div>
+    """
+    return common_section + grouped_section + """
+      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition is setup-only. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Fields 1/4, N<sub>z</sub>=257, alternative grouped/batched APIs, blocking, and full reference-depth sampling remain open.</p>
     """
 
 

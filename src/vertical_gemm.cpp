@@ -89,11 +89,15 @@ struct VerticalGemmProvider::Impl {
     std::size_t columnCount = 0;
     std::size_t physicalCount = 0;
     std::size_t modalCount = 0;
+    std::size_t matrixElementsPerGroup = 0;
     VerticalGemmLayout layout = VerticalGemmLayout::complexInterleaved;
     bool available = SKBENCH_HAVE_ACCELERATE != 0;
     std::string capabilityText;
     double allocationTime = 0.0;
     double preparationTime = 0.0;
+    std::vector<VerticalModeGroup> groups;
+    std::vector<int> groupColumns;
+    std::vector<std::size_t> columnOffsets;
 
     AlignedBuffer<BlasComplex> complexForwardMatrix;
     AlignedBuffer<BlasComplex> complexInverseMatrix;
@@ -115,23 +119,41 @@ struct VerticalGemmProvider::Impl {
 
     int nz = 0;
     int nj = 0;
-    int columns = 0;
 
-    Impl(const Workload& inputWorkload, std::size_t inputHorizontalModeCount,
-         const VerticalOperators& operators, VerticalGemmLayout inputLayout)
-        : workload(inputWorkload), horizontalModeCount(inputHorizontalModeCount), layout(inputLayout) {
+    Impl(const Workload& inputWorkload, const GroupedVerticalOperators& operators,
+         VerticalGemmLayout inputLayout)
+        : workload(inputWorkload), layout(inputLayout), groups(operators.groups) {
         if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
             throw std::invalid_argument("Vertical GEMM operator dimensions do not match the workload.");
         }
-        if (horizontalModeCount == 0 || workload.fields == 0) {
+        if (groups.empty() || workload.fields == 0) {
             throw std::invalid_argument("Vertical GEMM requires at least one horizontal mode and field.");
         }
+        std::size_t expectedFirstMode = 0;
+        groupColumns.reserve(groups.size());
+        columnOffsets.reserve(groups.size());
+        for (const auto& group : groups) {
+            if (group.modeCount == 0 || group.firstMode != expectedFirstMode) {
+                throw std::invalid_argument("Vertical GEMM groups must be nonempty and contiguous.");
+            }
+            columnOffsets.push_back(checkedProduct(group.firstMode, workload.fields, "group column offset"));
+            groupColumns.push_back(checkedBlasDimension(
+                checkedProduct(group.modeCount, workload.fields, "group column count"),
+                "group K"));
+            expectedFirstMode += group.modeCount;
+        }
+        horizontalModeCount = expectedFirstMode;
         columnCount = checkedProduct(horizontalModeCount, workload.fields, "vertical GEMM column");
         physicalCount = checkedProduct(workload.nz, columnCount, "vertical GEMM physical operand");
         modalCount = checkedProduct(operators.nj, columnCount, "vertical GEMM modal operand");
+        matrixElementsPerGroup = checkedProduct(operators.nj, operators.nz, "vertical GEMM matrix");
+        const auto familyElements = checkedProduct(groups.size(), matrixElementsPerGroup, "vertical GEMM matrix family");
+        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
+            throw std::invalid_argument("Vertical GEMM matrix-family storage does not match its groups and dimensions.");
+        }
         nz = checkedBlasDimension(workload.nz, "Nz");
         nj = checkedBlasDimension(operators.nj, "Nj");
-        columns = checkedBlasDimension(columnCount, "K");
+        checkedBlasDimension(columnCount, "K");
 
         if (!available) {
             capabilityText = "unsupported: Accelerate BLAS is available only on Apple platforms";
@@ -140,15 +162,15 @@ struct VerticalGemmProvider::Impl {
 
         const auto allocationStart = Clock::now();
         if (layout == VerticalGemmLayout::complexInterleaved) {
-            complexForwardMatrix.allocate(checkedProduct(operators.nj, operators.nz, "forward matrix"));
-            complexInverseMatrix.allocate(checkedProduct(operators.nz, operators.nj, "inverse matrix"));
+            complexForwardMatrix.allocate(familyElements);
+            complexInverseMatrix.allocate(familyElements);
             complexPhysicalInput.allocate(physicalCount);
             complexModalInput.allocate(modalCount);
             complexModalOutput.allocate(modalCount);
             complexPhysicalOutput.allocate(physicalCount);
         } else {
-            realForwardMatrix.allocate(checkedProduct(operators.nj, operators.nz, "forward matrix"));
-            realInverseMatrix.allocate(checkedProduct(operators.nz, operators.nj, "inverse matrix"));
+            realForwardMatrix.allocate(familyElements);
+            realInverseMatrix.allocate(familyElements);
             physicalInputReal.allocate(physicalCount);
             physicalInputImaginary.allocate(physicalCount);
             modalInputReal.allocate(modalCount);
@@ -161,18 +183,21 @@ struct VerticalGemmProvider::Impl {
         allocationTime = elapsedSeconds(allocationStart);
 
         const auto preparationStart = Clock::now();
-        for (std::size_t z = 0; z < operators.nz; ++z) {
-            for (std::size_t j = 0; j < operators.nj; ++j) {
-                const double forwardValue = operators.forward[j * operators.nz + z];
-                const double inverseValue = operators.inverse[z * operators.nj + j];
-                const auto forwardIndex = j + operators.nj * z;
-                const auto inverseIndex = z + operators.nz * j;
-                if (layout == VerticalGemmLayout::complexInterleaved) {
-                    complexForwardMatrix.data()[forwardIndex] = {forwardValue, 0.0};
-                    complexInverseMatrix.data()[inverseIndex] = {inverseValue, 0.0};
-                } else {
-                    realForwardMatrix.data()[forwardIndex] = forwardValue;
-                    realInverseMatrix.data()[inverseIndex] = inverseValue;
+        for (std::size_t groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
+            const auto offset = groupIndex * matrixElementsPerGroup;
+            for (std::size_t z = 0; z < operators.nz; ++z) {
+                for (std::size_t j = 0; j < operators.nj; ++j) {
+                    const double forwardValue = operators.forward[offset + j * operators.nz + z];
+                    const double inverseValue = operators.inverse[offset + z * operators.nj + j];
+                    const auto forwardIndex = offset + j + operators.nj * z;
+                    const auto inverseIndex = offset + z + operators.nz * j;
+                    if (layout == VerticalGemmLayout::complexInterleaved) {
+                        complexForwardMatrix.data()[forwardIndex] = {forwardValue, 0.0};
+                        complexInverseMatrix.data()[inverseIndex] = {inverseValue, 0.0};
+                    } else {
+                        realForwardMatrix.data()[forwardIndex] = forwardValue;
+                        realInverseMatrix.data()[inverseIndex] = inverseValue;
+                    }
                 }
             }
         }
@@ -197,13 +222,20 @@ struct VerticalGemmProvider::Impl {
             complexPhysicalOutput.bytes() + realForwardMatrix.bytes() + realInverseMatrix.bytes() +
             physicalInputReal.bytes() + physicalInputImaginary.bytes() + modalInputReal.bytes() +
             modalInputImaginary.bytes() + modalOutputReal.bytes() + modalOutputImaginary.bytes() +
-            physicalOutputReal.bytes() + physicalOutputImaginary.bytes();
+            physicalOutputReal.bytes() + physicalOutputImaginary.bytes() +
+            groups.size() * sizeof(VerticalModeGroup) + groupColumns.size() * sizeof(int) +
+            columnOffsets.size() * sizeof(std::size_t);
     }
 };
 
 VerticalGemmProvider::VerticalGemmProvider(const Workload& workload, std::size_t horizontalModeCount,
                                            const VerticalOperators& operators, VerticalGemmLayout layout)
-    : impl_(std::make_unique<Impl>(workload, horizontalModeCount, operators, layout)) {}
+    : VerticalGemmProvider(workload, commonVerticalFixture(horizontalModeCount, operators), layout) {}
+
+VerticalGemmProvider::VerticalGemmProvider(const Workload& workload,
+                                           const GroupedVerticalOperators& operators,
+                                           VerticalGemmLayout layout)
+    : impl_(std::make_unique<Impl>(workload, operators, layout)) {}
 
 VerticalGemmProvider::~VerticalGemmProvider() = default;
 VerticalGemmProvider::VerticalGemmProvider(VerticalGemmProvider&&) noexcept = default;
@@ -215,10 +247,14 @@ VerticalGemmLayout VerticalGemmProvider::layout() const noexcept { return impl_-
 std::size_t VerticalGemmProvider::columns() const noexcept { return impl_->columnCount; }
 std::size_t VerticalGemmProvider::physicalElements() const noexcept { return impl_->physicalCount; }
 std::size_t VerticalGemmProvider::modalElements() const noexcept { return impl_->modalCount; }
+std::size_t VerticalGemmProvider::groupCount() const noexcept { return impl_->groups.size(); }
+std::size_t VerticalGemmProvider::gemmCallsPerExecution() const noexcept {
+    return impl_->groups.size() * (impl_->layout == VerticalGemmLayout::split ? 2 : 1);
+}
 std::size_t VerticalGemmProvider::persistentBytes() const noexcept { return impl_->persistentBytes(); }
 std::size_t VerticalGemmProvider::matrixBytesPerDirection() const noexcept {
     const auto scalarBytes = impl_->layout == VerticalGemmLayout::complexInterleaved ? sizeof(BlasComplex) : sizeof(double);
-    return impl_->workload.nz * impl_->workload.retainedVerticalModes() * scalarBytes;
+    return impl_->groups.size() * impl_->matrixElementsPerGroup * scalarBytes;
 }
 std::size_t VerticalGemmProvider::minimumAlignmentBytes() const noexcept { return 64; }
 double VerticalGemmProvider::allocationSeconds() const noexcept { return impl_->allocationTime; }
@@ -265,11 +301,15 @@ void VerticalGemmProvider::executeForward() {
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         const BlasComplex alpha{1.0, 0.0};
         const BlasComplex beta{0.0, 0.0};
-        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nj, impl_->columns, impl_->nz,
-                    &alpha, impl_->complexForwardMatrix.data(), impl_->nj,
-                    impl_->complexPhysicalInput.data(), impl_->nz,
-                    &beta, impl_->complexModalOutput.data(), impl_->nj);
+        for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+            const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+            const auto columnOffset = impl_->columnOffsets[groupIndex];
+            cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                        impl_->nj, impl_->groupColumns[groupIndex], impl_->nz,
+                        &alpha, impl_->complexForwardMatrix.data() + matrixOffset, impl_->nj,
+                        impl_->complexPhysicalInput.data() + impl_->workload.nz * columnOffset, impl_->nz,
+                        &beta, impl_->complexModalOutput.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+        }
     } else {
         executeForwardReal();
         executeForwardImaginary();
@@ -283,11 +323,15 @@ void VerticalGemmProvider::executeInverse() {
     if (impl_->layout == VerticalGemmLayout::complexInterleaved) {
         const BlasComplex alpha{1.0, 0.0};
         const BlasComplex beta{0.0, 0.0};
-        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    impl_->nz, impl_->columns, impl_->nj,
-                    &alpha, impl_->complexInverseMatrix.data(), impl_->nz,
-                    impl_->complexModalInput.data(), impl_->nj,
-                    &beta, impl_->complexPhysicalOutput.data(), impl_->nz);
+        for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+            const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+            const auto columnOffset = impl_->columnOffsets[groupIndex];
+            cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                        impl_->nz, impl_->groupColumns[groupIndex], impl_->nj,
+                        &alpha, impl_->complexInverseMatrix.data() + matrixOffset, impl_->nz,
+                        impl_->complexModalInput.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj,
+                        &beta, impl_->complexPhysicalOutput.data() + impl_->workload.nz * columnOffset, impl_->nz);
+        }
     } else {
         executeInverseReal();
         executeInverseImaginary();
@@ -298,44 +342,60 @@ void VerticalGemmProvider::executeInverse() {
 void VerticalGemmProvider::executeForwardReal() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                impl_->nj, impl_->columns, impl_->nz, 1.0,
-                impl_->realForwardMatrix.data(), impl_->nj,
-                impl_->physicalInputReal.data(), impl_->nz, 0.0,
-                impl_->modalOutputReal.data(), impl_->nj);
+    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+        const auto columnOffset = impl_->columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    impl_->nj, impl_->groupColumns[groupIndex], impl_->nz, 1.0,
+                    impl_->realForwardMatrix.data() + matrixOffset, impl_->nj,
+                    impl_->physicalInputReal.data() + impl_->workload.nz * columnOffset, impl_->nz, 0.0,
+                    impl_->modalOutputReal.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+    }
 #endif
 }
 
 void VerticalGemmProvider::executeForwardImaginary() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                impl_->nj, impl_->columns, impl_->nz, 1.0,
-                impl_->realForwardMatrix.data(), impl_->nj,
-                impl_->physicalInputImaginary.data(), impl_->nz, 0.0,
-                impl_->modalOutputImaginary.data(), impl_->nj);
+    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+        const auto columnOffset = impl_->columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    impl_->nj, impl_->groupColumns[groupIndex], impl_->nz, 1.0,
+                    impl_->realForwardMatrix.data() + matrixOffset, impl_->nj,
+                    impl_->physicalInputImaginary.data() + impl_->workload.nz * columnOffset, impl_->nz, 0.0,
+                    impl_->modalOutputImaginary.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj);
+    }
 #endif
 }
 
 void VerticalGemmProvider::executeInverseReal() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                impl_->nz, impl_->columns, impl_->nj, 1.0,
-                impl_->realInverseMatrix.data(), impl_->nz,
-                impl_->modalInputReal.data(), impl_->nj, 0.0,
-                impl_->physicalOutputReal.data(), impl_->nz);
+    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+        const auto columnOffset = impl_->columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    impl_->nz, impl_->groupColumns[groupIndex], impl_->nj, 1.0,
+                    impl_->realInverseMatrix.data() + matrixOffset, impl_->nz,
+                    impl_->modalInputReal.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj, 0.0,
+                    impl_->physicalOutputReal.data() + impl_->workload.nz * columnOffset, impl_->nz);
+    }
 #endif
 }
 
 void VerticalGemmProvider::executeInverseImaginary() {
     impl_->requireSplit();
 #if SKBENCH_HAVE_ACCELERATE
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                impl_->nz, impl_->columns, impl_->nj, 1.0,
-                impl_->realInverseMatrix.data(), impl_->nz,
-                impl_->modalInputImaginary.data(), impl_->nj, 0.0,
-                impl_->physicalOutputImaginary.data(), impl_->nz);
+    for (std::size_t groupIndex = 0; groupIndex < impl_->groups.size(); ++groupIndex) {
+        const auto matrixOffset = groupIndex * impl_->matrixElementsPerGroup;
+        const auto columnOffset = impl_->columnOffsets[groupIndex];
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                    impl_->nz, impl_->groupColumns[groupIndex], impl_->nj, 1.0,
+                    impl_->realInverseMatrix.data() + matrixOffset, impl_->nz,
+                    impl_->modalInputImaginary.data() + impl_->workload.retainedVerticalModes() * columnOffset, impl_->nj, 0.0,
+                    impl_->physicalOutputImaginary.data() + impl_->workload.nz * columnOffset, impl_->nz);
+    }
 #endif
 }
 

@@ -46,7 +46,17 @@ struct RetainedMode {
     double radialMode = 0.0;
 };
 
+struct VerticalModeGroup {
+    std::uint64_t squaredModeKey = 0;
+    std::size_t firstMode = 0;
+    std::size_t modeCount = 0;
+
+    bool operator==(const VerticalModeGroup&) const = default;
+};
+
 std::vector<RetainedMode> retainedHorizontalModes(const Workload& workload);
+std::vector<VerticalModeGroup> squaredWavenumberGroups(const std::vector<RetainedMode>& modes);
+std::string verticalModeGroupHash(const std::vector<VerticalModeGroup>& groups);
 std::size_t realIndex(const Workload& workload, std::size_t x, std::size_t y, std::size_t z, std::size_t field);
 std::size_t wvmSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky, std::size_t z, std::size_t field);
 std::size_t planeMajorSpectrumIndex(const Workload& workload, std::size_t kx, std::size_t ky, std::size_t z, std::size_t field);
@@ -76,7 +86,19 @@ struct VerticalOperators {
     std::vector<double> inverse;
 };
 
+struct GroupedVerticalOperators {
+    std::string id;
+    std::size_t nz = 0;
+    std::size_t nj = 0;
+    std::vector<VerticalModeGroup> groups;
+    std::vector<double> forward;
+    std::vector<double> inverse;
+};
+
 VerticalOperators orthonormalVerticalFixture(std::size_t nz, std::size_t nj);
+GroupedVerticalOperators commonVerticalFixture(std::size_t horizontalModeCount, const VerticalOperators& operators);
+GroupedVerticalOperators squaredWavenumberVerticalFixture(
+    const Workload& workload, const std::vector<RetainedMode>& modes);
 void verticalForward(const Workload& workload, std::size_t horizontalModeCount, const VerticalOperators& operators, const Complex* physicalCoefficients, Complex* modalCoefficients);
 void verticalInverse(const Workload& workload, std::size_t horizontalModeCount, const VerticalOperators& operators, const Complex* modalCoefficients, Complex* physicalCoefficients);
 
@@ -91,6 +113,8 @@ class VerticalGemmProvider {
 public:
     VerticalGemmProvider(const Workload& workload, std::size_t horizontalModeCount,
                          const VerticalOperators& operators, VerticalGemmLayout layout);
+    VerticalGemmProvider(const Workload& workload, const GroupedVerticalOperators& operators,
+                         VerticalGemmLayout layout);
     ~VerticalGemmProvider();
     VerticalGemmProvider(VerticalGemmProvider&&) noexcept;
     VerticalGemmProvider& operator=(VerticalGemmProvider&&) noexcept;
@@ -103,6 +127,8 @@ public:
     std::size_t columns() const noexcept;
     std::size_t physicalElements() const noexcept;
     std::size_t modalElements() const noexcept;
+    std::size_t groupCount() const noexcept;
+    std::size_t gemmCallsPerExecution() const noexcept;
     std::size_t persistentBytes() const noexcept;
     std::size_t matrixBytesPerDirection() const noexcept;
     std::size_t minimumAlignmentBytes() const noexcept;
@@ -417,6 +443,16 @@ struct BenchmarkReport {
     std::uint64_t fullSpectrumBytes = 0;
     std::uint64_t retainedSpectrumBytes = 0;
     std::uint64_t modalSpectrumBytes = 0;
+    std::uint64_t verticalMatrixFamilySourceBytes = 0;
+    std::string verticalMatrixFamilyId = "orthonormal-dct2-truncated-v1";
+    std::size_t verticalGroupCount = 0;
+    std::size_t minimumVerticalGroupModes = 0;
+    double medianVerticalGroupModes = 0.0;
+    std::size_t maximumVerticalGroupModes = 0;
+    std::size_t minimumVerticalGroupColumns = 0;
+    double medianVerticalGroupColumns = 0.0;
+    std::size_t maximumVerticalGroupColumns = 0;
+    std::string verticalGroupOrderHash;
     EnvironmentRecord environment;
     std::vector<ProviderRecord> providers;
 };
@@ -446,6 +482,7 @@ struct RunOptions {
     double fftwPlanningTimeLimitSeconds = 0.0;
     std::string vdspStrategy = "in-place";
     std::string vdspBatchStrategy = "direct-persistent";
+    std::string verticalGemmFamily = "common";
     std::size_t workers = 0;
     std::size_t warmups = 0;
     std::size_t samples = 0;

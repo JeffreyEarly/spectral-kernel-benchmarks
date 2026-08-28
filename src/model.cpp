@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <limits>
 #include <random>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>
@@ -163,6 +164,56 @@ std::vector<RetainedMode> retainedHorizontalModes(const Workload& workload) {
         return first.l < second.l;
     });
     return modes;
+}
+
+std::vector<VerticalModeGroup> squaredWavenumberGroups(const std::vector<RetainedMode>& modes) {
+    if (modes.empty()) throw std::invalid_argument("Squared-wavenumber grouping requires retained modes.");
+    auto squaredKey = [](const RetainedMode& mode) {
+        auto magnitude = [](std::int64_t value) {
+            return value < 0
+                ? static_cast<std::uint64_t>(-(value + 1)) + 1
+                : static_cast<std::uint64_t>(value);
+        };
+        const auto k = magnitude(mode.k);
+        const auto l = magnitude(mode.l);
+        const auto maximum = std::numeric_limits<std::uint64_t>::max();
+        if ((k != 0 && k > maximum / k) || (l != 0 && l > maximum / l)) {
+            throw std::overflow_error("Squared horizontal mode key overflows uint64_t.");
+        }
+        const auto kSquared = k * k;
+        const auto lSquared = l * l;
+        if (lSquared > maximum - kSquared) {
+            throw std::overflow_error("Squared horizontal mode key overflows uint64_t.");
+        }
+        return kSquared + lSquared;
+    };
+
+    std::vector<VerticalModeGroup> groups;
+    std::set<std::uint64_t> completedKeys;
+    for (std::size_t modeIndex = 0; modeIndex < modes.size(); ++modeIndex) {
+        const auto key = squaredKey(modes[modeIndex]);
+        if (groups.empty() || groups.back().squaredModeKey != key) {
+            if (completedKeys.contains(key)) {
+                throw std::invalid_argument(
+                    "Equal squared-wavenumber modes are not contiguous in the retained order.");
+            }
+            if (!groups.empty()) completedKeys.insert(groups.back().squaredModeKey);
+            groups.push_back({key, modeIndex, 1});
+        } else {
+            ++groups.back().modeCount;
+        }
+    }
+    return groups;
+}
+
+std::string verticalModeGroupHash(const std::vector<VerticalModeGroup>& groups) {
+    std::uint64_t hash = UINT64_C(14695981039346656037);
+    for (const auto& group : groups) {
+        hashInteger(hash, group.squaredModeKey);
+        hashInteger(hash, group.firstMode);
+        hashInteger(hash, group.modeCount);
+    }
+    return finishHash(hash);
 }
 
 std::size_t realIndex(const Workload& workload, std::size_t x, std::size_t y, std::size_t z, std::size_t field) {
@@ -338,6 +389,64 @@ VerticalOperators orthonormalVerticalFixture(std::size_t nz, std::size_t nj) {
             const double value = normalization * std::cos(pi * (static_cast<double>(z) + 0.5) * static_cast<double>(j) / static_cast<double>(nz));
             operators.forward[j * nz + z] = value;
             operators.inverse[z * nj + j] = value;
+        }
+    }
+    return operators;
+}
+
+GroupedVerticalOperators commonVerticalFixture(std::size_t horizontalModeCount,
+                                               const VerticalOperators& operators) {
+    if (horizontalModeCount == 0) {
+        throw std::invalid_argument("Common vertical fixture requires at least one horizontal mode.");
+    }
+    return {
+        operators.id,
+        operators.nz,
+        operators.nj,
+        {{0, 0, horizontalModeCount}},
+        operators.forward,
+        operators.inverse};
+}
+
+GroupedVerticalOperators squaredWavenumberVerticalFixture(
+    const Workload& workload, const std::vector<RetainedMode>& modes) {
+    if (workload.lx != workload.ly) {
+        throw std::invalid_argument(
+            "The exact integer K-squared fixture currently requires a square horizontal domain.");
+    }
+    const auto base = orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes());
+    GroupedVerticalOperators operators;
+    operators.id = "synthetic-k2-grouped-orthonormal-dct2-pair-rotation-v1";
+    operators.nz = base.nz;
+    operators.nj = base.nj;
+    operators.groups = squaredWavenumberGroups(modes);
+    const auto matrixElements = checkedProduct(operators.nj, operators.nz);
+    const auto familyElements = checkedProduct(operators.groups.size(), matrixElements);
+    operators.forward.resize(familyElements);
+    operators.inverse.resize(familyElements);
+
+    for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
+        const auto key = operators.groups[groupIndex].squaredModeKey;
+        const double phase = static_cast<double>((key % UINT64_C(4093)) + 1) / 4094.0;
+        const double cosine = std::cos(0.5 * pi * phase);
+        const double sine = std::sin(0.5 * pi * phase);
+        const auto offset = groupIndex * matrixElements;
+        for (std::size_t j = 0; j < operators.nj; j += 2) {
+            for (std::size_t z = 0; z < operators.nz; ++z) {
+                const double first = base.forward[j * operators.nz + z];
+                double firstRotated = first;
+                if (j + 1 < operators.nj) {
+                    const double second = base.forward[(j + 1) * operators.nz + z];
+                    firstRotated = cosine * first + sine * second;
+                    const double secondRotated = -sine * first + cosine * second;
+                    operators.forward[offset + (j + 1) * operators.nz + z] = secondRotated;
+                    operators.inverse[offset + z * operators.nj + j + 1] = secondRotated;
+                } else if ((key & 1U) != 0) {
+                    firstRotated = -first;
+                }
+                operators.forward[offset + j * operators.nz + z] = firstRotated;
+                operators.inverse[offset + z * operators.nj + j] = firstRotated;
+            }
         }
     }
     return operators;

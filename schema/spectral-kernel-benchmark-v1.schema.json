@@ -92,7 +92,16 @@
           "type": "object",
           "required": ["enabled", "horizontalPolicy", "horizontalCutoffFraction", "verticalPolicy", "verticalRetainedFraction"]
         },
-        "grouping": {"type": "object"},
+        "grouping": {
+          "type": "object",
+          "properties": {
+            "verticalMatrixFamilyId": {"type": "string", "minLength": 1},
+            "verticalGroupCount": {"type": "integer", "minimum": 0},
+            "verticalGroupModes": {"$ref": "#/$defs/groupDistribution"},
+            "verticalGroupColumns": {"$ref": "#/$defs/groupDistribution"},
+            "verticalGroupOrderHash": {"type": "string"}
+          }
+        },
         "stridesElements": {"type": "object"},
         "bytes": {"type": "object"},
         "permutationHashes": {"type": "object"}
@@ -234,6 +243,15 @@
     }
   },
   "$defs": {
+    "groupDistribution": {
+      "type": "object",
+      "required": ["minimum", "median", "maximum"],
+      "properties": {
+        "minimum": {"type": "integer", "minimum": 0},
+        "median": {"type": "number", "minimum": 0},
+        "maximum": {"type": "integer", "minimum": 0}
+      }
+    },
     "executionDirection": {
       "type": "object",
       "required": [
