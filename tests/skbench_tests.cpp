@@ -12,6 +12,18 @@
 #include <string>
 #include <vector>
 
+#ifndef SKBENCH_TEST_HAVE_FFTWPP
+#define SKBENCH_TEST_HAVE_FFTWPP 0
+#endif
+
+#if SKBENCH_TEST_HAVE_FFTWPP
+namespace skbench {
+std::uint64_t probeDealiasedConvolutionSteadyStateAllocationsForTesting(
+    std::size_t n, std::size_t products,
+    void (*beginTracking)(), std::uint64_t (*endTracking)());
+}
+#endif
+
 namespace {
 
 void require(bool condition, const char* message) {
@@ -1975,6 +1987,18 @@ int main() {
             requireAllocationFreeFusedSplitPipeline(
                 workload, modes, groupedVertical,
                 {skbench::VerticalGemmSchedule::outerDynamic, 2});
+#if SKBENCH_TEST_HAVE_FFTWPP
+            require(
+                skbench::probeDealiasedConvolutionSteadyStateAllocationsForTesting(
+                    8, 4, skbench::test::beginAllocationTracking,
+                    skbench::test::endAllocationTracking) == 0,
+                "FFTW++ four-product steady-state execution allocated memory");
+            require(
+                skbench::probeDealiasedConvolutionSteadyStateAllocationsForTesting(
+                    8, 12, skbench::test::beginAllocationTracking,
+                    skbench::test::endAllocationTracking) == 0,
+                "FFTW++ twelve-product steady-state execution allocated memory");
+#endif
         }
 
         std::cout << "skbench unit tests passed\n";

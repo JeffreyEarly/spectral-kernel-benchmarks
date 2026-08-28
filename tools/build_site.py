@@ -4235,8 +4235,12 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
         if baseline_total is None or candidate_total is None:
             continue
         products = int(candidate["algorithmId"].rsplit("p", 1)[1])
-        baseline_memory = int(baseline["memory"]["algorithmResidentBytes"])
-        candidate_memory = int(candidate["memory"]["algorithmResidentBytes"])
+        baseline_memory = int(baseline["memory"].get(
+            "algorithmResidentBytes", baseline["memory"]["persistentBytes"],
+        ))
+        candidate_memory = int(candidate["memory"].get(
+            "algorithmResidentBytes", candidate["memory"]["persistentBytes"],
+        ))
         rows.append(
             "<tr>"
             f'<td>{result["workload"]["Nx"]} × {result["workload"]["Ny"]}</td>'
@@ -4281,7 +4285,7 @@ def dealiased_convolution_synthesis(bundles: list[PublishedBundle]) -> str:
         <tbody>{"".join(rows)}</tbody>
       </table></div>
       {projection}
-      <p class="method-note">The result can promote the algorithm into a threaded and WVM-expression follow-up. It cannot establish full-flux performance, multi-thread scaling, Float32 behavior, or a general-Mac recommendation.</p>
+      <p class="method-note">The macOS allocator interposer verifies zero application allocations across warmed explicit and FFTW++ executions for both output counts. The result can promote the algorithm into a threaded and WVM-expression follow-up. It cannot establish full-flux performance, multi-thread scaling, Float32 behavior, or a general-Mac recommendation.</p>
     """
 
 

@@ -455,4 +455,29 @@ BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options) {
 #endif
 }
 
+std::uint64_t probeDealiasedConvolutionSteadyStateAllocationsForTesting(
+    std::size_t n, std::size_t products,
+    void (*beginTracking)(), std::uint64_t (*endTracking)()) {
+#if !SKBENCH_HAVE_FFTWPP
+    (void)n;
+    (void)products;
+    (void)beginTracking;
+    (void)endTracking;
+    throw std::runtime_error("FFTW++ allocation probe is unavailable in this build.");
+#else
+    if (products != 4 && products != 12)
+        throw std::invalid_argument("allocation probe products must be 4 or 12.");
+    const auto modes = storedDisk(n);
+    const auto input = compactFixture(modes, products, 129);
+    ExplicitConvolution explicitPath(n, products, modes);
+    ImplicitConvolution implicitPath(n, products, modes);
+    explicitPath.execute(input);
+    implicitPath.execute(input);
+    beginTracking();
+    explicitPath.execute(input);
+    implicitPath.execute(input);
+    return endTracking();
+#endif
+}
+
 } // namespace skbench

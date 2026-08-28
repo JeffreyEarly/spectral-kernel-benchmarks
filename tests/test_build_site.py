@@ -58,6 +58,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_13_page = output / "experiments" / "issue-013-ordering-packing-crossover" / "index.html"
             float32_page = output / "experiments" / "issue-015-float32-spectral-kernel-screen" / "index.html"
             issue_16_page = output / "experiments" / "issue-016-streaming-pruned-compact-split" / "index.html"
+            issue_17_page = output / "experiments" / "issue-017-implicit-hybrid-dealiased-convolution" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
@@ -66,8 +67,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
             self.assertIn("Raw FFT", index)
-            self.assertIn("Raw vertical MM", index)
-            self.assertIn("Synthetic antialiased spectral pipeline", index)
+            self.assertIn("dealiased four-field convolution", index)
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
             self.assertTrue(split_run_page.is_file())
@@ -82,6 +82,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_13_page.is_file())
             self.assertTrue(float32_page.is_file())
             self.assertTrue(issue_16_page.is_file())
+            self.assertTrue(issue_17_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertIn("What this experiment measures", issue_3_page.read_text(encoding="utf-8"))
@@ -249,6 +250,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Component ledger", issue_9_html)
             self.assertIn("Setup, placement, and memory", issue_9_html)
             self.assertIn("No steady-state timed-loop allocation is permitted", issue_9_html)
+            issue_17_html = issue_17_page.read_text(encoding="utf-8")
+            self.assertIn("Bounded feasibility synthesis", issue_17_html)
+            self.assertIn("synthetic quadratic convolution, not WVM’s nonlinear flux", issue_17_html)
+            self.assertIn("Analytical 1024² memory projection", issue_17_html)
+            self.assertIn("three independently planned four-output applications", issue_17_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

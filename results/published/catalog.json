@@ -21881,6 +21881,114 @@
         "samplesSha256": "9d7945d7c8f3b9f65d9aa91909055c107eff26ee7baabdd3b471df2976fc6ab0"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T184656Z-issue17-n256-p4",
+      "incrementId": "implicit-hybrid-dealiased-convolution-feasibility-v1",
+      "campaignPhase": "screen",
+      "status": "preliminary",
+      "statusReason": "Clean single-thread M4 feasibility screen over 256\u00b2 and 512\u00b2 with 4 and 12 synthetic quadratic outputs; preliminary until threaded scheduling, a WVM-expression mapping, and cross-Mac replication are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-four-field-quadratic-p4 (internal=1, outer=1).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-007-retained-horizontal-algorithms"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T184656Z-issue17-n256-p4/result.json",
+        "samples": "runs/20260828T184656Z-issue17-n256-p4/samples.csv",
+        "resultSha256": "cc56273587f2c319589e1241e608fbc2bb321817a8513fee1bd38397ba8a3aaf",
+        "samplesSha256": "9fc1fefb139d816145276bf7f8868066e852303996dce4a9308bafa2e5fcd479"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T184656Z-issue17-n256-p12",
+      "incrementId": "implicit-hybrid-dealiased-convolution-feasibility-v1",
+      "campaignPhase": "screen",
+      "status": "preliminary",
+      "statusReason": "Clean single-thread M4 feasibility screen over 256\u00b2 and 512\u00b2 with 4 and 12 synthetic quadratic outputs; preliminary until threaded scheduling, a WVM-expression mapping, and cross-Mac replication are complete.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=1, fields=4 using hybrid-centered-hermitian-four-field-quadratic-p12 (internal=1, outer=1).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-007-retained-horizontal-algorithms"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T184656Z-issue17-n256-p12/result.json",
+        "samples": "runs/20260828T184656Z-issue17-n256-p12/samples.csv",
+        "resultSha256": "516a0c771ce2cb1c7c6e866f31064298d3c07c7354737cfd7a7c774d4b7c1be5",
+        "samplesSha256": "dd5bb673c8f60eb662014ed2f041b31b64a7387c29231dd7fec4aae23b790e7e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T184656Z-issue17-n512-p4",
+      "incrementId": "implicit-hybrid-dealiased-convolution-feasibility-v1",
+      "campaignPhase": "screen",
+      "status": "preliminary",
+      "statusReason": "Clean single-thread M4 feasibility screen over 256\u00b2 and 512\u00b2 with 4 and 12 synthetic quadratic outputs; preliminary until threaded scheduling, a WVM-expression mapping, and cross-Mac replication are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-four-field-quadratic-p4 (internal=1, outer=1).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-007-retained-horizontal-algorithms"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T184656Z-issue17-n512-p4/result.json",
+        "samples": "runs/20260828T184656Z-issue17-n512-p4/samples.csv",
+        "resultSha256": "88496d0ce65defd61ad7234f2a0ea389e93dd91e61634e656bd497d6b0ed8e9c",
+        "samplesSha256": "633fa6ad06b1b2c521e1380f422a4917e5c6b53a91e55b02711952e70602b6dc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T184657Z-issue17-n512-p12",
+      "incrementId": "implicit-hybrid-dealiased-convolution-feasibility-v1",
+      "campaignPhase": "screen",
+      "status": "preliminary",
+      "statusReason": "Clean single-thread M4 feasibility screen over 256\u00b2 and 512\u00b2 with 4 and 12 synthetic quadratic outputs; preliminary until threaded scheduling, a WVM-expression mapping, and cross-Mac replication are complete.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=1, fields=4 using hybrid-centered-hermitian-four-field-quadratic-p12 (internal=1, outer=1).",
+      "issues": [
+        17
+      ],
+      "experiments": [
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "priorExperiments": [
+        "issue-003-fftw-production-baseline",
+        "issue-007-retained-horizontal-algorithms"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T184657Z-issue17-n512-p12/result.json",
+        "samples": "runs/20260828T184657Z-issue17-n512-p12/samples.csv",
+        "resultSha256": "aef9318abedaef7e307ecfcdd2cf55f69fccdcc5127e059a83ba8cc988ba2567",
+        "samplesSha256": "539d4855a12fce8d3976c9672099d59e15b344ff516cd69c7d0a37e8c7454a95"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -22386,7 +22494,7 @@
     {
       "id": "issue-017-implicit-hybrid-dealiased-convolution",
       "issue": 17,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Implicit and hybrid dealiased four-field convolution",
       "question": "Can a correct FFTW++ implicit or hybrid Hermitian convolution beat an explicitly padded FFTW calculation or materially reduce its memory for representative four-field quadratic work?",
       "baseline": "Use an independent full-grid FFTW transform-multiply-transform oracle, while retaining the issue #3 FFTW build and issue #7 radial mode contract.",
@@ -22403,7 +22511,7 @@
         "changedVariables": "Explicit full-grid versus implicit/hybrid residue transforms and the number of requested quadratic outputs.",
         "timedBoundary": "Fused native transform-multiply-transform and caller-visible compact adapter totals are separate; explicit inverse FFT, multiplication, and forward FFT components are also separate.",
         "excludedWork": "Vertical transforms, WVM derivative construction, the nonlinear flux formula, time integration, I/O, and model state management.",
-        "allocationPolicy": "All plans, provider buffers, compact adapters, and output arrays are persistent; no application allocation is intended in timed steady state."
+        "allocationPolicy": "All plans, provider buffers, compact adapters, and output arrays are persistent; the macOS allocator interposer verifies zero application allocations across warmed explicit and FFTW++ executions for both output counts."
       },
       "correctness": {
         "oracle": "Independent explicitly padded FFTW calculation compared in a centered mode-keyed radial Hermitian representation.",
