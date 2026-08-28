@@ -19964,6 +19964,186 @@
         "samplesSha256": "0a5a33666e956fc35d8dc6f4df1885b06387cb78fa3aaeb7ccf0ae0a37b9b4d0"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T153840742354Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153840742354Z-lyra/result.json",
+        "samples": "runs/20260828T153840742354Z-lyra/samples.csv",
+        "resultSha256": "8fb332615962e6b9fb1c18ac36f2ce69d9e09a629e3308342b56c62b9b0596e1",
+        "samplesSha256": "dd3567bcd0b16cf964b6c22146a10b652729c3080316d8b302a80343d5bb779e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T153842645834Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-compact-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153842645834Z-lyra/result.json",
+        "samples": "runs/20260828T153842645834Z-lyra/samples.csv",
+        "resultSha256": "852f112129fd1d490b7e3b5ebe5483ce7ce6465a736e0644c985599e662858d1",
+        "samplesSha256": "3921f2b80e6b5910f6c43be1673e163846d28fc2579032aa1dd688bc3eaa16ba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T153844295821Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-compact-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153844295821Z-lyra/result.json",
+        "samples": "runs/20260828T153844295821Z-lyra/samples.csv",
+        "resultSha256": "7c7e24b66ea4ed8927330dff1876eb1c56cbae49e2a87b72d3476ac1401bf098",
+        "samplesSha256": "65df00c46c5461a2199367f811ba0e384eb860377db6fd4c6ad8ac34c47e342d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T153859611435Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153859611435Z-lyra/result.json",
+        "samples": "runs/20260828T153859611435Z-lyra/samples.csv",
+        "resultSha256": "2c4071aa82e18f17f3d0555094ae1a6c46062910ae91b87fc59f2da7af40fec8",
+        "samplesSha256": "21551c4026e036f5d1c57cdc3654d5735f97a9cd3849880c204fcea95400682e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T153916062850Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "plane-major-fused-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153916062850Z-lyra/result.json",
+        "samples": "runs/20260828T153916062850Z-lyra/samples.csv",
+        "resultSha256": "c00b4dd9064df77eef636ea1ac8af1500db9ba4a870b81c831ed6d826a6c6dd4",
+        "samplesSha256": "dff7c09befb44c50c6e2c5db48703a9c8d853d9d0110e14fa02d147541e109f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T153946970370Z-lyra",
+      "incrementId": "streaming-pruned-compact-split-screen-v1",
+      "campaignPhase": "screen",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-compact-split--outer-dynamic-16",
+      "status": "preliminary",
+      "statusReason": "Clean one-round same-commit issue #16 screen: correct within 1e-12; candidate passes the preregistered memory-within-time advancement path; reference depth remains separate.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+direct-radial-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        16
+      ],
+      "experiments": [
+        "issue-016-streaming-pruned-compact-split"
+      ],
+      "priorExperiments": [
+        "issue-012-pruned-horizontal-transforms",
+        "issue-007-retained-horizontal-algorithms",
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T153946970370Z-lyra/result.json",
+        "samples": "runs/20260828T153946970370Z-lyra/samples.csv",
+        "resultSha256": "9a8052683e81280da426def4a6388c74630c4e529fddd9c2bb571047dea7f108",
+        "samplesSha256": "39ce3fb36a2a5c2f774a822971a230f854ac5c1ac0e8886d4e81e35d35559adb"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -20428,7 +20608,7 @@
     {
       "id": "issue-016-streaming-pruned-compact-split",
       "issue": 16,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Streaming pruned-to-compact-split pipeline",
       "question": "Can successful outer-sharded partial-column pruning stream directly into the winning compact radial split pipeline while reducing full-spectrum memory?",
       "baseline": "Compare one uniform streaming candidate with the issue #9 plane-major fused-split winner using the issue #12 pruning topology.",

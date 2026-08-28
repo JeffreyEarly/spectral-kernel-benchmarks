@@ -126,6 +126,65 @@ class PublicationValidationTests(unittest.TestCase):
                 bundle.result["workload"]["bytes"]
                 ["spectralPipelineEstimatedExplicitPeak"],
             )
+        streaming_pruned_screen = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "streaming-pruned-compact-split-screen-v1"
+        ]
+        self.assertEqual(6, len(streaming_pruned_screen))
+        self.assertTrue(all(
+            bundle.publication["status"] == "preliminary"
+            and not bundle.result["environment"]["gitDirty"]
+            for bundle in streaming_pruned_screen
+        ))
+        self.assertEqual(
+            {
+                "plane-major-fused-split--outer-dynamic-16",
+                "streaming-pruned-compact-split--outer-dynamic-16",
+            },
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in streaming_pruned_screen
+            },
+        )
+        self.assertEqual(
+            {
+                "wvm-current-256-nz129-f4",
+                "wvm-current-512-nz257-f4",
+                "wvm-large-1024-nz129-f4",
+            },
+            {
+                bundle.result["run"]["profile"]
+                for bundle in streaming_pruned_screen
+            },
+        )
+        streaming_candidates = [
+            bundle for bundle in streaming_pruned_screen
+            if bundle.result["providers"][0]["id"] ==
+            "pipeline-streaming-pruned-compact-split"
+        ]
+        self.assertEqual(3, len(streaming_candidates))
+        for bundle in streaming_candidates:
+            provider = bundle.result["providers"][0]
+            memory = provider["memory"]
+            self.assertGreater(memory["algorithmResidentBytes"], 0)
+            self.assertGreater(memory["benchmarkHarnessBytes"], 0)
+            self.assertGreater(memory["scratchBytes"], 0)
+            self.assertLess(
+                memory["scratchBytes"],
+                bundle.result["workload"]["bytes"]["fullSpectrum"],
+            )
+            self.assertGreater(memory["observedProcessHighWaterBytes"], 0)
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                memory["algorithmResidentBytes"] +
+                memory["benchmarkHarnessBytes"],
+            )
+            self.assertEqual(
+                memory["estimatedProcessPeakBytes"],
+                bundle.result["workload"]["bytes"]
+                ["spectralPipelineEstimatedExplicitPeak"],
+            )
         outer_increment = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
