@@ -18,6 +18,11 @@ jobs:
         run: cmake --build --preset macos-release
       - name: Test
         run: ctest --preset macos-release
+        env:
+          # Hosted macOS 14 Accelerate allocates inside steady-state BLAS calls.
+          # CI gates compilation and mathematical correctness; reference Macs
+          # retain the strict opaque-library allocation assertions by default.
+          SKBENCH_SKIP_ACCELERATE_ALLOCATION_ASSERTIONS: "1"
       - name: Exercise result contract
         run: build/release/skbench run --profile smoke --output results/local/ci-smoke.json
       - name: Check JSON syntax

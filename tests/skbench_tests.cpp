@@ -32,6 +32,11 @@ std::unique_ptr<Value, FreeDeleter<Value>> alignedBuffer(std::size_t count) {
     return std::unique_ptr<Value, FreeDeleter<Value>>(static_cast<Value*>(storage));
 }
 
+bool accelerateAllocationAssertionsEnabled() {
+    const auto* skip = std::getenv("SKBENCH_SKIP_ACCELERATE_ALLOCATION_ASSERTIONS");
+    return skip == nullptr || std::string(skip) != "1";
+}
+
 void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::FFTWStrategy strategy) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
@@ -1932,7 +1937,8 @@ int main() {
                     }),
                 "tiled streaming inverse adapter timing");
 
-        if (skbench::test::allocationTrackingSupported()) {
+        if (skbench::test::allocationTrackingSupported() &&
+            accelerateAllocationAssertionsEnabled()) {
             requireAllocationFreeVerticalExecution(
                 workload, commonVertical, skbench::VerticalGemmLayout::complexInterleaved);
             requireAllocationFreeVerticalExecution(
