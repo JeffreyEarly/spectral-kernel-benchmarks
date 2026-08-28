@@ -220,25 +220,72 @@ def analyze(
             advancing.append(summary["candidate"])
 
     reference_ids = sorted(CONTROL_IDS | set(advancing))
+    paired_summaries: list[dict] = []
+    for candidate in candidate_matrix():
+        ratios: list[float] = []
+        rows: list[dict] = []
+        complete = True
+        for profile in profiles:
+            candidate_forward = cells.get((candidate.id, profile, "forward"), [])
+            candidate_inverse = cells.get((candidate.id, profile, "inverse"), [])
+            peer_totals = []
+            for peer in candidate_matrix():
+                peer_forward = cells.get((peer.id, profile, "forward"), [])
+                peer_inverse = cells.get((peer.id, profile, "inverse"), [])
+                if peer_forward and peer_inverse:
+                    peer_totals.append(
+                        statistics.median(peer_forward)
+                        + statistics.median(peer_inverse)
+                    )
+            if not candidate_forward or not candidate_inverse or not peer_totals:
+                complete = False
+                continue
+            candidate_seconds = (
+                statistics.median(candidate_forward)
+                + statistics.median(candidate_inverse)
+            )
+            best_seconds = min(peer_totals)
+            ratio = candidate_seconds / best_seconds
+            ratios.append(ratio)
+            rows.append({
+                "profile": profile,
+                "candidatePairedSeconds": candidate_seconds,
+                "bestCandidatePairedSeconds": best_seconds,
+                "candidateToBestPaired": ratio,
+            })
+        paired_summaries.append({
+            "candidate": candidate.id,
+            "completeProductionMatrix": complete,
+            "geometricRatioToPairedBest": (
+                math.exp(sum(math.log(value) for value in ratios) / len(ratios))
+                if ratios else None
+            ),
+            "maximumProfileRatioToPairedBest": max(ratios) if ratios else None,
+            "profileWins": sum(value <= 1.0 + 1.0e-12 for value in ratios),
+            "profiles": rows,
+        })
+
     issue9_candidates: list[str] = []
     if phase == "reference":
         eligible = [
-            summary for summary in summaries.values()
+            summary for summary in paired_summaries
             if summary["completeProductionMatrix"]
-            and summary["geometricRatioToCellBest"] is not None
-            and summary["maximumCellRatioToBest"] <= 1.10
+            and summary["geometricRatioToPairedBest"] is not None
+            and summary["maximumProfileRatioToPairedBest"] <= 1.10
         ]
         if eligible:
-            best_geometric = min(item["geometricRatioToCellBest"] for item in eligible)
+            best_geometric = min(
+                item["geometricRatioToPairedBest"] for item in eligible
+            )
             issue9_candidates = [
                 item["candidate"]
                 for item in sorted(
                     eligible,
                     key=lambda value: (
-                        value["geometricRatioToCellBest"], value["candidate"]
+                        value["geometricRatioToPairedBest"], value["candidate"]
                     ),
                 )
-                if item["geometricRatioToCellBest"] <= 1.03 * best_geometric
+                if item["geometricRatioToPairedBest"] <= 1.03 * best_geometric
             ][:3]
 
     return {
@@ -252,10 +299,11 @@ def analyze(
         "referenceCandidateIds": reference_ids,
         "issue9CandidateIds": issue9_candidates,
         "issue9SelectionRule": (
-            "At reference depth, retain at most three candidates within 3% of the best "
-            "geometric composed-boundary ratio and no workload-direction cell more than "
-            "10% slower than its best measured candidate."
+            "At reference depth, pair forward and inverse boundary medians within each "
+            "profile, then retain at most three candidates within 3% of the best geometric "
+            "paired ratio and no profile more than 10% slower than its best paired candidate."
         ),
+        "issue9PairedComparisons": paired_summaries,
         "comparisons": [summaries[candidate.id] for candidate in candidate_matrix()],
     }
 
@@ -479,8 +527,9 @@ def main() -> int:
             "remain at reference depth regardless of screen rank."
         ),
         "issue9SelectionRule": (
-            "At reference depth, retain at most three candidates within 3% of the best geometric "
-            "ratio and with no workload-direction cell more than 10% slower than its best candidate."
+            "At reference depth, pair forward and inverse boundary medians within each profile, "
+            "then retain at most three candidates within 3% of the best geometric paired ratio "
+            "and with no profile more than 10% slower than its best paired candidate."
         ),
         "referenceProtocol": {
             "independentlyPlannedProcesses": rounds,

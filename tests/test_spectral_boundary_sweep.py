@@ -80,6 +80,17 @@ class SpectralBoundarySweepTests(unittest.TestCase):
             {candidate.id for candidate in selected},
             set(analysis["referenceCandidateIds"]),
         )
+        reference_analysis = sweep.analyze(results, phase="reference")
+        self.assertEqual(
+            reference_analysis["issue9CandidateIds"],
+            ["pruned-compact-interleaved--outer-dynamic-16"],
+        )
+        paired = next(
+            item for item in reference_analysis["issue9PairedComparisons"]
+            if item["candidate"] == "pruned-compact-interleaved--outer-dynamic-16"
+        )
+        self.assertEqual(paired["profileWins"], 1)
+        self.assertEqual(paired["maximumProfileRatioToPairedBest"], 1.0)
 
     def test_memory_estimate_is_policy_specific_and_bounded(self) -> None:
         profile = "wvm-current-256-nz129-f1"
