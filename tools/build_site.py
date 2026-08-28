@@ -71,6 +71,8 @@ def provider_name(provider: dict) -> str:
         "ordering-pack-accelerate-zgemm": "Packed Accelerate complex zgemm",
         "ordering-pack-accelerate-split-dgemm": "Packed Accelerate split dgemm",
         "ordering-no-reorder-accelerate-zgemm": "Direct WVM-order Accelerate zgemm",
+        "fftw-full-2d-retained-reference": "FFTW full 2-D plus radial selection",
+        "fftw-partial-column-pruned": "FFTW partial-column-pruned",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -1748,6 +1750,129 @@ def ordering_packing_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+def pruned_horizontal_synthesis(bundles: list[PublishedBundle]) -> str:
+    ratios: list[float] = []
+    ratios_by_direction: dict[str, list[float]] = {"forward": [], "inverse": []}
+    errors: list[float] = []
+    scratch_bytes: list[int] = []
+    for bundle in bundles:
+        full = next(
+            (item for item in bundle.result["providers"]
+             if item["id"] == "fftw-full-2d-retained-reference"),
+            None,
+        )
+        pruned = next(
+            (item for item in bundle.result["providers"]
+             if item["id"] == "fftw-partial-column-pruned"),
+            None,
+        )
+        if full is None or pruned is None:
+            continue
+        for direction in ("forward", "inverse"):
+            full_total = timing(full, "uninstrumented-total", direction)
+            pruned_total = timing(pruned, "uninstrumented-total", direction)
+            if full_total is None or pruned_total is None:
+                continue
+            ratio = float(pruned_total["medianSeconds"]) / float(full_total["medianSeconds"])
+            ratios.append(ratio)
+            ratios_by_direction[direction].append(ratio)
+        scratch_bytes.append(int(pruned["memory"]["scratchBytes"]))
+        errors.extend(
+            float(metric[name])
+            for metric in pruned["correctness"]
+            for name in ("maximumRelativeError", "relativeL2Error")
+            if metric.get(name) is not None
+        )
+    if not ratios:
+        return ""
+    geometric = math.exp(sum(math.log(value) for value in ratios) / len(ratios))
+    direction_summary = "; ".join(
+        f"{direction}: {sum(value < 1.0 for value in values)}/{len(values)} wins, "
+        f"{math.exp(sum(math.log(value) for value in values) / len(values)):.3f}× geometric"
+        for direction, values in ratios_by_direction.items()
+        if values
+    )
+    conclusion = (
+        "The candidate is competitive in this bounded cohort and should advance to the broader retained-horizontal comparison."
+        if any(value < 1.0 for value in ratios)
+        else "The candidate is dominated in this bounded cohort; this rejects the measured partial-column decomposition, not every theoretical pruned FFT."
+    )
+    return f"""
+      <h3>Partial-column-pruned feasibility increment</h3>
+      <p>The candidate performs every real-row transform but omits complete high-k<sub>x</sub> complex-column transforms that cannot intersect the retained radial disk. It exposes compact mode-keyed output rather than a completed WVM-order half-spectrum. The same-run reference uses FFTW's optimized full two-dimensional transform followed by radial selection or embedding. Planning effort, workers, fixture, precision, workload, warmups, and samples are matched.</p>
+      <p>Across {len(ratios)} workload/worker/direction comparisons, the pruned/full retained-operator geometric ratio is {geometric:.3f}× and spans {min(ratios):.3f}×–{max(ratios):.3f}×; {direction_summary}. The largest correctness error is {format_error(max(errors))}. Candidate scratch spans {format_bytes(min(scratch_bytes))}–{format_bytes(max(scratch_bytes))} and remains full row-spectrum sized.</p>
+      <p>{conclusion} Deeper within-column output pruning, reduced first-pass scratch, transform-internal transposition, split storage, outer batch sharding, and caller-visible in-place operation remain outside this increment.</p>
+    """
+
+
+def pruned_horizontal_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in bundles:
+        result = bundle.result
+        full = next(
+            (item for item in result["providers"]
+             if item["id"] == "fftw-full-2d-retained-reference"),
+            None,
+        )
+        pruned = next(
+            (item for item in result["providers"]
+             if item["id"] == "fftw-partial-column-pruned"),
+            None,
+        )
+        if full is None or pruned is None:
+            continue
+        workload = result["workload"]
+        run = result["run"]
+        values: list[str] = []
+        for direction in ("forward", "inverse"):
+            full_raw = timing(full, "primitive", direction)
+            full_total = timing(full, "uninstrumented-total", direction)
+            pruned_row = stage_timing(pruned, "primitive-component", "real row FFTs", direction)
+            pruned_column = stage_timing(
+                pruned, "primitive-component", "selected-kx complex column FFTs", direction
+            )
+            pruned_total = timing(pruned, "uninstrumented-total", direction)
+            if any(item is None for item in (full_raw, full_total, pruned_row, pruned_column, pruned_total)):
+                values.extend(["not measured"] * 4)
+                continue
+            ratio = float(pruned_total["medianSeconds"]) / float(full_total["medianSeconds"])
+            values.extend(
+                [
+                    f"{format_ms(full_raw['medianSeconds'])} / {format_ms(full_total['medianSeconds'])}",
+                    f"{format_ms(pruned_row['medianSeconds'])} / {format_ms(pruned_column['medianSeconds'])}",
+                    format_ms(pruned_total["medianSeconds"]),
+                    f"{ratio:.3f}×",
+                ]
+            )
+        run_id = run["id"]
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run_id)}/index.html">{escaped(run_id)}</a><br>'
+            f'<span class="muted">{run["samples"]} samples · {publication_badge(bundle.publication["status"])}</span></td>'
+            f'<td class="numeric">{workload["Nx"]} × {workload["Ny"]}<br>N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</td>'
+            f'<td class="numeric">{pruned["workers"]}</td>'
+            f'<td class="numeric">{values[0]}</td><td class="numeric">{values[1]}</td>'
+            f'<td class="numeric">{values[2]}</td><td class="numeric">{values[3]}</td>'
+            f'<td class="numeric">{values[4]}</td><td class="numeric">{values[5]}</td>'
+            f'<td class="numeric">{values[6]}</td><td class="numeric">{values[7]}</td>'
+            f'<td class="numeric">{format_bytes(pruned["memory"]["scratchBytes"])}</td>'
+            f'<td class="numeric">{format_error(maximum_correctness_error(pruned))}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<div class="table-scroll"><table class="experiment-evidence-table">'
+        '<caption>Medians are milliseconds. Full entries are raw 2-D FFT / retained total. Candidate components are row / selected-column diagnostics and are not added; the separately sampled total is authoritative. Ratio is candidate/full retained total.</caption>'
+        '<thead><tr><th rowspan="2" scope="col">Run</th><th rowspan="2" scope="col">Workload</th><th rowspan="2" scope="col">Workers</th>'
+        '<th colspan="4" scope="colgroup">Forward</th><th colspan="4" scope="colgroup">Inverse</th>'
+        '<th rowspan="2" scope="col">Scratch</th><th rowspan="2" scope="col">Max error</th></tr>'
+        '<tr><th scope="col">Full raw / total</th><th scope="col">Candidate row / column</th><th scope="col">Candidate total</th><th scope="col">Ratio</th>'
+        '<th scope="col">Full raw / total</th><th scope="col">Candidate row / column</th><th scope="col">Candidate total</th><th scope="col">Ratio</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
@@ -1757,6 +1882,8 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
         return vertical_gemm_evidence_table(bundles)
     if experiment["id"] == "issue-013-ordering-packing-crossover":
         return ordering_packing_evidence_table(bundles)
+    if experiment["id"] == "issue-012-pruned-horizontal-transforms":
+        return pruned_horizontal_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
     if provider_id is None or not bundles:
         return ""
@@ -1836,6 +1963,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = vertical_gemm_synthesis(related)
     elif experiment_id == "issue-013-ordering-packing-crossover":
         synthesis = ordering_packing_synthesis(related)
+    elif experiment_id == "issue-012-pruned-horizontal-transforms":
+        synthesis = pruned_horizontal_synthesis(related)
     else:
         synthesis = ""
     content = f"""

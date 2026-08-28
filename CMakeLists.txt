@@ -36,6 +36,7 @@ endif()
 add_library(skbench_core
     src/benchmark.cpp
     src/fftw_provider.cpp
+    src/pruned_fftw_provider.cpp
     src/json.cpp
     src/model.cpp
     src/vertical_gemm.cpp
@@ -80,12 +81,14 @@ if(SKBENCH_BUILD_TESTS)
     add_test(NAME skbench-unit COMMAND skbench_tests)
     add_test(NAME skbench-cli-list COMMAND skbench list)
     add_test(NAME skbench-cli-validate COMMAND skbench validate --profile smoke)
+    add_test(NAME skbench-cli-pruned-horizontal COMMAND skbench run --kernel pruned-horizontal --providers fftw --fftw-planning estimate --workers 1 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-vertical-gemm COMMAND skbench run --kernel vertical-gemm --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-vertical-gemm-k2-grouped COMMAND skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-vertical-gemm-k2-outer-static COMMAND skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-static --vertical-gemm-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-vertical-gemm-k2-outer-dynamic COMMAND skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-ordering-packing COMMAND skbench run --kernel ordering-packing --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     set_tests_properties(skbench-cli-validate PROPERTIES TIMEOUT 120)
+    set_tests_properties(skbench-cli-pruned-horizontal PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-vertical-gemm PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-vertical-gemm-k2-grouped PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-vertical-gemm-k2-outer-static PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")

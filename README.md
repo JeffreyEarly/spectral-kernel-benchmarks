@@ -27,6 +27,7 @@ build/release/skbench run --profile quick
 build/release/skbench run --profile wvm-historical-256-nz65-f3 --providers fftw --fftw-planning measure --fftw-alignment aligned --fftw-internal-workers 12 --fftw-outer-workers 1
 build/release/skbench run --profile wvm-historical-256-nz65-f4 --vdsp-strategy out-of-place-explicit-scratch --workers 12
 build/release/skbench run --profile wvm-historical-256-nz65-f3 --vdsp-batch-strategy separable-gcd --workers 12
+build/release/skbench run --kernel pruned-horizontal --providers fftw --fftw-planning measure --fftw-internal-workers 12 --profile wvm-historical-256-nz65-f3
 VECLIB_MAXIMUM_THREADS=12 build/release/skbench run --kernel vertical-gemm --profile wvm-historical-256-nz65-f3
 VECLIB_MAXIMUM_THREADS=12 build/release/skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --profile wvm-historical-256-nz65-f3
 VECLIB_MAXIMUM_THREADS=1 build/release/skbench run --kernel vertical-gemm --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 12 --profile wvm-historical-256-nz65-f3
@@ -39,6 +40,8 @@ build/release/skbench compare --input results/local/<run>.csv
 `validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It exercises all four native vDSP placement/scratch strategies, direct persistent-pool and GCD scheduling, and the separable packed-real candidates. It also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
 
 `run` writes a versioned JSON manifest/report and a sample-level CSV file. `--providers fftw` omits the unchanged vDSP provider during FFTW strategy screens. `--fftw-planning`, `--fftw-alignment`, and `--fftw-wisdom` select the planner contract; `--fftw-internal-workers` and `--fftw-outer-workers` distinguish FFTW pthread parallelism from persistent outer batch sharding. `--fftw-planning-time-limit` applies FFTW's per-plan-call limit and records whether the observed planning interval exhausted that budget. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. `--vdsp-batch-strategy` independently selects `direct-persistent`, `direct-gcd`, `separable-persistent`, or `separable-gcd`; the separable prototype currently supports in-place placement. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
+
+`--kernel pruned-horizontal` selects the first issue #12 feasibility candidate. The matched reference performs FFTW's optimized full two-dimensional real transform and then selects the radial two-thirds mode set. The candidate performs all real-row transforms but executes complex column transforms only for the contiguous nonnegative-$k_x$ band that can intersect the retained radial disk. It writes compact mode-keyed output without materializing a completed WVM-order half-spectrum. It still requires a full-sized plane-major row-spectrum scratch buffer, which is reported explicitly. Forward/inverse row stages, selected-column stages, retention/embedding, setup, memory, and complete uninstrumented retained-operator totals remain separate. Both complete algorithms are out-of-place; the candidate's selected column transforms operate in-place only inside its private scratch.
 
 `--kernel vertical-gemm` selects the bounded issue #8 Float64 vertical-projection benchmark. It compares Accelerate complex `zgemm`, with real projection matrices expanded to complex during setup, against two Accelerate real `dgemm` calls per matrix group over persistent split real and imaginary arrays. Both paths are out-of-place. `--vertical-gemm-family common` uses one matrix for every retained horizontal column. `--vertical-gemm-family k2-grouped` assigns one deterministic dense orthonormal matrix pair to each exact integer $K^2=k^2+l^2$ group on the square WVM grids. `--vertical-gemm-schedule` selects the serial baseline, setup-time weighted-static persistent workers, or allocation-free dynamic group claiming; `--vertical-gemm-outer-workers` sets the requested outer worker count. Outer schedules require `VECLIB_MAXIMUM_THREADS=1`, set before process startup, so nested BLAS threading is not silently compared with single-level scheduling. Inputs are already stored as column-major vertical-contiguous matrices in group order, so raw primitive timing excludes packing, horizontal ordering, allocation, and matrix preparation. Those exclusions are explicit experimental boundaries rather than assumptions that the work is free.
 
@@ -68,6 +71,15 @@ python3 tools/run_vdsp_batch_sweep.py
 ```
 
 The authoritative primitive measurement is complete batch wall time. Separable row and column phases and an empty-dispatch scheduler diagnostic are also sampled, but they are non-additive because each phase has its own dispatch and cache state. No candidate performs an explicit column transpose; that stage is recorded as `elided`.
+
+The issue #12 driver compares the partial-column-pruned candidate with a same-run full two-dimensional FFTW retained-operator reference. The default matrix covers representative 256-class and 512-class workloads with fields 1, 3, and 4 at one worker and the derived performance-core count. It estimates the harness's explicit peak memory, requires a clean source tree for evidence collection, and verifies that each result's embedded commit and dirty state match the executable source.
+
+```sh
+python3 tools/run_pruned_horizontal_sweep.py --dry-run --allow-dirty-tree
+python3 tools/run_pruned_horizontal_sweep.py
+```
+
+This first candidate prunes only complete high-$k_x$ column transforms. It does not prune individual $k_y$ outputs within an active column, reduce first-pass row work, remove full-sized first-pass scratch, or test transform-internal transposition. A loss therefore rejects this concrete decomposition, not every theoretical subset FFT.
 
 The first issue #8 driver screens the common deterministic DCT-II matrix family at the representative historical $256^2$, $N_z=65$, fields $=3$ and $512^2$, $N_z=129$, fields $=3$ workloads. It runs each Accelerate thread limit in a fresh process because `VECLIB_MAXIMUM_THREADS` is process state:
 

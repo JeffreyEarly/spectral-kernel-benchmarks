@@ -68,6 +68,31 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
     require(skbench::test::endAllocationTracking() == 0, "FFTW steady-state execution allocated memory");
 }
 
+void requireAllocationFreePrunedExecution(
+    const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto retained = alignedBuffer<skbench::Complex>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 31) / 31.0;
+    }
+
+    skbench::FFTWPrunedProvider provider(
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1);
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.forward(input.get(), retained.get());
+        provider.inverse(retained.get(), output.get());
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.forward(input.get(), retained.get());
+        provider.inverse(retained.get(), output.get());
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "partially pruned FFTW steady-state execution allocated memory");
+}
+
 void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
                                             const skbench::GroupedVerticalOperators& operators,
                                             skbench::VerticalGemmLayout layout,
@@ -287,6 +312,92 @@ int main() {
                 "current workload profile");
         require(profileList.size() == 13, "unexpected profile count");
 
+        const auto prunedModes = skbench::retainedHorizontalModes(workload);
+        skbench::FFTWPrunedProvider prunedProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1);
+        require(prunedProvider.activeKxCount() < prunedProvider.fullKxCount(),
+                "pruned FFTW candidate did not omit any kx columns");
+        require(prunedProvider.columnTransformsPerDirection() +
+                    prunedProvider.omittedColumnTransformsPerDirection() ==
+                    workload.nxHalf() * workload.planes(),
+                "pruned FFTW column accounting");
+        require(prunedProvider.scratchBytes() ==
+                    workload.spectrumElements() * sizeof(skbench::Complex),
+                "pruned FFTW scratch accounting");
+        require(!prunedProvider.completeHalfSpectrumOutputMaterialized(),
+                "pruned FFTW unexpectedly claims a complete transformed output");
+        require(!prunedProvider.inPlaceRetainedOperatorSupported() &&
+                    !prunedProvider.inPlaceRetainedOperatorCapability().empty(),
+                "pruned FFTW in-place capability contract");
+
+        std::vector<skbench::Complex> prunedOracleSpectrum(workload.spectrumElements());
+        std::vector<skbench::Complex> prunedEmbeddedSpectrum(workload.spectrumElements());
+        std::vector<skbench::Complex> prunedRetainedOracle(
+            prunedModes.size() * workload.planes());
+        std::vector<skbench::Complex> prunedRetainedActual(prunedRetainedOracle.size());
+        std::vector<double> prunedInverseOracle(workload.realElements());
+        std::vector<double> prunedInverseActual(workload.realElements());
+        for (std::size_t fixtureIndex = 0; fixtureIndex < 5; ++fixtureIndex) {
+            const auto fixture = static_cast<skbench::FixtureKind>(fixtureIndex);
+            const auto fixtureInput = skbench::makeFixture(
+                workload, fixture, 700 + fixtureIndex);
+            const auto preservedInput = fixtureInput;
+            skbench::directR2C(
+                workload, fixtureInput.data(), prunedOracleSpectrum.data());
+            skbench::gatherRetained(
+                workload, prunedModes, prunedOracleSpectrum.data(),
+                prunedRetainedOracle.data());
+            prunedProvider.forward(fixtureInput.data(), prunedRetainedActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedRetainedActual.data(), prunedRetainedOracle.data(),
+                        prunedRetainedActual.size()) < 1.0e-12,
+                    "pruned FFTW forward versus direct mathematical oracle");
+            require(fixtureInput == preservedInput,
+                    "pruned FFTW forward modified caller input");
+
+            skbench::embedRetained(
+                workload, prunedModes, prunedRetainedOracle.data(),
+                prunedEmbeddedSpectrum.data());
+            skbench::directC2R(
+                workload, prunedEmbeddedSpectrum.data(), prunedInverseOracle.data());
+            const auto preservedRetained = prunedRetainedOracle;
+            prunedProvider.inverse(
+                prunedRetainedOracle.data(), prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "pruned FFTW inverse versus direct mathematical oracle");
+            require(skbench::maximumRelativeError(
+                        prunedRetainedOracle.data(), preservedRetained.data(),
+                        prunedRetainedOracle.size()) == 0.0,
+                    "pruned FFTW inverse modified caller retained input");
+        }
+
+        skbench::RunOptions prunedOptions;
+        prunedOptions.kernel = "pruned-horizontal";
+        prunedOptions.profile = "smoke";
+        prunedOptions.providers = "fftw";
+        prunedOptions.fftwPlanning = "estimate";
+        prunedOptions.workers = 1;
+        prunedOptions.warmups = 1;
+        prunedOptions.samples = 2;
+        const auto prunedReport = skbench::runBenchmark(prunedOptions);
+        require(prunedReport.status == "passed",
+                "pruned FFTW smoke benchmark failed");
+        require(prunedReport.providers.size() == 2,
+                "pruned FFTW benchmark candidate count");
+        require(prunedReport.providers[0].id == "fftw-full-2d-retained-reference" &&
+                    prunedReport.providers[1].id == "fftw-partial-column-pruned",
+                "pruned FFTW provider identities");
+        require(prunedReport.providers[1].scratchBytes ==
+                    prunedReport.fullSpectrumBytes,
+                "pruned FFTW report does not expose full-sized scratch");
+        for (const auto& provider : prunedReport.providers) {
+            for (const auto& correctness : provider.correctness) {
+                require(correctness.passed, "pruned FFTW benchmark correctness");
+            }
+        }
+
         skbench::RunOptions fftwOptions;
         fftwOptions.profile = "smoke";
         fftwOptions.providers = "fftw";
@@ -454,6 +565,7 @@ int main() {
                 2,
                 0.0,
                 skbench::FFTWDataLayout::split});
+            requireAllocationFreePrunedExecution(workload, prunedModes);
         }
 
         skbench::VDSPProvider inPlace(workload, 2, skbench::VDSPTransformStrategy::inPlace);

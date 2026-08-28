@@ -317,6 +317,49 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+class FFTWPrunedProvider {
+public:
+    FFTWPrunedProvider(const Workload& workload, const std::vector<RetainedMode>& modes,
+                       FFTWPlanningMode planningMode, std::size_t internalWorkers);
+    ~FFTWPrunedProvider();
+    FFTWPrunedProvider(FFTWPrunedProvider&&) noexcept;
+    FFTWPrunedProvider& operator=(FFTWPrunedProvider&&) noexcept;
+    FFTWPrunedProvider(const FFTWPrunedProvider&) = delete;
+    FFTWPrunedProvider& operator=(const FFTWPrunedProvider&) = delete;
+
+    void executeForwardRows(const double* input);
+    void executeForwardColumns();
+    void gatherForward(Complex* retainedSpectrum) const;
+    void forward(const double* input, Complex* retainedSpectrum);
+    void embedInverse(const Complex* retainedSpectrum);
+    void executeInverseColumns();
+    void executeInverseRows(double* output);
+    void inverse(const Complex* retainedSpectrum, double* output);
+
+    std::size_t activeKxCount() const noexcept;
+    std::size_t fullKxCount() const noexcept;
+    std::size_t rowTransformsPerDirection() const noexcept;
+    std::size_t columnTransformsPerDirection() const noexcept;
+    std::size_t omittedColumnTransformsPerDirection() const noexcept;
+    std::size_t scratchBytes() const noexcept;
+    std::size_t planningBytes() const noexcept;
+    std::size_t minimumAlignmentBytes() const noexcept;
+    std::size_t internalWorkers() const noexcept;
+    double otherSetupSeconds() const noexcept;
+    double allocationSeconds() const noexcept;
+    double planningSeconds() const noexcept;
+    FFTWPlanningMode planningMode() const noexcept;
+    bool completeHalfSpectrumOutputMaterialized() const noexcept;
+    bool inPlaceRetainedOperatorSupported() const noexcept;
+    std::string inPlaceRetainedOperatorCapability() const;
+    std::string libraryIdentity() const;
+    std::string version() const;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 enum class VDSPTransformStrategy {
     inPlace,
     inPlaceExplicitScratch,
@@ -568,6 +611,7 @@ struct ValidationReport {
 };
 
 BenchmarkReport runBenchmark(const RunOptions& options);
+BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options);
 BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
 BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);

@@ -483,6 +483,94 @@ std::vector<LedgerEntry> fftwLedger(const FFTWProvider& provider) {
         {"uninstrumented total", StageState::executed, "retained horizontal forward or inverse operator"}};
 }
 
+std::vector<LedgerEntry> prunedFftwLedger(const FFTWPrunedProvider& provider) {
+    const auto columns = std::to_string(provider.columnTransformsPerDirection());
+    const auto omitted = std::to_string(provider.omittedColumnTransformsPerDirection());
+    return {
+        {"setup/planning", StageState::setupOnly,
+         "four reusable FFTW guru64 plans and a full-sized plane-major row-spectrum scratch buffer"},
+        {"raw forward FFT", StageState::fused,
+         "the retained transform is decomposed into separately timed row and selected-column stages"},
+        {"forward real row FFTs", StageState::executed,
+         std::to_string(provider.rowTransformsPerDirection()) + " length-Nx out-of-place r2c transforms"},
+        {"forward selected complex column FFTs", StageState::executed,
+         columns + " length-Ny in-place c2c transforms; " + omitted + " high-kx transforms are elided"},
+        {"horizontal retention", StageState::executed,
+         "radially retained logical modes are gathered directly from plane-major row-spectrum scratch"},
+        {"representation conversion", StageState::elided,
+         "the candidate uses interleaved complex scratch and interleaved compact retained output"},
+        {"permutation/packing", StageState::elided,
+         "no full WVM-order half-spectrum or transpose is materialized"},
+        {"raw forward vertical MM", StageState::unsupported, "outside issue #12"},
+        {"modal work", StageState::unsupported, "outside issue #12"},
+        {"raw inverse vertical MM", StageState::unsupported, "outside issue #12"},
+        {"horizontal embedding", StageState::executed,
+         "zero full row-spectrum scratch and embed retained values with Hermitian-boundary repair"},
+        {"inverse selected complex column FFTs", StageState::executed,
+         columns + " length-Ny in-place c2c transforms; " + omitted + " high-kx transforms are elided"},
+        {"raw inverse FFT", StageState::fused,
+         "the retained inverse is decomposed into embedding, selected-column, and real-row stages"},
+        {"inverse real row FFTs", StageState::executed,
+         std::to_string(provider.rowTransformsPerDirection()) + " length-Nx out-of-place c2r transforms"},
+        {"complete transformed half-spectrum output", StageState::elided,
+         "only the compact retained output is exposed; full-sized first-pass scratch still exists and is reported"},
+        {"in-place retained operator", StageState::unsupported,
+         provider.inPlaceRetainedOperatorCapability()},
+        {"uninstrumented total", StageState::executed,
+         "complete partial-column-pruned retained forward or inverse operation"}};
+}
+
+ExecutionContract prunedFftwExecutionContract(const Workload& workload,
+                                              const FFTWPrunedProvider& provider) {
+    const auto planes = workload.planes();
+    const auto retained = retainedHorizontalModes(workload).size();
+    const auto realExtents = "[planes=" + std::to_string(planes) + "][Ny=" +
+        std::to_string(workload.ny) + "][Nx=" + std::to_string(workload.nx) + "]";
+    const auto scratchExtents = "[planes=" + std::to_string(planes) + "][Ny=" +
+        std::to_string(workload.ny) + "][NxHalf=" + std::to_string(workload.nxHalf()) + "]";
+    const auto retainedExtents = "[mode=" + std::to_string(retained) + "][planes=" +
+        std::to_string(planes) + "]";
+    DirectionExecutionContract forward{
+        "mixed: out-of-place rows and in-place selected columns in private scratch",
+        "out-of-place",
+        false,
+        true,
+        false,
+        false,
+        false,
+        "wvm-x-fastest-real-grid",
+        "logical-radial-retained-interleaved",
+        "wvm-x-fastest-real-grid",
+        "logical-radial-retained-interleaved",
+        "input=" + realExtents + "; scratch=" + scratchExtents + "; output=" + retainedExtents,
+        "input{x=1,y=Nx,plane=Nx*Ny}; scratch{kx=1,ky=NxHalf,plane=NxHalf*Ny}; output{plane=1,mode=planes}",
+        0,
+        provider.minimumAlignmentBytes(),
+        "caller input and compact output are disjoint; selected column transforms overwrite reusable private scratch",
+        provider.scratchBytes(),
+        true};
+    DirectionExecutionContract inverse{
+        "mixed: in-place selected columns and out-of-place real rows from private scratch",
+        "out-of-place",
+        false,
+        true,
+        false,
+        false,
+        false,
+        "logical-radial-retained-interleaved",
+        "wvm-x-fastest-real-grid",
+        "logical-radial-retained-interleaved",
+        "wvm-x-fastest-real-grid",
+        "input=" + retainedExtents + "; scratch=" + scratchExtents + "; output=" + realExtents,
+        "input{plane=1,mode=planes}; scratch{kx=1,ky=NxHalf,plane=NxHalf*Ny}; output{x=1,y=Nx,plane=Nx*Ny}",
+        0,
+        provider.minimumAlignmentBytes(),
+        "caller retained input and real output are disjoint; embedding initializes and the inverse transforms overwrite reusable private scratch",
+        provider.scratchBytes(),
+        true};
+    return {std::move(forward), std::move(inverse)};
+}
+
 std::string vdspDirectApiName(VDSPTransformStrategy strategy) {
     switch (strategy) {
         case VDSPTransformStrategy::inPlace: return "vDSP_fft2d_zripD";
@@ -1738,11 +1826,289 @@ ValidationReport validateBenchmark(std::string_view profileName) {
     return report;
 }
 
+BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
+    if (options.providers != "both" && options.providers != "fftw") {
+        throw std::invalid_argument("The pruned-horizontal kernel compares two FFTW algorithms; providers must be 'both' or 'fftw'.");
+    }
+    if (options.fftwLayout != "interleaved") {
+        throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-layout interleaved.");
+    }
+    if (options.fftwAlignment != "unaligned") {
+        throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-alignment unaligned.");
+    }
+    if (options.fftwWisdom != "cold") {
+        throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-wisdom cold.");
+    }
+    if (options.fftwOuterWorkers != 1) {
+        throw std::invalid_argument("The initial pruned-horizontal candidate requires --fftw-outer-workers 1.");
+    }
+    if (options.fftwPlanningTimeLimitSeconds != 0.0) {
+        throw std::invalid_argument("The initial pruned-horizontal candidate does not yet support a planning time limit.");
+    }
+
+    auto selected = profileNamed(options.profile);
+    const auto planningMode = fftwPlanningModeNamed(options.fftwPlanning);
+    const auto workers = options.workers == 0 ? selected.defaultWorkers : options.workers;
+    const auto internalWorkers = options.fftwInternalWorkers == 0 ? workers : options.fftwInternalWorkers;
+    const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
+    const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
+
+    BenchmarkReport report;
+    report.profile = selected.name;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = sampleCount;
+    report.workload = selected.workload;
+    report.environment = environmentRecord();
+    report.runId = utcTimestamp(true) + "-" + report.environment.hostname;
+
+    const auto& workload = report.workload;
+    const auto modes = retainedHorizontalModes(workload);
+    report.retainedHorizontalModeCount = modes.size();
+    report.retainedModeOrderHash = modeOrderHash(modes);
+    report.wvmFullSpectrumOrderHash = wvmSpectrumOrderHash(workload);
+    report.fullRealBytes = bytes(workload.realElements(), sizeof(double));
+    report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
+    report.retainedSpectrumBytes = bytes(modes.size() * workload.planes(), sizeof(Complex));
+    report.modalSpectrumBytes = bytes(
+        modes.size() * workload.fields * workload.retainedVerticalModes(), sizeof(Complex));
+
+    const auto inputFixture = makeFixture(workload, FixtureKind::random, options.seed);
+    FFTWArray<double> input(workload.realElements());
+    std::copy(inputFixture.begin(), inputFixture.end(), input.begin());
+    FFTWArray<Complex> referenceSpectrum(workload.spectrumElements());
+    FFTWArray<Complex> fullWorkingSpectrum(workload.spectrumElements());
+    FFTWArray<Complex> inverseFullSpectrum(workload.spectrumElements());
+    FFTWArray<double> referenceProjectedOutput(workload.realElements());
+    FFTWArray<double> fullOutput(workload.realElements());
+    FFTWArray<double> prunedOutput(workload.realElements());
+    std::vector<Complex> retainedReference(modes.size() * workload.planes());
+    std::vector<Complex> retainedFull(modes.size() * workload.planes());
+    std::vector<Complex> retainedPruned(modes.size() * workload.planes());
+
+    FFTWProvider fixedReference(workload, FFTWStrategy{
+        FFTWPlanningMode::estimate,
+        FFTWAlignmentStrategy::unaligned,
+        FFTWWisdomStrategy::cold,
+        1,
+        1,
+        0.0,
+        FFTWDataLayout::interleaved});
+    fixedReference.forward(input.data(), referenceSpectrum.data());
+    gatherRetained(workload, modes, referenceSpectrum.data(), retainedReference.data());
+    embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+    fixedReference.inverse(inverseFullSpectrum.data(), referenceProjectedOutput.data());
+
+    const FFTWStrategy fullStrategy{
+        planningMode,
+        FFTWAlignmentStrategy::unaligned,
+        FFTWWisdomStrategy::cold,
+        internalWorkers,
+        1,
+        0.0,
+        FFTWDataLayout::interleaved};
+    FFTWProvider full(workload, fullStrategy);
+    full.forward(input.data(), fullWorkingSpectrum.data());
+    gatherRetained(workload, modes, fullWorkingSpectrum.data(), retainedFull.data());
+    embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+    full.inverse(inverseFullSpectrum.data(), fullOutput.data());
+
+    FFTWPrunedProvider pruned(workload, modes, planningMode, internalWorkers);
+    pruned.forward(input.data(), retainedPruned.data());
+    pruned.inverse(retainedReference.data(), prunedOutput.data());
+
+    ProviderRecord fullRecord;
+    fullRecord.id = "fftw-full-2d-retained-reference";
+    fullRecord.version = full.version();
+    fullRecord.libraryIdentity = full.libraryIdentity();
+    fullRecord.algorithmId = "full-2d-plus-radial-selection-" + fftwAlgorithmId(full);
+    fullRecord.nativeRepresentationId = "wvm-frequency-major-interleaved-half-spectrum";
+    fullRecord.modeOrderId = "full-r2c-kx-nonnegative-ky-wrapped";
+    fullRecord.schedulingId = fftwSchedulingId(full);
+    fullRecord.sourceIdentity = "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz";
+    fullRecord.sourceSha256 = "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
+    fullRecord.configureFlags = "--host=aarch64-apple-darwin --enable-neon --enable-threads --disable-fortran --disable-openmp --enable-shared --disable-static";
+    fullRecord.compilerFlags = "-O3 -mcpu=native -mmacosx-version-min=13.3";
+    fullRecord.planningConfiguration = fftwPlanningConfiguration(full);
+    fullRecord.workers = full.totalLogicalWorkers();
+    fullRecord.internalWorkers = full.internalWorkers();
+    fullRecord.outerWorkers = full.outerWorkers();
+    fullRecord.execution = fftwExecutionContract(workload, full);
+    fullRecord.otherSetupSeconds = full.otherSetupSeconds();
+    fullRecord.allocationSeconds = full.allocationSeconds();
+    fullRecord.planningSeconds = full.planningSeconds();
+    fullRecord.opaquePlanningBytes = full.planningBytes();
+    fullRecord.ledger = fftwLedger(full);
+    fullRecord.correctness = {
+        metric("full forward versus fixed FFTW ESTIMATE reference",
+               fullWorkingSpectrum.data(), referenceSpectrum.data(), referenceSpectrum.size()),
+        metric("retained forward versus mode-keyed full FFTW reference",
+               retainedFull.data(), retainedReference.data(), retainedReference.size()),
+        metric("retained inverse versus fixed FFTW ESTIMATE reference",
+               maximumRelativeError(fullOutput.data(), referenceProjectedOutput.data(),
+                                    fullOutput.size()))};
+    fullRecord.timings.push_back(series(
+        "primitive", "raw full 2-D FFT", "forward", StageState::executed,
+        report.fullRealBytes + report.fullSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            full.forward(input.data(), fullWorkingSpectrum.data());
+        })));
+    fullRecord.timings.push_back(series(
+        "primitive", "raw full 2-D FFT", "inverse", StageState::executed,
+        report.fullSpectrumBytes + report.fullRealBytes,
+        measure(warmups, sampleCount,
+                [&] {
+                    std::copy(referenceSpectrum.begin(), referenceSpectrum.end(),
+                              inverseFullSpectrum.begin());
+                },
+                [&] { full.inverse(inverseFullSpectrum.data(), fullOutput.data()); })));
+    fullRecord.timings.push_back(series(
+        "operator-component", "radial retention", "forward", StageState::executed,
+        report.fullSpectrumBytes + report.retainedSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            gatherRetained(workload, modes, referenceSpectrum.data(), retainedFull.data());
+        })));
+    fullRecord.timings.push_back(series(
+        "operator-component", "radial embedding and full-spectrum zero fill", "inverse",
+        StageState::executed, report.retainedSpectrumBytes + report.fullSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+        })));
+    fullRecord.timings.push_back(series(
+        "uninstrumented-total", "retained horizontal operator", "forward", StageState::executed,
+        report.fullRealBytes + report.fullSpectrumBytes + report.retainedSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            full.forward(input.data(), fullWorkingSpectrum.data());
+            gatherRetained(workload, modes, fullWorkingSpectrum.data(), retainedFull.data());
+        })));
+    fullRecord.timings.push_back(series(
+        "uninstrumented-total", "retained horizontal operator", "inverse", StageState::executed,
+        report.retainedSpectrumBytes + report.fullSpectrumBytes + report.fullRealBytes,
+        measure(warmups, sampleCount, [&] {
+            embedRetained(workload, modes, retainedReference.data(), inverseFullSpectrum.data());
+            full.inverse(inverseFullSpectrum.data(), fullOutput.data());
+        })));
+    report.providers.push_back(std::move(fullRecord));
+
+    ProviderRecord prunedRecord;
+    prunedRecord.id = "fftw-partial-column-pruned";
+    prunedRecord.version = pruned.version();
+    prunedRecord.libraryIdentity = pruned.libraryIdentity();
+    prunedRecord.algorithmId = "separable-row-r2c-selected-kx-column-c2c-v1";
+    prunedRecord.nativeRepresentationId =
+        "plane-major-full-row-spectrum-scratch+logical-radial-retained-interleaved";
+    prunedRecord.modeOrderId = "logical-radial-retained-mode-order";
+    prunedRecord.schedulingId = "fftw-internal-pthreads";
+    prunedRecord.sourceIdentity = "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz";
+    prunedRecord.sourceSha256 = "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
+    prunedRecord.configureFlags = fullStrategy.layout == FFTWDataLayout::interleaved
+        ? "--host=aarch64-apple-darwin --enable-neon --enable-threads --disable-fortran --disable-openmp --enable-shared --disable-static"
+        : "unsupported";
+    prunedRecord.compilerFlags = "-O3 -mcpu=native -mmacosx-version-min=13.3";
+    prunedRecord.planningConfiguration =
+        "FFTW_" + std::string(fftwPlanningModeName(pruned.planningMode())) +
+        "|FFTW_UNALIGNED; guru64 1-D row r2c/c2r plus in-place selected-kx column c2c; active-kx=" +
+        std::to_string(pruned.activeKxCount()) + "/" + std::to_string(pruned.fullKxCount()) +
+        "; internal-workers=" + std::to_string(pruned.internalWorkers());
+    prunedRecord.workers = pruned.internalWorkers();
+    prunedRecord.internalWorkers = pruned.internalWorkers();
+    prunedRecord.outerWorkers = 1;
+    prunedRecord.execution = prunedFftwExecutionContract(workload, pruned);
+    prunedRecord.explicitPersistentBytes = 0;
+    prunedRecord.scratchBytes = pruned.scratchBytes();
+    prunedRecord.otherSetupSeconds = pruned.otherSetupSeconds();
+    prunedRecord.allocationSeconds = pruned.allocationSeconds();
+    prunedRecord.planningSeconds = pruned.planningSeconds();
+    prunedRecord.opaquePlanningBytes = pruned.planningBytes();
+    prunedRecord.ledger = prunedFftwLedger(pruned);
+    prunedRecord.correctness = {
+        metric("retained forward versus mode-keyed full FFTW reference",
+               retainedPruned.data(), retainedReference.data(), retainedReference.size()),
+        metric("retained inverse versus full FFTW embed and inverse",
+               maximumRelativeError(prunedOutput.data(), referenceProjectedOutput.data(),
+                                    prunedOutput.size()))};
+
+    const auto activeColumnBytes = bytes(
+        pruned.activeKxCount() * workload.ny * workload.planes(), sizeof(Complex));
+    prunedRecord.timings.push_back(series(
+        "primitive-component", "real row FFTs", "forward", StageState::executed,
+        report.fullRealBytes + report.fullSpectrumBytes,
+        measure(warmups, sampleCount, [&] { pruned.executeForwardRows(input.data()); })));
+    prunedRecord.timings.push_back(series(
+        "primitive-component", "selected-kx complex column FFTs", "forward",
+        StageState::executed, 2 * activeColumnBytes,
+        measure(warmups, sampleCount,
+                [&] { pruned.executeForwardRows(input.data()); },
+                [&] { pruned.executeForwardColumns(); })));
+    prunedRecord.timings.push_back(series(
+        "operator-component", "direct radial retention from plane-major scratch", "forward",
+        StageState::executed, 2 * report.retainedSpectrumBytes,
+        measure(warmups, sampleCount,
+                [&] {
+                    pruned.executeForwardRows(input.data());
+                    pruned.executeForwardColumns();
+                },
+                [&] { pruned.gatherForward(retainedPruned.data()); })));
+    prunedRecord.timings.push_back(series(
+        "operator-component", "radial embedding and row-spectrum zero fill", "inverse",
+        StageState::executed, report.retainedSpectrumBytes + report.fullSpectrumBytes,
+        measure(warmups, sampleCount, [&] { pruned.embedInverse(retainedReference.data()); })));
+    prunedRecord.timings.push_back(series(
+        "primitive-component", "selected-kx complex column FFTs", "inverse",
+        StageState::executed, 2 * activeColumnBytes,
+        measure(warmups, sampleCount,
+                [&] { pruned.embedInverse(retainedReference.data()); },
+                [&] { pruned.executeInverseColumns(); })));
+    prunedRecord.timings.push_back(series(
+        "primitive-component", "real row FFTs", "inverse", StageState::executed,
+        report.fullSpectrumBytes + report.fullRealBytes,
+        measure(warmups, sampleCount,
+                [&] {
+                    pruned.embedInverse(retainedReference.data());
+                    pruned.executeInverseColumns();
+                },
+                [&] { pruned.executeInverseRows(prunedOutput.data()); })));
+    prunedRecord.timings.push_back(series(
+        "algorithm-component", "omitted high-kx complex column FFTs", "forward",
+        StageState::elided, 0));
+    prunedRecord.timings.push_back(series(
+        "algorithm-component", "omitted high-kx complex column FFTs", "inverse",
+        StageState::elided, 0));
+    prunedRecord.timings.push_back(series(
+        "uninstrumented-total", "partial-column-pruned retained horizontal operator", "forward",
+        StageState::executed,
+        report.fullRealBytes + report.fullSpectrumBytes + 2 * activeColumnBytes +
+            2 * report.retainedSpectrumBytes,
+        measure(warmups, sampleCount, [&] {
+            pruned.forward(input.data(), retainedPruned.data());
+        })));
+    prunedRecord.timings.push_back(series(
+        "uninstrumented-total", "partial-column-pruned retained horizontal operator", "inverse",
+        StageState::executed,
+        report.retainedSpectrumBytes + 2 * report.fullSpectrumBytes +
+            2 * activeColumnBytes + report.fullRealBytes,
+        measure(warmups, sampleCount, [&] {
+            pruned.inverse(retainedReference.data(), prunedOutput.data());
+        })));
+    prunedRecord.timings.push_back(series(
+        "capability", "complete transformed half-spectrum output", "shared",
+        StageState::elided, 0));
+    prunedRecord.timings.push_back(series(
+        "capability", "in-place retained operator", "shared", StageState::unsupported, 0));
+    report.providers.push_back(std::move(prunedRecord));
+
+    report.status = std::all_of(report.providers.begin(), report.providers.end(), correctnessPassed)
+        ? "passed" : "failed";
+    return report;
+}
+
 BenchmarkReport runBenchmark(const RunOptions& options) {
+    if (options.kernel == "pruned-horizontal") return runPrunedHorizontalBenchmark(options);
     if (options.kernel == "vertical-gemm") return runVerticalGemmBenchmark(options);
     if (options.kernel == "ordering-packing") return runOrderingPackingBenchmark(options);
     if (options.kernel != "fft") {
-        throw std::invalid_argument("kernel must be 'fft', 'vertical-gemm', or 'ordering-packing'.");
+        throw std::invalid_argument(
+            "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', or 'ordering-packing'.");
     }
     auto selected = profileNamed(options.profile);
     if (options.providers != "both" && options.providers != "fftw") {
