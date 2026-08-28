@@ -27,6 +27,7 @@ build/release/skbench run --profile quick
 build/release/skbench run --profile wvm-historical-256-nz65-f3 --providers fftw --fftw-planning measure --fftw-alignment aligned --fftw-internal-workers 12 --fftw-outer-workers 1
 build/release/skbench run --profile wvm-historical-256-nz65-f4 --vdsp-strategy out-of-place-explicit-scratch --workers 12
 build/release/skbench run --profile wvm-historical-256-nz65-f3 --vdsp-batch-strategy separable-gcd --workers 12
+VECLIB_MAXIMUM_THREADS=12 build/release/skbench run --kernel vertical-gemm --profile wvm-historical-256-nz65-f3
 build/release/skbench compare --input results/local/<run>.csv
 ```
 
@@ -35,6 +36,8 @@ build/release/skbench compare --input results/local/<run>.csv
 `validate` checks impulse, sinusoid, deterministic random, DC, and Nyquist fixtures against an independent direct-DFT oracle. It exercises all four native vDSP placement/scratch strategies, direct persistent-pool and GCD scheduling, and the separable packed-real candidates. It also checks full FFT conformance, inverse normalization, retained-mode values, representation round trips, and permutation invariance.
 
 `run` writes a versioned JSON manifest/report and a sample-level CSV file. `--providers fftw` omits the unchanged vDSP provider during FFTW strategy screens. `--fftw-planning`, `--fftw-alignment`, and `--fftw-wisdom` select the planner contract; `--fftw-internal-workers` and `--fftw-outer-workers` distinguish FFTW pthread parallelism from persistent outer batch sharding. `--fftw-planning-time-limit` applies FFTW's per-plan-call limit and records whether the observed planning interval exhausted that budget. `--vdsp-strategy` selects `in-place`, `in-place-explicit-scratch`, `out-of-place`, or `out-of-place-explicit-scratch`. `--vdsp-batch-strategy` independently selects `direct-persistent`, `direct-gcd`, `separable-persistent`, or `separable-gcd`; the separable prototype currently supports in-place placement. Scratch runs go to `results/local/` and are ignored. Every new result identifies its numeric type and records the forward and inverse provider-native and adapter execution contracts, including in-place/out-of-place placement, destructive inputs, preservation policy, physical extents, padding, strides, alignment, aliasing, and reusable work memory.
+
+`--kernel vertical-gemm` selects the bounded issue #8 Float64 vertical-projection benchmark. It compares one Accelerate complex `zgemm`, with the real projection matrix expanded to complex during setup, against two Accelerate real `dgemm` calls over persistent split real and imaginary arrays. Both paths are out-of-place. Inputs are already stored as column-major vertical-contiguous matrices, so raw primitive timing excludes packing, horizontal ordering, allocation, and matrix preparation. Those exclusions are explicit experimental boundaries rather than assumptions that the work is free.
 
 The issue #3/#5 sweep driver expands the ten named WVM workloads across all four vDSP strategies and the one-worker, performance-core, and total-core counts. Inspect the commands before starting the deliberately long full matrix:
 
@@ -63,6 +66,15 @@ python3 tools/run_vdsp_batch_sweep.py
 
 The authoritative primitive measurement is complete batch wall time. Separable row and column phases and an empty-dispatch scheduler diagnostic are also sampled, but they are non-additive because each phase has its own dispatch and cache state. No candidate performs an explicit column transpose; that stage is recorded as `elided`.
 
+The first issue #8 driver screens the common deterministic DCT-II matrix family at the representative historical $256^2$, $N_z=65$, fields $=3$ and $512^2$, $N_z=129$, fields $=3$ workloads. It runs each Accelerate thread limit in a fresh process because `VECLIB_MAXIMUM_THREADS` is process state:
+
+```sh
+python3 tools/run_vertical_gemm_sweep.py --dry-run
+python3 tools/run_vertical_gemm_sweep.py
+```
+
+This bounded increment publishes primitive complex and split-real GEMM times, forward and inverse directions, matrix setup, explicit persistent memory, correctness, confidence intervals, and variability. It does not yet cover fields 1/4, $N_z=257$, grouped $K^2$ matrix families, blocking, or the packing crossover owned by issue #13.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries
@@ -70,7 +82,7 @@ Only compact reviewed artifacts belong under `results/published/`. New immutable
 Every result distinguishes:
 
 - provider setup and planning;
-- raw provider-native forward and inverse FFT calls;
+- raw provider-native forward and inverse FFT or vertical GEMM calls;
 - representation packing, conversion, and permutation;
 - full-spectrum WVM-compatible adapters;
 - horizontal retention and embedding;

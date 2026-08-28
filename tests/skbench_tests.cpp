@@ -67,6 +67,41 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
     require(skbench::test::endAllocationTracking() == 0, "FFTW steady-state execution allocated memory");
 }
 
+void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
+                                            std::size_t horizontalModeCount,
+                                            const skbench::VerticalOperators& operators,
+                                            skbench::VerticalGemmLayout layout) {
+    const auto physicalCount = workload.nz * horizontalModeCount * workload.fields;
+    const auto modalCount = operators.nj * horizontalModeCount * workload.fields;
+    std::vector<skbench::Complex> physical(physicalCount);
+    std::vector<skbench::Complex> modal(modalCount);
+    for (std::size_t index = 0; index < physical.size(); ++index) {
+        physical[index] = {static_cast<double>(index % 31) / 31.0,
+                           -static_cast<double>(index % 29) / 29.0};
+    }
+    for (std::size_t index = 0; index < modal.size(); ++index) {
+        modal[index] = {static_cast<double>(index % 23) / 23.0,
+                        -static_cast<double>(index % 19) / 19.0};
+    }
+
+    skbench::VerticalGemmProvider provider(workload, horizontalModeCount, operators, layout);
+    require(provider.supported(), "Accelerate vertical GEMM provider is unavailable");
+    provider.loadPhysicalInput(physical.data());
+    provider.loadModalInput(modal.data());
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        provider.executeForward();
+        provider.executeInverse();
+    }
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) {
+        provider.executeForward();
+        provider.executeInverse();
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "Accelerate vertical GEMM steady-state execution allocated memory");
+}
+
 void requireExactSplitInPlaceWvmOrderUnsupported(const skbench::Workload& workload) {
     const auto storageCount = 2 * workload.spectrumElements();
     auto* storage = static_cast<double*>(fftw_malloc(storageCount * sizeof(double)));
@@ -147,6 +182,10 @@ int main() {
                                   skbench::FFTWDataLayout::split}) {
             const auto name = skbench::fftwDataLayoutName(layout);
             require(skbench::fftwDataLayoutNamed(name) == layout, "FFTW data layout name round trip");
+        }
+        for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
+                                  skbench::VerticalGemmLayout::split}) {
+            require(!skbench::verticalGemmLayoutName(layout).empty(), "vertical GEMM layout name");
         }
 
         const auto profileList = skbench::profiles();
@@ -405,6 +444,70 @@ int main() {
         skbench::verticalInverse(workload, modes.size(), vertical, modal.data(), physicalAgain.data());
         skbench::verticalForward(workload, modes.size(), vertical, physicalAgain.data(), modalAgain.data());
         require(skbench::maximumRelativeError(modalAgain.data(), modal.data(), modal.size()) < 1.0e-12, "vertical modal round trip");
+
+        for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
+                                  skbench::VerticalGemmLayout::split}) {
+            skbench::VerticalGemmProvider provider(workload, modes.size(), vertical, layout);
+            require(provider.supported(), "vertical GEMM provider support");
+            require(provider.columns() == modes.size() * workload.fields, "vertical GEMM K dimension");
+            require(provider.physicalElements() == retained.size(), "vertical GEMM physical element count");
+            require(provider.modalElements() == modal.size(), "vertical GEMM modal element count");
+            require(provider.minimumAlignmentBytes() == 64, "vertical GEMM alignment");
+            require(provider.persistentBytes() > 0, "vertical GEMM persistent-memory accounting");
+            provider.loadPhysicalInput(retained.data());
+            provider.loadModalInput(modal.data());
+            provider.executeForward();
+            provider.executeInverse();
+            std::vector<skbench::Complex> gemmModal(modal.size());
+            std::vector<skbench::Complex> gemmPhysical(physicalAgain.size());
+            provider.copyForwardOutput(gemmModal.data());
+            provider.copyInverseOutput(gemmPhysical.data());
+            require(skbench::maximumRelativeError(gemmModal.data(), modal.data(), modal.size()) < 1.0e-12,
+                    "vertical GEMM forward equivalence");
+            require(skbench::maximumRelativeError(gemmPhysical.data(), physicalAgain.data(), physicalAgain.size()) < 1.0e-12,
+                    "vertical GEMM inverse equivalence");
+        }
+
+        skbench::RunOptions verticalOptions;
+        verticalOptions.kernel = "vertical-gemm";
+        verticalOptions.profile = "smoke";
+        verticalOptions.warmups = 1;
+        verticalOptions.samples = 2;
+        const auto verticalReport = skbench::runBenchmark(verticalOptions);
+        require(verticalReport.status == "passed", "vertical GEMM smoke benchmark failed");
+        require(verticalReport.providers.size() == 2, "vertical GEMM candidate count");
+        require(verticalReport.modalSpectrumBytes > 0, "vertical GEMM modal byte accounting");
+        for (const auto& provider : verticalReport.providers) {
+            require(!provider.opaqueProviderMemory, "vertical GEMM memory should be explicit");
+            require(provider.correctness.size() == 4, "vertical GEMM correctness metric count");
+            for (const auto& correctness : provider.correctness) {
+                require(correctness.passed && correctness.relativeL2Error <= 1.0e-12,
+                        "vertical GEMM correctness");
+            }
+            bool foundForward = false;
+            bool foundInverse = false;
+            bool foundElidedPacking = false;
+            for (const auto& timing : provider.timings) {
+                if (timing.scope == "primitive" && timing.stage == "raw vertical GEMM" && timing.direction == "forward") {
+                    foundForward = timing.state == skbench::StageState::executed && timing.seconds.size() == 2;
+                }
+                if (timing.scope == "primitive" && timing.stage == "raw vertical GEMM" && timing.direction == "inverse") {
+                    foundInverse = timing.state == skbench::StageState::executed && timing.seconds.size() == 2;
+                }
+                if (timing.stage == "packing and representation conversion") {
+                    foundElidedPacking = timing.state == skbench::StageState::elided && timing.seconds.empty();
+                }
+            }
+            require(foundForward && foundInverse, "vertical GEMM primitive timing series");
+            require(foundElidedPacking, "vertical GEMM excluded packing contract");
+        }
+
+        if (skbench::test::allocationTrackingSupported()) {
+            requireAllocationFreeVerticalExecution(
+                workload, modes.size(), vertical, skbench::VerticalGemmLayout::complexInterleaved);
+            requireAllocationFreeVerticalExecution(
+                workload, modes.size(), vertical, skbench::VerticalGemmLayout::split);
+        }
 
         std::cout << "skbench unit tests passed\n";
         return 0;

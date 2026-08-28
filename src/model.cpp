@@ -514,6 +514,21 @@ double maximumRelativeError(const double* actual, const double* expected, std::s
     return numerator / std::max(denominator, 1.0);
 }
 
+double relativeL2Error(const Complex* actual, const Complex* expected, std::size_t count) {
+    long double squaredError = 0.0;
+    long double squaredReference = 0.0;
+    for (std::size_t index = 0; index < count; ++index) {
+        const long double realError = static_cast<long double>(actual[index].real) - expected[index].real;
+        const long double imaginaryError = static_cast<long double>(actual[index].imag) - expected[index].imag;
+        squaredError += realError * realError + imaginaryError * imaginaryError;
+        const long double expectedReal = expected[index].real;
+        const long double expectedImaginary = expected[index].imag;
+        squaredReference += expectedReal * expectedReal + expectedImaginary * expectedImaginary;
+    }
+    if (squaredReference == 0.0) return std::sqrt(static_cast<double>(squaredError));
+    return std::sqrt(static_cast<double>(squaredError / squaredReference));
+}
+
 std::string_view stageStateName(StageState state) noexcept {
     switch (state) {
         case StageState::executed: return "executed";

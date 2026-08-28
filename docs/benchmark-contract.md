@@ -22,6 +22,16 @@ although vertical matrix multiplication is intentionally outside the first FFT-o
 
 The contract uses a deterministic truncated orthonormal DCT-II matrix pair as its provider-independent vertical fixture. This fixture is not a model of a particular stratification; it supplies reproducible $N_j\times N_z$ and $N_z\times N_j$ operators for validating shapes, ordering, modal round trips, and combined horizontal–vertical projections before production vertical matrices are introduced by the GEMM issues.
 
+The first issue #8 performance increment uses that common immutable matrix pair to compare the primitive products
+
+$$
+(N_j\times N_z)(N_z\times K)
+\qquad\text{and}\qquad
+(N_z\times N_j)(N_j\times K),
+$$
+
+where $K=N_{kl}\times\mathrm{fields}$. A column key is $mathrm{field}+\mathrm{fields}\times\mathrm{mode}$, and the vertical coordinate is contiguous within each column. This order is a controlled input representation for the primitive test, not a mathematical requirement or evidence that its upstream packing cost is negligible.
+
 ## Horizontal retention
 
 Production cases use WVM's radial two-thirds rule. For each DFT mode pair $(k,l)$, the descriptor keeps one primary member of each conjugate pair, excludes the two-dimensional Nyquist axes, and retains the mode when
@@ -85,6 +95,12 @@ The issue #6 batching experiment holds the in-place packed split-complex represe
 
 Complete native batch wall time is the authoritative primitive measurement for every batching strategy. Separable row and column phases are repeated in separately prepared diagnostic loops, and an empty dispatch with the same chunk topology estimates scheduler overhead. Those diagnostic medians are not subtracted from or added to the primitive wall time: repeated dispatch, cache state, and instrumentation make them non-additive. The implementation allocates no explicit storage in any steady-state execution path; opaque allocation or scheduling inside Accelerate or GCD is not claimed to be observable.
 
+The bounded issue #8 common-matrix screen compares one `cblas_zgemm` with two `cblas_dgemm` calls. The complex candidate expands the immutable real matrix into complex storage during setup. The split candidate retains one real matrix and separate persistent real and imaginary operands. Both candidates are out-of-place and use prearranged column-major operands. Primitive timing contains only the complete forward or inverse GEMM formulation: packing, split/interleaved conversion, horizontal ordering, allocation, and matrix preparation are excluded. Matrix preparation and explicit persistent memory are still reported separately. The split formulation also exposes its real and imaginary GEMMs as non-additive component diagnostics.
+
+Accelerate thread-limit candidates run in isolated processes with `VECLIB_MAXIMUM_THREADS` set before program startup. The recorded value is a requested process limit, not a claim about the number of workers Accelerate actually schedules. The bounded screen uses the historical $256^2$, $N_z=65$, fields $=3$ and $512^2$, $N_z=129$, fields $=3$ cases. Grouped $K^2$ matrix families, fields 1/4, $N_z=257$, blocking, and packing-plus-GEMM remain outside this first increment.
+
+Correctness uses independent scalar products on 17 deterministic columns spanning the operand and full-output equivalence between the complex and split formulations. It records both scale-normalized maximum error and relative $L_2$ error with the Float64 $10^{-12}$ tolerance. A test-side allocator interposer verifies zero explicit allocation across repeated warmed-up forward and inverse primitive calls.
+
 Placement is an algorithm and storage contract, not a mathematical requirement. Primitive timing honors the provider's native contract. Adapter and pipeline timing include preservation, packing, or copying only when the declared caller-data lifetime requires that work. A report must not compare an in-place primitive with an out-of-place adapter as if they perform identical work, and it must not charge a preservation copy when the source is genuinely dead.
 
 Focused validation covers impulse, sinusoid, deterministic random, DC, and Nyquist fixtures. It checks full forward provider conformance, inverse round trips, the retained horizontal operator against a directly evaluated mode-keyed oracle, representation round trips, gather/embed round trips, Hermitian boundaries, and permutation invariance.
@@ -107,7 +123,7 @@ The required component ledger is:
 10. raw inverse FFT;
 11. uninstrumented total.
 
-The FFT-only slice marks the vertical and modal stages `unsupported`. FFTW marks representation conversion and packing `elided` because its guru64 plan writes the production WVM layout directly. vDSP marks conversion and permutation/packing `fused` at the ledger level and also publishes the separately measurable adapter components.
+The FFT-only slice marks the vertical and modal stages `unsupported`. FFTW marks representation conversion and packing `elided` because its guru64 plan writes the production WVM layout directly. vDSP marks conversion and permutation/packing `fused` at the ledger level and also publishes the separately measurable adapter components. The vertical-GEMM slice marks FFT, horizontal selection, modal work, and the complete total `unsupported`; it marks packing and representation conversion `elided` because the primitive operands are prepared before timing.
 
 Provider-native primitive timing excludes packing, conversion, allocation, planning, and any explicitly excluded restoration of destructive inputs. Adapter totals include the transformations needed to accept or return WVM's full-spectrum representations under their recorded caller-data lifetime. Retained-operator totals additionally include $P_h$ or $E_h$ and are measured in separate uninstrumented loops. Component medians need not sum to the total because cache state, fusion, and instrumentation change execution.
 

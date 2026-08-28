@@ -80,6 +80,52 @@ VerticalOperators orthonormalVerticalFixture(std::size_t nz, std::size_t nj);
 void verticalForward(const Workload& workload, std::size_t horizontalModeCount, const VerticalOperators& operators, const Complex* physicalCoefficients, Complex* modalCoefficients);
 void verticalInverse(const Workload& workload, std::size_t horizontalModeCount, const VerticalOperators& operators, const Complex* modalCoefficients, Complex* physicalCoefficients);
 
+enum class VerticalGemmLayout {
+    complexInterleaved,
+    split
+};
+
+std::string_view verticalGemmLayoutName(VerticalGemmLayout layout) noexcept;
+
+class VerticalGemmProvider {
+public:
+    VerticalGemmProvider(const Workload& workload, std::size_t horizontalModeCount,
+                         const VerticalOperators& operators, VerticalGemmLayout layout);
+    ~VerticalGemmProvider();
+    VerticalGemmProvider(VerticalGemmProvider&&) noexcept;
+    VerticalGemmProvider& operator=(VerticalGemmProvider&&) noexcept;
+    VerticalGemmProvider(const VerticalGemmProvider&) = delete;
+    VerticalGemmProvider& operator=(const VerticalGemmProvider&) = delete;
+
+    bool supported() const noexcept;
+    std::string capability() const;
+    VerticalGemmLayout layout() const noexcept;
+    std::size_t columns() const noexcept;
+    std::size_t physicalElements() const noexcept;
+    std::size_t modalElements() const noexcept;
+    std::size_t persistentBytes() const noexcept;
+    std::size_t matrixBytesPerDirection() const noexcept;
+    std::size_t minimumAlignmentBytes() const noexcept;
+    double allocationSeconds() const noexcept;
+    double matrixPreparationSeconds() const noexcept;
+    std::string libraryIdentity() const;
+
+    void loadPhysicalInput(const Complex* input);
+    void loadModalInput(const Complex* input);
+    void executeForward();
+    void executeInverse();
+    void executeForwardReal();
+    void executeForwardImaginary();
+    void executeInverseReal();
+    void executeInverseImaginary();
+    void copyForwardOutput(Complex* output) const;
+    void copyInverseOutput(Complex* output) const;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 enum class FixtureKind {
     impulse,
     sinusoid,
@@ -272,6 +318,7 @@ struct CorrectnessMetric {
     double maximumRelativeError = 0.0;
     double tolerance = 1.0e-12;
     bool passed = false;
+    double relativeL2Error = 0.0;
 };
 
 struct DirectionExecutionContract {
@@ -319,6 +366,7 @@ struct ProviderRecord {
     ExecutionContract execution;
     std::size_t explicitPersistentBytes = 0;
     std::size_t scratchBytes = 0;
+    bool opaqueProviderMemory = true;
     std::size_t opaquePlanningBytes = 0;
     double otherSetupSeconds = 0.0;
     double allocationSeconds = 0.0;
@@ -368,6 +416,7 @@ struct BenchmarkReport {
     std::uint64_t fullRealBytes = 0;
     std::uint64_t fullSpectrumBytes = 0;
     std::uint64_t retainedSpectrumBytes = 0;
+    std::uint64_t modalSpectrumBytes = 0;
     EnvironmentRecord environment;
     std::vector<ProviderRecord> providers;
 };
@@ -385,6 +434,7 @@ std::vector<Profile> profiles();
 Profile profileNamed(std::string_view name);
 
 struct RunOptions {
+    std::string kernel = "fft";
     std::string profile = "quick";
     std::string providers = "both";
     std::string fftwLayout = "interleaved";
@@ -409,9 +459,11 @@ struct ValidationReport {
 };
 
 BenchmarkReport runBenchmark(const RunOptions& options);
+BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
 EnvironmentRecord environmentRecord();
 double median(std::vector<double> values);
+double relativeL2Error(const Complex* actual, const Complex* expected, std::size_t count);
 void writeJson(const BenchmarkReport& report, const std::filesystem::path& path);
 void writeCsv(const BenchmarkReport& report, const std::filesystem::path& path);
 int compareCsv(const std::filesystem::path& path, std::ostream& output);

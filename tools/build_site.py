@@ -62,7 +62,13 @@ def display_timestamp(value: str) -> str:
 
 
 def provider_name(provider: dict) -> str:
-    names = {"fftw": "FFTW", "fftw-split": "FFTW split", "accelerate-vdsp": "Accelerate/vDSP"}
+    names = {
+        "fftw": "FFTW",
+        "fftw-split": "FFTW split",
+        "accelerate-vdsp": "Accelerate/vDSP",
+        "accelerate-zgemm": "Accelerate complex zgemm",
+        "accelerate-split-dgemm": "Accelerate split dgemm",
+    }
     return names.get(provider["id"], provider["id"])
 
 
@@ -132,11 +138,27 @@ def maximum_correctness_error(provider: dict) -> float | None:
     return max(values) if values else None
 
 
+def maximum_l2_error(provider: dict) -> float | None:
+    values = [
+        item["relativeL2Error"]
+        for item in provider["correctness"]
+        if item.get("relativeL2Error") is not None
+    ]
+    return max(values) if values else None
+
+
 def summary_timing_table(result: dict) -> str:
     providers = result["providers"]
+    scopes = SUMMARY_SCOPES
+    if any(
+        item["scope"] == "primitive" and item["stage"] == "raw vertical GEMM"
+        for provider in providers
+        for item in provider["timings"]
+    ):
+        scopes = (("Raw vertical GEMM", "primitive"),)
     header = "".join(f'<th scope="col">{escaped(provider_name(provider))}</th>' for provider in providers)
     rows: list[str] = []
-    for label, scope in SUMMARY_SCOPES:
+    for label, scope in scopes:
         for direction in ("forward", "inverse"):
             values = [timing(provider, scope, direction) for provider in providers]
             finite = [float(item["medianSeconds"]) for item in values if item is not None]
@@ -1005,11 +1027,130 @@ def vdsp_batch_synthesis(bundles: list[PublishedBundle]) -> str:
     """
 
 
+def vertical_gemm_evidence_table(bundles: list[PublishedBundle]) -> str:
+    rows: list[str] = []
+    for bundle in sorted(
+        bundles,
+        key=lambda item: (
+            item.result["workload"]["Nx"],
+            item.result["providers"][0]["workers"],
+            item.result["run"]["id"],
+        ),
+    ):
+        result = bundle.result
+        workload = result["workload"]
+        run = result["run"]
+        complex_provider = next(
+            item for item in result["providers"] if item["id"] == "accelerate-zgemm"
+        )
+        split_provider = next(
+            item for item in result["providers"] if item["id"] == "accelerate-split-dgemm"
+        )
+        complex_forward = timing(complex_provider, "primitive", "forward")
+        complex_inverse = timing(complex_provider, "primitive", "inverse")
+        split_forward = timing(split_provider, "primitive", "forward")
+        split_inverse = timing(split_provider, "primitive", "inverse")
+        if None in (complex_forward, complex_inverse, split_forward, split_inverse):
+            raise ValueError(f"Incomplete vertical GEMM primitive evidence in {run['id']}")
+        forward_ratio = float(split_forward["medianSeconds"]) / float(complex_forward["medianSeconds"])
+        inverse_ratio = float(split_inverse["medianSeconds"]) / float(complex_inverse["medianSeconds"])
+        maximum_error = max(
+            maximum_correctness_error(complex_provider) or 0.0,
+            maximum_correctness_error(split_provider) or 0.0,
+        )
+        maximum_l2 = max(
+            maximum_l2_error(complex_provider) or 0.0,
+            maximum_l2_error(split_provider) or 0.0,
+        )
+        rows.append(
+            "<tr>"
+            f'<td><a href="../../runs/{quote(run["id"])}/index.html">{escaped(run["id"])}</a><br>'
+            f'<span class="muted">{publication_badge(bundle.publication["status"])}</span></td>'
+            f'<td>{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, '
+            f'N<sub>j</sub>={workload["Nj"]}, fields={workload["fields"]}, K={workload["Nkl"] * workload["fields"]}</span></td>'
+            f'<td class="numeric">{complex_provider["workers"]}</td>'
+            f'<td class="numeric">{timing_with_interval(complex_forward)} / {timing_with_interval(complex_inverse)}<br>'
+            f'<span class="muted">CV {coefficient_of_variation(complex_forward)} / {coefficient_of_variation(complex_inverse)}</span></td>'
+            f'<td class="numeric">{timing_with_interval(split_forward)} / {timing_with_interval(split_inverse)}<br>'
+            f'<span class="muted">CV {coefficient_of_variation(split_forward)} / {coefficient_of_variation(split_inverse)}</span></td>'
+            f'<td class="numeric">{forward_ratio:.3f}× / {inverse_ratio:.3f}×</td>'
+            f'<td class="numeric">{format_bytes(complex_provider["memory"]["persistentBytes"])} / '
+            f'{format_bytes(split_provider["memory"]["persistentBytes"])}</td>'
+            f'<td class="numeric">{format_error(maximum_error)} / {format_error(maximum_l2)}</td>'
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return f"""
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Primitive medians and deterministic percentile-bootstrap 95% intervals are forward / inverse in milliseconds. CV is the sample coefficient of variation. Split / complex below 1 favors the two-real-GEMM formulation. Persistent memory is complex / split. No packing or representation conversion is timed.</caption>
+        <thead><tr><th scope="col">Run</th><th scope="col">Workload</th><th scope="col">VECLIB thread limit</th><th scope="col">Complex zgemm</th><th scope="col">Two split dgemm</th><th scope="col">Split / complex</th><th scope="col">Explicit memory</th><th scope="col">Max / L2 error</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+    """
+
+
+def vertical_gemm_synthesis(bundles: list[PublishedBundle]) -> str:
+    records: list[tuple[dict, dict, dict]] = []
+    for bundle in bundles:
+        complex_provider = next(
+            (item for item in bundle.result["providers"] if item["id"] == "accelerate-zgemm"), None
+        )
+        split_provider = next(
+            (item for item in bundle.result["providers"] if item["id"] == "accelerate-split-dgemm"), None
+        )
+        if complex_provider is not None and split_provider is not None:
+            records.append((bundle.result, complex_provider, split_provider))
+    if not records:
+        return ""
+
+    rows: list[str] = []
+    for profile in sorted({result["run"]["profile"] for result, _, _ in records}):
+        candidates = [record for record in records if record[0]["run"]["profile"] == profile]
+        result = candidates[0][0]
+        workload = result["workload"]
+        values: list[str] = []
+        for direction in ("forward", "inverse"):
+            best_complex = min(
+                candidates,
+                key=lambda record: float(timing(record[1], "primitive", direction)["medianSeconds"]),
+            )
+            best_split = min(
+                candidates,
+                key=lambda record: float(timing(record[2], "primitive", direction)["medianSeconds"]),
+            )
+            complex_time = timing(best_complex[1], "primitive", direction)
+            split_time = timing(best_split[2], "primitive", direction)
+            ratio = float(split_time["medianSeconds"]) / float(complex_time["medianSeconds"])
+            values.append(
+                f'{format_ms(complex_time["medianSeconds"])} (limit {best_complex[1]["workers"]}) / '
+                f'{format_ms(split_time["medianSeconds"])} (limit {best_split[2]["workers"]}) / {ratio:.3f}×'
+            )
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{workload["Nx"]}²<br><span class="muted">N<sub>z</sub>={workload["Nz"]}, fields={workload["fields"]}</span></th>'
+            f'<td class="numeric">{values[0]}</td><td class="numeric">{values[1]}</td>'
+            "</tr>"
+        )
+    return f"""
+      <h3>Bounded common-matrix screen</h3>
+      <p>This first issue #8 increment tests only the shared deterministic DCT-II matrix family with fields=3. Each row below reports best complex / best split / split-to-complex ratio across the isolated thread-limit runs. It establishes primitive behavior, not the complete issue #8 winner.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Best observed primitive medians in milliseconds. Thread settings are process-isolated <code>VECLIB_MAXIMUM_THREADS</code> limits; they are not claims about the exact worker count selected internally by Accelerate.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Forward: complex / split / ratio</th><th scope="col">Inverse: complex / split / ratio</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">Inputs are already arranged as column-major vertical-contiguous matrices, both algorithms are out-of-place, and all buffers are persistent. Matrix expansion/transposition is setup-only. Packing and horizontal ordering are deliberately excluded for later issue #13 measurement. Grouped K² matrix families, fields 1/4, N<sub>z</sub>=257, blocking, and full reference-depth sampling remain open.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-004-fftw-strategy-sweep":
         return fftw_strategy_evidence_table(bundles)
     if experiment["id"] == "issue-006-vdsp-batching-scheduling":
         return vdsp_batch_evidence_table(bundles)
+    if experiment["id"] == "issue-008-vertical-projection-gemm":
+        return vertical_gemm_evidence_table(bundles)
     provider_id = EXPERIMENT_PROVIDER_IDS.get(experiment["id"])
     if provider_id is None or not bundles:
         return ""
@@ -1085,6 +1226,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
         synthesis = vdsp_batch_synthesis(related)
+    elif experiment_id == "issue-008-vertical-projection-gemm":
+        synthesis = vertical_gemm_synthesis(related)
     else:
         synthesis = ""
     content = f"""

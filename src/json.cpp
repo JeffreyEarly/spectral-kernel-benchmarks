@@ -141,11 +141,12 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
     stream << "    \"H\":" << workload.halfRows() << ",\"Nkl\":" << report.retainedHorizontalModeCount << ",\"Nj\":" << workload.retainedVerticalModes() << ",\"planes\":" << workload.planes() << ",\n";
     stream << "    \"antialias\":{\"enabled\":" << (workload.antialias ? "true" : "false") << ",\"horizontalPolicy\":\"radial-two-thirds\",\"horizontalCutoffFraction\":0.66666666666666663,\"verticalPolicy\":\"floor(2*(Nz-1)/3)\",\"verticalRetainedFraction\":";
     number(stream, verticalFraction); stream << "},\n";
-    stream << "    \"grouping\":{\"realPlaneOrder\":\"x-fastest,y,z,field\",\"fullSpectrumOrder\":\"z-fastest,field,kx,ky\",\"retainedOrder\":\"z-fastest,field,radial-mode\"},\n";
+    stream << "    \"grouping\":{\"realPlaneOrder\":\"x-fastest,y,z,field\",\"fullSpectrumOrder\":\"z-fastest,field,kx,ky\",\"retainedOrder\":\"z-fastest,field,radial-mode\",\"verticalColumnOrder\":\"field-fastest-within-radial-mode\"},\n";
     stream << "    \"stridesElements\":{\"real\":{\"x\":1,\"y\":" << workload.nx << ",\"z\":" << workload.realPlaneElements() << ",\"field\":" << workload.realPlaneElements() * workload.nz << "},";
     stream << "\"fullSpectrum\":{\"z\":1,\"field\":" << workload.nz << ",\"kx\":" << workload.planes() << ",\"ky\":" << workload.planes() * workload.nxHalf() << "},";
-    stream << "\"retainedSpectrum\":{\"z\":1,\"field\":" << workload.nz << ",\"mode\":" << workload.planes() << "}},\n";
-    stream << "    \"bytes\":{\"real\":" << report.fullRealBytes << ",\"fullSpectrum\":" << report.fullSpectrumBytes << ",\"retainedSpectrum\":" << report.retainedSpectrumBytes << "},\n";
+    stream << "\"retainedSpectrum\":{\"z\":1,\"field\":" << workload.nz << ",\"mode\":" << workload.planes() << "},";
+    stream << "\"modalSpectrum\":{\"j\":1,\"field\":" << workload.retainedVerticalModes() << ",\"mode\":" << workload.retainedVerticalModes() * workload.fields << "}},\n";
+    stream << "    \"bytes\":{\"real\":" << report.fullRealBytes << ",\"fullSpectrum\":" << report.fullSpectrumBytes << ",\"retainedSpectrum\":" << report.retainedSpectrumBytes << ",\"modalSpectrum\":" << report.modalSpectrumBytes << "},\n";
     stream << "    \"permutationHashes\":{\"retainedModeOrder\":"; quote(stream, report.retainedModeOrderHash);
     stream << ",\"wvmFullSpectrumOrder\":"; quote(stream, report.wvmFullSpectrumOrderHash); stream << "}\n";
     stream << "  },\n";
@@ -201,7 +202,7 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
         stream << ",\"wisdomBytes\":" << provider.wisdomBytes;
         stream << ",\"timeLimitSeconds\":"; number(stream, provider.planningTimeLimitSeconds);
         stream << ",\"budgetExhausted\":" << (provider.planningBudgetExhausted ? "true" : "false") << "}";
-        stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes << ",\"scratchBytes\":" << provider.scratchBytes << ",\"opaqueProviderMemory\":true}";
+        stream << ",\"memory\":{\"persistentBytes\":" << provider.explicitPersistentBytes << ",\"scratchBytes\":" << provider.scratchBytes << ",\"opaqueProviderMemory\":" << (provider.opaqueProviderMemory ? "true" : "false") << "}";
         stream << ",\"componentLedger\":[";
         for (std::size_t ledgerIndex = 0; ledgerIndex < provider.ledger.size(); ++ledgerIndex) {
             if (ledgerIndex != 0) stream << ',';
@@ -228,6 +229,7 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
             const auto& correctness = provider.correctness[metricIndex];
             stream << "{\"name\":"; quote(stream, correctness.name);
             stream << ",\"maximumRelativeError\":"; number(stream, correctness.maximumRelativeError);
+            stream << ",\"relativeL2Error\":"; number(stream, correctness.relativeL2Error);
             stream << ",\"tolerance\":"; number(stream, correctness.tolerance);
             stream << ",\"passed\":" << (correctness.passed ? "true" : "false") << '}';
         }

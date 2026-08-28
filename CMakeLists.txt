@@ -38,6 +38,7 @@ add_library(skbench_core
     src/fftw_provider.cpp
     src/json.cpp
     src/model.cpp
+    src/vertical_gemm.cpp
     src/vdsp_provider.cpp)
 target_compile_features(skbench_core PUBLIC cxx_std_20)
 target_include_directories(skbench_core
@@ -79,5 +80,7 @@ if(SKBENCH_BUILD_TESTS)
     add_test(NAME skbench-unit COMMAND skbench_tests)
     add_test(NAME skbench-cli-list COMMAND skbench list)
     add_test(NAME skbench-cli-validate COMMAND skbench validate --profile smoke)
+    add_test(NAME skbench-cli-vertical-gemm COMMAND skbench run --kernel vertical-gemm --profile smoke --warmups 1 --samples 2)
     set_tests_properties(skbench-cli-validate PROPERTIES TIMEOUT 120)
+    set_tests_properties(skbench-cli-vertical-gemm PROPERTIES TIMEOUT 120)
 endif()

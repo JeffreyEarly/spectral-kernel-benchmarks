@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <ctime>
 #include <functional>
 #include <iomanip>
@@ -105,6 +106,13 @@ CorrectnessMetric metric(std::string name, double error) {
     return {std::move(name), error, tolerance, error <= tolerance};
 }
 
+CorrectnessMetric metric(std::string name, const Complex* actual, const Complex* expected, std::size_t count) {
+    const auto maximumError = maximumRelativeError(actual, expected, count);
+    const auto l2Error = relativeL2Error(actual, expected, count);
+    return {std::move(name), maximumError, tolerance,
+            maximumError <= tolerance && l2Error <= tolerance, l2Error};
+}
+
 bool correctnessPassed(const ProviderRecord& provider) {
     return std::all_of(provider.correctness.begin(), provider.correctness.end(), [](const CorrectnessMetric& item) {
         return item.passed;
@@ -161,6 +169,160 @@ std::vector<Complex> directHorizontalVerticalProjection(const Workload& workload
         }
     }
     return result;
+}
+
+double deterministicSignedUnit(std::uint64_t& state) {
+    state ^= state >> 12U;
+    state ^= state << 25U;
+    state ^= state >> 27U;
+    const auto value = state * UINT64_C(2685821657736338717);
+    const auto mantissa = value >> 11U;
+    return 2.0 * static_cast<double>(mantissa) / static_cast<double>(UINT64_C(1) << 53U) - 1.0;
+}
+
+std::vector<Complex> verticalComplexFixture(std::size_t count, std::uint64_t seed) {
+    std::uint64_t state = seed == 0 ? UINT64_C(0x9e3779b97f4a7c15) : seed;
+    std::vector<Complex> result(count);
+    for (auto& value : result) {
+        value = {deterministicSignedUnit(state), deterministicSignedUnit(state)};
+    }
+    return result;
+}
+
+std::vector<std::size_t> verticalProbeColumns(std::size_t columns) {
+    const auto count = std::min<std::size_t>(17, columns);
+    std::vector<std::size_t> result;
+    result.reserve(count);
+    for (std::size_t index = 0; index < count; ++index) {
+        const auto column = count == 1 ? 0 : index * (columns - 1) / (count - 1);
+        if (result.empty() || result.back() != column) result.push_back(column);
+    }
+    return result;
+}
+
+std::vector<Complex> directVerticalForwardProbes(const VerticalOperators& operators,
+                                                 const std::vector<std::size_t>& columns,
+                                                 const Complex* physical) {
+    std::vector<Complex> result(columns.size() * operators.nj);
+    for (std::size_t probe = 0; probe < columns.size(); ++probe) {
+        const auto column = columns[probe];
+        for (std::size_t j = 0; j < operators.nj; ++j) {
+            Complex sum;
+            for (std::size_t z = 0; z < operators.nz; ++z) {
+                const auto value = physical[z + operators.nz * column];
+                const auto factor = operators.forward[j * operators.nz + z];
+                sum.real += factor * value.real;
+                sum.imag += factor * value.imag;
+            }
+            result[j + operators.nj * probe] = sum;
+        }
+    }
+    return result;
+}
+
+std::vector<Complex> directVerticalInverseProbes(const VerticalOperators& operators,
+                                                 const std::vector<std::size_t>& columns,
+                                                 const Complex* modal) {
+    std::vector<Complex> result(columns.size() * operators.nz);
+    for (std::size_t probe = 0; probe < columns.size(); ++probe) {
+        const auto column = columns[probe];
+        for (std::size_t z = 0; z < operators.nz; ++z) {
+            Complex sum;
+            for (std::size_t j = 0; j < operators.nj; ++j) {
+                const auto value = modal[j + operators.nj * column];
+                const auto factor = operators.inverse[z * operators.nj + j];
+                sum.real += factor * value.real;
+                sum.imag += factor * value.imag;
+            }
+            result[z + operators.nz * probe] = sum;
+        }
+    }
+    return result;
+}
+
+std::vector<Complex> gatherVerticalProbes(const Complex* values, std::size_t rows,
+                                          const std::vector<std::size_t>& columns) {
+    std::vector<Complex> result(rows * columns.size());
+    for (std::size_t probe = 0; probe < columns.size(); ++probe) {
+        std::copy_n(values + rows * columns[probe], rows, result.data() + rows * probe);
+    }
+    return result;
+}
+
+std::size_t configuredAccelerateThreads(const EnvironmentRecord& environment) {
+    const char* value = std::getenv("VECLIB_MAXIMUM_THREADS");
+    if (value == nullptr || *value == '\0') return std::max<std::size_t>(1, environment.totalCores);
+    try {
+        std::size_t consumed = 0;
+        const auto parsed = std::stoull(value, &consumed);
+        if (parsed == 0 || consumed != std::string_view(value).size()) {
+            throw std::invalid_argument("not a positive integer");
+        }
+        return parsed;
+    } catch (const std::exception&) {
+        throw std::invalid_argument("VECLIB_MAXIMUM_THREADS must be a positive integer when set.");
+    }
+}
+
+std::string accelerateSchedulingId() {
+    const char* value = std::getenv("VECLIB_MAXIMUM_THREADS");
+    return value == nullptr || *value == '\0'
+        ? "accelerate-system-default"
+        : "accelerate-veclib-maximum-threads-" + std::string(value);
+}
+
+ExecutionContract verticalGemmExecutionContract(const VerticalGemmProvider& provider,
+                                                const Workload& workload) {
+    const auto columns = provider.columns();
+    const auto nj = workload.retainedVerticalModes();
+    const auto split = provider.layout() == VerticalGemmLayout::split;
+    const auto representation = split
+        ? "vertical-columns-split-complex"
+        : "vertical-columns-interleaved-complex";
+    const std::string component = split ? "two disjoint real/imaginary arrays, each " : "";
+    const auto physical = component + "[Nz=" + std::to_string(workload.nz) + "][K=" +
+        std::to_string(columns) + "]";
+    const auto modal = component + "[Nj=" + std::to_string(nj) + "][K=" +
+        std::to_string(columns) + "]";
+    const auto physicalStrides = "z=1,column=" + std::to_string(workload.nz) +
+        ",column-key=field+fields*mode";
+    const auto modalStrides = "j=1,column=" + std::to_string(nj) +
+        ",column-key=field+fields*mode";
+    const auto aliasing = split
+        ? "real and imaginary components are disjoint; input and output components do not overlap"
+        : "input and output complex matrices do not overlap";
+    DirectionExecutionContract forward{
+        "out-of-place", "out-of-place", false, true, false, false, false,
+        representation, representation, representation, representation,
+        "input=" + physical + "; output=" + modal,
+        "input{" + physicalStrides + "}; output{" + modalStrides + "}",
+        0, provider.minimumAlignmentBytes(), aliasing, 0, true};
+    ExecutionContract contract;
+    contract.forward = forward;
+    contract.inverse = forward;
+    contract.inverse.physicalExtents = "input=" + modal + "; output=" + physical;
+    contract.inverse.stridesElements = "input{" + modalStrides + "}; output{" + physicalStrides + "}";
+    return contract;
+}
+
+std::vector<LedgerEntry> verticalGemmLedger(VerticalGemmLayout layout) {
+    const auto split = layout == VerticalGemmLayout::split;
+    return {
+        {"setup/planning", StageState::setupOnly,
+         split ? "transpose immutable real forward/inverse matrices into BLAS column-major storage"
+               : "transpose and expand immutable real forward/inverse matrices into complex BLAS column-major storage"},
+        {"raw forward FFT", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
+        {"horizontal retention", StageState::unsupported, "inputs already contain the retained horizontal columns"},
+        {"representation conversion", StageState::elided, "operands are pre-arranged before primitive timing"},
+        {"permutation/packing", StageState::elided, "excluded from issue #8 primitive timing and owned by issue #13"},
+        {"raw forward vertical MM", StageState::executed,
+         split ? "two cblas_dgemm calls over split real and imaginary operands" : "one cblas_zgemm call with a real matrix expanded to complex"},
+        {"modal work", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
+        {"raw inverse vertical MM", StageState::executed,
+         split ? "two cblas_dgemm calls over split real and imaginary operands" : "one cblas_zgemm call with a real matrix expanded to complex"},
+        {"horizontal embedding", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
+        {"raw inverse FFT", StageState::unsupported, "outside this primitive vertical GEMM experiment"},
+        {"uninstrumented total", StageState::unsupported, "complete spectral pipeline belongs to issue #9"}};
 }
 
 std::string utcTimestamp(bool compact) {
@@ -536,6 +698,180 @@ EnvironmentRecord environmentRecord() {
     return environment;
 }
 
+BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options) {
+    if (options.providers != "both") {
+        throw std::invalid_argument("vertical-gemm currently compares both Accelerate GEMM formulations; omit --providers.");
+    }
+    if (options.workers != 0) {
+        throw std::invalid_argument("vertical-gemm thread limits are process settings; use VECLIB_MAXIMUM_THREADS in an isolated run.");
+    }
+
+    const auto selected = profileNamed(options.profile);
+    const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
+    const auto sampleCount = options.samples == 0 ? selected.samples : options.samples;
+    if (sampleCount == 0) throw std::invalid_argument("vertical-gemm requires at least one sample.");
+
+    BenchmarkReport report;
+    report.profile = selected.name;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = sampleCount;
+    report.workload = selected.workload;
+    report.environment = environmentRecord();
+    report.runId = utcTimestamp(true) + "-" + report.environment.hostname;
+
+    const auto& workload = report.workload;
+    const auto modes = retainedHorizontalModes(workload);
+    const auto vertical = orthonormalVerticalFixture(workload.nz, workload.retainedVerticalModes());
+    const auto columns = modes.size() * workload.fields;
+    const auto physicalElements = workload.nz * columns;
+    const auto modalElements = vertical.nj * columns;
+    report.retainedHorizontalModeCount = modes.size();
+    report.retainedModeOrderHash = modeOrderHash(modes);
+    report.wvmFullSpectrumOrderHash = wvmSpectrumOrderHash(workload);
+    report.fullRealBytes = bytes(workload.realElements(), sizeof(double));
+    report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
+    report.retainedSpectrumBytes = bytes(physicalElements, sizeof(Complex));
+    report.modalSpectrumBytes = bytes(modalElements, sizeof(Complex));
+
+    const auto physicalInput = verticalComplexFixture(physicalElements, options.seed ^ UINT64_C(0x243f6a8885a308d3));
+    const auto modalInput = verticalComplexFixture(modalElements, options.seed ^ UINT64_C(0x13198a2e03707344));
+    const auto probes = verticalProbeColumns(columns);
+    const auto forwardOracle = directVerticalForwardProbes(vertical, probes, physicalInput.data());
+    const auto inverseOracle = directVerticalInverseProbes(vertical, probes, modalInput.data());
+
+    VerticalGemmProvider complexProvider(workload, modes.size(), vertical, VerticalGemmLayout::complexInterleaved);
+    VerticalGemmProvider splitProvider(workload, modes.size(), vertical, VerticalGemmLayout::split);
+    if (!complexProvider.supported() || !splitProvider.supported()) {
+        throw std::runtime_error(!complexProvider.supported() ? complexProvider.capability() : splitProvider.capability());
+    }
+    complexProvider.loadPhysicalInput(physicalInput.data());
+    complexProvider.loadModalInput(modalInput.data());
+    splitProvider.loadPhysicalInput(physicalInput.data());
+    splitProvider.loadModalInput(modalInput.data());
+
+    complexProvider.executeForward();
+    complexProvider.executeInverse();
+    splitProvider.executeForward();
+    splitProvider.executeInverse();
+    std::vector<Complex> complexForward(modalElements);
+    std::vector<Complex> complexInverse(physicalElements);
+    std::vector<Complex> splitForward(modalElements);
+    std::vector<Complex> splitInverse(physicalElements);
+    complexProvider.copyForwardOutput(complexForward.data());
+    complexProvider.copyInverseOutput(complexInverse.data());
+    splitProvider.copyForwardOutput(splitForward.data());
+    splitProvider.copyInverseOutput(splitInverse.data());
+    const auto complexForwardProbes = gatherVerticalProbes(complexForward.data(), vertical.nj, probes);
+    const auto complexInverseProbes = gatherVerticalProbes(complexInverse.data(), workload.nz, probes);
+    const auto splitForwardProbes = gatherVerticalProbes(splitForward.data(), vertical.nj, probes);
+    const auto splitInverseProbes = gatherVerticalProbes(splitInverse.data(), workload.nz, probes);
+
+    const auto configuredThreads = configuredAccelerateThreads(report.environment);
+    const auto schedulingId = accelerateSchedulingId();
+    const auto physicalBytes = bytes(physicalElements, sizeof(Complex));
+    const auto modalBytes = bytes(modalElements, sizeof(Complex));
+
+    auto makeRecord = [&](VerticalGemmProvider& provider, std::string id, std::string algorithmId,
+                          std::vector<CorrectnessMetric> correctness) {
+        ProviderRecord record;
+        record.id = std::move(id);
+        record.version = "system";
+        record.libraryIdentity = provider.libraryIdentity();
+        record.algorithmId = std::move(algorithmId);
+        record.nativeRepresentationId = provider.layout() == VerticalGemmLayout::split
+            ? "vertical-columns-split-complex"
+            : "vertical-columns-interleaved-complex";
+        record.modeOrderId = "vertical-contiguous;column=field+fields*radial-mode";
+        record.schedulingId = schedulingId;
+        record.sourceIdentity = "Apple Accelerate system framework";
+        record.configureFlags = "system framework";
+        record.compilerFlags = report.environment.compilerFlags;
+        record.planningConfiguration = "common orthonormal DCT-II fixture; column-major; K=" +
+            std::to_string(columns) + "; " + schedulingId;
+        record.workers = configuredThreads;
+        record.internalWorkers = configuredThreads;
+        record.outerWorkers = 1;
+        record.execution = verticalGemmExecutionContract(provider, workload);
+        record.explicitPersistentBytes = provider.persistentBytes();
+        record.scratchBytes = 0;
+        record.opaqueProviderMemory = false;
+        record.otherSetupSeconds = provider.matrixPreparationSeconds();
+        record.allocationSeconds = provider.allocationSeconds();
+        record.planningSeconds = 0.0;
+        record.ledger = verticalGemmLedger(provider.layout());
+        record.correctness = std::move(correctness);
+
+        const auto matrixBytes = bytes(workload.nz * vertical.nj,
+                                       provider.layout() == VerticalGemmLayout::split ? sizeof(double) : sizeof(Complex));
+        const auto matrixReads = provider.layout() == VerticalGemmLayout::split ? 2 * matrixBytes : matrixBytes;
+        record.timings.push_back(series(
+            "setup-component", "matrix preparation", "shared", StageState::setupOnly,
+            2 * matrixBytes, {provider.matrixPreparationSeconds()}));
+        record.timings.push_back(series(
+            "primitive", "raw vertical GEMM", "forward", StageState::executed,
+            matrixReads + physicalBytes + modalBytes,
+            measure(warmups, sampleCount, [&] { provider.executeForward(); })));
+        record.timings.push_back(series(
+            "primitive", "raw vertical GEMM", "inverse", StageState::executed,
+            matrixReads + modalBytes + physicalBytes,
+            measure(warmups, sampleCount, [&] { provider.executeInverse(); })));
+        if (provider.layout() == VerticalGemmLayout::split) {
+            record.timings.push_back(series(
+                "primitive-component", "real-part GEMM", "forward", StageState::executed,
+                matrixBytes + physicalBytes / 2 + modalBytes / 2,
+                measure(warmups, sampleCount, [&] { provider.executeForwardReal(); })));
+            record.timings.push_back(series(
+                "primitive-component", "imaginary-part GEMM", "forward", StageState::executed,
+                matrixBytes + physicalBytes / 2 + modalBytes / 2,
+                measure(warmups, sampleCount, [&] { provider.executeForwardImaginary(); })));
+            record.timings.push_back(series(
+                "primitive-component", "real-part GEMM", "inverse", StageState::executed,
+                matrixBytes + modalBytes / 2 + physicalBytes / 2,
+                measure(warmups, sampleCount, [&] { provider.executeInverseReal(); })));
+            record.timings.push_back(series(
+                "primitive-component", "imaginary-part GEMM", "inverse", StageState::executed,
+                matrixBytes + modalBytes / 2 + physicalBytes / 2,
+                measure(warmups, sampleCount, [&] { provider.executeInverseImaginary(); })));
+        }
+        record.timings.push_back(series(
+            "adapter-component", "packing and representation conversion", "shared", StageState::elided, 0));
+        return record;
+    };
+
+    report.providers.push_back(makeRecord(
+        complexProvider,
+        "accelerate-zgemm",
+        "accelerate-zgemm-real-matrix-expanded-common",
+        {
+            metric("forward selected columns versus independent scalar oracle",
+                   complexForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+            metric("inverse selected columns versus independent scalar oracle",
+                   complexInverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+            metric("forward full output versus split formulation",
+                   complexForward.data(), splitForward.data(), complexForward.size()),
+            metric("inverse full output versus split formulation",
+                   complexInverse.data(), splitInverse.data(), complexInverse.size()),
+        }));
+    report.providers.push_back(makeRecord(
+        splitProvider,
+        "accelerate-split-dgemm",
+        "accelerate-two-dgemm-split-common",
+        {
+            metric("forward selected columns versus independent scalar oracle",
+                   splitForwardProbes.data(), forwardOracle.data(), forwardOracle.size()),
+            metric("inverse selected columns versus independent scalar oracle",
+                   splitInverseProbes.data(), inverseOracle.data(), inverseOracle.size()),
+            metric("forward full output versus complex formulation",
+                   splitForward.data(), complexForward.data(), splitForward.size()),
+            metric("inverse full output versus complex formulation",
+                   splitInverse.data(), complexInverse.data(), splitInverse.size()),
+        }));
+    report.status = std::all_of(report.providers.begin(), report.providers.end(), correctnessPassed)
+        ? "passed" : "failed";
+    return report;
+}
+
 ValidationReport validateBenchmark(std::string_view profileName) {
     const auto requested = profileNamed(profileName);
     Workload workload = requested.name == "smoke" ? requested.workload : Workload{8, 8, 7, 2, 1.0, 1.0, true};
@@ -644,6 +980,8 @@ ValidationReport validateBenchmark(std::string_view profileName) {
 }
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
+    if (options.kernel == "vertical-gemm") return runVerticalGemmBenchmark(options);
+    if (options.kernel != "fft") throw std::invalid_argument("kernel must be either 'fft' or 'vertical-gemm'.");
     auto selected = profileNamed(options.profile);
     if (options.providers != "both" && options.providers != "fftw") {
         throw std::invalid_argument("providers must be either 'both' or 'fftw'.");
@@ -692,6 +1030,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     report.fullRealBytes = bytes(workload.realElements(), sizeof(double));
     report.fullSpectrumBytes = bytes(workload.spectrumElements(), sizeof(Complex));
     report.retainedSpectrumBytes = bytes(modes.size() * workload.planes(), sizeof(Complex));
+    report.modalSpectrumBytes = bytes(modes.size() * workload.fields * workload.retainedVerticalModes(), sizeof(Complex));
 
     const auto inputFixture = makeFixture(workload, FixtureKind::random, options.seed);
     FFTWArray<double> input(workload.realElements());

@@ -13,7 +13,7 @@ void usage(std::ostream& output) {
     output << "Usage:\n"
            << "  skbench list\n"
            << "  skbench validate [--profile NAME]\n"
-           << "  skbench run [--profile NAME] [--providers both|fftw] [--workers N]\n"
+           << "  skbench run [--kernel fft|vertical-gemm] [--profile NAME] [--providers both|fftw] [--workers N]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-alignment aligned|unaligned] [--fftw-wisdom cold|generated-import]\n"
@@ -38,6 +38,11 @@ void list() {
     std::cout << "providers:\n"
               << "  fftw: pinned 3.3.11 NEON/pthreads, guru64 WVM strides\n"
               << "  accelerate-vdsp: double packed split-complex radix-2, direct or separable outer batching\n"
+              << "  accelerate-zgemm: complex vertical GEMM with a real matrix expanded to complex\n"
+              << "  accelerate-split-dgemm: two real vertical GEMMs over split real and imaginary arrays\n"
+              << "kernels:\n"
+              << "  fft\n"
+              << "  vertical-gemm\n"
               << "FFTW planning modes:\n"
               << "  estimate\n"
               << "  measure\n"
@@ -119,7 +124,8 @@ int main(int argc, char** argv) {
             skbench::RunOptions options;
             for (int index = 2; index < argc; ++index) {
                 const std::string_view key = argv[index];
-                if (key == "--profile") options.profile = requireValue(argc, argv, index);
+                if (key == "--kernel") options.kernel = requireValue(argc, argv, index);
+                else if (key == "--profile") options.profile = requireValue(argc, argv, index);
                 else if (key == "--providers") options.providers = requireValue(argc, argv, index);
                 else if (key == "--fftw-layout") options.fftwLayout = requireValue(argc, argv, index);
                 else if (key == "--fftw-planning") options.fftwPlanning = requireValue(argc, argv, index);
