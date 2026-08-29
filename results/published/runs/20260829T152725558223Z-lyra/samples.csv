@@ -1,0 +1,14 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T152725558223Z-lyra,pipeline-wvm-direct,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,5233013440,0,0.30848408399999999
+20260829T152725558223Z-lyra,pipeline-wvm-direct,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,248961600,0,0.018143958000000002
+20260829T152725558223Z-lyra,pipeline-wvm-direct,setup-component,FFTW planning,shared,setup-only,4320165888,0,0.042108958000000002
+20260829T152725558223Z-lyra,pipeline-wvm-direct,setup-component,vertical matrix preparation,shared,setup-only,10466026880,0,0.76081616699999999
+20260829T152725558223Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,4320165888,0,0.057672209000000002
+20260829T152725558223Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,4320165888,0,0.064298332999999999
+20260829T152725558223Z-lyra,pipeline-wvm-direct,adapter-component,logical retained provider-order view,forward,elided,0,,
+20260829T152725558223Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,6483679360,0,0.090051084000000003
+20260829T152725558223Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,1244808000,0,0.023798583000000002
+20260829T152725558223Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,6483679360,0,0.088195625
+20260829T152725558223Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,2164293632,0,0.0078040829999999999
+20260829T152725558223Z-lyra,pipeline-wvm-direct,setup-component,release correctness-only benchmark storage,shared,setup-only,11487123200,0,3.7079999999999999e-06
+20260829T152725558223Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,25016792128,0,0.33475804100000001

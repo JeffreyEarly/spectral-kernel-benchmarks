@@ -1,0 +1,56 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T150752785429Z-lyra,pipeline-wvm-direct,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.022431833000000002
+20260829T150752785429Z-lyra,pipeline-wvm-direct,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,31114080,0,0.0022092499999999998
+20260829T150752785429Z-lyra,pipeline-wvm-direct,setup-component,FFTW planning,shared,setup-only,543178752,0,0.024268874999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,setup-component,vertical matrix preparation,shared,setup-only,717549600,0,0.031891583000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,0,0.0086785000000000004
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,1,0.0087571669999999997
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,2,0.0087912500000000005
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,3,0.0087968339999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,4,0.0087548750000000005
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,5,0.0086291249999999996
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,6,0.0086717500000000006
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,0,0.0090156249999999993
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,1,0.0090968750000000008
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,2,0.009018
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,3,0.0089088750000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,4,0.0089746659999999992
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,5,0.0090559579999999994
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,6,0.0090283340000000007
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,logical retained provider-order view,forward,elided,0,,
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,0,0.0065981249999999998
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,1,0.0065881660000000003
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,2,0.0066185419999999998
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,3,0.0066174160000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,4,0.0065952500000000004
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,5,0.0065998339999999997
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,6,0.0065779590000000004
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,0,0.00310925
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,1,0.003120917
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,2,0.003096541
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,3,0.003093167
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,4,0.0031043329999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,5,0.0031064590000000002
+20260829T150752785429Z-lyra,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,6,0.0031032910000000002
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,0,0.0065498750000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,1,0.0065645
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,2,0.006552708
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,3,0.0065392080000000003
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,4,0.0065191249999999997
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,5,0.0065262920000000004
+20260829T150752785429Z-lyra,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,6,0.0065574159999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,0,0.00096270899999999996
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,1,0.0009655
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,2,0.00096537499999999998
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,3,0.00096541699999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,4,0.00096270800000000005
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,5,0.00096541699999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,6,0.00096266600000000004
+20260829T150752785429Z-lyra,pipeline-wvm-direct,setup-component,release correctness-only benchmark storage,shared,setup-only,1442499072,0,2.7499999999999999e-06
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,0,0.034518750000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,1,0.03478875
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,2,0.034581500000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,3,0.034505916999999997
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,4,0.034849749999999999
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,5,0.034388291000000001
+20260829T150752785429Z-lyra,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,6,0.034294125000000002

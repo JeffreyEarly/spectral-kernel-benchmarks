@@ -1,0 +1,279 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,20952775008,0,1.3602460830000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,499387680,0,0.040895500000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,setup-component,single-plane FFTW planning,shared,setup-only,4202496,0,0.034310667000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,setup-component,vertical matrix preparation,shared,setup-only,20952775008,0,2.1605127500000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,0,0.032213458
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,1,0.032180791
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,2,0.032206208
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,3,0.032191541999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,4,0.032170416
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,5,0.032134250000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,6,0.032197499999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,7,0.032315916
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,8,0.032232042000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,9,0.038110040999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,10,0.032260125000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,11,0.032306082999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,12,0.032300457999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,13,0.032190749999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,14,0.032187374999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,15,0.032202500000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,16,0.032155084
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,17,0.032193874999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,18,0.033132542000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,19,0.032374082999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,8623521792,20,0.032238124999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,0,0.019258375000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,1,0.021376167000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,2,0.018766749999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,3,0.018950624999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,4,0.018841
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,5,0.022370625000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,6,0.019584125000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,7,0.018369916999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,8,0.018511957999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,9,0.018421750000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,10,0.018914541
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,11,0.018931584000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,12,0.018652249999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,13,0.01868525
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,14,0.018717292
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,15,0.018719125
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,16,0.018643709000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,17,0.018657165999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,18,0.018685750000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,19,0.018668166999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,5749014528,20,0.018688666
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,0,0.040235917000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,1,0.039268333000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,2,0.039277917000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,3,0.039292708000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,4,0.039253875000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,5,0.039183791000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,6,0.039300584
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,7,0.039165375000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,8,0.042701916999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,9,0.039142457999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,10,0.039238457999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,11,0.040924000000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,12,0.039250291999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,13,0.039197542000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,14,0.04258025
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,15,0.039216750000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,16,0.039227667000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,17,0.039339916000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,18,0.039237750000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,19,0.039211833000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,6010225920,20,0.039221125000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,0,0.094285916999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,1,0.094434292000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,2,0.094629624999999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,3,0.094827458000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,4,0.094770458000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,5,0.094115875000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,6,0.094340916999999996
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,7,0.096949499999999994
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,8,0.094604041999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,9,0.094236374999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,10,0.094741166000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,11,0.094025791999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,12,0.095089707999999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,13,0.094964167000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,14,0.094720917000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,15,0.094352332999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,16,0.094485957999999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,17,0.099451083999999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,18,0.094675915999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,19,0.094225709000000005
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,20382762240,20,0.094415417000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,0,0.15082762499999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,1,0.14886020899999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,2,0.14895800000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,3,0.14899216600000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,4,0.148914084
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,5,0.148991709
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,6,0.148586625
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,7,0.148981792
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,8,0.14869708300000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,9,0.149494709
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,10,0.148884292
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,11,0.148868792
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,12,0.14883370900000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,13,0.148989291
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,14,0.14894816699999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,15,0.148906917
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,16,0.14892254199999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,17,0.14882008299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,18,0.14964233299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,19,0.14895708299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,23454106848,20,0.14878308300000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,0,0.023609541000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,1,0.025199875
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,2,0.023940791999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,3,0.021702583000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,4,0.022072624999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,5,0.021005124999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,6,0.021295749999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,7,0.023557458
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,8,0.024940500000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,9,0.020867750000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,10,0.020313083999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,11,0.020830958
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,12,0.023059832999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,13,0.026662833
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,14,0.023473542
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,15,0.023125666999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,16,0.023508958
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,17,0.022276458999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,18,0.022061707999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,19,0.022199041999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,2496938400,20,0.022616082999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,0,0.15360816599999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,1,0.15317566699999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,2,0.153373709
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,3,0.153293875
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,4,0.15347433299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,5,0.15332483299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,6,0.15344574999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,7,0.15335629200000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,8,0.15325233399999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,9,0.15338491600000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,10,0.153128083
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,11,0.153253792
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,12,0.153239084
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,13,0.15348108299999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,14,0.153534958
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,15,0.15356962499999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,16,0.153294875
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,17,0.15329504199999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,18,0.15344704200000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,19,0.15345541700000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,23454106848,20,0.153281208
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,0,0.04758225
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,1,0.048046459
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,2,0.048039332999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,3,0.047626957999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,4,0.048132458000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,5,0.047879083000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,6,0.047696458999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,7,0.047906166
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,8,0.048215708000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,9,0.047863749999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,10,0.050993375000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,11,0.049951333000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,12,0.047753667
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,13,0.047744333
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,14,0.050521749999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,15,0.048238999999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,16,0.048111750000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,17,0.048156083000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,18,0.048119042000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,19,0.04738175
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,10330391808,20,0.047756750000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,0,0.018854665999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,1,0.022055124999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,2,0.020222667
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,3,0.019316875000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,4,0.018873750000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,5,0.019210208999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,6,0.019169124999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,7,0.019182833999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,8,0.019599874999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,9,0.018921957999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,10,0.021006875000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,11,0.018970917
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,12,0.023565249999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,13,0.018937625
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,14,0.020178542000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,15,0.019224874999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,16,0.022456792
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,17,0.020898458000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,18,0.019125957999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,19,0.019383874999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,5749014528,20,0.0192815
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,0,0.036252208000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,1,0.036162874999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,2,0.036230625000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,3,0.04110225
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,4,0.036368958999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,5,0.036219541000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,6,0.036397417000000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,7,0.036371082999999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,8,0.041246041999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,9,0.036642459000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,10,0.038828709000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,11,0.036491665999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,12,0.036483416999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,13,0.036762916
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,14,0.038348582999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,15,0.036341749999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,16,0.036484999999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,17,0.036453082999999997
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,18,0.039803749999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,19,0.037835667000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,8623521792,20,0.036322582999999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,0,0.107088167
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,1,0.107121166
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,2,0.10640175
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,3,0.106492041
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,4,0.106625417
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,5,0.107402209
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,6,0.106321125
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,7,0.108779667
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,8,0.107188583
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,9,0.10577625
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,10,0.106366291
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,11,0.111094875
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,12,0.108806666
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,13,0.106352417
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,14,0.106049791
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,15,0.106598125
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,16,0.10697675
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,17,0.10858145800000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,18,0.10567520800000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,19,0.107246125
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,24702928128,20,0.107193208
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,0,2.6125000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,1,3.1124999999999998e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,2,2.2833e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,3,3.4625000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,4,3.1458000000000003e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,5,3.5583000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,6,2.6415999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,7,1.6875e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,8,3.3042e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,9,1.7499999999999998e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,10,2.3583000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,11,3.1625000000000003e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,12,3.0457999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,13,2.0625e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,14,2.6417000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,15,1.9541000000000001e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,16,2.3499999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,17,3.8541999999999998e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,18,2.6707999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,19,2.6707999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,20,2.6999999999999999e-05
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,setup-component,release correctness-only benchmark storage,shared,setup-only,22949015040,0,0.110956084
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,0,0.53800804099999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,1,0.53456891699999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,2,0.53896675000000005
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,3,0.53716670799999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,4,0.53737329199999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,5,0.53297775000000003
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,6,0.53394350000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,7,0.54036662499999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,8,0.53614450000000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,9,0.53620916699999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,10,0.53031145899999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,11,0.53591524999999995
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,12,0.54262095799999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,13,0.53530345899999998
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,14,0.53712654100000001
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,15,0.53742762499999996
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,16,0.535931041
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,17,0.53470641699999999
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,18,0.54078895800000004
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,19,0.54094987500000002
+20260829T151848703496Z-lyra,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,94490842464,20,0.53820487500000003
