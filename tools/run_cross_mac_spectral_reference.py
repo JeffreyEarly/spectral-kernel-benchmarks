@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
 import math
 import os
@@ -155,12 +156,28 @@ def _command_output(command: list[str]) -> str:
     return completed.stdout.strip() or "unknown"
 
 
+def sysctl_string(name: str, fallback: str = "unknown") -> str:
+    if sys.platform == "darwin":
+        libc = ctypes.CDLL(None)
+        size = ctypes.c_size_t()
+        if libc.sysctlbyname(
+            name.encode(), None, ctypes.byref(size), None, 0,
+        ) == 0 and size.value > 0:
+            value = ctypes.create_string_buffer(size.value)
+            if libc.sysctlbyname(
+                name.encode(), value, ctypes.byref(size), None, 0,
+            ) == 0:
+                return value.value.decode(errors="replace")
+    value = _command_output(["sysctl", "-n", name])
+    return fallback if value == "unknown" else value
+
+
 def machine_record() -> dict:
     performance, efficiency, total = machine_topology()
     return {
         "hostname": platform.node() or "unknown",
-        "cpuBrand": _command_output(["sysctl", "-n", "machdep.cpu.brand_string"]),
-        "hardwareModel": _command_output(["sysctl", "-n", "hw.model"]),
+        "cpuBrand": sysctl_string("machdep.cpu.brand_string"),
+        "hardwareModel": sysctl_string("hw.model"),
         "performanceCores": performance,
         "efficiencyCores": efficiency,
         "totalPhysicalCores": total,
@@ -628,6 +645,8 @@ def reference_analysis(
         "incrementId": INCREMENT_ID,
         "phase": "reference",
         "machine": machine_record(),
+        "sourceTreeGitCommit": calibration.get("sourceTreeGitCommit"),
+        "sourceTreeDirty": calibration.get("sourceTreeDirty"),
         "calibrationSelections": calibration["selections"],
         "profilesRequested": profiles,
         "profilesMatched": [row["profile"] for row in profile_rows],
@@ -666,6 +685,88 @@ def reference_analysis(
             "generalMacClaimAllowed": False,
             "sizeDependentDispatchAllowed": False,
         },
+    }
+
+
+def combine_machine_analyses(analyses: list[dict]) -> dict:
+    if len(analyses) < 2:
+        raise ValueError("cross-Mac synthesis requires at least two machine analyses")
+    for analysis in analyses:
+        if analysis.get("schema") != "spectral-kernel-cross-mac-reference-analysis-v1":
+            raise ValueError("machine analysis has the wrong schema")
+    machine_ids = {
+        (
+            analysis["machine"].get("hardwareModel"),
+            analysis["machine"].get("cpuBrand"),
+        )
+        for analysis in analyses
+    }
+    if len(machine_ids) < 2:
+        raise ValueError(
+            "cross-Mac synthesis requires different Apple-silicon machine classes"
+        )
+    commits = {analysis.get("sourceTreeGitCommit") for analysis in analyses}
+    same_clean_commit = bool(
+        len(commits) == 1 and None not in commits
+        and all(analysis.get("sourceTreeDirty") is False for analysis in analyses)
+    )
+    common_profiles = set(analyses[0].get("profilesMatched", []))
+    for analysis in analyses[1:]:
+        common_profiles &= set(analysis.get("profilesMatched", []))
+    machine_passes = [
+        bool(analysis.get("decisionGate", {}).get(
+            "portabilityCandidatePassedOnThisMachine", False,
+        ))
+        for analysis in analyses
+    ]
+    cross_mac_passed = bool(
+        same_clean_commit and all(machine_passes) and len(common_profiles) >= 2
+    )
+    return {
+        "schema": "spectral-kernel-cross-mac-portability-synthesis-v1",
+        "experimentId": EXPERIMENT_ID,
+        "incrementId": INCREMENT_ID,
+        "sourceTreeGitCommit": next(iter(commits)) if same_clean_commit else None,
+        "sameCleanCommit": same_clean_commit,
+        "differentMachineClasses": True,
+        "commonMatchedProfiles": sorted(common_profiles),
+        "machines": [
+            {
+                "machine": analysis["machine"],
+                "profilesMatched": analysis.get("profilesMatched", []),
+                "capacityExclusions": analysis.get("capacityExclusions", []),
+                "calibrationSelections": analysis.get("calibrationSelections", {}),
+                "geometricCandidateToBaseline": analysis.get(
+                    "geometricCandidateToBaseline"
+                ),
+                "maximumProfileCandidateToBaseline": analysis.get(
+                    "maximumProfileCandidateToBaseline"
+                ),
+                "empiricalStratifiedPairedRange": analysis.get(
+                    "empiricalStratifiedPairedRange"
+                ),
+                "memoryOnlyGeometricRatios": analysis.get(
+                    "memoryOnlyGeometricRatios", {}
+                ),
+                "decisionGate": analysis.get("decisionGate", {}),
+            }
+            for analysis in analyses
+        ],
+        "crossMacPortabilityGate": {
+            "atLeastTwoDifferentMachineClasses": True,
+            "sameCleanSourceCommit": same_clean_commit,
+            "atLeastTwoCommonMatchedProfiles": len(common_profiles) >= 2,
+            "everyMachinePassesItsFrozenTupleGate": all(machine_passes),
+            "portabilityQualifiedAcrossTestedMachines": cross_mac_passed,
+            "generalMacClaimAllowed": False,
+            "wvmIntegrationAuthorized": False,
+            "sizeDependentDispatchAllowed": False,
+        },
+        "claimScope": (
+            "The named Apple-silicon hardware-plus-toolchain configurations and "
+            "their common feasible workloads only. The result advances a candidate "
+            "to issue #19 and does not establish a general-Mac default."
+        ),
     }
 
 
@@ -889,13 +990,16 @@ def main() -> int:
     repository_root = Path(__file__).resolve().parents[1]
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=("calibration", "reference"), required=True)
+    parser.add_argument(
+        "--phase", choices=("calibration", "reference", "combine"), required=True,
+    )
     parser.add_argument(
         "--executable", type=Path,
         default=repository_root / "build/release/skbench",
     )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--calibration-analysis", type=Path)
+    parser.add_argument("--machine-analysis", type=Path, action="append", default=[])
     parser.add_argument("--profiles", nargs="*")
     parser.add_argument("--max-memory-fraction", type=float, default=0.75)
     parser.add_argument("--allow-dirty-tree", action="store_true")
@@ -905,6 +1009,26 @@ def main() -> int:
     arguments = parser.parse_args()
     if not 0.0 < arguments.max_memory_fraction <= 1.0:
         parser.error("--max-memory-fraction must be in (0, 1]")
+
+    if arguments.phase == "combine":
+        if len(arguments.machine_analysis) < 2:
+            parser.error("combine phase requires at least two --machine-analysis files")
+        try:
+            synthesis = combine_machine_analyses([
+                load_json(path) for path in arguments.machine_analysis
+            ])
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            parser.error(str(error))
+        output = arguments.output or (
+            repository_root / "results/local" /
+            f"issue11-cross-mac-synthesis-{timestamp}.json"
+        )
+        if output.exists():
+            parser.error(f"output already exists: {output}")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        write_json(output, synthesis)
+        print(output)
+        return 0
 
     source_commit, source_dirty = git_source_state(repository_root)
     if source_dirty and not arguments.allow_dirty_tree:

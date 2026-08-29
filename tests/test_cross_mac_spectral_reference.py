@@ -50,6 +50,14 @@ def fake_result(
 
 
 class CrossMacSpectralReferenceTests(unittest.TestCase):
+    def test_sysctl_string_returns_fallback_for_missing_key(self) -> None:
+        self.assertEqual(
+            "fallback",
+            cross_mac.sysctl_string(
+                "skbench.this-key-does-not-exist", "fallback",
+            ),
+        )
+
     def test_calibration_must_match_reference_machine(self) -> None:
         machine = {
             "hostname": "matilda",
@@ -219,6 +227,47 @@ class CrossMacSpectralReferenceTests(unittest.TestCase):
         self.assertTrue(
             analysis["decisionGate"]["portabilityCandidatePassedOnThisMachine"]
         )
+
+    def test_cross_machine_synthesis_requires_distinct_machines_and_same_commit(self) -> None:
+        def analysis(model: str, cpu: str) -> dict:
+            return {
+                "schema": "spectral-kernel-cross-mac-reference-analysis-v1",
+                "sourceTreeGitCommit": "abc123",
+                "sourceTreeDirty": False,
+                "machine": {
+                    "hardwareModel": model,
+                    "cpuBrand": cpu,
+                },
+                "profilesMatched": list(cross_mac.PROFILES[:2]),
+                "capacityExclusions": [],
+                "calibrationSelections": {},
+                "geometricCandidateToBaseline": 0.7,
+                "maximumProfileCandidateToBaseline": 0.8,
+                "empiricalStratifiedPairedRange": {
+                    "lower": 0.6, "upper": 0.9,
+                },
+                "memoryOnlyGeometricRatios": {},
+                "decisionGate": {
+                    "portabilityCandidatePassedOnThisMachine": True,
+                },
+            }
+
+        synthesis = cross_mac.combine_machine_analyses([
+            analysis("Mac16,9", "Apple M4 Max"),
+            analysis("MacBookPro17,1", "Apple M1"),
+        ])
+        self.assertTrue(
+            synthesis["crossMacPortabilityGate"]
+            ["portabilityQualifiedAcrossTestedMachines"]
+        )
+        self.assertFalse(
+            synthesis["crossMacPortabilityGate"]["generalMacClaimAllowed"]
+        )
+        with self.assertRaises(ValueError):
+            cross_mac.combine_machine_analyses([
+                analysis("Mac16,9", "Apple M4 Max"),
+                analysis("Mac16,9", "Apple M4 Max"),
+            ])
 
 
 if __name__ == "__main__":

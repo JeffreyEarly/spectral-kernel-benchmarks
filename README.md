@@ -268,6 +268,7 @@ Issue #11 freezes the WVM-order direct graph and the streaming-pruned fixed tile
 python3 tools/run_cross_mac_spectral_reference.py --phase calibration --dry-run --allow-dirty-tree
 python3 tools/run_cross_mac_spectral_reference.py --phase calibration --output results/local/issue11-calibration
 python3 tools/run_cross_mac_spectral_reference.py --phase reference --calibration-analysis results/local/issue11-calibration/analysis.json --output results/local/issue11-reference
+python3 tools/run_cross_mac_spectral_reference.py --phase combine --machine-analysis results/local/issue11-reference-lyra/analysis.json --machine-analysis results/local/issue11-reference-matilda/analysis.json --output results/local/issue11-cross-mac-synthesis.json
 ```
 
 The reference phase applies the selected topology uniformly to `256²/Nz=129/F4`, `512²/Nz=257/F4`, `1024²/Nz=129/F4`, and the deep `512²/Nz=513/F4` case. It begins with three balanced rotated rounds, three warmups, and 21 samples per isolated timing process. A preregistered variability or decision-boundary trigger adds exactly two complete rounds; otherwise the campaign stops after three. Memory evidence comes from separate one-sample processes and never enters timing aggregates. A workload above 75% of physical memory is preserved as an explicit capacity exclusion rather than forced through swap or replaced with another size.
