@@ -279,6 +279,28 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("169–171 ms is movement alone", issue_18_html)
             self.assertIn("20260828T222553Z-issue18-n256-nz129-explicit-parallel", issue_18_html)
             self.assertIn("20260828T222558Z-issue18-n256-nz129-fftwpp-parallel", issue_18_html)
+            self.assertIn("24 reference run(s) currently contribute", issue_18_html)
+            self.assertIn("Four-workload composed M4 reference campaign", issue_18_html)
+            self.assertIn("FFTW++ is 0.952× explicit geometrically", issue_18_html)
+            self.assertIn("0.885×–1.063×", issue_18_html)
+            self.assertIn("worst workload of 0.980×", issue_18_html)
+            self.assertIn("Algorithm-resident storage is 0.997×", issue_18_html)
+            self.assertIn("maximum mode-keyed error is 1.305e-15", issue_18_html)
+            self.assertIn("does not meet the M4 adoption threshold", issue_18_html)
+            self.assertIn("10% geometric time improvement", issue_18_html)
+            self.assertIn("confidence excluding a tie", issue_18_html)
+            self.assertIn("20% algorithm-resident-memory reduction", issue_18_html)
+            self.assertIn(
+                "wvm-current-512-nz257-f4: 0.778×–1.136×",
+                issue_18_html,
+            )
+            self.assertIn(
+                "wvm-large-512-nz513-f4: 0.860×–1.217×",
+                issue_18_html,
+            )
+            self.assertIn("No size-dependent dispatch is permitted", issue_18_html)
+            self.assertIn("20260828T231215Z-issue18-n512-nz513-explicit-parallel", issue_18_html)
+            self.assertIn("20260829T015353Z-issue18-n1024-nz129-fftwpp-parallel", issue_18_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

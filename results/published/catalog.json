@@ -22594,6 +22594,750 @@
         "samplesSha256": "680053e4f9ee0aff107f136cdb71e5094f5c1b6e2fb8452a092918e190cd7d60"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260828T225725Z-issue18-n256-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T225725Z-issue18-n256-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260828T225725Z-issue18-n256-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "bd5da80a1287589ccaafdf6436a9b9d6d443f981096b8359caf0f787ace427e8",
+        "samplesSha256": "c5f440b06fc029eeb125e10c6046b414b88172a803a85b0ddc5d9206ec6cb09a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T225745Z-issue18-n256-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T225745Z-issue18-n256-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T225745Z-issue18-n256-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "75ac442a89b203c47d09e62274007c9f9ba702d9141e56b1ee55524454cfb748",
+        "samplesSha256": "0540056059f00b29b7238814c262015496cf6b41078632d284259ae600ba2591"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T225806Z-issue18-n512-nz257-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T225806Z-issue18-n512-nz257-explicit-parallel/result.json",
+        "samples": "runs/20260828T225806Z-issue18-n512-nz257-explicit-parallel/samples.csv",
+        "resultSha256": "bba297c2619506db8621c53220556f36243968b74ac0a67306b14db3b823a572",
+        "samplesSha256": "a0410af1cbaf5042dd08bf22d50e674cab721746b0d997100b85ce9ec4e2bac7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T230436Z-issue18-n512-nz257-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T230436Z-issue18-n512-nz257-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T230436Z-issue18-n512-nz257-fftwpp-parallel/samples.csv",
+        "resultSha256": "07d09457975814c0b4a52cbcdf3289c120bbc121f1b590e9854551941c1cc2b8",
+        "samplesSha256": "9710b578f0085a648b33cdb04ca57ef423c49aa09bb230fea82d115c65d00c63"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T231215Z-issue18-n512-nz513-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T231215Z-issue18-n512-nz513-explicit-parallel/result.json",
+        "samples": "runs/20260828T231215Z-issue18-n512-nz513-explicit-parallel/samples.csv",
+        "resultSha256": "011665a792321df4f885a707e8975514ddbb6c623a13daa5a64c1621ed540ee0",
+        "samplesSha256": "102dd4fa8ffff4f6ff9ba07c78367872becc6416faf3e530b9df6bdbe3c9e7d4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T233211Z-issue18-n512-nz513-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T233211Z-issue18-n512-nz513-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T233211Z-issue18-n512-nz513-fftwpp-parallel/samples.csv",
+        "resultSha256": "d4d02b91823198085949886f46a7a979cc9d9ac095bdb777c71875a01d058eef",
+        "samplesSha256": "df4d9c1ca40dded7777bf8241d27ffdc1c69bc8aec089b35c7858bd5c29c975c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T235018Z-issue18-n1024-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T235018Z-issue18-n1024-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260828T235018Z-issue18-n1024-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "dbf363bf5e3296e8230397cac8d32de7cd916a1f0bb34092185547f3451fd6ff",
+        "samplesSha256": "a3546de647dea07b8a537d1e72d696e694de71b4cfd1848502ba357a278796be"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260828T235658Z-issue18-n1024-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260828T235658Z-issue18-n1024-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260828T235658Z-issue18-n1024-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "2a033b02eca6f2702009f3b6b8c681164c421c5a34872e10a06f045a94d5efbc",
+        "samplesSha256": "9e59dbb633c81688cadefcc93207fbd618efa7aa906fba6e9a32bd05ec180c92"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T000319Z-issue18-n512-nz257-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T000319Z-issue18-n512-nz257-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T000319Z-issue18-n512-nz257-fftwpp-parallel/samples.csv",
+        "resultSha256": "d25e793d0cf62da0e37403ecea05800249dc02bf8d4e18e9fc9aabe571ef23e5",
+        "samplesSha256": "7e4408159bb68f1dc74323a50ea15fbe03d199f195163dc3eced8cc19d06aa6b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T000931Z-issue18-n512-nz257-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T000931Z-issue18-n512-nz257-explicit-parallel/result.json",
+        "samples": "runs/20260829T000931Z-issue18-n512-nz257-explicit-parallel/samples.csv",
+        "resultSha256": "4df3da82599245f835e12c244eda3c3c391cbdd975cb0714f584463ec530b579",
+        "samplesSha256": "af8994a3da1a0540c7b5ce3350e97b5da01a3f9e3f68ea2b1c7b998e9e7eca73"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T001741Z-issue18-n512-nz513-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T001741Z-issue18-n512-nz513-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T001741Z-issue18-n512-nz513-fftwpp-parallel/samples.csv",
+        "resultSha256": "3200a6485f60d41ea4607ce37583086b61c51ca38b719296925cd3d57bd5edb3",
+        "samplesSha256": "db9ac668609aab7fb86f4e80afaaed2aa506cc67cfc05321e1aa1a28e727bf18"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T003845Z-issue18-n512-nz513-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T003845Z-issue18-n512-nz513-explicit-parallel/result.json",
+        "samples": "runs/20260829T003845Z-issue18-n512-nz513-explicit-parallel/samples.csv",
+        "resultSha256": "2faead8425338c41b7650225cf553a40be7aa68e40a352418f203a66328ab5ee",
+        "samplesSha256": "c4e02e0fe5333964d72e46450fac33d44e1597c1996d06458afd2b97c869d540"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T005821Z-issue18-n1024-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T005821Z-issue18-n1024-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T005821Z-issue18-n1024-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "12ad6a0fa766badf0e3dd29981d6c7d68aaa1cb5aec9ad57123f9064d5b0a7a2",
+        "samplesSha256": "0ada42512380db9456fe5b0ddb7e137dd12b05d4d84533c3ee484ac58435787d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T010444Z-issue18-n1024-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T010444Z-issue18-n1024-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260829T010444Z-issue18-n1024-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "2aa31279c725fc02d8df3f1c1779f9c699deb5378093ce518ee13a15e2259ad3",
+        "samplesSha256": "4143002a6b87e12589526a29b63919ba26bf8c27e8ee58836ce1a144c5e9900d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T011120Z-issue18-n256-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T011120Z-issue18-n256-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T011120Z-issue18-n256-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "29cc45621951628966dd6519711b6b8ccd68c6f77a7cbdf6378518e9f84a23ae",
+        "samplesSha256": "e21f01a5edd66e9b5d1913a6b14ad705a3a683c4a02119b4535a9f2fc2d12cab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T011140Z-issue18-n256-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T011140Z-issue18-n256-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260829T011140Z-issue18-n256-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "79734d1dc3fe3607de38922d394a94520ab13efc30cd8dc2f441ca754153f38a",
+        "samplesSha256": "014a8a9a4c8ca9e2a36c30f581c0dd2d8d0ca7c8f8de83d78e39908dad6c7575"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T011203Z-issue18-n512-nz513-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T011203Z-issue18-n512-nz513-explicit-parallel/result.json",
+        "samples": "runs/20260829T011203Z-issue18-n512-nz513-explicit-parallel/samples.csv",
+        "resultSha256": "bcde19cb142bf194412bcdc398837ef154fc944a29aea02af33082601078a8e8",
+        "samplesSha256": "cb1b447fb82b4d9ad55770a7b37fe2964334f4e58d931e744257ff4efe60adab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T012807Z-issue18-n512-nz513-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T012807Z-issue18-n512-nz513-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T012807Z-issue18-n512-nz513-fftwpp-parallel/samples.csv",
+        "resultSha256": "fe7475f96344cde483b912c2fd457b0c004bdeb5dcc3ce9fccd66d1c67c481ff",
+        "samplesSha256": "db1b6a41c2e33ef4d5893e3fb3e3610ecd1e550135673e90dcf7e904884c6faa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T014715Z-issue18-n1024-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T014715Z-issue18-n1024-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260829T014715Z-issue18-n1024-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "c06647150094744373fb066b54f6104c57c3c837da7597ef73489924a845c14b",
+        "samplesSha256": "fe899a7d9310def35dbe51d1d0ec72d0bd0445d885fedf74d7bcf1ea7bb34e2c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T015353Z-issue18-n1024-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T015353Z-issue18-n1024-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T015353Z-issue18-n1024-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "6ee12bf76771968ba9c279c71c94df361eac43757d7f3684b24a1eacd55fbf5e",
+        "samplesSha256": "485ffb43bdb4fc52f284aa62a89fc89d89a3a5be71e0355244536c3489d42e81"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T020014Z-issue18-n256-nz129-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T020014Z-issue18-n256-nz129-explicit-parallel/result.json",
+        "samples": "runs/20260829T020014Z-issue18-n256-nz129-explicit-parallel/samples.csv",
+        "resultSha256": "40a185d792e72bc0b9a0f183f84dba1af231780aa98c64f52180dc2acc293938",
+        "samplesSha256": "62663a26e16dd5ced44d9e2042d5fb11a2b80a1e7b84ff62bedd81e51887956e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T020034Z-issue18-n256-nz129-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T020034Z-issue18-n256-nz129-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T020034Z-issue18-n256-nz129-fftwpp-parallel/samples.csv",
+        "resultSha256": "687afdc8608925c68e5570c2b387c1c3f904b225862d93e892be6f07dbcaa599",
+        "samplesSha256": "e38d36987718ac271db014506e4f433c62d37a3e8fc77370133daa975cd9f03a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T020055Z-issue18-n512-nz257-explicit-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "explicit-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-explicit-shared-advectors+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T020055Z-issue18-n512-nz257-explicit-parallel/result.json",
+        "samples": "runs/20260829T020055Z-issue18-n512-nz257-explicit-parallel/samples.csv",
+        "resultSha256": "904b79c7f3b709b48fe6e2f66813d5320f58870f9db4265df085f0466d350506",
+        "samplesSha256": "80696aeb143b5b54d800873e5d8c3fbf66af036926317aeef6e307a9854b442e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T020849Z-issue18-n512-nz257-fftwpp-parallel",
+      "incrementId": "vertically-batched-advection-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "fftwpp-parallel",
+      "status": "reference",
+      "statusReason": "Complete clean three-round four-workload M4 campaign. FFTW++ is 0.9517x geometrically with a 0.8851x-1.0633x stratified 95% interval and 0.9966x algorithm-resident memory; the two vertically deeper 512-squared profiles show large round variation. Correctness, placement, capacity, and allocation checks pass, but time, confidence, and memory adoption gates fail.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using split-k2-inverse+level-streamed-hybrid-6to1x4+split-k2-forward-v1 (internal=1, outer=12).",
+      "issues": [
+        18
+      ],
+      "experiments": [
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-017-implicit-hybrid-dealiased-convolution"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T020849Z-issue18-n512-nz257-fftwpp-parallel/result.json",
+        "samples": "runs/20260829T020849Z-issue18-n512-nz257-fftwpp-parallel/samples.csv",
+        "resultSha256": "c9b3c9c3109c1fd7b233632ee32f226ceec94ef096abf1d0543de1800b827b03",
+        "samplesSha256": "cb772bbbe2619201af8491aa21082e2520768da15af1663e6118d9a25947e428"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

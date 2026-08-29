@@ -4626,6 +4626,7 @@ def vertically_batched_advection_reference_synthesis(
     profile_ratios: dict[str, list[float]] = {}
     summary_ratios: list[float] = []
     resident_ratios: list[float] = []
+    uncertain_profile_ranges: list[str] = []
     for profile_index, profile in enumerate(profile_order):
         baseline = {
             round_number: cells[(baseline_id, profile, round_number)]
@@ -4654,6 +4655,10 @@ def vertically_batched_advection_reference_synthesis(
         ratio = candidate_total / baseline_total
         summary_ratios.append(ratio)
         lower, upper = paired_round_bootstrap(ratios, 181 + profile_index)
+        if lower <= 1.0 <= upper:
+            uncertain_profile_ranges.append(
+                f"{profile}: {min(ratios):.3f}×–{max(ratios):.3f}×"
+            )
         baseline_resident = statistics.median(
             baseline[round_number]["resident"] for round_number in range(1, 4)
         )
@@ -4728,10 +4733,32 @@ def vertically_batched_advection_reference_synthesis(
         if adoption_passed else
         "The campaign is reference-quality, but the fixed FFTW++ composition does not meet the M4 adoption threshold."
     )
+    uncertainty_note = (
+        " Round variation crosses a tie for "
+        + "; ".join(uncertain_profile_ranges)
+        + ". This variability remains part of the reference evidence rather than being hidden by the provider medians."
+        if uncertain_profile_ranges else
+        " Every profile-level paired interval excludes a tie."
+    )
+    failed_gates: list[str] = []
+    if geometric_time > 0.90:
+        failed_gates.append("10% geometric time improvement")
+    if maximum_ratio > 1.03:
+        failed_gates.append("3% maximum-regression")
+    if upper >= 1.0:
+        failed_gates.append("confidence excluding a tie")
+    if geometric_resident > 0.80:
+        failed_gates.append("20% algorithm-resident-memory reduction")
+    gate_note = (
+        " Failed gates: " + ", ".join(failed_gates) + "."
+        if failed_gates else
+        " Every M4 adoption-statistics gate passes."
+    )
     return f"""
       <h2>Four-workload composed M4 reference campaign</h2>
       <p>Three isolated process rounds rotate both fixed candidates and all four production workloads. Each process uses three warmups and 21 samples after the same-commit allocator test. The exact boundary remains 15 ready retained and vertically truncated modal inputs through vertical reconstruction, 129–513 streamed physical levels and four horizontal advective expressions, to four ready modal outputs.</p>
-      <p>FFTW++ is {geometric_time:.3f}× explicit geometrically, with a stratified paired-bootstrap 95% interval of {lower:.3f}×–{upper:.3f}× and a worst workload of {maximum_ratio:.3f}×. Algorithm-resident storage is {geometric_resident:.3f}× geometrically and maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong></p>
+      <p>FFTW++ is {geometric_time:.3f}× explicit geometrically, with a stratified paired-bootstrap 95% interval of {lower:.3f}×–{upper:.3f}× and a worst workload of {maximum_ratio:.3f}×. Algorithm-resident storage is {geometric_resident:.3f}× geometrically and maximum mode-keyed error is {maximum_error:.3e}. <strong>{escaped(conclusion)}</strong>{escaped(gate_note)}</p>
+      <p>{escaped(uncertainty_note.strip())}</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Authoritative composed medians and paired inference. Setup columns are explicit / FFTW++ and remain outside the timed boundary.</caption>
         <thead><tr><th scope="col">Profile</th><th scope="col">Explicit total (ms)</th><th scope="col">FFTW++ total (ms)</th><th scope="col">Ratio</th><th scope="col">Paired 95% interval</th><th scope="col">Matrix setup</th><th scope="col">Horizontal planning</th></tr></thead>
