@@ -320,11 +320,14 @@ def correctness_trials(executable: Path, root: Path, preflight_record: dict,
     trials = []
     for workload in WORKLOADS:
         workload_root = root / workload.profile
-        fixture = workload_root / "fixture"
-        prepared = workload_root / "prepared-fixture.bin"
-        if not prepared.is_file():
-            prepare(fixture, prepared)
         graph_capacity_record = preflight_by_profile[workload.profile]["graphs"]
+        feasible = [
+            candidate for candidate in CANDIDATES
+            if graph_capacity_record[candidate.id]["feasible"]
+        ]
+        prepared = workload_root / "prepared-fixture.bin"
+        if feasible and not prepared.is_file():
+            prepare(workload_root / "fixture", prepared)
         runs = []
         for candidate in CANDIDATES:
             feasibility = graph_capacity_record[candidate.id]
@@ -469,7 +472,18 @@ def main() -> int:
         return 0
 
     if arguments.phase in {"export", "all"}:
+        preflight_by_profile = {
+            item["profile"]: item for item in preflight_record["workloads"]
+        }
         for workload in WORKLOADS:
+            graphs = preflight_by_profile[workload.profile]["graphs"]
+            if not any(graphs[candidate.id]["feasible"] for candidate in CANDIDATES):
+                print(
+                    f"skip export {workload.profile}: all frozen graphs are "
+                    "capacity-excluded",
+                    flush=True,
+                )
+                continue
             print(f"export {workload.profile}", flush=True)
             export_fixture(
                 arguments.matlab, arguments.wvm_repository,
