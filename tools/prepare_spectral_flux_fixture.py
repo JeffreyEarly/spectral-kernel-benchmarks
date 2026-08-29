@@ -66,8 +66,11 @@ def sequence(value: Any, label: str) -> list[Any]:
 
 
 def integer(value: Any, label: str, *, positive: bool = False) -> int:
-    require(isinstance(value, int) and not isinstance(value, bool),
+    require(isinstance(value, (int, float)) and not isinstance(value, bool),
             f"{label} must be an integer")
+    require(math.isfinite(float(value)) and float(value).is_integer(),
+            f"{label} must be an integer")
+    value = int(value)
     if positive:
         require(value > 0, f"{label} must be positive")
     return value

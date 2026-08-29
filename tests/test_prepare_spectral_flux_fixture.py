@@ -174,6 +174,13 @@ class SpectralFluxFixturePreparationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             fixture = self.make_fixture(root)
+            manifest_path = fixture / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            for payload in manifest["payloads"]:
+                payload["byteCount"] = float(payload["byteCount"])
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+            )
             output = root / "prepared.bin"
             summary = prepare(fixture, output)
             self.assertTrue(output.read_bytes().startswith(MAGIC))
