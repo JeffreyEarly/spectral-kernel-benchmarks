@@ -720,6 +720,19 @@ struct EnvironmentRecord {
     bool gitDirty = false;
 };
 
+struct FixtureProvenanceRecord {
+    std::string status = "provider-independent-synthetic-development";
+    std::string schema = "spectral-flux-fixture-v1";
+    std::string waveVortexModelRepository = "JeffreyEarly/wave-vortex-model";
+    std::string waveVortexModelCommit;
+    std::string generatorIdentity;
+    std::string fixtureHash;
+    std::string normalization;
+    std::string modeMapping;
+    std::string derivativeConvention;
+    bool authoritative = false;
+};
+
 struct BenchmarkReport {
     std::string schema = "spectral-kernel-benchmark-v1";
     std::string status;
@@ -751,6 +764,7 @@ struct BenchmarkReport {
     double medianVerticalGroupColumns = 0.0;
     std::size_t maximumVerticalGroupColumns = 0;
     std::string verticalGroupOrderHash;
+    FixtureProvenanceRecord fixtureProvenance;
     EnvironmentRecord environment;
     std::vector<ProviderRecord> providers;
 };
@@ -809,6 +823,7 @@ BenchmarkReport runVerticalGemmBenchmark(const RunOptions& options);
 BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options);
+BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options);
 BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options);
 BenchmarkReport runVerticallyBatchedAdvectionBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);

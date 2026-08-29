@@ -5545,6 +5545,10 @@ def render_markdown(source: str) -> str:
 
 def build_methods_page(methods_source: Path) -> str:
     rendered = render_markdown(methods_source.read_text(encoding="utf-8"))
+    rendered = rendered.replace(
+        'href="wvm-spectral-flux-fixture-contract.md"',
+        'href="../wvm-spectral-flux-fixture/index.html"',
+    )
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Versioned methodology</p>
@@ -5554,6 +5558,19 @@ def build_methods_page(methods_source: Path) -> str:
     <article class="section prose">{rendered}</article>
     """
     return shell("Operators and representations", content, "../../")
+
+
+def build_flux_fixture_page(fixture_source: Path) -> str:
+    rendered = render_markdown(fixture_source.read_text(encoding="utf-8"))
+    content = f"""
+    <section class="hero compact">
+      <p class="eyebrow">Versioned fixture methodology</p>
+      <h1>WVM spectral-flux fixtures</h1>
+      <p class="lede">This contract separates authoritative WVM-exported evidence from deterministic synthetic harness development.</p>
+    </section>
+    <article class="section prose">{rendered}</article>
+    """
+    return shell("WVM spectral-flux fixtures", content, "../../")
 
 
 def capacity_outcome(machine_result: dict) -> str:
@@ -5843,6 +5860,12 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     write_page(
         output_dir / "methods" / "operators-and-representations" / "index.html",
         build_methods_page(repository_root / "docs" / "benchmark-contract.md"),
+    )
+    write_page(
+        output_dir / "methods" / "wvm-spectral-flux-fixture" / "index.html",
+        build_flux_fixture_page(
+            repository_root / "docs" / "wvm-spectral-flux-fixture-contract.md"
+        ),
     )
     write_page(
         output_dir / "decisions" / "v1" / "index.html",

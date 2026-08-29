@@ -55,7 +55,34 @@
         "waveVortexModelIssue": {"const": 129},
         "auditedProductionBaselineCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
         "historicalHarnessCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
-        "historicalDecisionCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+        "historicalDecisionCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "spectralFluxFixture": {
+          "type": "object",
+          "required": [
+            "status",
+            "schema",
+            "waveVortexModelRepository",
+            "waveVortexModelCommit",
+            "generatorIdentity",
+            "fixtureHash",
+            "normalization",
+            "modeMapping",
+            "derivativeConvention",
+            "authoritative"
+          ],
+          "properties": {
+            "status": {"enum": ["authoritative-wvm-export", "provider-independent-synthetic-development", "invalid"]},
+            "schema": {"const": "spectral-flux-fixture-v1"},
+            "waveVortexModelRepository": {"const": "JeffreyEarly/wave-vortex-model"},
+            "waveVortexModelCommit": {"type": "string"},
+            "generatorIdentity": {"type": "string"},
+            "fixtureHash": {"type": "string"},
+            "normalization": {"type": "string"},
+            "modeMapping": {"type": "string"},
+            "derivativeConvention": {"type": "string"},
+            "authoritative": {"type": "boolean"}
+          }
+        }
       }
     },
     "logicalOperators": {

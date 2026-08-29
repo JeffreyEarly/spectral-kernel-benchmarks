@@ -35,7 +35,7 @@ class PublicationValidationTests(unittest.TestCase):
         grandfathered = next(bundle for bundle in bundles if bundle.publication["grandfathered"])
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
-        self.assertEqual(14, len(catalog["experiments"]))
+        self.assertEqual(15, len(catalog["experiments"]))
         experiment_phases = {
             experiment["id"]: experiment["phase"]
             for experiment in catalog["experiments"]
@@ -47,6 +47,12 @@ class PublicationValidationTests(unittest.TestCase):
             "issue-013-ordering-packing-crossover",
         ):
             self.assertEqual("complete", experiment_phases[experiment_id])
+        self.assertEqual(
+            "collecting",
+            experiment_phases[
+                "issue-019-production-lifetime-spectral-flux-composition"
+            ],
+        )
         fftw_production_reference = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==

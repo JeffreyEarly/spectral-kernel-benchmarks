@@ -54,6 +54,10 @@ bool accelerateAllocationAssertionsEnabled() {
     return skip == nullptr || std::string(skip) != "1";
 }
 
+// Accelerate may reserve opaque process state across its first few calls. Complete
+// that provider warmup before the interposer asserts application steady state.
+constexpr std::size_t opaqueProviderWarmups = 16;
+
 void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::FFTWStrategy strategy) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto spectrum = alignedBuffer<skbench::Complex>(workload.spectrumElements());
@@ -322,7 +326,8 @@ void requireAllocationFreeVdspRetainedExecution(
         provider.inverseRetainedNativeSplit(
             modes, retainedReal.get(), retainedImag.get(), output.get());
     };
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) execute();
 
     skbench::test::beginAllocationTracking();
     for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
@@ -353,7 +358,8 @@ void requireAllocationFreeVerticalExecution(const skbench::Workload& workload,
     require(provider.supported(), "Accelerate vertical GEMM provider is unavailable");
     provider.loadPhysicalInput(physical.data());
     provider.loadModalInput(modal.data());
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) {
         provider.executeForward();
         provider.executeInverse();
     }
@@ -392,7 +398,8 @@ void requireAllocationFreeOrderingPacking(
     skbench::VerticalGemmProvider provider(workload, operators, layout, strategy);
     require(provider.supported(), "Accelerate ordering/packing provider is unavailable");
     provider.loadModalInput(modal.data());
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) {
         provider.packPhysicalInputFromWvm(modes, fullInput.data());
         provider.executeForward();
         provider.executeInverse();
@@ -440,7 +447,8 @@ void requireAllocationFreeDirectOrdering(
         workload, modes, modal.data(), fullModalInput.data());
     provider.initializeModalOutput(fullModalOutput.data());
     provider.initializeSpectrumOutput(fullOutput.data());
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) {
         provider.executeForward(fullInput.data(), fullModalOutput.data());
         provider.executeInverse(fullModalInput.data(), fullOutput.data());
         if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
@@ -500,7 +508,8 @@ void requireAllocationFreePlaneMajorOrdering(
     require(provider.supported(), "Accelerate plane-major view provider is unavailable");
     provider.initializeModalOutput(planeModalOutput.data());
     provider.initializeSpectrumOutput(planeOutput.data());
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) {
         provider.executeForward(planeInput.data(), planeModalOutput.data());
         provider.initializeSpectrumOutput(planeOutput.data());
         provider.executeInverse(planeModalInput.data(), planeOutput.data());
@@ -557,7 +566,8 @@ void requireAllocationFreeWvmPipeline(
         vertical.executeInverse(modalPostWork.get(), spectrum.get());
         fftw.inverse(spectrum.get(), output.get());
     };
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) execute();
 
     skbench::test::beginAllocationTracking();
     for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
@@ -611,12 +621,250 @@ void requireAllocationFreeFusedSplitPipeline(
             vertical.splitPhysicalOutputImaginaryData(), spectrum.get());
         fftw.inverse(spectrum.get(), output.get());
     };
-    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) execute();
 
     skbench::test::beginAllocationTracking();
     for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
     require(skbench::test::endAllocationTracking() == 0,
             "fused-split synthetic pipeline steady-state execution allocated memory");
+}
+
+void requireAllocationFreeProductionLifetimeFlux(
+    const skbench::Workload& baseWorkload,
+    const std::vector<skbench::RetainedMode>& modes,
+    const skbench::GroupedVerticalOperators& operators,
+    skbench::VerticalGemmStrategy strategy,
+    bool streamingSplit) {
+    auto outputWorkload = baseWorkload;
+    outputWorkload.fields = 4;
+    auto inputWorkload = outputWorkload;
+    inputWorkload.fields = 15;
+    skbench::Workload tripleWorkload{
+        baseWorkload.nx, baseWorkload.ny, baseWorkload.nz, 3,
+        baseWorkload.lx, baseWorkload.ly, true};
+    skbench::Workload targetWorkload{
+        baseWorkload.nx, baseWorkload.ny, baseWorkload.nz, 1,
+        baseWorkload.lx, baseWorkload.ly, true};
+    const auto modeCount = modes.size();
+    const auto nz = baseWorkload.nz;
+    const auto nj = baseWorkload.retainedVerticalModes();
+    const auto realVolumeElements = baseWorkload.realPlaneElements() * nz;
+    const auto inverseScale = 1.0 /
+        static_cast<double>(baseWorkload.realPlaneElements() *
+                            baseWorkload.realPlaneElements());
+    std::vector<skbench::Complex> compactModalInput(modeCount * nj * 15);
+    for (std::size_t index = 0; index < compactModalInput.size(); ++index) {
+        compactModalInput[index] = {
+            static_cast<double>(index % 37) / 37.0,
+            -static_cast<double>(index % 41) / 41.0};
+    }
+    auto pointwise = [&](const double* shared, const double* derivative,
+                         double* target) {
+        const auto* u = shared;
+        const auto* v = shared + realVolumeElements;
+        const auto* w = shared + 2 * realVolumeElements;
+        const auto* qx = derivative;
+        const auto* qy = derivative + realVolumeElements;
+        const auto* qz = derivative + 2 * realVolumeElements;
+        for (std::size_t point = 0; point < realVolumeElements; ++point) {
+            target[point] = -inverseScale *
+                (u[point] * qx[point] + v[point] * qy[point] +
+                 w[point] * qz[point]);
+        }
+    };
+
+    if (streamingSplit) {
+        skbench::VerticalGemmProvider reconstruction(
+            inputWorkload, operators, skbench::VerticalGemmLayout::split,
+            strategy, skbench::VerticalGemmBufferPolicy::inverseOnly);
+        skbench::VerticalGemmProvider projection(
+            outputWorkload, operators, skbench::VerticalGemmLayout::split,
+            strategy, skbench::VerticalGemmBufferPolicy::forwardOnly);
+        skbench::FFTWStreamingPrunedSplitProvider inverse(
+            tripleWorkload, modes, skbench::FFTWPlanningMode::estimate,
+            1, 2, 16);
+        skbench::FFTWStreamingPrunedSplitProvider forward(
+            targetWorkload, modes, skbench::FFTWPlanningMode::estimate,
+            1, 2, 16);
+        reconstruction.loadModalInput(compactModalInput.data());
+        std::vector<double> inverseReal(modeCount * nz * 3);
+        std::vector<double> inverseImaginary(modeCount * nz * 3);
+        std::vector<double> forwardReal(modeCount * nz);
+        std::vector<double> forwardImaginary(modeCount * nz);
+        std::vector<double> shared(tripleWorkload.realElements());
+        std::vector<double> derivative(tripleWorkload.realElements());
+        std::vector<double> target(targetWorkload.realElements());
+        auto extractTriple = [&](std::size_t firstField) {
+            for (std::size_t mode = 0; mode < modeCount; ++mode) {
+                for (std::size_t field = 0; field < 3; ++field) {
+                    for (std::size_t z = 0; z < nz; ++z) {
+                        const auto source = skbench::retainedSpectrumIndex(
+                            inputWorkload, mode, z, firstField + field);
+                        const auto destination = skbench::retainedSpectrumIndex(
+                            tripleWorkload, mode, z, field);
+                        inverseReal[destination] =
+                            reconstruction.splitPhysicalOutputRealData()[source];
+                        inverseImaginary[destination] =
+                            reconstruction.splitPhysicalOutputImaginaryData()[source];
+                    }
+                }
+            }
+        };
+        auto scatterTarget = [&](std::size_t targetIndex) {
+            for (std::size_t mode = 0; mode < modeCount; ++mode) {
+                for (std::size_t z = 0; z < nz; ++z) {
+                    const auto source = skbench::retainedSpectrumIndex(
+                        targetWorkload, mode, z, 0);
+                    const auto destination = skbench::retainedSpectrumIndex(
+                        outputWorkload, mode, z, targetIndex);
+                    projection.splitPhysicalInputRealData()[destination] =
+                        forwardReal[source];
+                    projection.splitPhysicalInputImaginaryData()[destination] =
+                        forwardImaginary[source];
+                }
+            }
+        };
+        const auto execute = [&] {
+            reconstruction.executeInverse();
+            extractTriple(0);
+            inverse.inverseSplit(
+                inverseReal.data(), inverseImaginary.data(), shared.data());
+            for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverseSplit(
+                    inverseReal.data(), inverseImaginary.data(), derivative.data());
+                pointwise(shared.data(), derivative.data(), target.data());
+                forward.forwardSplit(
+                    target.data(), forwardReal.data(), forwardImaginary.data());
+                scatterTarget(targetIndex);
+            }
+            projection.executeForward();
+        };
+        for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+             ++repetition) execute();
+        auto requireStageAllocationFree = [&](const char* stage, auto&& operation) {
+            skbench::test::beginAllocationTracking();
+            for (std::size_t repetition = 0; repetition < 16; ++repetition)
+                operation();
+            const auto allocations = skbench::test::endAllocationTracking();
+            if (allocations != 0) {
+                throw std::runtime_error(
+                    std::string("streaming production-lifetime stage allocated: ") +
+                    stage + " (" + std::to_string(allocations) + ")");
+            }
+        };
+        requireStageAllocationFree(
+            "inverse vertical", [&] { reconstruction.executeInverse(); });
+        requireStageAllocationFree(
+            "extract", [&] { extractTriple(0); });
+        requireStageAllocationFree("inverse FFT", [&] {
+            inverse.inverseSplit(
+                inverseReal.data(), inverseImaginary.data(), shared.data());
+        });
+        requireStageAllocationFree("pointwise", [&] {
+            pointwise(shared.data(), derivative.data(), target.data());
+        });
+        requireStageAllocationFree("forward FFT", [&] {
+            forward.forwardSplit(
+                target.data(), forwardReal.data(), forwardImaginary.data());
+        });
+        requireStageAllocationFree(
+            "scatter", [&] { scatterTarget(0); });
+        requireStageAllocationFree(
+            "forward vertical", [&] { projection.executeForward(); });
+        skbench::test::beginAllocationTracking();
+        for (std::size_t repetition = 0; repetition < 16; ++repetition) execute();
+        require(skbench::test::endAllocationTracking() == 0,
+                "streaming production-lifetime flux execution allocated memory");
+        return;
+    }
+
+    skbench::WvmDirectVerticalGemmProvider reconstruction(
+        inputWorkload, modes, operators, strategy);
+    skbench::WvmDirectVerticalGemmProvider projection(
+        outputWorkload, modes, operators, strategy);
+    skbench::FFTWProvider inverse(tripleWorkload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        2,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::wvmFrequencyMajor});
+    skbench::FFTWProvider forward(targetWorkload, {
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        2,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::wvmFrequencyMajor});
+    std::vector<skbench::Complex> fullModalInput(
+        inputWorkload.halfRows() * nj * inputWorkload.fields);
+    std::vector<skbench::Complex> fullPhysicalInput(inputWorkload.spectrumElements());
+    std::vector<skbench::Complex> fullPhysicalOutput(outputWorkload.spectrumElements());
+    std::vector<skbench::Complex> fullModalOutput(
+        outputWorkload.halfRows() * nj * outputWorkload.fields);
+    skbench::embedRetainedModal(
+        inputWorkload, modes, compactModalInput.data(), fullModalInput.data());
+    std::vector<skbench::Complex> tripleSpectrum(tripleWorkload.spectrumElements());
+    std::vector<skbench::Complex> targetSpectrum(targetWorkload.spectrumElements());
+    std::vector<double> shared(tripleWorkload.realElements());
+    std::vector<double> derivative(tripleWorkload.realElements());
+    std::vector<double> target(targetWorkload.realElements());
+    auto extractTriple = [&](std::size_t firstField) {
+        for (std::size_t ky = 0; ky < baseWorkload.ny; ++ky) {
+            for (std::size_t kx = 0; kx < targetWorkload.nxHalf(); ++kx) {
+                for (std::size_t field = 0; field < 3; ++field) {
+                    for (std::size_t z = 0; z < nz; ++z) {
+                        tripleSpectrum[skbench::wvmSpectrumIndex(
+                            tripleWorkload, kx, ky, z, field)] =
+                            fullPhysicalInput[skbench::wvmSpectrumIndex(
+                                inputWorkload, kx, ky, z,
+                                firstField + field)];
+                    }
+                }
+            }
+        }
+    };
+    auto scatterTarget = [&](std::size_t targetIndex) {
+        for (std::size_t ky = 0; ky < baseWorkload.ny; ++ky) {
+            for (std::size_t kx = 0; kx < targetWorkload.nxHalf(); ++kx) {
+                for (std::size_t z = 0; z < nz; ++z) {
+                    fullPhysicalOutput[skbench::wvmSpectrumIndex(
+                        outputWorkload, kx, ky, z, targetIndex)] =
+                        targetSpectrum[skbench::wvmSpectrumIndex(
+                            targetWorkload, kx, ky, z, 0)];
+                }
+            }
+        }
+    };
+    const auto execute = [&] {
+        reconstruction.initializeSpectrumOutput(fullPhysicalInput.data());
+        reconstruction.executeInverse(
+            fullModalInput.data(), fullPhysicalInput.data());
+        extractTriple(0);
+        inverse.inverse(tripleSpectrum.data(), shared.data());
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            extractTriple(3 + 3 * targetIndex);
+            inverse.inverse(tripleSpectrum.data(), derivative.data());
+            pointwise(shared.data(), derivative.data(), target.data());
+            forward.forward(target.data(), targetSpectrum.data());
+            scatterTarget(targetIndex);
+        }
+        projection.initializeModalOutput(fullModalOutput.data());
+        projection.executeForward(
+            fullPhysicalOutput.data(), fullModalOutput.data());
+    };
+    for (std::size_t repetition = 0; repetition < opaqueProviderWarmups;
+         ++repetition) execute();
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 16; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "WVM production-lifetime flux execution allocated memory");
 }
 
 void requireExactSplitInPlaceWvmOrderUnsupported(const skbench::Workload& workload) {
@@ -1260,6 +1508,8 @@ int main() {
                 workload, prunedModes, 2);
             requireAllocationFreeStreamingPrunedSplitExecution(
                 workload, prunedModes, 2, 8);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 16);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
@@ -1921,6 +2171,64 @@ int main() {
             }
         }
 
+        for (const std::string fluxPolicy : {
+                 "wvm-direct", "streaming-pruned-compact-split"}) {
+            skbench::RunOptions fluxOptions;
+            fluxOptions.kernel = "production-lifetime-flux";
+            fluxOptions.boundaryPolicy = fluxPolicy;
+            fluxOptions.profile = "smoke";
+            fluxOptions.verticalGemmFamily = "k2-grouped";
+            fluxOptions.verticalGemmSchedule = "serial";
+            fluxOptions.verticalGemmOuterWorkers = 1;
+            fluxOptions.fftwPlanning = "estimate";
+            fluxOptions.fftwAlignment = "unaligned";
+            fluxOptions.fftwWisdom = "cold";
+            fluxOptions.fftwInternalWorkers = 1;
+            fluxOptions.fftwOuterWorkers = 2;
+            fluxOptions.streamingTileWidth = 16;
+            fluxOptions.warmups = 1;
+            fluxOptions.samples = 2;
+            const auto fluxReport = skbench::runBenchmark(fluxOptions);
+            require(fluxReport.status == "passed",
+                    "production-lifetime flux smoke benchmark failed");
+            require(fluxReport.providers.size() == 1,
+                    "production-lifetime flux isolated provider count");
+            require(fluxReport.fixtureProvenance.schema ==
+                        "spectral-flux-fixture-v1" &&
+                        !fluxReport.fixtureProvenance.authoritative &&
+                        fluxReport.fixtureProvenance.status ==
+                            "provider-independent-synthetic-development",
+                    "production-lifetime flux fixture provenance");
+            require(fluxReport.workload.fields == 4 &&
+                        fluxReport.fullRealBytes ==
+                            7 * workload.realPlaneElements() * workload.nz *
+                                sizeof(double),
+                    "production-lifetime flux four-target buffer lifetime");
+            const auto& provider = fluxReport.providers.front();
+            require(provider.correctness.size() == 7 && std::all_of(
+                        provider.correctness.begin(), provider.correctness.end(),
+                        [](const skbench::CorrectnessMetric& item) {
+                            return item.passed && item.maximumRelativeError <= 1.0e-12;
+                        }),
+                    "production-lifetime flux correctness contract");
+            require(std::any_of(
+                        provider.timings.begin(), provider.timings.end(),
+                        [](const skbench::TimingSeries& timing) {
+                            return timing.scope == "uninstrumented-total" &&
+                                timing.stage ==
+                                    "production-lifetime streamed four-target spectral-flux composition" &&
+                                timing.seconds.size() == 2;
+                        }),
+                    "production-lifetime flux authoritative total boundary");
+            require(std::any_of(
+                        provider.ledger.begin(), provider.ledger.end(),
+                        [](const skbench::LedgerEntry& entry) {
+                            return entry.stage == "steady-state allocation" &&
+                                entry.state == skbench::StageState::elided;
+                        }),
+                    "production-lifetime flux allocation ledger");
+        }
+
         skbench::RunOptions tiledPipelineOptions;
         tiledPipelineOptions.kernel = "spectral-pipeline";
         tiledPipelineOptions.boundaryPolicy =
@@ -2050,6 +2358,12 @@ int main() {
             requireAllocationFreeFusedSplitPipeline(
                 workload, modes, groupedVertical,
                 {skbench::VerticalGemmSchedule::outerDynamic, 2});
+            requireAllocationFreeProductionLifetimeFlux(
+                workload, modes, groupedVertical,
+                {skbench::VerticalGemmSchedule::outerDynamic, 2}, false);
+            requireAllocationFreeProductionLifetimeFlux(
+                workload, modes, groupedVertical,
+                {skbench::VerticalGemmSchedule::outerDynamic, 2}, true);
 #if SKBENCH_TEST_HAVE_FFTWPP
             require(
                 skbench::probeDealiasedConvolutionSteadyStateAllocationsForTesting(

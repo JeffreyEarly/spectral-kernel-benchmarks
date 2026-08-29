@@ -294,6 +294,8 @@ The component medians are diagnostic and are not expected to add to the uninstru
 
 See [the benchmark contract](docs/benchmark-contract.md) and [the v1 JSON schema](schema/spectral-kernel-benchmark-v1.schema.json) for the exact mathematical and reporting definitions.
 
+Issue #19 adds the `production-lifetime-flux` kernel. It compares the frozen WVM-order direct graph with the streaming pruned fixed tile-16 graph over the same streamed four-target lifetime: reconstruct shared `U,V,W` once, reuse one three-derivative volume and one target volume, and return four modal targets. Development runs use a deterministic synthetic fixture and are necessarily preliminary. Reference runs require the versioned WVM export and provenance defined by [the WVM spectral-flux fixture contract](docs/wvm-spectral-flux-fixture-contract.md).
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

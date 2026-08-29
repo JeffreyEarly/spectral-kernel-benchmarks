@@ -3953,6 +3953,872 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
     return report;
 }
 
+BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
+    if (options.boundaryPolicy != "wvm-direct" &&
+        options.boundaryPolicy != "streaming-pruned-compact-split") {
+        throw std::invalid_argument(
+            "production-lifetime-flux boundary-policy must be wvm-direct or "
+            "streaming-pruned-compact-split.");
+    }
+    if (options.verticalGemmFamily != "k2-grouped") {
+        throw std::invalid_argument(
+            "production-lifetime-flux requires --vertical-gemm-family k2-grouped.");
+    }
+    if (options.workers != 0) {
+        throw std::invalid_argument(
+            "production-lifetime-flux uses independent horizontal and vertical "
+            "worker controls; omit --workers.");
+    }
+    const auto selected = profileNamed(options.profile);
+    if (selected.workload.nx != selected.workload.ny) {
+        throw std::invalid_argument(
+            "production-lifetime-flux requires a square horizontal grid.");
+    }
+    const auto tileWidth = options.streamingTileWidth == 1
+        ? std::size_t{16} : options.streamingTileWidth;
+    if (options.boundaryPolicy == "streaming-pruned-compact-split" &&
+        tileWidth != 16) {
+        throw std::invalid_argument(
+            "issue #19 freezes the streaming compact tile width at 16.");
+    }
+    const VerticalGemmStrategy verticalStrategy{
+        verticalGemmScheduleNamed(options.verticalGemmSchedule),
+        options.verticalGemmOuterWorkers};
+    if (verticalStrategy.schedule == VerticalGemmSchedule::serial &&
+        verticalStrategy.outerWorkers != 1) {
+        throw std::invalid_argument(
+            "A serial production-lifetime vertical schedule requires one worker.");
+    }
+
+    const auto warmups = options.warmups == 0 ? 1 : options.warmups;
+    const auto sampleCount = options.samples == 0 ? 3 : options.samples;
+    const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
+        ? std::size_t{1} : options.fftwInternalWorkers;
+    const auto n = selected.workload.nx;
+    const auto nz = selected.workload.nz;
+    Workload outputWorkload = selected.workload;
+    outputWorkload.fields = 4;
+    Workload inputWorkload = outputWorkload;
+    inputWorkload.fields = 15;
+    Workload tripleWorkload{n, n, nz, 3, outputWorkload.lx,
+                            outputWorkload.ly, true};
+    Workload targetWorkload{n, n, nz, 1, outputWorkload.lx,
+                            outputWorkload.ly, true};
+    auto modes = retainedHorizontalModes(outputWorkload);
+    const auto modeCount = modes.size();
+    const auto nj = outputWorkload.retainedVerticalModes();
+    const auto inputModalCount = modeCount * nj * inputWorkload.fields;
+    const auto outputModalCount = modeCount * nj * outputWorkload.fields;
+    const auto inputPhysicalCount = modeCount * nz * inputWorkload.fields;
+    const auto outputPhysicalCount = modeCount * nz * outputWorkload.fields;
+    const auto realPlaneElements = n * n;
+    const auto realVolumeElements = realPlaneElements * nz;
+    const auto inverseScale = 1.0 /
+        static_cast<double>(realPlaneElements * realPlaneElements);
+
+    const auto fixtureStart = Clock::now();
+    auto vertical = squaredWavenumberVerticalFixture(outputWorkload, modes);
+    std::mt19937_64 generator(options.seed);
+    std::uniform_real_distribution<double> distribution(-0.125, 0.125);
+    std::vector<Complex> inputModal(inputModalCount);
+    for (std::size_t mode = 0; mode < modeCount; ++mode) {
+        const bool dc = modes[mode].k == 0 && modes[mode].l == 0;
+        for (std::size_t field = 0; field < inputWorkload.fields; ++field) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                auto& value = inputModal[
+                    modalSpectrumIndex(inputWorkload, mode, j, field)];
+                value.real = distribution(generator);
+                value.imag = dc ? 0.0 : distribution(generator);
+            }
+        }
+    }
+    const auto fixtureSeconds =
+        std::chrono::duration<double>(Clock::now() - fixtureStart).count();
+    std::uint64_t fixtureHash = UINT64_C(14695981039346656037);
+    auto hashValue = [&](double value) {
+        std::uint64_t bits = 0;
+        static_assert(sizeof(bits) == sizeof(value));
+        std::memcpy(&bits, &value, sizeof(bits));
+        for (std::size_t byte = 0; byte < sizeof(bits); ++byte) {
+            fixtureHash ^= (bits >> (8 * byte)) & UINT64_C(0xff);
+            fixtureHash *= UINT64_C(1099511628211);
+        }
+    };
+    for (const auto& value : inputModal) {
+        hashValue(value.real);
+        hashValue(value.imag);
+    }
+    for (const auto value : vertical.forward) hashValue(value);
+    for (const auto value : vertical.inverse) hashValue(value);
+    std::ostringstream fixtureHashStream;
+    fixtureHashStream << "fnv1a64:" << std::hex << std::setfill('0')
+                      << std::setw(16) << fixtureHash;
+
+    BenchmarkReport report;
+    report.environment = environmentRecord();
+    auto id = report.environment.timestampUtc;
+    id.erase(std::remove_if(
+                 id.begin(), id.end(), [](char character) {
+                     return character == '-' || character == ':';
+                 }),
+             id.end());
+    report.runId = id + "-issue19-" + options.boundaryPolicy + "-" +
+        report.environment.hostname;
+    report.profile = options.profile;
+    report.seed = options.seed;
+    report.warmups = warmups;
+    report.samples = sampleCount;
+    report.workload = outputWorkload;
+    report.retainedHorizontalModeCount = modeCount;
+    report.retainedModeOrderHash = modeOrderHash(modes);
+    report.wvmFullSpectrumOrderHash = wvmSpectrumOrderHash(outputWorkload);
+    report.fullRealBytes = bytes(7 * realVolumeElements, sizeof(double));
+    report.fullSpectrumBytes = bytes(
+        inputWorkload.spectrumElements() + outputWorkload.spectrumElements(),
+        sizeof(Complex));
+    report.retainedSpectrumBytes = bytes(
+        inputPhysicalCount + outputPhysicalCount, sizeof(Complex));
+    report.modalSpectrumBytes = bytes(
+        inputModalCount + outputModalCount, sizeof(Complex));
+    report.verticalMatrixFamilySourceBytes = bytes(
+        vertical.forward.size() + vertical.inverse.size(), sizeof(double));
+    report.verticalMatrixFamilyId = vertical.id;
+    report.verticalGroupCount = vertical.groups.size();
+    report.verticalGroupOrderHash = verticalModeGroupHash(vertical.groups);
+    std::vector<double> groupModes;
+    std::vector<double> groupColumns;
+    for (const auto& group : vertical.groups) {
+        groupModes.push_back(static_cast<double>(group.modeCount));
+        groupColumns.push_back(static_cast<double>(
+            group.modeCount * inputWorkload.fields));
+    }
+    report.minimumVerticalGroupModes = static_cast<std::size_t>(
+        *std::min_element(groupModes.begin(), groupModes.end()));
+    report.medianVerticalGroupModes = median(groupModes);
+    report.maximumVerticalGroupModes = static_cast<std::size_t>(
+        *std::max_element(groupModes.begin(), groupModes.end()));
+    report.minimumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::min_element(groupColumns.begin(), groupColumns.end()));
+    report.medianVerticalGroupColumns = median(groupColumns);
+    report.maximumVerticalGroupColumns = static_cast<std::size_t>(
+        *std::max_element(groupColumns.begin(), groupColumns.end()));
+    report.fixtureProvenance = {
+        "provider-independent-synthetic-development",
+        "spectral-flux-fixture-v1",
+        "JeffreyEarly/wave-vortex-model",
+        "",
+        "skbench deterministic modal fixture and K2-grouped synthetic vertical operators",
+        fixtureHashStream.str(),
+        "horizontal inverse divided by (Nx*Ny) before pointwise multiplication; raw forward transform",
+        "logical (k,l,j,field), radial horizontal order, j-fastest modal storage",
+        "input slots 0..2 are [U,V,W]; slots 3+3*t..5+3*t are [q_t,x,q_t,y,q_t,z] for target t=0..3; output slots are t=0..3",
+        false};
+
+    auto copyCompactTriple = [&](const Complex* source,
+                                 std::size_t firstField,
+                                 std::vector<Complex>& destination) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            for (std::size_t field = 0; field < 3; ++field) {
+                for (std::size_t z = 0; z < nz; ++z) {
+                    destination[retainedSpectrumIndex(
+                        tripleWorkload, mode, z, field)] =
+                        source[retainedSpectrumIndex(
+                            inputWorkload, mode, z, firstField + field)];
+                }
+            }
+        }
+    };
+    auto scatterCompactTarget = [&](const std::vector<Complex>& source,
+                                    std::size_t target,
+                                    Complex* destination) {
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            for (std::size_t z = 0; z < nz; ++z) {
+                destination[retainedSpectrumIndex(
+                    outputWorkload, mode, z, target)] =
+                    source[retainedSpectrumIndex(
+                        targetWorkload, mode, z, 0)];
+            }
+        }
+    };
+    auto pointwise = [&](const double* shared, const double* derivative,
+                         double* target) {
+        const auto* u = shared;
+        const auto* v = shared + realVolumeElements;
+        const auto* w = shared + 2 * realVolumeElements;
+        const auto* qx = derivative;
+        const auto* qy = derivative + realVolumeElements;
+        const auto* qz = derivative + 2 * realVolumeElements;
+        for (std::size_t point = 0; point < realVolumeElements; ++point) {
+            target[point] = -inverseScale *
+                (u[point] * qx[point] + v[point] * qy[point] +
+                 w[point] * qz[point]);
+        }
+    };
+
+    std::vector<Complex> expectedModal(outputModalCount);
+    {
+        VerticalGemmProvider reconstruction(
+            inputWorkload, vertical, VerticalGemmLayout::complexInterleaved,
+            {VerticalGemmSchedule::serial, 1},
+            VerticalGemmBufferPolicy::inverseOnly);
+        VerticalGemmProvider projection(
+            outputWorkload, vertical, VerticalGemmLayout::complexInterleaved,
+            {VerticalGemmSchedule::serial, 1},
+            VerticalGemmBufferPolicy::forwardOnly);
+        reconstruction.loadModalInput(inputModal.data());
+        reconstruction.executeInverse();
+        std::vector<Complex> physicalInput(inputPhysicalCount);
+        std::vector<Complex> physicalOutput(outputPhysicalCount);
+        reconstruction.copyInverseOutput(physicalInput.data());
+        FFTWProvider inverse(
+            tripleWorkload, FFTWStrategy{
+                FFTWPlanningMode::estimate, FFTWAlignmentStrategy::unaligned,
+                FFTWWisdomStrategy::cold, 1, 1, 0.0,
+                FFTWDataLayout::interleaved,
+                FFTWSpectrumOrder::wvmFrequencyMajor});
+        FFTWProvider forward(
+            targetWorkload, FFTWStrategy{
+                FFTWPlanningMode::estimate, FFTWAlignmentStrategy::unaligned,
+                FFTWWisdomStrategy::cold, 1, 1, 0.0,
+                FFTWDataLayout::interleaved,
+                FFTWSpectrumOrder::wvmFrequencyMajor});
+        std::vector<Complex> compactTriple(modeCount * nz * 3);
+        std::vector<Complex> compactTarget(modeCount * nz);
+        std::vector<Complex> tripleSpectrum(tripleWorkload.spectrumElements());
+        std::vector<Complex> targetSpectrum(targetWorkload.spectrumElements());
+        std::vector<double> shared(tripleWorkload.realElements());
+        std::vector<double> derivative(tripleWorkload.realElements());
+        std::vector<double> target(targetWorkload.realElements());
+        copyCompactTriple(physicalInput.data(), 0, compactTriple);
+        embedRetained(
+            tripleWorkload, modes, compactTriple.data(),
+            tripleSpectrum.data());
+        inverse.inverse(tripleSpectrum.data(), shared.data());
+        for (std::size_t targetIndex = 0; targetIndex < 4;
+             ++targetIndex) {
+            copyCompactTriple(
+                physicalInput.data(), 3 + 3 * targetIndex,
+                compactTriple);
+            embedRetained(
+                tripleWorkload, modes, compactTriple.data(),
+                tripleSpectrum.data());
+            inverse.inverse(tripleSpectrum.data(), derivative.data());
+            pointwise(shared.data(), derivative.data(), target.data());
+            forward.forward(target.data(), targetSpectrum.data());
+            gatherRetained(
+                targetWorkload, modes, targetSpectrum.data(),
+                compactTarget.data());
+            scatterCompactTarget(
+                compactTarget, targetIndex, physicalOutput.data());
+        }
+        projection.loadPhysicalInput(physicalOutput.data());
+        projection.executeForward();
+        projection.copyForwardOutput(expectedModal.data());
+    }
+    fftw_forget_wisdom();
+
+    auto targetCorrectness = [&](const std::vector<Complex>& actual,
+                                 std::size_t target) {
+        std::vector<Complex> actualTarget(modeCount * nj);
+        std::vector<Complex> expectedTarget(modeCount * nj);
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                const auto compact = j + nj * mode;
+                actualTarget[compact] = actual[modalSpectrumIndex(
+                    outputWorkload, mode, j, target)];
+                expectedTarget[compact] = expectedModal[modalSpectrumIndex(
+                    outputWorkload, mode, j, target)];
+            }
+        }
+        return metric(
+            "target " + std::to_string(target) +
+                " modal output versus independent streamed oracle",
+            actualTarget.data(), expectedTarget.data(), actualTarget.size());
+    };
+    auto dcBoundaryMetric = [&](const std::vector<Complex>& actual) {
+        double maximumImaginary = 0.0;
+        for (std::size_t mode = 0; mode < modeCount; ++mode) {
+            if (modes[mode].k != 0 || modes[mode].l != 0) continue;
+            for (std::size_t field = 0; field < outputWorkload.fields; ++field) {
+                for (std::size_t j = 0; j < nj; ++j) {
+                    maximumImaginary = std::max(
+                        maximumImaginary,
+                        std::abs(actual[modalSpectrumIndex(
+                            outputWorkload, mode, j, field)].imag));
+                }
+            }
+        }
+        return metric("DC boundary remains real after buffer reuse",
+                      maximumImaginary);
+    };
+
+    const auto configuredThreads = configuredAccelerateThreads(report.environment);
+    if (verticalStrategy.outerWorkers > 1 && configuredThreads != 1) {
+        throw std::invalid_argument(
+            "production-lifetime-flux outer vertical scheduling requires "
+            "VECLIB_MAXIMUM_THREADS=1.");
+    }
+    ProviderRecord record;
+    record.version = "FFTW 3.3.11 + Apple Accelerate";
+    record.libraryIdentity =
+        "pinned FFTW 3.3.11 and Apple Accelerate";
+    record.modeOrderId = "logical-radial-(k,l,j,target)-with-frozen-field-triples";
+    record.sourceIdentity =
+        "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz + Apple Accelerate system framework";
+    record.sourceSha256 =
+        "5630c24cdeb33b131612f7eb4b1a9934234754f9f388ff8617458d0be6f239a1";
+    record.configureFlags =
+        "FFTW --host=aarch64-apple-darwin --enable-neon --enable-threads; "
+        "Accelerate system framework";
+    record.compilerFlags = report.environment.compilerFlags;
+    record.internalWorkers = fftwInternalWorkers;
+    record.outerWorkers = options.fftwOuterWorkers;
+    record.workers = fftwInternalWorkers * options.fftwOuterWorkers +
+        configuredThreads * verticalStrategy.outerWorkers;
+    record.planningConfiguration = vertical.id +
+        "; preliminary synthetic-development fixture; Float64; radial two-thirds; "
+        "Nj=floor(2*(Nz-1)/3); shared U,V,W once per composition; four streamed "
+        "three-derivative targets; no nonlinear-flux adoption claim";
+    record.execution.forward = {
+        "out-of-place", "out-of-place", false, true, false, false, false,
+        "15 ready retained truncated modal inputs in provider-native storage",
+        "four ready retained truncated modal target outputs in provider-native storage",
+        "mode-keyed synthetic-development fixture",
+        "mode-keyed synthetic-development oracle",
+        "15 modal inputs -> shared U,V,W + one reusable derivative triple and target -> four modal targets",
+        "three shared real volumes, three reusable derivative volumes, one reusable target volume",
+        0, 64,
+        "caller inputs, provider state, seven live real volumes, and outputs do not overlap",
+        0, false};
+    record.execution.inverse = record.execution.forward;
+    record.execution.inverse.nativePlacement = "unsupported";
+    record.execution.inverse.adapterPlacement = "unsupported";
+    record.execution.inverse.physicalExtents =
+        "The issue #19 composition exposes one 15-to-4 forward flux boundary only.";
+
+    if (options.boundaryPolicy == "streaming-pruned-compact-split") {
+        const auto setupStart = Clock::now();
+        VerticalGemmProvider reconstruction(
+            inputWorkload, vertical, VerticalGemmLayout::split,
+            verticalStrategy, VerticalGemmBufferPolicy::inverseOnly);
+        VerticalGemmProvider projection(
+            outputWorkload, vertical, VerticalGemmLayout::split,
+            verticalStrategy, VerticalGemmBufferPolicy::forwardOnly);
+        FFTWStreamingPrunedSplitProvider inverse(
+            tripleWorkload, modes,
+            fftwPlanningModeNamed(options.fftwPlanning),
+            fftwInternalWorkers, options.fftwOuterWorkers, tileWidth);
+        FFTWStreamingPrunedSplitProvider forward(
+            targetWorkload, modes,
+            fftwPlanningModeNamed(options.fftwPlanning),
+            fftwInternalWorkers, options.fftwOuterWorkers, tileWidth);
+        reconstruction.loadModalInput(inputModal.data());
+        std::vector<double> inverseReal(modeCount * nz * 3);
+        std::vector<double> inverseImaginary(modeCount * nz * 3);
+        std::vector<double> forwardReal(modeCount * nz);
+        std::vector<double> forwardImaginary(modeCount * nz);
+        std::vector<double> shared(tripleWorkload.realElements());
+        std::vector<double> derivative(tripleWorkload.realElements());
+        std::vector<double> target(targetWorkload.realElements());
+        auto extractTriple = [&](std::size_t firstField) {
+            for (std::size_t mode = 0; mode < modeCount; ++mode) {
+                for (std::size_t field = 0; field < 3; ++field) {
+                    for (std::size_t z = 0; z < nz; ++z) {
+                        const auto source = retainedSpectrumIndex(
+                            inputWorkload, mode, z, firstField + field);
+                        const auto destination = retainedSpectrumIndex(
+                            tripleWorkload, mode, z, field);
+                        inverseReal[destination] =
+                            reconstruction.splitPhysicalOutputRealData()[source];
+                        inverseImaginary[destination] =
+                            reconstruction.splitPhysicalOutputImaginaryData()[source];
+                    }
+                }
+            }
+        };
+        auto scatterTarget = [&](std::size_t targetIndex) {
+            for (std::size_t mode = 0; mode < modeCount; ++mode) {
+                for (std::size_t z = 0; z < nz; ++z) {
+                    const auto source = retainedSpectrumIndex(
+                        targetWorkload, mode, z, 0);
+                    const auto destination = retainedSpectrumIndex(
+                        outputWorkload, mode, z, targetIndex);
+                    projection.splitPhysicalInputRealData()[destination] =
+                        forwardReal[source];
+                    projection.splitPhysicalInputImaginaryData()[destination] =
+                        forwardImaginary[source];
+                }
+            }
+        };
+        auto executeShared = [&] {
+            extractTriple(0);
+            inverse.inverseSplit(
+                inverseReal.data(), inverseImaginary.data(), shared.data());
+        };
+        auto executeDerivatives = [&] {
+            for (std::size_t targetIndex = 0; targetIndex < 4;
+                 ++targetIndex) {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverseSplit(
+                    inverseReal.data(), inverseImaginary.data(),
+                    derivative.data());
+            }
+        };
+        auto executeForwardTargets = [&] {
+            for (std::size_t repetition = 0; repetition < 4; ++repetition) {
+                forward.forwardSplit(
+                    target.data(), forwardReal.data(), forwardImaginary.data());
+            }
+        };
+        auto executeAll = [&] {
+            reconstruction.executeInverse();
+            extractTriple(0);
+            inverse.inverseSplit(
+                inverseReal.data(), inverseImaginary.data(), shared.data());
+            for (std::size_t targetIndex = 0; targetIndex < 4;
+                 ++targetIndex) {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverseSplit(
+                    inverseReal.data(), inverseImaginary.data(),
+                    derivative.data());
+                pointwise(shared.data(), derivative.data(), target.data());
+                forward.forwardSplit(
+                    target.data(), forwardReal.data(),
+                    forwardImaginary.data());
+                scatterTarget(targetIndex);
+            }
+            projection.executeForward();
+        };
+        const auto setupSeconds =
+            std::chrono::duration<double>(Clock::now() - setupStart).count();
+        executeAll();
+        std::vector<Complex> actual(outputModalCount);
+        projection.copyForwardOutput(actual.data());
+        std::vector<Complex> preservedInput(inputModalCount);
+        splitToInterleaved(
+            inputModalCount, reconstruction.splitModalInputRealData(),
+            reconstruction.splitModalInputImaginaryData(),
+            preservedInput.data());
+        record.id = "pipeline-production-lifetime-streaming-pruned-tile16";
+        record.algorithmId =
+            "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-k2-15to4-v1";
+        record.nativeRepresentationId =
+            "persistent-radial-compact-split-modal-and-retained-spectra";
+        record.schedulingId =
+            "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
+            ";vertical-" + std::string(verticalGemmScheduleName(
+                verticalStrategy.schedule)) + "-" +
+            std::to_string(verticalStrategy.outerWorkers);
+        record.gemmCallsPerExecution =
+            reconstruction.gemmCallsPerExecution() +
+            projection.gemmCallsPerExecution();
+        record.otherSetupSeconds = setupSeconds;
+        record.allocationSeconds = reconstruction.allocationSeconds() +
+            projection.allocationSeconds() + inverse.allocationSeconds() +
+            forward.allocationSeconds();
+        record.planningSeconds =
+            inverse.planningSeconds() + forward.planningSeconds();
+        record.opaquePlanningBytes =
+            inverse.planningBytes() + forward.planningBytes();
+        record.explicitPersistentBytes = reconstruction.persistentBytes() +
+            projection.persistentBytes();
+        record.scratchBytes = inverse.scratchBytes() + forward.scratchBytes() +
+            bytes(inverseReal.size() + inverseImaginary.size() +
+                      forwardReal.size() + forwardImaginary.size(),
+                  sizeof(double)) +
+            bytes(shared.size() + derivative.size() + target.size(),
+                  sizeof(double));
+        record.algorithmResidentBytes =
+            record.explicitPersistentBytes + record.scratchBytes;
+        record.correctness = {
+            metric("complete streamed production-lifetime composition versus independent oracle",
+                   actual.data(), expectedModal.data(), actual.size()),
+            metric("caller modal input preserved across target-buffer reuse",
+                   preservedInput.data(), inputModal.data(), inputModal.size()),
+            dcBoundaryMetric(actual)};
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex)
+            record.correctness.push_back(
+                targetCorrectness(actual, targetIndex));
+        const auto verticalInverseBytes = bytes(
+            inputModalCount + inputPhysicalCount, sizeof(Complex));
+        const auto verticalForwardBytes = bytes(
+            outputPhysicalCount + outputModalCount, sizeof(Complex));
+        const auto tripleMoveBytes = bytes(
+            nz * 15 * modeCount, sizeof(Complex));
+        const auto targetMoveBytes = bytes(
+            nz * 4 * modeCount, sizeof(Complex));
+        record.timings = {
+            series("setup-shared-component", "synthetic development fixture generation",
+                   "shared", StageState::setupOnly,
+                   report.verticalMatrixFamilySourceBytes +
+                       bytes(inputModalCount, sizeof(Complex)),
+                   {fixtureSeconds}),
+            series("primitive", "raw inverse vertical MM (15 modal inputs)",
+                   "inverse", StageState::executed, verticalInverseBytes,
+                   measure(warmups, sampleCount,
+                           [&] { reconstruction.executeInverse(); })),
+            series("component", "shared U,V,W horizontal reconstruction",
+                   "inverse", StageState::executed,
+                   bytes(3 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, executeShared)),
+            series("component", "per-target derivative horizontal reconstruction",
+                   "inverse", StageState::executed,
+                   bytes(12 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, executeDerivatives)),
+            series("component", "four streamed pointwise advection expressions",
+                   "pointwise", StageState::executed,
+                   bytes(4 * 7 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, [&] {
+                       for (std::size_t repetition = 0; repetition < 4;
+                            ++repetition)
+                           pointwise(shared.data(), derivative.data(),
+                                     target.data());
+                   })),
+            series("retained-operator-total",
+                   "four streamed horizontal forward transforms and retention",
+                   "forward", StageState::executed,
+                   bytes(4 * (realVolumeElements + modeCount * nz),
+                         sizeof(Complex)),
+                   measure(warmups, sampleCount, executeForwardTargets)),
+            series("adapter-component",
+                   "native split triple extraction and target scatter",
+                   "movement", StageState::executed,
+                   tripleMoveBytes + targetMoveBytes,
+                   measure(warmups, sampleCount, [&] {
+                       extractTriple(0);
+                       for (std::size_t targetIndex = 0; targetIndex < 4;
+                            ++targetIndex) {
+                           extractTriple(3 + 3 * targetIndex);
+                           scatterTarget(targetIndex);
+                       }
+                   })),
+            series("primitive", "raw forward vertical MM (4 modal targets)",
+                   "forward", StageState::executed, verticalForwardBytes,
+                   measure(warmups, sampleCount,
+                           [&] { projection.executeForward(); }))};
+        auto release = [](auto& values) {
+            using Values = std::remove_reference_t<decltype(values)>;
+            Values{}.swap(values);
+        };
+        const auto correctnessBytes = bytes(
+            inputModal.size() + expectedModal.size() + actual.size() +
+                preservedInput.size(), sizeof(Complex)) +
+            bytes(modes.size(), sizeof(RetainedMode)) +
+            bytes(groupModes.size() + groupColumns.size(), sizeof(double)) +
+            bytes(vertical.forward.size() + vertical.inverse.size(),
+                  sizeof(double));
+        release(inputModal);
+        release(expectedModal);
+        release(actual);
+        release(preservedInput);
+        release(modes);
+        release(groupModes);
+        release(groupColumns);
+        release(vertical.forward);
+        release(vertical.inverse);
+        release(vertical.groups);
+        record.timings.push_back(series(
+            "setup-component", "release correctness-only benchmark storage",
+            "shared", StageState::setupOnly, correctnessBytes, {0.0}));
+        record.timings.push_back(series(
+            "uninstrumented-total",
+            "production-lifetime streamed four-target spectral-flux composition",
+            "forward", StageState::executed,
+            verticalInverseBytes + verticalForwardBytes +
+                tripleMoveBytes + targetMoveBytes,
+            measure(warmups, sampleCount, executeAll)));
+        record.ledger = {
+            {"fixture provenance", StageState::setupOnly,
+             "synthetic development fixture; authoritative WVM export is required before reference publication"},
+            {"shared U,V,W reconstruction", StageState::executed,
+             "three shared real volumes are reconstructed once per composition"},
+            {"derivative reconstruction", StageState::executed,
+             "one three-field derivative buffer is reused for each of four targets"},
+            {"pointwise advection", StageState::executed,
+             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization fused into the product"},
+            {"horizontal forward and retention", StageState::fused,
+             "partial-column-pruned FFTW writes fixed tile-16 radial compact split output"},
+            {"vertical projection", StageState::executed,
+             "grouped split-real dgemm produces four retained modal targets"},
+            {"steady-state allocation", StageState::elided,
+             "all provider, triple, derivative, target, and output buffers are persistent"},
+            {"complete WVM nonlinear flux", StageState::unsupported,
+             "phase, coefficient assembly/accumulation, MATLAB, state, and time integration are excluded"}};
+    } else {
+        const auto setupStart = Clock::now();
+        WvmDirectVerticalGemmProvider reconstruction(
+            inputWorkload, modes, vertical, verticalStrategy);
+        WvmDirectVerticalGemmProvider projection(
+            outputWorkload, modes, vertical, verticalStrategy);
+        FFTWProvider inverse(
+            tripleWorkload, FFTWStrategy{
+                fftwPlanningModeNamed(options.fftwPlanning),
+                fftwAlignmentStrategyNamed(options.fftwAlignment),
+                fftwWisdomStrategyNamed(options.fftwWisdom),
+                fftwInternalWorkers, options.fftwOuterWorkers,
+                options.fftwPlanningTimeLimitSeconds,
+                FFTWDataLayout::interleaved,
+                FFTWSpectrumOrder::wvmFrequencyMajor});
+        FFTWProvider forward(
+            targetWorkload, FFTWStrategy{
+                fftwPlanningModeNamed(options.fftwPlanning),
+                fftwAlignmentStrategyNamed(options.fftwAlignment),
+                fftwWisdomStrategyNamed(options.fftwWisdom),
+                fftwInternalWorkers, options.fftwOuterWorkers,
+                options.fftwPlanningTimeLimitSeconds,
+                FFTWDataLayout::interleaved,
+                FFTWSpectrumOrder::wvmFrequencyMajor});
+        std::vector<Complex> fullModalInput(
+            inputWorkload.halfRows() * nj * inputWorkload.fields);
+        std::vector<Complex> fullPhysicalInput(inputWorkload.spectrumElements());
+        std::vector<Complex> fullPhysicalOutput(outputWorkload.spectrumElements());
+        std::vector<Complex> fullModalOutput(
+            outputWorkload.halfRows() * nj * outputWorkload.fields);
+        embedRetainedModal(
+            inputWorkload, modes, inputModal.data(), fullModalInput.data());
+        std::vector<Complex> tripleSpectrum(tripleWorkload.spectrumElements());
+        std::vector<Complex> targetSpectrum(targetWorkload.spectrumElements());
+        std::vector<double> shared(tripleWorkload.realElements());
+        std::vector<double> derivative(tripleWorkload.realElements());
+        std::vector<double> target(targetWorkload.realElements());
+        auto extractTriple = [&](std::size_t firstField) {
+            for (std::size_t ky = 0; ky < n; ++ky) {
+                for (std::size_t kx = 0; kx < targetWorkload.nxHalf(); ++kx) {
+                    for (std::size_t field = 0; field < 3; ++field) {
+                        for (std::size_t z = 0; z < nz; ++z) {
+                            tripleSpectrum[wvmSpectrumIndex(
+                                tripleWorkload, kx, ky, z, field)] =
+                                fullPhysicalInput[wvmSpectrumIndex(
+                                    inputWorkload, kx, ky, z,
+                                    firstField + field)];
+                        }
+                    }
+                }
+            }
+        };
+        auto scatterTarget = [&](std::size_t targetIndex) {
+            for (std::size_t ky = 0; ky < n; ++ky) {
+                for (std::size_t kx = 0; kx < targetWorkload.nxHalf(); ++kx) {
+                    for (std::size_t z = 0; z < nz; ++z) {
+                        fullPhysicalOutput[wvmSpectrumIndex(
+                            outputWorkload, kx, ky, z, targetIndex)] =
+                            targetSpectrum[wvmSpectrumIndex(
+                                targetWorkload, kx, ky, z, 0)];
+                    }
+                }
+            }
+        };
+        auto executeShared = [&] {
+            extractTriple(0);
+            inverse.inverse(tripleSpectrum.data(), shared.data());
+        };
+        auto executeDerivatives = [&] {
+            for (std::size_t targetIndex = 0; targetIndex < 4;
+                 ++targetIndex) {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverse(
+                    tripleSpectrum.data(), derivative.data());
+            }
+        };
+        auto executeForwardTargets = [&] {
+            for (std::size_t repetition = 0; repetition < 4; ++repetition)
+                forward.forward(target.data(), targetSpectrum.data());
+        };
+        auto executeAll = [&] {
+            reconstruction.initializeSpectrumOutput(fullPhysicalInput.data());
+            reconstruction.executeInverse(
+                fullModalInput.data(), fullPhysicalInput.data());
+            extractTriple(0);
+            inverse.inverse(tripleSpectrum.data(), shared.data());
+            for (std::size_t targetIndex = 0; targetIndex < 4;
+                 ++targetIndex) {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverse(
+                    tripleSpectrum.data(), derivative.data());
+                pointwise(shared.data(), derivative.data(), target.data());
+                forward.forward(target.data(), targetSpectrum.data());
+                scatterTarget(targetIndex);
+            }
+            projection.initializeModalOutput(fullModalOutput.data());
+            projection.executeForward(
+                fullPhysicalOutput.data(), fullModalOutput.data());
+        };
+        const auto setupSeconds =
+            std::chrono::duration<double>(Clock::now() - setupStart).count();
+        executeAll();
+        std::vector<Complex> actual(outputModalCount);
+        gatherRetainedModal(
+            outputWorkload, modes, fullModalOutput.data(), actual.data());
+        auto preservedFullModal = fullModalInput;
+        record.id = "pipeline-production-lifetime-wvm-direct";
+        record.algorithmId =
+            "full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-15to4-v1";
+        record.nativeRepresentationId =
+            "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal";
+        record.schedulingId =
+            "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
+            ";vertical-" + std::string(verticalGemmScheduleName(
+                verticalStrategy.schedule)) + "-" +
+            std::to_string(verticalStrategy.outerWorkers);
+        record.gemmCallsPerExecution =
+            reconstruction.gemmCallsPerExecution() +
+            projection.gemmCallsPerExecution();
+        record.otherSetupSeconds = setupSeconds;
+        record.allocationSeconds = reconstruction.allocationSeconds() +
+            projection.allocationSeconds() + inverse.allocationSeconds() +
+            forward.allocationSeconds();
+        record.planningSeconds =
+            inverse.planningSeconds() + forward.planningSeconds();
+        record.opaquePlanningBytes =
+            inverse.planningBytes() + forward.planningBytes();
+        record.explicitPersistentBytes = reconstruction.persistentBytes() +
+            projection.persistentBytes() +
+            bytes(fullModalInput.size() + fullPhysicalInput.size() +
+                      fullPhysicalOutput.size() + fullModalOutput.size(),
+                  sizeof(Complex));
+        record.scratchBytes = bytes(
+            tripleSpectrum.size() + targetSpectrum.size(), sizeof(Complex)) +
+            bytes(shared.size() + derivative.size() + target.size(),
+                  sizeof(double));
+        record.algorithmResidentBytes =
+            record.explicitPersistentBytes + record.scratchBytes;
+        record.correctness = {
+            metric("complete streamed production-lifetime composition versus independent oracle",
+                   actual.data(), expectedModal.data(), actual.size()),
+            metric("caller WVM modal input preserved across target-buffer reuse",
+                   fullModalInput.data(), preservedFullModal.data(),
+                   fullModalInput.size()),
+            dcBoundaryMetric(actual)};
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex)
+            record.correctness.push_back(
+                targetCorrectness(actual, targetIndex));
+        const auto verticalInverseBytes = bytes(
+            fullModalInput.size() + fullPhysicalInput.size(), sizeof(Complex));
+        const auto verticalForwardBytes = bytes(
+            fullPhysicalOutput.size() + fullModalOutput.size(), sizeof(Complex));
+        const auto tripleMoveBytes = bytes(
+            nz * 15 * targetWorkload.halfRows(), sizeof(Complex));
+        const auto targetMoveBytes = bytes(
+            nz * 4 * targetWorkload.halfRows(), sizeof(Complex));
+        record.timings = {
+            series("setup-shared-component", "synthetic development fixture generation",
+                   "shared", StageState::setupOnly,
+                   report.verticalMatrixFamilySourceBytes +
+                       bytes(inputModalCount, sizeof(Complex)),
+                   {fixtureSeconds}),
+            series("primitive", "raw inverse vertical MM (15 modal inputs)",
+                   "inverse", StageState::executed, verticalInverseBytes,
+                   measure(warmups, sampleCount, [&] {
+                       reconstruction.initializeSpectrumOutput(
+                           fullPhysicalInput.data());
+                       reconstruction.executeInverse(
+                           fullModalInput.data(), fullPhysicalInput.data());
+                   })),
+            series("component", "shared U,V,W horizontal reconstruction",
+                   "inverse", StageState::executed,
+                   bytes(3 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, executeShared)),
+            series("component", "per-target derivative horizontal reconstruction",
+                   "inverse", StageState::executed,
+                   bytes(12 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, executeDerivatives)),
+            series("component", "four streamed pointwise advection expressions",
+                   "pointwise", StageState::executed,
+                   bytes(4 * 7 * realVolumeElements, sizeof(double)),
+                   measure(warmups, sampleCount, [&] {
+                       for (std::size_t repetition = 0; repetition < 4;
+                            ++repetition)
+                           pointwise(shared.data(), derivative.data(),
+                                     target.data());
+                   })),
+            series("primitive", "four streamed full horizontal forward FFTs",
+                   "forward", StageState::executed,
+                   bytes(4 * (realVolumeElements +
+                         targetWorkload.spectrumElements()), sizeof(Complex)),
+                   measure(warmups, sampleCount, executeForwardTargets)),
+            series("adapter-component",
+                   "WVM-order triple extraction and target scatter",
+                   "movement", StageState::executed,
+                   tripleMoveBytes + targetMoveBytes,
+                   measure(warmups, sampleCount, [&] {
+                       extractTriple(0);
+                       for (std::size_t targetIndex = 0; targetIndex < 4;
+                            ++targetIndex) {
+                           extractTriple(3 + 3 * targetIndex);
+                           scatterTarget(targetIndex);
+                       }
+                   })),
+            series("primitive", "raw forward vertical MM (4 modal targets)",
+                   "forward", StageState::executed, verticalForwardBytes,
+                   measure(warmups, sampleCount, [&] {
+                       projection.initializeModalOutput(fullModalOutput.data());
+                       projection.executeForward(
+                           fullPhysicalOutput.data(), fullModalOutput.data());
+                   }))};
+        auto release = [](auto& values) {
+            using Values = std::remove_reference_t<decltype(values)>;
+            Values{}.swap(values);
+        };
+        const auto correctnessBytes = bytes(
+            inputModal.size() + expectedModal.size() + actual.size() +
+                preservedFullModal.size(), sizeof(Complex)) +
+            bytes(modes.size(), sizeof(RetainedMode)) +
+            bytes(groupModes.size() + groupColumns.size(), sizeof(double)) +
+            bytes(vertical.forward.size() + vertical.inverse.size(),
+                  sizeof(double));
+        release(inputModal);
+        release(expectedModal);
+        release(actual);
+        release(preservedFullModal);
+        release(modes);
+        release(groupModes);
+        release(groupColumns);
+        release(vertical.forward);
+        release(vertical.inverse);
+        release(vertical.groups);
+        record.timings.push_back(series(
+            "setup-component", "release correctness-only benchmark storage",
+            "shared", StageState::setupOnly, correctnessBytes, {0.0}));
+        record.timings.push_back(series(
+            "uninstrumented-total",
+            "production-lifetime streamed four-target spectral-flux composition",
+            "forward", StageState::executed,
+            verticalInverseBytes + verticalForwardBytes +
+                tripleMoveBytes + targetMoveBytes,
+            measure(warmups, sampleCount, executeAll)));
+        record.ledger = {
+            {"fixture provenance", StageState::setupOnly,
+             "synthetic development fixture; authoritative WVM export is required before reference publication"},
+            {"shared U,V,W reconstruction", StageState::executed,
+             "three shared real volumes are reconstructed once per composition"},
+            {"derivative reconstruction", StageState::executed,
+             "one three-field derivative buffer is reused for each of four targets"},
+            {"pointwise advection", StageState::executed,
+             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization fused into the product"},
+            {"horizontal forward and retention", StageState::executed,
+             "full WVM-order FFTW output feeds direct per-mode complex zgemm"},
+            {"vertical projection", StageState::executed,
+             "direct complex zgemm produces four WVM-order modal targets"},
+            {"steady-state allocation", StageState::elided,
+             "all WVM spectra, real triple, derivative, target, and output buffers are persistent"},
+            {"complete WVM nonlinear flux", StageState::unsupported,
+             "phase, coefficient assembly/accumulation, MATLAB, state, and time integration are excluded"}};
+    }
+
+    record.execution.forward.reusableWorkBytes = record.scratchBytes;
+    record.execution.inverse.reusableWorkBytes = 0;
+    record.benchmarkHarnessBytes = 0;
+    record.estimatedProcessPeakBytes = record.algorithmResidentBytes;
+    record.observedProcessHighWaterBytes = processHighWaterBytes();
+    record.opaqueProviderMemory = true;
+    report.spectralPipelineEstimatedExplicitPeakBytes =
+        record.estimatedProcessPeakBytes;
+    report.providers.push_back(std::move(record));
+    report.status = correctnessPassed(report.providers.front())
+        ? "passed" : "failed";
+    return report;
+}
+
 ValidationReport validateBenchmark(std::string_view profileName) {
     const auto requested = profileNamed(profileName);
     Workload workload = requested.name == "smoke" ? requested.workload : Workload{8, 8, 7, 2, 1.0, 1.0, true};
@@ -4431,6 +5297,8 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
 }
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
+    if (options.kernel == "production-lifetime-flux")
+        return runProductionLifetimeFluxBenchmark(options);
     if (options.kernel == "vertically-batched-advection")
         return runVerticallyBatchedAdvectionBenchmark(options);
     if (options.kernel == "dealiased-convolution") return runDealiasedConvolutionBenchmark(options);
@@ -4442,7 +5310,8 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     if (options.kernel != "fft") {
         throw std::invalid_argument(
             "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', "
-            "'ordering-packing', 'spectral-boundary', 'spectral-pipeline', or "
+            "'ordering-packing', 'spectral-boundary', 'spectral-pipeline', "
+            "'production-lifetime-flux', or "
             "'dealiased-convolution', or 'vertically-batched-advection'.");
     }
     auto selected = profileNamed(options.profile);

@@ -60,7 +60,9 @@ class BuildSiteTests(unittest.TestCase):
             issue_16_page = output / "experiments" / "issue-016-streaming-pruned-compact-split" / "index.html"
             issue_17_page = output / "experiments" / "issue-017-implicit-hybrid-dealiased-convolution" / "index.html"
             issue_18_page = output / "experiments" / "issue-018-vertically-batched-advection-pipeline" / "index.html"
+            issue_19_page = output / "experiments" / "issue-019-production-lifetime-spectral-flux-composition" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
+            fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
             samples_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "samples.csv"
@@ -89,7 +91,9 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_16_page.is_file())
             self.assertTrue(issue_17_page.is_file())
             self.assertTrue(issue_18_page.is_file())
+            self.assertTrue(issue_19_page.is_file())
             self.assertTrue(methods_page.is_file())
+            self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
@@ -331,6 +335,15 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("No size-dependent dispatch is permitted", issue_18_html)
             self.assertIn("20260828T231215Z-issue18-n512-nz513-explicit-parallel", issue_18_html)
             self.assertIn("20260829T015353Z-issue18-n1024-nz129-fftwpp-parallel", issue_18_html)
+            issue_19_html = issue_19_page.read_text(encoding="utf-8")
+            self.assertIn(
+                "Production-lifetime streamed spectral-flux composition",
+                issue_19_html,
+            )
+            self.assertIn("Experiment · issue #19 · collecting", issue_19_html)
+            self.assertIn("15 ready retained and vertically truncated modal fields", issue_19_html)
+            self.assertIn("Issue #18 is attribution evidence", issue_19_html)
+            self.assertIn("No reference run has been published", issue_19_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

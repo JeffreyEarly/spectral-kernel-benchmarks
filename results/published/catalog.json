@@ -28765,6 +28765,50 @@
         "correctness and capacity exclusions",
         "paired reference inference"
       ]
+    },
+    {
+      "id": "issue-019-production-lifetime-spectral-flux-composition",
+      "issue": 19,
+      "phase": "collecting",
+      "title": "Production-lifetime streamed spectral-flux composition",
+      "question": "Does the issue #16 fixed tile-16 streaming spectral tuple retain a material advantage when both finalists use the production transform multiplicity and streamed physical-space buffer lifetime of the four-field nonhydrostatic flux calculation?",
+      "baseline": "Use a new same-lifetime WVM-order control with full frequency-major interleaved FFTW and direct complex vertical operators. Issue #18 is attribution evidence for a materialized lifetime, not the matched performance denominator.",
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split",
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "Begin with 15 ready retained and vertically truncated modal fields; reconstruct shared U,V,W once; for each of four targets reuse one three-derivative real volume and one target volume to evaluate -(U*qx+V*qy+W*qz); immediately transform, retain, and vertically project that target; end with four ready modal targets.",
+        "candidates": "A full WVM-order interleaved FFTW plus direct-complex-vertical control and the issue #16 partial-column-pruned fixed 16-plane tile plus compact-radial-split and grouped-split-real-vertical candidate. Each uses one fixed graph across every workload.",
+        "workloads": "Float64 four-target cases at 256 squared/Nz=129, 512 squared/Nz=257, 1024 squared/Nz=129, and the deep 512 squared/Nz=513 capacity case, with radial horizontal and vertical two-thirds retention.",
+        "controlledVariables": "Logical 15-to-4 operator, authoritative WVM fixture, input and output boundary semantics, target ordering, normalization, retained mode keys, FFTW build, precision, oracle, workload matrix, process isolation, and conditional 3+2 protocol.",
+        "changedVariables": "Horizontal transform and retention algorithm, persistent spectral representation, vertical kernel, necessary representation movement, and topology-derived scheduling selected before reference inference.",
+        "timedBoundary": "Ready native modal inputs through vertical reconstruction, one shared and four derivative inverse-horizontal batches, four pointwise expressions, four forward-horizontal retention operations, vertical projection, required native movement, and output writes to four ready native modal targets. The uninstrumented total and component ledger are sampled separately.",
+        "excludedWork": "WVM phase evolution, construction of the 15 inputs from model coefficients, accumulation into modal tendencies, eigensystem generation, complete nonlinear-flux terms, MATLAB dispatch, time integration, model state, I/O, fixture loading, and oracle evaluation.",
+        "allocationPolicy": "Seven real Nx*Ny*Nz volumes implement the shared-three plus reusable-derivative-three plus reusable-target-one lifetime. Warmed execution allocates zero application memory; application-resident, scratch, opaque provider, estimated-peak, observed high-water, and capacity evidence remain separate."
+      },
+      "correctness": {
+        "oracle": "Authoritative reference publication uses versioned WVM-exported inputs, vertical operators, mode keys, conventions, and four expected modal targets. Provider-independent synthetic inputs and operators are permitted only for preliminary harness development. Comparisons are keyed by (k,l,j,target) outside timing.",
+        "tolerance": "Float64 maximum scale-normalized and relative L2 errors at most 1e-12, with DC, Nyquist, Hermitian-boundary, target-ordering, input-preservation, and buffer-reuse checks.",
+        "capabilityHandling": "Missing or invalid authoritative fixtures block reference publication. Capacity exclusions, unsupported configurations, opaque allocation, negative performance, and synthetic-only evidence remain visible without silent fallback or workload changes.",
+        "canSupport": "A decision about whether the fixed streaming compiled-engine graph advances to a later integration benchmark inside WVM after the full reference protocol and 10% gate pass.",
+        "cannotSupport": "A claim about WVM's complete nonlinear flux, coefficient assembly or accumulation, MATLAB plus compiled-core overhead, time integration, Float32, or a general-Mac default."
+      },
+      "requiredTables": [
+        "fixture provenance and correctness",
+        "raw inverse and forward vertical GEMM",
+        "shared and per-target inverse horizontal transforms",
+        "pointwise physical-space work",
+        "forward horizontal transform and retention",
+        "representation movement and output writes",
+        "setup, planning, scheduling, and synchronization",
+        "application-resident, scratch, opaque, peak, and capacity memory",
+        "uninstrumented composed total",
+        "paired reference inference"
+      ]
     }
   ]
 }

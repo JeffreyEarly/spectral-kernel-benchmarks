@@ -134,7 +134,30 @@ void writeJson(const BenchmarkReport& report, const std::filesystem::path& path)
     stream << "  \"run\":{\"id\":"; quote(stream, report.runId);
     stream << ",\"profile\":"; quote(stream, report.profile);
     stream << ",\"seed\":" << report.seed << ",\"warmups\":" << report.warmups << ",\"samples\":" << report.samples << "},\n";
-    stream << "  \"provenance\":{\"benchmarkRepository\":\"JeffreyEarly/spectral-kernel-benchmarks\",\"waveVortexModelRepository\":\"JeffreyEarly/wave-vortex-model\",\"waveVortexModelIssue\":129,\"auditedProductionBaselineCommit\":\"be0f78995c49a2bfe4c43d75827856e3812ac278\",\"historicalHarnessCommit\":\"b63fef8f6a9e400c6ec560205906578b763d8298\",\"historicalDecisionCommit\":\"34797085d1b642b9d9c822f30a6b5c18e139c2bf\"},\n";
+    stream << "  \"provenance\":{\"benchmarkRepository\":\"JeffreyEarly/spectral-kernel-benchmarks\",\"waveVortexModelRepository\":\"JeffreyEarly/wave-vortex-model\",\"waveVortexModelIssue\":129,\"auditedProductionBaselineCommit\":\"be0f78995c49a2bfe4c43d75827856e3812ac278\",\"historicalHarnessCommit\":\"b63fef8f6a9e400c6ec560205906578b763d8298\",\"historicalDecisionCommit\":\"34797085d1b642b9d9c822f30a6b5c18e139c2bf\"";
+    if (!report.fixtureProvenance.fixtureHash.empty()) {
+        stream << ",\"spectralFluxFixture\":{\"status\":";
+        quote(stream, report.fixtureProvenance.status);
+        stream << ",\"schema\":"; quote(stream, report.fixtureProvenance.schema);
+        stream << ",\"waveVortexModelRepository\":";
+        quote(stream, report.fixtureProvenance.waveVortexModelRepository);
+        stream << ",\"waveVortexModelCommit\":";
+        quote(stream, report.fixtureProvenance.waveVortexModelCommit);
+        stream << ",\"generatorIdentity\":";
+        quote(stream, report.fixtureProvenance.generatorIdentity);
+        stream << ",\"fixtureHash\":";
+        quote(stream, report.fixtureProvenance.fixtureHash);
+        stream << ",\"normalization\":";
+        quote(stream, report.fixtureProvenance.normalization);
+        stream << ",\"modeMapping\":";
+        quote(stream, report.fixtureProvenance.modeMapping);
+        stream << ",\"derivativeConvention\":";
+        quote(stream, report.fixtureProvenance.derivativeConvention);
+        stream << ",\"authoritative\":"
+               << (report.fixtureProvenance.authoritative ? "true" : "false")
+               << '}';
+    }
+    stream << "},\n";
     stream << "  \"logicalOperators\":{\"horizontalForward\":\"T_h^+=P_h F_xy\",\"horizontalInverse\":\"T_h^-=F_xy^-1 E_h\",\"verticalForward\":\"T_z^+=V_f\",\"verticalInverse\":\"T_z^-=V_i\",\"verticalFixtureId\":";
     quote(stream, report.verticalMatrixFamilyId); stream << ",\"resultKey\":\"(k,l,j,field)\"},\n";
     stream << "  \"workload\":{\n";
