@@ -197,6 +197,14 @@ All steady-state buffers, vDSP setups, and vDSP worker threads are persistent. N
 
 Provider construction reports mutually exclusive setup-only (`otherSeconds`), allocation, and planning durations. `totalSeconds` is their sum; it is not an independently timed fourth component.
 
+## Cross-Mac portability inference
+
+The issue #11 portability campaign holds the two algorithm graphs, Float64 mathematics, retention, FFTW planning/alignment/wisdom policy, tile width, transpose blocking, physical representations, vertical kernels, placement, fixtures, and allocation policy fixed. It varies only topology-derived scheduling before inference. For performance-core count $P$ and total physical-core count $T$, each graph separately compares horizontal outer sharding at $P$ and $T$ with vertical outer-dynamic scheduling at $T$ and weighted outer-static scheduling at $P$. A deterministic geometric-time rule freezes one topology per graph for every workload on that machine. Calibration results cannot enter adoption aggregates.
+
+Reference timing uses isolated balanced candidate/control processes with three warmups and 21 samples. Three rotated rounds are collected first. Exactly two additional complete rounds are collected when a workload ratio spread exceeds 10%, a workload straddles the 1.03 regression boundary, aggregate round ratios straddle 0.90, or their aggregate median lies from 0.85 through 0.95. The campaign stops after five rounds and reports an unstable result as inconclusive. Ranges bootstrapped from three or five process-pair rounds are empirical intervals, not claims of general statistical confidence.
+
+Memory is collected in separate processes after correctness-only and setup-only storage is released. Timing samples from memory processes do not enter performance aggregates. A case whose estimated explicit peak exceeds the declared safe fraction of physical memory is an explicit capacity exclusion. The runner does not swap deliberately, resize the workload, or substitute a different algorithm. A portability conclusion remains limited to matched feasible profiles and to the named hardware-plus-toolchain configurations; it never creates workload-size dispatch or a general-Mac claim.
+
 ## Result bundle
 
 The JSON document conforms to `spectral-kernel-benchmark-v1` and records:

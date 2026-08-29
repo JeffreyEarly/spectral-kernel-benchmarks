@@ -260,6 +260,20 @@ Pipeline correctness constructs independent mode-keyed oracle and diagnostic arr
 
 Issue #13 closes from the accumulated evidence rather than another algorithm screen. The existing tile-16 reference runs are associated with both the streaming experiment and the ordering/packing experiment; their immutable JSON and CSV artifacts are neither copied nor modified. The close-out records direct WVM order, MATLAB gather/radial packing, provider-order matrices, fused conversion, tiled staging, and persistent compact storage as algorithmic alternatives—not mathematical layout requirements.
 
+## Cross-Mac portability campaign
+
+Issue #11 freezes the WVM-order direct graph and the streaming-pruned fixed tile-16 graph, then calibrates only machine-local scheduling. Calibration compares horizontal outer sharding at the performance-core and total-physical-core counts with vertical dynamic-total and weighted-static-performance scheduling. It selects one topology independently for each graph, keeps FFTW internal workers and `VECLIB_MAXIMUM_THREADS` at one, and never contributes calibration samples to reference inference:
+
+```sh
+python3 tools/run_cross_mac_spectral_reference.py --phase calibration --dry-run --allow-dirty-tree
+python3 tools/run_cross_mac_spectral_reference.py --phase calibration --output results/local/issue11-calibration
+python3 tools/run_cross_mac_spectral_reference.py --phase reference --calibration-analysis results/local/issue11-calibration/analysis.json --output results/local/issue11-reference
+```
+
+The reference phase applies the selected topology uniformly to `256²/Nz=129/F4`, `512²/Nz=257/F4`, `1024²/Nz=129/F4`, and the deep `512²/Nz=513/F4` case. It begins with three balanced rotated rounds, three warmups, and 21 samples per isolated timing process. A preregistered variability or decision-boundary trigger adds exactly two complete rounds; otherwise the campaign stops after three. Memory evidence comes from separate one-sample processes and never enters timing aggregates. A workload above 75% of physical memory is preserved as an explicit capacity exclusion rather than forced through swap or replaced with another size.
+
+Run the same committed source and campaign protocol independently on each machine. Worker counts are topology-derived, so the M4 `outer-12` and dynamic-16 literals become performance-core and total-core policies on other Apple-silicon machines. The resulting evidence is scoped to the machines and toolchains actually tested and does not support size-dependent dispatch or a general-Mac claim.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries
