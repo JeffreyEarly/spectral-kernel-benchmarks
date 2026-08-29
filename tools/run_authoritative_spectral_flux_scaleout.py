@@ -83,9 +83,15 @@ def matlab_capacity(matlab: str, wvm_repository: Path,
         "fprintf('SKBENCH_CAPACITY_JSON=%s\\n',jsonencode(c));"
     )
     completed = subprocess.run(
-        [matlab, "-batch", expression], check=True,
+        [matlab, "-batch", expression], check=False,
         text=True, capture_output=True,
     )
+    if completed.returncode != 0:
+        diagnostic = (completed.stderr or completed.stdout).strip()
+        raise RuntimeError(
+            f"MATLAB capacity preflight failed for {workload.profile}: "
+            f"{diagnostic[-2000:]}"
+        )
     marker = "SKBENCH_CAPACITY_JSON="
     matches = [line[len(marker):] for line in completed.stdout.splitlines()
                if line.startswith(marker)]
@@ -354,6 +360,54 @@ def correctness_trials(executable: Path, root: Path, preflight_record: dict,
     }
     (root / "analysis.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    manifest_runs = []
+    capacity_exclusions = []
+    for trial in trials:
+        for run in trial["runs"]:
+            if run["status"] == "capacity-exclusion":
+                capacity_exclusions.append({
+                    "profile": trial["profile"],
+                    "candidate": run["candidate"],
+                    "capacity": run["capacity"],
+                })
+                continue
+            if run.get("passed") is not True:
+                continue
+            candidate = run["candidate"]
+            manifest_runs.append({
+                "id": f"{trial['profile']}--{candidate['id']}",
+                "round": 1,
+                "profile": trial["profile"],
+                "candidate": candidate,
+                "primaryProvider": candidate["provider"],
+                "result": str(
+                    (Path(trial["profile"]) / run["result"]).as_posix()
+                ),
+                "exitCode": 0,
+                "sourceTreeGitCommit": source_commit,
+                "sourceTreeDirty": source_dirty,
+            })
+    manifest = {
+        "schema": "spectral-kernel-local-sweep-v1",
+        "experimentId": EXPERIMENT_ID,
+        "incrementId": INCREMENT_ID,
+        "phase": "authoritative-scaleout-correctness",
+        "createdAtUtc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "question": (
+            "Do both frozen issue #19 graphs remain correct for every larger "
+            "authoritative WVM workload that passes the preregistered capacity "
+            "preflight?"
+        ),
+        "interpretation": result["timingInterpretation"],
+        "preflight": "preflight.json",
+        "analysis": "analysis.json",
+        "capacityExclusions": capacity_exclusions,
+        "runs": manifest_runs,
+    }
+    (root / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     return result
 
