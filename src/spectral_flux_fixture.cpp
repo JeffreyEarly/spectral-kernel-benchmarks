@@ -275,18 +275,27 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
     requireText(sourceModeIndices.size() == expectedModes.size(),
                 "Spectral-flux fixture contains an unexpected horizontal mode key.");
     fixture.modes = expectedModes;
-    const auto expectedGroups = squaredWavenumberGroups(expectedModes);
-    requireText(expectedGroups.size() == groupCount,
-                "Spectral-flux fixture K2 group count is inconsistent.");
-    for (std::size_t group = 0; group < groupCount; ++group) {
-        requireText(fixture.groupKeys[group] == expectedGroups[group].squaredModeKey,
-                    "Spectral-flux fixture K2 group key is inconsistent.");
-        for (std::size_t offset = 0; offset < expectedGroups[group].modeCount; ++offset) {
-            const auto expectedMode = expectedGroups[group].firstMode + offset;
-            requireText(fixture.modeGroupIndices[sourceForExpectedMode[expectedMode]] == group,
-                        "Spectral-flux fixture mode-to-group map is inconsistent.");
-        }
+    std::vector<bool> usedGroups(groupCount, false);
+    std::uint32_t previousGroup = 0;
+    for (std::size_t sourceMode = 0; sourceMode < nkl; ++sourceMode) {
+        const auto group = fixture.modeGroupIndices[sourceMode];
+        requireText(group < groupCount,
+                    "Spectral-flux fixture mode group index is out of range.");
+        requireText(sourceMode == 0 || group >= previousGroup,
+                    "Spectral-flux fixture mode groups are not contiguous.");
+        previousGroup = group;
+        usedGroups[group] = true;
+        const auto k = static_cast<std::int64_t>(rawModeKeys[2 * sourceMode]);
+        const auto l = static_cast<std::int64_t>(rawModeKeys[2 * sourceMode + 1]);
+        const auto key = static_cast<std::uint64_t>(k * k + l * l);
+        requireText(fixture.groupKeys[group] == key,
+                    "Spectral-flux fixture group diagnostic key is inconsistent.");
     }
+    requireText(std::all_of(usedGroups.begin(), usedGroups.end(),
+                            [](bool used) { return used; }),
+                "Spectral-flux fixture does not use every declared mode group.");
+    requireText(std::is_sorted(fixture.groupKeys.begin(), fixture.groupKeys.end()),
+                "Spectral-flux fixture group diagnostic keys are not nondecreasing.");
     const auto inputBlock = checkedProduct(nj, inputCount, "modal input mode block");
     const auto targetBlock = checkedProduct(nj, targetCount, "modal target mode block");
     std::vector<Complex> reorderedInputs(fixture.modalInputs.size());
@@ -334,12 +343,24 @@ GroupedVerticalOperators spectralFluxOperatorFamily(
     if (family >= 2) {
         throw std::invalid_argument("Spectral-flux operator family must be zero or one.");
     }
-    const auto groups = squaredWavenumberGroups(fixture.modes);
+    std::vector<VerticalModeGroup> groups;
+    std::vector<std::size_t> sourceGroups;
+    for (std::size_t mode = 0; mode < fixture.modes.size(); ++mode) {
+        const auto sourceGroup = static_cast<std::size_t>(
+            fixture.modeGroupIndices[mode]);
+        if (groups.empty() || sourceGroups.back() != sourceGroup) {
+            groups.push_back({fixture.groupKeys[sourceGroup], mode, 1});
+            sourceGroups.push_back(sourceGroup);
+        } else {
+            ++groups.back().modeCount;
+        }
+    }
     const auto nz = fixture.workload.nz;
     const auto nj = fixture.workload.retainedVerticalModes();
     const auto perGroup = checkedProduct(nz, nj, "operator matrix");
     GroupedVerticalOperators result;
-    result.id = family == 0 ? "wvm-wave-f-k2" : "wvm-wave-g-k2";
+    result.id = family == 0 ? "wvm-wave-f-floating-k2" :
+                              "wvm-wave-g-floating-k2";
     result.nz = nz;
     result.nj = nj;
     result.groups = groups;
@@ -347,7 +368,7 @@ GroupedVerticalOperators spectralFluxOperatorFamily(
                                          "inverse operator family"));
     result.forward.resize(result.inverse.size());
     for (std::size_t group = 0; group < groups.size(); ++group) {
-        const auto sourceBase = perGroup * (family + 2 * group);
+        const auto sourceBase = perGroup * (family + 2 * sourceGroups[group]);
         const auto destinationBase = perGroup * group;
         for (std::size_t z = 0; z < nz; ++z) {
             for (std::size_t j = 0; j < nj; ++j) {

@@ -13,6 +13,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "tools"))
 from prepare_spectral_flux_fixture import (  # noqa: E402
     DERIVATIVE_CONVENTION,
     FixtureError,
+    GROUP_RULE,
     INPUT_FAMILIES,
     INPUT_NAMES,
     MAGIC,
@@ -150,9 +151,7 @@ class SpectralFluxFixturePreparationTests(unittest.TestCase):
                 "targetNames": TARGET_NAMES,
                 "targetFieldFamilies": TARGET_FAMILIES,
                 "groupCount": group_count,
-                "groupRule": (
-                    "exact integer k^2+l^2 on a square horizontal domain"
-                ),
+                "groupRule": GROUP_RULE,
             },
             "derivativeConvention": DERIVATIVE_CONVENTION,
             "oracle": {

@@ -1035,8 +1035,8 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
     report.verticalMatrixFamilySourceBytes = byteCount(
         fixture.inverseOperators.size() + fixture.forwardOperators.size(),
         sizeof(double));
-    report.verticalMatrixFamilyId = "wvm-wave-f+wave-g-k2-exact";
-    const auto groups = squaredWavenumberGroups(context.modes);
+    report.verticalMatrixFamilyId = "wvm-wave-f+wave-g-floating-k2-exact";
+    const auto& groups = operators.values[0].groups;
     report.verticalGroupCount = groups.size();
     report.verticalGroupOrderHash = verticalModeGroupHash(groups);
     std::vector<double> groupModes;

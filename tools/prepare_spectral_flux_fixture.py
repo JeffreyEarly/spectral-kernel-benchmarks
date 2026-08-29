@@ -44,6 +44,10 @@ MODE_MAPPING_ID = (
     "logical (k,l,j,field); WVM radial magnitude then k then l; "
     "j-fastest canonical payloads; wave-f/wave-g field mapping"
 )
+GROUP_RULE = (
+    "WVM floating K^2-unique order with nondecreasing integer k^2+l^2 "
+    "diagnostic keys; repeated diagnostic keys permitted"
+)
 
 
 class FixtureError(ValueError):
@@ -274,8 +278,7 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
             "target operator mapping is inconsistent")
     group_count = integer(operator.get("groupCount"),
                           "operatorContract.groupCount", positive=True)
-    require(operator.get("groupRule") ==
-            "exact integer k^2+l^2 on a square horizontal domain",
+    require(operator.get("groupRule") == GROUP_RULE,
             "operator group rule is inconsistent")
     require(manifest.get("derivativeConvention") == DERIVATIVE_CONVENTION,
             "derivative convention is inconsistent")
@@ -345,17 +348,15 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
             "vertical mode keys must be j=0..Nj-1")
     group_indices = unpack(payload_bytes["mode-group-indices.u32le"], "I")
     group_keys = unpack(payload_bytes["group-keys.u64le"], "Q")
-    distinct_keys: list[int] = []
-    expected_indices: list[int] = []
-    for key in actual_squared_keys:
-        if not distinct_keys or distinct_keys[-1] != key:
-            distinct_keys.append(key)
-        expected_indices.append(len(distinct_keys) - 1)
-    require(list(group_keys) == distinct_keys,
-            "group keys do not match exact k^2+l^2")
-    require(list(group_indices) == expected_indices,
-            "mode group indices do not match exact k^2+l^2")
-    require(group_count == len(distinct_keys), "operator group count is inconsistent")
+    require(list(group_indices) == sorted(group_indices),
+            "WVM mode group indices must be nondecreasing")
+    require(sorted(set(group_indices)) == list(range(group_count)),
+            "WVM mode group indices must use every declared group contiguously")
+    require(list(group_keys) == sorted(group_keys),
+            "WVM integer group diagnostic keys must be nondecreasing")
+    require(all(group_keys[group_indices[index]] == actual_squared_keys[index]
+                for index in range(nkl)),
+            "WVM group diagnostic keys do not match their mode coordinates")
 
     for path_text in ("inverse-operators.f64le", "forward-operators.f64le"):
         values = unpack(payload_bytes[path_text], "d")
