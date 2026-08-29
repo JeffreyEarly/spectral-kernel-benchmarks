@@ -28234,6 +28234,64 @@
         "samplesSha256": "4ef4d0aab13a5343c7cb1a0cad720e81c236503ac9756dca22c4b40e7f433afa"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T190040Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-pilot-v1",
+      "campaignPhase": "authoritative-pilot",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM-exported 256-squared single-workload pilot; the preregistered multi-workload, repeated-round, capacity, and cross-Mac reference campaign has not run.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [
+        "issue-016-streaming-pruned-compact-split",
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T190040Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T190040Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "26dfa0c44cb3931b3ec5c51e4be8f413a6db124b1b724a0c97dc903670687c52",
+        "samplesSha256": "451b7db4bfa810c6e9dd456ba54559521ef5c2912d6923e54def27802b578247"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T190050Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-pilot-v1",
+      "campaignPhase": "authoritative-pilot",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM-exported 256-squared single-workload pilot; the preregistered multi-workload, repeated-round, capacity, and cross-Mac reference campaign has not run.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [
+        "issue-016-streaming-pruned-compact-split",
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T190050Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T190050Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "38b8cf8bc827950f276758e67907708e2ee99a718a70d471c820d0298b6200ee",
+        "samplesSha256": "5272d0d95e4a3fc51345815392e3fb078b213a7b1161e5b6c183cbdce206a4b6"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

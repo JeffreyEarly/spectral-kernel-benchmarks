@@ -81,6 +81,38 @@ class PublicationValidationTests(unittest.TestCase):
             self.assertEqual(
                 0, bundle.result["providers"][0]["memory"]["benchmarkHarnessBytes"]
             )
+        authoritative_pilot = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "production-lifetime-flux-authoritative-pilot-v1"
+        ]
+        self.assertEqual(2, len(authoritative_pilot))
+        self.assertEqual({"preliminary"}, {
+            bundle.publication["status"] for bundle in authoritative_pilot
+        })
+        self.assertEqual({"709803bcc102"}, {
+            bundle.result["environment"]["gitCommit"]
+            for bundle in authoritative_pilot
+        })
+        self.assertEqual({
+            "pipeline-production-lifetime-wvm-direct-authoritative",
+            "pipeline-production-lifetime-streaming-pruned-tile16-authoritative",
+        }, {
+            bundle.result["providers"][0]["id"]
+            for bundle in authoritative_pilot
+        })
+        for bundle in authoritative_pilot:
+            fixture = bundle.result["provenance"]["spectralFluxFixture"]
+            self.assertEqual("authoritative-wvm-export", fixture["status"])
+            self.assertTrue(fixture["authoritative"])
+            self.assertEqual(
+                "sha256:8a40d95ba922ddc7ba2e3e6c1c7b46f8f0b5337ba9af218849bc53705e0ce74c",
+                fixture["fixtureHash"],
+            )
+            self.assertEqual(
+                "451f4e612e31e0dfc9ed3003433bf36ddb7326f2",
+                fixture["waveVortexModelCommit"],
+            )
         fftw_production_reference = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==

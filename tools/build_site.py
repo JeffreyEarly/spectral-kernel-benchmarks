@@ -5422,7 +5422,7 @@ def production_lifetime_flux_synthesis(
             "</tr>"
         )
     maximum_error = max(errors) if errors else math.inf
-    return f"""
+    preliminary = f"""
       <h2>First production-lifetime harness pair</h2>
       <p>This clean M4 Max pair changes the buffer lifetime and transform multiplicity while holding one 15-to-4 synthetic operator fixed. Unlike issue #18, the matched WVM-order control reconstructs shared U,V,W once and reuses one derivative triple plus one target volume, so it is the performance denominator for this experiment.</p>
       <p>Streaming tile 16 is {time_ratio:.3f}× the WVM-order control in the separately measured total, with {resident_ratio:.3f}× the algorithm-resident storage and {observed_ratio:.3f}× the observed process high water. Maximum mode-keyed error is {maximum_error:.3e}.</p>
@@ -5432,6 +5432,147 @@ def production_lifetime_flux_synthesis(
         <tbody>{''.join(rows)}</tbody>
       </table></div>
       <p class="method-note"><strong>Preliminary only:</strong> both runs use provider-independent synthetic inputs and vertical operators. They establish harness correctness, four-target ordering, seven-real-volume reuse, component reporting, and descriptive machine behavior. They do not evaluate the 0.90 gate and cannot enter adoption statistics until the <a href="../../methods/wvm-spectral-flux-fixture/index.html">authoritative WVM fixture contract</a> is satisfied.</p>
+    """
+    pilot = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+            "production-lifetime-flux-authoritative-pilot-v1"
+        and bundle.publication["status"] == "preliminary"
+    ]
+    if len(pilot) != 2:
+        return preliminary
+    pilot_provider_ids = {
+        "pipeline-production-lifetime-wvm-direct-authoritative":
+            "WVM-order control",
+        "pipeline-production-lifetime-streaming-pruned-tile16-authoritative":
+            "Streaming tile 16",
+    }
+    pilot_cells: dict[str, dict] = {}
+    pilot_errors: list[float] = []
+    fixture_hashes: set[str] = set()
+    wvm_commits: set[str] = set()
+    for bundle in pilot:
+        providers = bundle.result.get("providers", [])
+        if len(providers) != 1:
+            return preliminary
+        provider = providers[0]
+        provider_id = provider.get("id")
+        if provider_id not in pilot_provider_ids:
+            return preliminary
+        fixture = bundle.result.get("provenance", {}).get(
+            "spectralFluxFixture", {}
+        )
+        if (
+            fixture.get("status") != "authoritative-wvm-export"
+            or fixture.get("authoritative") is not True
+            or fixture.get("schema") != "spectral-flux-fixture-v1"
+        ):
+            return preliminary
+        fixture_hashes.add(str(fixture.get("fixtureHash", "")))
+        wvm_commits.add(str(fixture.get("waveVortexModelCommit", "")))
+
+        def pilot_required(stage: str) -> float:
+            matches = [
+                timing for timing in provider.get("timings", [])
+                if timing.get("stage") == stage
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"issue #19 authoritative pilot provider lacks one {stage} timing"
+                )
+            return float(matches[0]["medianSeconds"])
+
+        forward_horizontal_stage = (
+            "four streamed full horizontal forward FFTs"
+            if provider_id ==
+                "pipeline-production-lifetime-wvm-direct-authoritative"
+            else "four streamed horizontal forward transforms and retention"
+        )
+        movement_stage = (
+            "WVM-order triple extraction and target scatter"
+            if provider_id ==
+                "pipeline-production-lifetime-wvm-direct-authoritative"
+            else "native split triple extraction and target scatter"
+        )
+        memory = provider["memory"]
+        pilot_cells[provider_id] = {
+            "bundle": bundle,
+            "inverseVertical": pilot_required(
+                "raw inverse vertical MM (15 modal inputs; exact WVM F/G families)"
+            ),
+            "shared": pilot_required("shared U,V,W horizontal reconstruction"),
+            "derivatives": pilot_required(
+                "per-target derivative horizontal reconstruction"
+            ),
+            "pointwise": pilot_required(
+                "four streamed pointwise advection expressions"
+            ),
+            "forwardHorizontal": pilot_required(forward_horizontal_stage),
+            "movement": pilot_required(movement_stage),
+            "forwardVertical": pilot_required(
+                "raw forward vertical MM (4 modal targets; exact WVM F/G families)"
+            ),
+            "total": pilot_required(
+                "authoritative production-lifetime streamed four-target spectral-flux composition"
+            ),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            pilot_errors.append(float(error))
+    pilot_control_id = "pipeline-production-lifetime-wvm-direct-authoritative"
+    pilot_candidate_id = (
+        "pipeline-production-lifetime-streaming-pruned-tile16-authoritative"
+    )
+    if (
+        set(pilot_cells) != {pilot_control_id, pilot_candidate_id}
+        or len(fixture_hashes) != 1
+        or len(wvm_commits) != 1
+    ):
+        return preliminary
+    pilot_control = pilot_cells[pilot_control_id]
+    pilot_candidate = pilot_cells[pilot_candidate_id]
+    pilot_time_ratio = pilot_candidate["total"] / pilot_control["total"]
+    pilot_resident_ratio = (
+        pilot_candidate["resident"] / pilot_control["resident"]
+    )
+    pilot_observed_ratio = (
+        pilot_candidate["observed"] / pilot_control["observed"]
+    )
+    pilot_rows: list[str] = []
+    for provider_id in (pilot_control_id, pilot_candidate_id):
+        cell = pilot_cells[provider_id]
+        run_id = cell["bundle"].result["run"]["id"]
+        pilot_rows.append(
+            "<tr>"
+            f'<th scope="row"><a href="../../runs/{quote(run_id)}/index.html">'
+            f'{escaped(pilot_provider_ids[provider_id])}</a></th>'
+            f'<td class="numeric">{format_ms(cell["inverseVertical"])}</td>'
+            f'<td class="numeric">{format_ms(cell["shared"])}</td>'
+            f'<td class="numeric">{format_ms(cell["derivatives"])}</td>'
+            f'<td class="numeric">{format_ms(cell["pointwise"])}</td>'
+            f'<td class="numeric">{format_ms(cell["forwardHorizontal"])}</td>'
+            f'<td class="numeric">{format_ms(cell["movement"])}</td>'
+            f'<td class="numeric">{format_ms(cell["forwardVertical"])}</td>'
+            f'<td class="numeric"><strong>{format_ms(cell["total"])}</strong></td>'
+            f'<td class="numeric">{format_bytes(int(cell["resident"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(cell["observed"]))}</td>'
+            "</tr>"
+        )
+    pilot_maximum_error = max(pilot_errors) if pilot_errors else math.inf
+    fixture_hash = next(iter(fixture_hashes))
+    wvm_commit = next(iter(wvm_commits))
+    return preliminary + f"""
+      <h2>Authoritative WVM-exported 256² pilot</h2>
+      <p>The next immutable pair replaces the synthetic operator with one SHA-256-verified WVM export. It preserves WVM's separate wave-f and wave-g matrices, including distinct floating-K² groups that share an integer diagnostic key, and compares results by exact (k,l,j,target) coordinates after setup-only permutation.</p>
+      <p>Streaming tile 16 is {pilot_time_ratio:.3f}× the matched WVM-order control in the uninstrumented total, with {pilot_resident_ratio:.3f}× the algorithm-resident storage and {pilot_observed_ratio:.3f}× the observed process high water. Maximum WVM-oracle error is {pilot_maximum_error:.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>One authoritative-fixture pilot process per graph, two warmups and nine samples at 256²/N<sub>z</sub>=129/F4. Components remain diagnostic and non-additive; the separately sampled total is the performance result for this pilot.</caption>
+        <thead><tr><th scope="col">Graph</th><th scope="col">Inverse vertical</th><th scope="col">Shared inverse H</th><th scope="col">Four derivative inverse H</th><th scope="col">Pointwise</th><th scope="col">Four forward H</th><th scope="col">Movement</th><th scope="col">Forward vertical</th><th scope="col">Total</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{''.join(pilot_rows)}</tbody>
+      </table></div>
+      <p class="method-note"><strong>Authoritative fixture, preliminary campaign status:</strong> fixture <code>{escaped(fixture_hash)}</code> came from WVM commit <code>{escaped(wvm_commit)}</code>. This establishes the exact 15-to-4 operator bridge for one workload. It does not evaluate the 0.90 adoption gate; the multi-workload, repeated-round, capacity, and cross-Mac campaign remains outstanding.</p>
     """
 
 

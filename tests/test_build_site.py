@@ -350,6 +350,17 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("0.583× the observed process high water", issue_19_html)
             self.assertIn("Maximum mode-keyed error is 9.550e-20", issue_19_html)
             self.assertIn("They do not evaluate the 0.90 gate", issue_19_html)
+            self.assertIn("Authoritative WVM-exported 256² pilot", issue_19_html)
+            self.assertIn("Streaming tile 16 is 0.644×", issue_19_html)
+            self.assertIn("0.345× the algorithm-resident storage", issue_19_html)
+            self.assertIn("0.590× the observed process high water", issue_19_html)
+            self.assertIn("Maximum WVM-oracle error is 8.621e-16", issue_19_html)
+            self.assertIn(
+                "sha256:8a40d95ba922ddc7ba2e3e6c1c7b46f8f0b5337ba9af218849bc53705e0ce74c",
+                issue_19_html,
+            )
+            self.assertIn("451f4e612e31e0dfc9ed3003433bf36ddb7326f2", issue_19_html)
+            self.assertIn("does not evaluate the 0.90 adoption gate", issue_19_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )
