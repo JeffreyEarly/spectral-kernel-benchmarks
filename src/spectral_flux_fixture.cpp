@@ -6,6 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -256,11 +257,23 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
     const auto expectedModes = retainedHorizontalModes(fixture.workload);
     requireText(expectedModes.size() == nkl,
                 "Spectral-flux fixture retained horizontal mode count is inconsistent.");
+    using ModeKey = std::pair<std::int64_t, std::int64_t>;
+    std::map<ModeKey, std::size_t> sourceModeIndices;
     for (std::size_t mode = 0; mode < nkl; ++mode) {
-        requireText(rawModeKeys[2 * mode] == expectedModes[mode].k &&
-                        rawModeKeys[2 * mode + 1] == expectedModes[mode].l,
-                    "Spectral-flux fixture horizontal mode keys or order are inconsistent.");
+        const ModeKey key{rawModeKeys[2 * mode], rawModeKeys[2 * mode + 1]};
+        requireText(sourceModeIndices.emplace(key, mode).second,
+                    "Spectral-flux fixture horizontal mode keys are not unique.");
     }
+    std::vector<std::size_t> sourceForExpectedMode(nkl);
+    for (std::size_t mode = 0; mode < nkl; ++mode) {
+        const ModeKey key{expectedModes[mode].k, expectedModes[mode].l};
+        const auto source = sourceModeIndices.find(key);
+        requireText(source != sourceModeIndices.end(),
+                    "Spectral-flux fixture is missing a retained horizontal mode key.");
+        sourceForExpectedMode[mode] = source->second;
+    }
+    requireText(sourceModeIndices.size() == expectedModes.size(),
+                "Spectral-flux fixture contains an unexpected horizontal mode key.");
     fixture.modes = expectedModes;
     const auto expectedGroups = squaredWavenumberGroups(expectedModes);
     requireText(expectedGroups.size() == groupCount,
@@ -269,11 +282,33 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
         requireText(fixture.groupKeys[group] == expectedGroups[group].squaredModeKey,
                     "Spectral-flux fixture K2 group key is inconsistent.");
         for (std::size_t offset = 0; offset < expectedGroups[group].modeCount; ++offset) {
-            requireText(fixture.modeGroupIndices[expectedGroups[group].firstMode + offset] ==
-                            group,
+            const auto expectedMode = expectedGroups[group].firstMode + offset;
+            requireText(fixture.modeGroupIndices[sourceForExpectedMode[expectedMode]] == group,
                         "Spectral-flux fixture mode-to-group map is inconsistent.");
         }
     }
+    const auto inputBlock = checkedProduct(nj, inputCount, "modal input mode block");
+    const auto targetBlock = checkedProduct(nj, targetCount, "modal target mode block");
+    std::vector<Complex> reorderedInputs(fixture.modalInputs.size());
+    std::vector<Complex> reorderedTargets(fixture.expectedModalTargets.size());
+    std::vector<std::uint32_t> reorderedGroups(nkl);
+    for (std::size_t mode = 0; mode < nkl; ++mode) {
+        const auto source = sourceForExpectedMode[mode];
+        std::copy_n(fixture.modalInputs.begin() +
+                        static_cast<std::ptrdiff_t>(source * inputBlock),
+                    inputBlock,
+                    reorderedInputs.begin() +
+                        static_cast<std::ptrdiff_t>(mode * inputBlock));
+        std::copy_n(fixture.expectedModalTargets.begin() +
+                        static_cast<std::ptrdiff_t>(source * targetBlock),
+                    targetBlock,
+                    reorderedTargets.begin() +
+                        static_cast<std::ptrdiff_t>(mode * targetBlock));
+        reorderedGroups[mode] = fixture.modeGroupIndices[source];
+    }
+    fixture.modalInputs.swap(reorderedInputs);
+    fixture.expectedModalTargets.swap(reorderedTargets);
+    fixture.modeGroupIndices.swap(reorderedGroups);
     const std::vector<std::uint32_t> expectedInputFamilies{
         0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0};
     const std::vector<std::uint32_t> expectedTargetFamilies{0, 0, 1, 1};

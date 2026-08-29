@@ -333,17 +333,21 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
     require(len(expected_modes) == nkl, "Nkl does not match radial retention")
     raw_modes = unpack(payload_bytes["horizontal-mode-keys.i32le"], "i")
     actual_modes = list(zip(raw_modes[0::2], raw_modes[1::2]))
-    require(actual_modes == expected_modes,
-            "horizontal mode keys do not match retained WVM radial order")
+    require(len(set(actual_modes)) == nkl,
+            "horizontal mode keys must be unique")
+    require(set(actual_modes) == set(expected_modes),
+            "horizontal mode keys do not match radial retention")
+    actual_squared_keys = [k * k + l * l for k, l in actual_modes]
+    require(actual_squared_keys == sorted(actual_squared_keys),
+            "horizontal mode keys are not in nondecreasing radial groups")
     vertical_keys = unpack(payload_bytes["vertical-mode-keys.i32le"], "i")
     require(list(vertical_keys) == list(range(nj)),
             "vertical mode keys must be j=0..Nj-1")
     group_indices = unpack(payload_bytes["mode-group-indices.u32le"], "I")
     group_keys = unpack(payload_bytes["group-keys.u64le"], "Q")
-    expected_keys = [k * k + l * l for k, l in expected_modes]
     distinct_keys: list[int] = []
     expected_indices: list[int] = []
-    for key in expected_keys:
+    for key in actual_squared_keys:
         if not distinct_keys or distinct_keys[-1] != key:
             distinct_keys.append(key)
         expected_indices.append(len(distinct_keys) - 1)
