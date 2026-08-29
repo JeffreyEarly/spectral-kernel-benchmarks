@@ -1,0 +1,97 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.043727750000000003
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,31114080,0,0.0039043749999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,setup-component,single-plane FFTW planning,shared,setup-only,1052672,0,0.44247474999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,setup-component,vertical matrix preparation,shared,setup-only,358774800,0,0.059237040999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,0,0.0038940419999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,1,0.0038829160000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,2,0.003877208
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,3,0.0038762919999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,4,0.0038746660000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,5,0.0038862499999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,forward,executed,543178752,6,0.0038804999999999998
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,0,0.002203792
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,1,0.0021836669999999998
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,2,0.002190708
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,3,0.002192917
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,4,0.0022069580000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,5,0.0022009170000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,forward,executed,363528192,6,0.002183
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,0,0.0044883340000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,1,0.0045436249999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,2,0.004516333
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,3,0.0045045420000000003
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,4,0.0045763330000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,5,0.0045203329999999996
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,plane-major compact staging and blocked split transpose,forward,executed,377761536,6,0.0046132500000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,0,0.010873917
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,1,0.011007209
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,2,0.010878709
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,3,0.010902791
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,4,0.010879333999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,5,0.010873875
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,forward,executed,1284468480,6,0.010888375
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,0,0.0080162500000000008
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,1,0.0079438749999999995
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,2,0.0080780409999999993
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,3,0.0080040000000000007
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,4,0.0079968330000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,5,0.0079634579999999996
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,forward,executed,515443344,6,0.0080524589999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,0,0.0024832919999999998
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,1,0.00248475
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,2,0.0021943750000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,3,0.0020933340000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,4,0.0020907920000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,5,0.0020915410000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,component,mode-keyed modal work,modal,executed,155570400,6,0.0020909169999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,0,0.0089591670000000005
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,1,0.0087543340000000008
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,2,0.0089099999999999995
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,3,0.0088377079999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,4,0.0087627499999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,5,0.0087033330000000006
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive,raw vertical MM,inverse,executed,515443344,6,0.0087913750000000006
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,0,0.0062959579999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,1,0.0062987499999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,2,0.0062736249999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,3,0.0062812500000000004
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,4,0.0062909589999999996
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,5,0.0062782910000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,adapter-component,"blocked split load, compact staging, embed, and zero fill",inverse,executed,650407680,6,0.0062538749999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,0,0.0021994580000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,1,0.0021827090000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,2,0.0021974160000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,3,0.00218725
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,4,0.0021824169999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,5,0.002183375
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,selected-kx complex column FFTs,inverse,executed,363528192,6,0.0021766250000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,0,0.0038929580000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,1,0.003886292
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,2,0.0038890830000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,3,0.003883208
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,4,0.003884167
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,5,0.0038973329999999998
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,primitive-component,real row FFTs,inverse,executed,543178752,6,0.0038977500000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,0,0.012768417000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,1,0.012740041000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,2,0.012629417
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,3,0.012716
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,4,0.012687541
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,5,0.012699667
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,retained-operator-total,streaming pruned compact split horizontal operator,inverse,executed,1557114624,6,0.012709208
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,0,2.4290999999999998e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,1,3.1792000000000003e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,2,2.3666999999999999e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,3,2.4332999999999999e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,4,1.9916999999999999e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,5,3.1625000000000003e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,diagnostic-component,batch scheduler empty dispatch,shared,executed,0,6,1.7541999999999999e-05
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,setup-component,release correctness-only benchmark storage,shared,setup-only,1442499072,0,3.625e-06
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,0,0.045146499999999999
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,1,0.044636792000000002
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,2,0.045311125000000001
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,3,0.043679999999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,4,0.042976542
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,5,0.042509582999999997
+20260829T161605053549Z-matilda-2,pipeline-streaming-pruned-compact-split,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,4028040192,6,0.043099125000000002

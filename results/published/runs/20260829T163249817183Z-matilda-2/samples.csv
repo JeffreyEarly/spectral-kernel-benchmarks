@@ -1,0 +1,14 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.040023000000000003
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,31114080,0,0.0038500000000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,setup-component,FFTW planning,shared,setup-only,543178752,0,0.466803792
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,setup-component,vertical matrix preparation,shared,setup-only,717549600,0,0.051559000000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,0,0.014551084000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,0,0.016730834
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,adapter-component,logical retained provider-order view,forward,elided,0,,
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,0,0.020326250000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,0,0.0055154169999999999
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,0,0.020375750000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,0,0.0024085420000000001
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,setup-component,release correctness-only benchmark storage,shared,setup-only,1442499072,0,3.3330000000000001e-06
+20260829T163249817183Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,0,0.083264833999999996

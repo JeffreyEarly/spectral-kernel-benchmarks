@@ -43,10 +43,13 @@ class PublicationValidationTests(unittest.TestCase):
         for experiment_id in (
             "issue-003-fftw-production-baseline",
             "issue-008-vertical-projection-gemm",
-            "issue-009-combined-spectral-pipeline",
             "issue-013-ordering-packing-crossover",
         ):
             self.assertEqual("complete", experiment_phases[experiment_id])
+        self.assertEqual(
+            "collecting",
+            experiment_phases["issue-009-combined-spectral-pipeline"],
+        )
         fftw_production_reference = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
@@ -494,6 +497,18 @@ class PublicationValidationTests(unittest.TestCase):
             (published / "orphan.csv").write_text("run_id\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "missing from the catalog"):
                 load_and_validate(published)
+
+    def test_reviewed_decision_analysis_is_not_a_run_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            published = self.copy_publication(Path(temporary_directory))
+            decisions = published / "decisions"
+            decisions.mkdir(exist_ok=True)
+            (decisions / "issue-011-example.json").write_text(
+                json.dumps({"schema": "spectral-kernel-cross-mac-reference-analysis-v1"}) + "\n",
+                encoding="utf-8",
+            )
+            catalog, bundles = load_and_validate(published)
+            self.assertEqual(len(catalog["runs"]), len(bundles))
 
     def test_new_run_must_use_run_id_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
