@@ -2241,6 +2241,24 @@ int main() {
                     "production-lifetime flux allocation ledger");
         }
 
+        {
+            skbench::RunOptions missingFixture;
+            missingFixture.kernel = "production-lifetime-flux";
+            missingFixture.profile = "smoke";
+            missingFixture.boundaryPolicy = "wvm-direct";
+            missingFixture.verticalGemmFamily = "k2-grouped";
+            missingFixture.spectralFluxFixture =
+                "this-authoritative-spectral-flux-fixture-does-not-exist.bin";
+            bool rejected = false;
+            try {
+                static_cast<void>(skbench::runBenchmark(missingFixture));
+            } catch (const std::runtime_error&) {
+                rejected = true;
+            }
+            require(rejected,
+                    "requested authoritative fixture must not fall back to synthetic data");
+        }
+
         skbench::RunOptions tiledPipelineOptions;
         tiledPipelineOptions.kernel = "spectral-pipeline";
         tiledPipelineOptions.boundaryPolicy =

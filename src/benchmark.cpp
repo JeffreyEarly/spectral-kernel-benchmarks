@@ -3954,6 +3954,9 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
 }
 
 BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
+    if (!options.spectralFluxFixture.empty()) {
+        return runAuthoritativeProductionLifetimeFluxBenchmark(options);
+    }
     if (options.boundaryPolicy != "wvm-direct" &&
         options.boundaryPolicy != "streaming-pruned-compact-split") {
         throw std::invalid_argument(
@@ -5297,6 +5300,11 @@ BenchmarkReport runPrunedHorizontalBenchmark(const RunOptions& options) {
 }
 
 BenchmarkReport runBenchmark(const RunOptions& options) {
+    if (!options.spectralFluxFixture.empty() &&
+        options.kernel != "production-lifetime-flux") {
+        throw std::invalid_argument(
+            "--spectral-flux-fixture is valid only for production-lifetime-flux.");
+    }
     if (options.kernel == "production-lifetime-flux")
         return runProductionLifetimeFluxBenchmark(options);
     if (options.kernel == "vertically-batched-advection")

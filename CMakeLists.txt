@@ -36,12 +36,14 @@ else()
 endif()
 
 add_library(skbench_core
+    src/authoritative_spectral_flux.cpp
     src/benchmark.cpp
     src/dealiased_convolution.cpp
     src/fftw_provider.cpp
     src/pruned_fftw_provider.cpp
     src/json.cpp
     src/model.cpp
+    src/spectral_flux_fixture.cpp
     src/vertical_gemm.cpp
     src/vdsp_provider.cpp)
 target_compile_features(skbench_core PUBLIC cxx_std_20)
@@ -142,6 +144,7 @@ if(SKBENCH_BUILD_TESTS)
         set_tests_properties(skbench-cli-vertically-batched-advection-explicit skbench-cli-vertically-batched-advection-fftwpp PROPERTIES ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     endif()
     set_tests_properties(skbench-cli-validate PROPERTIES TIMEOUT 120)
+    set_tests_properties(skbench-unit PROPERTIES ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     set_tests_properties(skbench-cli-pruned-horizontal PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-pruned-horizontal-split PROPERTIES TIMEOUT 120)
     set_tests_properties(skbench-cli-retained-view PROPERTIES TIMEOUT 120)

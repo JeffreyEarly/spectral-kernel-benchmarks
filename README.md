@@ -296,6 +296,17 @@ See [the benchmark contract](docs/benchmark-contract.md) and [the v1 JSON schema
 
 Issue #19 adds the `production-lifetime-flux` kernel. It compares the frozen WVM-order direct graph with the streaming pruned fixed tile-16 graph over the same streamed four-target lifetime: reconstruct shared `U,V,W` once, reuse one three-derivative volume and one target volume, and return four modal targets. Development runs use a deterministic synthetic fixture and are necessarily preliminary. Reference runs require the versioned WVM export and provenance defined by [the WVM spectral-flux fixture contract](docs/wvm-spectral-flux-fixture-contract.md).
 
+The authoritative bridge does not assume one vertical matrix for every field. It verifies WVM's `wave-f` and `wave-g` matrix families and the fixed 15-input/four-target family map, then partitions fields during setup so the existing optimized complex and split-real providers remain the timed vertical kernels. A requested fixture is strict: prepare it from its manifest and payloads, pass the resulting binary explicitly, and treat any missing file, hash, dimension, convention, or oracle mismatch as a failed run rather than falling back to the synthetic fixture.
+
+Run the bounded 256-squared authoritative pilot pair with:
+
+```sh
+python3 tools/run_production_lifetime_flux_authoritative_pilot.py \
+  --fixture /path/to/wvm-spectral-flux-fixture
+```
+
+The pilot publishes one exact-operator correctness and descriptive-performance increment only. It does not evaluate the issue #19 multi-workload adoption gate.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

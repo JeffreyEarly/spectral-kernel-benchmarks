@@ -733,6 +733,35 @@ struct FixtureProvenanceRecord {
     bool authoritative = false;
 };
 
+struct SpectralFluxFixture {
+    std::string fixtureId;
+    std::string waveVortexModelRepository;
+    std::string waveVortexModelCommit;
+    std::string generatorIdentity;
+    std::string fixtureHash;
+    std::string normalization;
+    std::string modeMapping;
+    std::string derivativeConvention;
+    Workload workload;
+    double lz = 0.0;
+    double latitude = 0.0;
+    double pointwiseScale = 0.0;
+    std::vector<RetainedMode> modes;
+    std::vector<std::uint32_t> modeGroupIndices;
+    std::vector<std::uint64_t> groupKeys;
+    std::vector<std::uint32_t> inputFieldFamilies;
+    std::vector<std::uint32_t> targetFieldFamilies;
+    std::vector<double> inverseOperators;
+    std::vector<double> forwardOperators;
+    std::vector<Complex> modalInputs;
+    std::vector<Complex> expectedModalTargets;
+};
+
+SpectralFluxFixture loadPreparedSpectralFluxFixture(
+    const std::filesystem::path& path);
+GroupedVerticalOperators spectralFluxOperatorFamily(
+    const SpectralFluxFixture& fixture, std::size_t family);
+
 struct BenchmarkReport {
     std::string schema = "spectral-kernel-benchmark-v1";
     std::string status;
@@ -809,6 +838,7 @@ struct RunOptions {
     std::size_t warmups = 0;
     std::size_t samples = 0;
     std::uint64_t seed = 129;
+    std::filesystem::path spectralFluxFixture;
     std::filesystem::path outputJson;
 };
 
@@ -824,6 +854,8 @@ BenchmarkReport runOrderingPackingBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralBoundaryBenchmark(const RunOptions& options);
 BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options);
 BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options);
+BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
+    const RunOptions& options);
 BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options);
 BenchmarkReport runVerticallyBatchedAdvectionBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);

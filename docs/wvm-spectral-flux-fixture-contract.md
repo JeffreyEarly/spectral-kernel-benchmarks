@@ -64,6 +64,8 @@ The minimum logical payloads are:
 
 Operator payloads may deduplicate identical matrices. Deduplication is represented by stable operator keys and field-to-key mappings; it must not assume that matrices are shared when WVM says they differ. Benchmark setup may permute or split these immutable matrices for a provider, but the prepared representation and its permutation hash remain setup metadata.
 
+The v1 WVM exporter supplies two deduplicated K-squared families, `wave-f` and `wave-g`. Inputs use the fixed family map `[F,F,G,F,F,G,F,F,G,G,G,F,G,G,F]`; targets use `[F,F,G,G]`. The benchmark may partition those fields into family-contiguous provider calls during setup. That partition is a physical representation choice, not a change to the logical field order, and it is excluded from primitive and uninstrumented-total timing.
+
 ## Validation before timing
 
 Fixture loading and oracle reordering occur outside all timed regions. Validation must reject the fixture before timing if any of the following fails:
@@ -76,6 +78,20 @@ Fixture loading and oracle reordering occur outside all timed regions. Validatio
 6. independent comparison of all four outputs by `(k,l,j,target)`.
 
 Reference Float64 correctness requires maximum scale-normalized error and relative L2 error at most `1e-12`. Oracle permutation, representation conversion used only for comparison, and error evaluation remain outside timing.
+
+## Strict preparation and pilot execution
+
+`skbench` consumes a prepared binary so the timed C++ process does not need a JSON dependency. Preparation is an obligatory validation stage, not an optional converter:
+
+```sh
+python3 tools/prepare_spectral_flux_fixture.py \
+  --fixture /path/to/export-directory \
+  --output /new/path/prepared-fixture.bin
+```
+
+The preparer rejects a dirty or non-authoritative WVM export, duplicate or unsafe payload paths, unexpected payloads, malformed metadata, byte-count or SHA-256 mismatches, non-finite values, incorrect mode keys or K-squared groups, normalization differences, and any change to the field/operator or oracle contract. It refuses to overwrite an existing prepared file. The C++ loader independently checks its binary version, byte order, authoritative marker, dimensions, retained mode order, group map, family map, finite values, DC reality, and absence of trailing bytes.
+
+An explicit `--spectral-flux-fixture prepared-fixture.bin` selects the authoritative path. Omitting the option retains the clearly labeled synthetic development harness; supplying an invalid prepared path fails before planning or timing. The paired pilot runner performs preparation, runs both frozen graphs in isolated processes, requires the same fixture hash and WVM commit in both result bundles, and verifies every target against the exported oracle. Its result classification remains `preliminary` because one 256-squared pilot cannot substitute for the preregistered multi-workload reference campaign.
 
 ## Result provenance
 

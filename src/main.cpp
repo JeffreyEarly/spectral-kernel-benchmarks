@@ -14,6 +14,7 @@ void usage(std::ostream& output) {
            << "  skbench list\n"
            << "  skbench validate [--profile NAME]\n"
            << "  skbench run [--kernel fft|pruned-horizontal|vertical-gemm|ordering-packing|spectral-boundary|spectral-pipeline|production-lifetime-flux|dealiased-convolution|vertically-batched-advection] [--profile NAME] [--providers both|fftw] [--workers N]\n"
+           << "              [--spectral-flux-fixture PREPARED.bin]\n"
            << "              [--fftw-planning estimate|measure|patient|exhaustive]\n"
            << "              [--fftw-layout interleaved|split|paired]\n"
            << "              [--fftw-spectrum-order wvm|plane-major]\n"
@@ -190,6 +191,7 @@ int main(int argc, char** argv) {
                 else if (key == "--warmups") options.warmups = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--samples") options.samples = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--seed") options.seed = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--spectral-flux-fixture") options.spectralFluxFixture = requireValue(argc, argv, index);
                 else if (key == "--output") options.outputJson = requireValue(argc, argv, index);
                 else throw std::invalid_argument("Unknown run option: " + std::string(key));
             }
