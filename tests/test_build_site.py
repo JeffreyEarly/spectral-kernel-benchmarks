@@ -70,6 +70,10 @@ class BuildSiteTests(unittest.TestCase):
                 output / "artifacts" / "decisions" /
                 "issue-011-cross-mac-portability.json"
             )
+            issue_19_calibration_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-019-authoritative-calibration-lyra-v1.json"
+            )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
@@ -96,6 +100,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
+            self.assertTrue(issue_19_calibration_artifact.is_file())
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)
@@ -376,6 +381,21 @@ class BuildSiteTests(unittest.TestCase):
                 "The immutable run pages retain the full primitive vertical",
                 issue_19_html,
             )
+            self.assertIn(
+                "Machine-local scheduling calibration for the reference campaign",
+                issue_19_html,
+            )
+            self.assertIn("Two warmups and seven samples per isolated cell", issue_19_html)
+            self.assertIn(
+                "horizontal-performance-12--vertical-dynamic-total-16",
+                issue_19_html,
+            )
+            self.assertIn("886.3 ms geometric total", issue_19_html)
+            self.assertIn("581.4 ms geometric total", issue_19_html)
+            self.assertIn("maximum oracle error across all 16 cells is 1.076e-15", issue_19_html)
+            self.assertIn("these preliminary samples freeze one topology per graph", issue_19_html)
+            self.assertIn("do not compare the two graphs", issue_19_html)
+            self.assertIn("never reused as reference observations", issue_19_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

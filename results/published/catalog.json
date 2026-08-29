@@ -28396,6 +28396,422 @@
         "samplesSha256": "475d28ff67d9a394e870d35e5b00f73628831c47f55871ca6a7988d868a7c42f"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T214136Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214136Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214136Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "986d13d71a74f5bf5ef4b560ef59ff5feb1571eeb766e532467c755add36517c",
+        "samplesSha256": "df958d4a0bfddd37140171aa0985d1e8b6cabcf83f2f3964e35dadaeaa528ba2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214144Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214144Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214144Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "879b82e21789d4ae9eb973c8e3734662071a13e3d384616040ed6e766713eca2",
+        "samplesSha256": "2774bce32a06b0769abfd222b3e5e3edc1d7589322307e2105f6680abecf5236"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214150Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214150Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214150Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "315c037828b059cd731535a39191c069ef9ff3fde75b6d7dec4290db9da24bc8",
+        "samplesSha256": "ee0d43178b53c97a4a18784021fd10e1fa0b7c9563fde4538de0f5c9abea544d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214156Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214156Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214156Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "3e767fd721da9f53d14c8700153bc5e39e512143d709d68ce53738e90c47ece1",
+        "samplesSha256": "b869c276af366f7d265b477890506c1a4a34902aaa30c4aa22f2e857f85b74f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214204Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214204Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214204Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "3bbe378326ae7f8dda2a43d4bbb2f146a4ad6e6dd5793f6412f263771704f358",
+        "samplesSha256": "df63477a4243980d394058f6d14221410e94be2e5bb7919559ff743f683e23de"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214213Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214213Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214213Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "3e196b261a627db81afd8b80159f40e8994c60121bf6ab8f43eda53ceb71e9dc",
+        "samplesSha256": "49dfa07e0f67d8b2339740bd961ccc50d0017f835095ef9777b2b11017e23b41"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214219Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214219Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214219Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "cf384e56bf3b78e59f1ed045761927c7d09d0ebc495ea4f7b92328b644dd2afe",
+        "samplesSha256": "b9ee976e6a39dc7a643012a38d21c97113906a8b5d8c5668d9d420b0bd086055"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214225Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214225Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214225Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "4cc1240729c15840f822819de265750c34850860b0fd99d8431888c99992a6e2",
+        "samplesSha256": "389157c8a74ec119f6e71af709f5cc388d0ed726524a38add3d42331af2f03e1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214237Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214237Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214237Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "b960a209e2bd216fd460e71f0c6805006927bde6b03e0b9212e03170c007cf93",
+        "samplesSha256": "504fa6b3b5715e5950e31f9ea842ebe80c6b9d56e38e762f70349b049805fe45"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214348Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214348Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214348Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "f90cb3090611bd13081b5defcd2d5dc97e8dde2cf37f108d77eeec8e005a02be",
+        "samplesSha256": "c0ad19bc5cba312b24dbfc2e668f4827c03aca38e567db51a7c9872392fd2b50"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214439Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214439Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214439Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "3e790bc62b2414c18def6205ccf0104a9a2d9d7913fec4aec7b90f7b29f84665",
+        "samplesSha256": "7cf79a2cce8f7ca8349d66b5a2f010934003a1949617b5bf8b8c24d4188df46b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214529Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214529Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214529Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "7ed0b40dab5cb221743c2a70e6186a17e8a4413ed0eb9a961912c8191db3a44f",
+        "samplesSha256": "9a9861bd08eae92ff0748bb7fbe8ca66085fdcb34a899b8c524ddf18200f70e9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214640Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214640Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214640Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "02824b50f4249763dd5ec47735fe605a3decbacbcede551e02d129bf4c973dfc",
+        "samplesSha256": "e3ac480c2e83e53af8a90e41ae7a016bdb7355dd561121942d7ff5adf7ca085f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214751Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=16).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214751Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214751Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "05183285f5202f99eec89b5cbe07dc387ee2ad08074e68f82d5afafc46411914",
+        "samplesSha256": "f8a9e7b9370d9cab94ead3f26db1b4d5d9947aaf1e889ab8d46fcdda5759b0b5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214842Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214842Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T214842Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "3875eaf624f1b092951b6fff747b2a99fdb1918904828d704795dff08692d8c1",
+        "samplesSha256": "3020750ba20f618284cacfd34242e1b60ea1c0a15c43d658802d5a236b0b40ea"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T214933Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+      "campaignPhase": "authoritative-topology-calibration",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative issue #19 machine-local scheduling calibration on Lyra at benchmark commit 18ccde6; two warmups and seven samples per topology cell select one frozen topology per graph across 256\u00b2/Nz129 and 512\u00b2/Nz257. Calibration is excluded from reference/adoption statistics and does not evaluate the 0.90 gate.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T214933Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T214933Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "742c7310ba24e59327abfd12eb47e71808a4c9f2c8e095da896f27f64d3ce690",
+        "samplesSha256": "53c495217b107910e197c29a989be200a14bd2a19ec2455810d19a71e24acdc9"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

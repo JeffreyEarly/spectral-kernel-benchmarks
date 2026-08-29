@@ -1,0 +1,147 @@
+{
+  "schema": "spectral-kernel-authoritative-flux-calibration-publication-v1",
+  "experimentId": "issue-019-production-lifetime-spectral-flux-composition",
+  "incrementId": "production-lifetime-flux-authoritative-calibration-v1",
+  "createdAtUtc": "2026-08-29T21:51:34Z",
+  "classification": "timing-only-calibration",
+  "eligibleForReference": false,
+  "adoptionGateEvaluated": false,
+  "sizeDependentDispatchAllowed": false,
+  "benchmarkCommit": "18ccde6d36b920a186a601b977d2513d77f9fb99",
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "machine": {
+    "hostname": "lyra.ad.nwra.com",
+    "cpuBrand": "Apple M4 Max",
+    "hardwareModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "totalPhysicalCores": 16,
+    "physicalMemoryBytes": 137438953472,
+    "macOS": "26.6.1",
+    "macOSBuild": "25G76",
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "warmups": 2,
+  "samplesPerCell": 7,
+  "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time across the two profiles with a deterministic worker-count tie break.",
+  "method": "Each graph/topology/profile cell ran in an isolated process. The topology score is the geometric mean of the two uninstrumented-total medians. Calibration samples select one machine-local topology per frozen graph and never enter reference ratios, empirical intervals, regression checks, or the 0.90 adoption gate.",
+  "profiles": [
+    {
+      "id": "wvm-current-256-nz129-f4",
+      "dimensions": {"Nx": 256, "Ny": 256, "Nz": 129, "Nj": 85, "fields": 4},
+      "fixtureHash": "sha256:ef17efc2fc760709a9a06b252d0bc1a8fb909620461755a0705516195b20f51b"
+    },
+    {
+      "id": "wvm-current-512-nz257-f4",
+      "dimensions": {"Nx": 512, "Ny": 512, "Nz": 257, "Nj": 170, "fields": 4},
+      "fixtureHash": "sha256:4b093e014b335156137f43eac33fb1ce5ab43dcbd6075e6858dc7265ff153251"
+    }
+  ],
+  "maximumCorrectnessError": 1.0758873768814454e-15,
+  "graphs": [
+    {
+      "candidateId": "production-lifetime-wvm-direct-authoritative",
+      "label": "WVM-order control",
+      "selectedTopologyId": "horizontal-performance-12--vertical-dynamic-total-16",
+      "topologies": [
+        {
+          "id": "horizontal-performance-12--vertical-dynamic-total-16",
+          "horizontalWorkers": 12,
+          "verticalSchedule": "outer-dynamic",
+          "verticalWorkers": 16,
+          "geometricSeconds": 0.8862899112187721,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214136Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 0.304495667, "maximumCorrectnessError": 9.78006552412832e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214933Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 2.579707667, "maximumCorrectnessError": 1.0758873768814454e-15}
+          ]
+        },
+        {
+          "id": "horizontal-performance-12--vertical-static-performance-12",
+          "horizontalWorkers": 12,
+          "verticalSchedule": "outer-static",
+          "verticalWorkers": 12,
+          "geometricSeconds": 0.8900227649560344,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214156Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 0.309872625, "maximumCorrectnessError": 9.78006552412832e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214237Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 2.556342375, "maximumCorrectnessError": 1.0758873768814454e-15}
+          ]
+        },
+        {
+          "id": "horizontal-total-16--vertical-dynamic-total-16",
+          "horizontalWorkers": 16,
+          "verticalSchedule": "outer-dynamic",
+          "verticalWorkers": 16,
+          "geometricSeconds": 0.8935330129251589,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214204Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 0.311484792, "maximumCorrectnessError": 9.377574469776825e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214529Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 2.563211, "maximumCorrectnessError": 1.0437808098907416e-15}
+          ]
+        },
+        {
+          "id": "horizontal-total-16--vertical-static-performance-12",
+          "horizontalWorkers": 16,
+          "verticalSchedule": "outer-static",
+          "verticalWorkers": 12,
+          "geometricSeconds": 0.8939158859695878,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214225Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 0.312862334, "maximumCorrectnessError": 9.03367599179885e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214640Z-issue19-authoritative-wvm-direct-lyra", "medianSeconds": 2.554112542, "maximumCorrectnessError": 1.0758873768814454e-15}
+          ]
+        }
+      ]
+    },
+    {
+      "candidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "label": "Streaming tile 16",
+      "selectedTopologyId": "horizontal-performance-12--vertical-dynamic-total-16",
+      "topologies": [
+        {
+          "id": "horizontal-performance-12--vertical-dynamic-total-16",
+          "horizontalWorkers": 12,
+          "verticalSchedule": "outer-dynamic",
+          "verticalWorkers": 16,
+          "geometricSeconds": 0.5813777144410563,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214144Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 0.199107583, "maximumCorrectnessError": 1.0516027957437732e-15},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214842Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 1.697574958, "maximumCorrectnessError": 1.0437808098907416e-15}
+          ]
+        },
+        {
+          "id": "horizontal-performance-12--vertical-static-performance-12",
+          "horizontalWorkers": 12,
+          "verticalSchedule": "outer-static",
+          "verticalWorkers": 12,
+          "geometricSeconds": 0.5923151374669945,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214150Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 0.203998667, "maximumCorrectnessError": 8.846786061233028e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214348Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 1.719801542, "maximumCorrectnessError": 1.0437808098907416e-15}
+          ]
+        },
+        {
+          "id": "horizontal-total-16--vertical-dynamic-total-16",
+          "horizontalWorkers": 16,
+          "verticalSchedule": "outer-dynamic",
+          "verticalWorkers": 16,
+          "geometricSeconds": 0.5864027114126744,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214213Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 0.201932166, "maximumCorrectnessError": 1.0095738536322355e-15},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214439Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 1.702889375, "maximumCorrectnessError": 9.900007488643085e-16}
+          ]
+        },
+        {
+          "id": "horizontal-total-16--vertical-static-performance-12",
+          "horizontalWorkers": 16,
+          "verticalSchedule": "outer-static",
+          "verticalWorkers": 12,
+          "geometricSeconds": 0.5965526687982483,
+          "runs": [
+            {"profile": "wvm-current-256-nz129-f4", "runId": "20260829T214219Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 0.205041875, "maximumCorrectnessError": 9.461596228388836e-16},
+            {"profile": "wvm-current-512-nz257-f4", "runId": "20260829T214751Z-issue19-authoritative-streaming-pruned-compact-split-lyra", "medianSeconds": 1.7356215, "maximumCorrectnessError": 1.0437808098907416e-15}
+          ]
+        }
+      ]
+    }
+  ]
+}

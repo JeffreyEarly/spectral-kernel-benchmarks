@@ -5471,9 +5471,193 @@ def production_lifetime_flux_scaleout_synthesis(
     """
 
 
+def production_lifetime_flux_calibration_synthesis(
+    bundles: list[PublishedBundle], evidence: dict | None,
+) -> str:
+    if evidence is None:
+        return ""
+    expected_schema = (
+        "spectral-kernel-authoritative-flux-calibration-publication-v1"
+    )
+    if evidence.get("schema") != expected_schema:
+        raise ValueError("issue #19 authoritative calibration has the wrong schema")
+    increment_id = "production-lifetime-flux-authoritative-calibration-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "preliminary"
+    ]
+    if len(cohort) != 16:
+        return ""
+    by_run = {bundle.result["run"]["id"]: bundle for bundle in cohort}
+    profiles = {item["id"]: item for item in evidence.get("profiles", [])}
+    if set(profiles) != {
+        "wvm-current-256-nz129-f4", "wvm-current-512-nz257-f4",
+    }:
+        raise ValueError("issue #19 calibration has the wrong profile set")
+    provider_ids = {
+        "production-lifetime-wvm-direct-authoritative":
+            "pipeline-production-lifetime-wvm-direct-authoritative",
+        "production-lifetime-streaming-pruned-tile16-authoritative":
+            "pipeline-production-lifetime-streaming-pruned-tile16-authoritative",
+    }
+    profile_order = ["wvm-current-256-nz129-f4", "wvm-current-512-nz257-f4"]
+    rows: list[str] = []
+    selected_descriptions: list[str] = []
+    seen_runs: set[str] = set()
+    for graph in evidence.get("graphs", []):
+        candidate_id = graph["candidateId"]
+        expected_provider_id = provider_ids.get(candidate_id)
+        if expected_provider_id is None:
+            raise ValueError(
+                f"issue #19 calibration has unknown candidate {candidate_id}"
+            )
+        selected_topology = graph["selectedTopologyId"]
+        selected_rows = 0
+        for topology in graph.get("topologies", []):
+            topology_id = topology["id"]
+            selected = topology_id == selected_topology
+            selected_rows += int(selected)
+            run_cells: dict[str, tuple[str, float, float]] = {}
+            for run_evidence in topology.get("runs", []):
+                profile = run_evidence["profile"]
+                run_id = run_evidence["runId"]
+                bundle = by_run.get(run_id)
+                if bundle is None:
+                    raise ValueError(
+                        f"issue #19 calibration lacks published run {run_id}"
+                    )
+                if run_id in seen_runs:
+                    raise ValueError(
+                        f"issue #19 calibration repeats published run {run_id}"
+                    )
+                seen_runs.add(run_id)
+                result = bundle.result
+                run = result["run"]
+                providers = result.get("providers", [])
+                expected_scheduling_id = (
+                    f'horizontal-outer-{topology["horizontalWorkers"]};'
+                    f'vertical-{topology["verticalSchedule"]}-'
+                    f'{topology["verticalWorkers"]}-per-operator-family'
+                )
+                if (
+                    run.get("profile") != profile
+                    or run.get("warmups") != evidence["warmups"]
+                    or run.get("samples") != evidence["samplesPerCell"]
+                    or len(providers) != 1
+                    or providers[0].get("id") != expected_provider_id
+                    or providers[0].get("schedulingId") != expected_scheduling_id
+                    or result.get("environment", {}).get("gitCommit") !=
+                        evidence["benchmarkCommit"][:12]
+                    or result.get("environment", {}).get("gitDirty") is not False
+                ):
+                    raise ValueError(
+                        f"issue #19 calibration metadata disagrees for {run_id}"
+                    )
+                fixture = result.get("provenance", {}).get(
+                    "spectralFluxFixture", {}
+                )
+                if (
+                    fixture.get("fixtureHash") != profiles[profile]["fixtureHash"]
+                    or fixture.get("waveVortexModelCommit") !=
+                        evidence["waveVortexModelCommit"]
+                ):
+                    raise ValueError(
+                        f"issue #19 calibration fixture disagrees for {run_id}"
+                    )
+                total_matches = [
+                    item for item in providers[0].get("timings", [])
+                    if item.get("scope") == "uninstrumented-total"
+                    and item.get("stage") == (
+                        "authoritative production-lifetime streamed four-target "
+                        "spectral-flux composition"
+                    )
+                ]
+                error = maximum_correctness_error(providers[0])
+                if (
+                    len(total_matches) != 1
+                    or error is None
+                    or not math.isclose(
+                        float(total_matches[0]["medianSeconds"]),
+                        float(run_evidence["medianSeconds"]),
+                        rel_tol=0.0, abs_tol=1e-15,
+                    )
+                    or not math.isclose(
+                        float(error),
+                        float(run_evidence["maximumCorrectnessError"]),
+                        rel_tol=0.0, abs_tol=0.0,
+                    )
+                ):
+                    raise ValueError(
+                        f"issue #19 calibration measurements disagree for {run_id}"
+                    )
+                run_cells[profile] = (
+                    run_id, float(run_evidence["medianSeconds"]), float(error)
+                )
+            if set(run_cells) != set(profile_order):
+                raise ValueError(
+                    f"issue #19 calibration topology {topology_id} is incomplete"
+                )
+            geometric = math.sqrt(
+                run_cells[profile_order[0]][1] * run_cells[profile_order[1]][1]
+            )
+            if not math.isclose(
+                geometric, float(topology["geometricSeconds"]),
+                rel_tol=0.0, abs_tol=1e-15,
+            ):
+                raise ValueError(
+                    f"issue #19 calibration score disagrees for {topology_id}"
+                )
+            profile_cells = []
+            for profile in profile_order:
+                run_id, seconds, _ = run_cells[profile]
+                profile_cells.append(
+                    f'<td class="numeric"><a href="../../runs/{quote(run_id)}/index.html">'
+                    f'{format_ms(seconds)}</a></td>'
+                )
+            rows.append(
+                "<tr>"
+                f'<th scope="row">{escaped(graph["label"])}</th>'
+                f'<td><code>{escaped(topology_id)}</code>'
+                f'{"<br><strong>selected</strong>" if selected else ""}</td>'
+                f'{"".join(profile_cells)}'
+                f'<td class="numeric">{format_ms(geometric)}</td>'
+                f'<td class="numeric">{topology["horizontalWorkers"]} / '
+                f'{topology["verticalWorkers"]}</td>'
+                f'<td>{escaped(topology["verticalSchedule"])}</td>'
+                "</tr>"
+            )
+        if selected_rows != 1:
+            raise ValueError(
+                f"issue #19 calibration must select one topology for {candidate_id}"
+            )
+        selected_score = next(
+            float(item["geometricSeconds"])
+            for item in graph["topologies"] if item["id"] == selected_topology
+        )
+        selected_descriptions.append(
+            f'{graph["label"]}: <code>{escaped(selected_topology)}</code> '
+            f'({format_ms(selected_score)} ms geometric total)'
+        )
+    if len(seen_runs) != 16 or len(selected_descriptions) != 2:
+        raise ValueError("issue #19 calibration evidence is incomplete")
+    return f"""
+      <h2>Machine-local scheduling calibration for the reference campaign</h2>
+      <p>This increment asks one narrow question: which single Lyra topology should each already-frozen graph carry into the repeated reference campaign? It changes only the P/T horizontal-worker and vertical-scheduling topology while holding the authoritative WVM fixtures, 15-to-4 operator, graph algorithms, tile size, FFTW configuration, normalization, and correctness oracle fixed.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Two warmups and seven samples per isolated cell. Times are uninstrumented-total medians; the score is the geometric mean across 256²/N<sub>z</sub>=129/F4 and 512²/N<sub>z</sub>=257/F4. P/T reports horizontal/vertical workers.</caption>
+        <thead><tr><th scope="col">Graph</th><th scope="col">Topology</th><th scope="col">256² total</th><th scope="col">512² total</th><th scope="col">Geometric total</th><th scope="col">P/T</th><th scope="col">Vertical schedule</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p>Both graphs independently select the preferred 12-performance-core horizontal / dynamic-16-core vertical topology, and in both cases it is the outright lowest geometric total: {'; '.join(selected_descriptions)}. The maximum oracle error across all 16 cells is {float(evidence["maximumCorrectnessError"]):.3e}.</p>
+      <p class="method-note"><strong>Timing-only calibration:</strong> these preliminary samples freeze one topology per graph and are never reused as reference observations. They do not compare the two graphs, evaluate the 0.90 adoption gate, justify size-dependent dispatch, or replace the primitive/component ledgers on the immutable run pages. The next campaign rebuilds the frozen graphs once, alternates them in repeated rounds, and computes candidate/control inference only from those new observations.</p>
+    """
+
+
 def production_lifetime_flux_synthesis(
     bundles: list[PublishedBundle],
     scaleout_evidence: dict | None = None,
+    calibration_evidence: dict | None = None,
 ) -> str:
     increment_id = "production-lifetime-flux-preliminary-harness-v1"
     cohort = [
@@ -5606,8 +5790,11 @@ def production_lifetime_flux_synthesis(
     scaleout = production_lifetime_flux_scaleout_synthesis(
         bundles, scaleout_evidence
     )
+    calibration = production_lifetime_flux_calibration_synthesis(
+        bundles, calibration_evidence
+    )
     if len(pilot) != 2:
-        return preliminary + scaleout
+        return preliminary + scaleout + calibration
     pilot_provider_ids = {
         "pipeline-production-lifetime-wvm-direct-authoritative":
             "WVM-order control",
@@ -5740,7 +5927,7 @@ def production_lifetime_flux_synthesis(
         <tbody>{''.join(pilot_rows)}</tbody>
       </table></div>
       <p class="method-note"><strong>Authoritative fixture, preliminary campaign status:</strong> fixture <code>{escaped(fixture_hash)}</code> came from WVM commit <code>{escaped(wvm_commit)}</code>. This establishes the exact 15-to-4 operator bridge for one workload. It does not evaluate the 0.90 adoption gate; the multi-workload, repeated-round, capacity, and cross-Mac campaign remains outstanding.</p>
-    """ + scaleout
+    """ + scaleout + calibration
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
@@ -5816,6 +6003,7 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
+    issue19_calibration_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -5849,7 +6037,7 @@ def build_experiment_page(
         synthesis = vertically_batched_advection_synthesis(related)
     elif experiment_id == "issue-019-production-lifetime-spectral-flux-composition":
         synthesis = production_lifetime_flux_synthesis(
-            related, issue19_scaleout_evidence
+            related, issue19_scaleout_evidence, issue19_calibration_evidence
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -6263,6 +6451,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     decision_artifacts = results_dir / "decisions"
     cross_mac_synthesis = None
     issue19_scaleout_evidence = None
+    issue19_calibration_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -6289,6 +6478,20 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #19 authoritative scale-out evidence has the wrong schema"
                 )
+        calibration_path = (
+            decision_artifacts /
+            "issue-019-authoritative-calibration-lyra-v1.json"
+        )
+        if calibration_path.is_file():
+            issue19_calibration_evidence = json.loads(
+                calibration_path.read_text(encoding="utf-8")
+            )
+            if issue19_calibration_evidence.get("schema") != (
+                "spectral-kernel-authoritative-flux-calibration-publication-v1"
+            ):
+                raise ValueError(
+                    "issue #19 authoritative calibration has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
 
@@ -6313,7 +6516,8 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         write_page(
             output_dir / "experiments" / experiment["id"] / "index.html",
             build_experiment_page(
-                experiment, bundles, issue19_scaleout_evidence
+                experiment, bundles, issue19_scaleout_evidence,
+                issue19_calibration_evidence,
             ),
         )
     write_page(
