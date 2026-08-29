@@ -1,0 +1,12 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,setup-shared-component,"strict authoritative fixture load, validation, and F/G preparation",shared,setup-only,14952049440,0,3.45522375
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,primitive,raw inverse vertical MM (15 modal inputs; exact WVM F/G families),inverse,executed,13484728320,0,0.41023537500000001
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,component,"shared U,V,W horizontal reconstruction",inverse,executed,1616904192,0,0.29677916700000001
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,component,per-target derivative horizontal reconstruction,inverse,executed,6467616768,0,1.1812911669999999
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,component,four streamed pointwise advection expressions,pointwise,executed,15091105792,0,0.15389470799999999
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,primitive,four streamed full horizontal forward FFTs,forward,executed,6476038144,0,0.069778041999999998
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,adapter-component,WVM-order triple extraction and target scatter,movement,executed,10280394752,0,1.4155516669999999
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,primitive,raw forward vertical MM (4 modal targets; exact WVM F/G families),forward,executed,3595927552,0,0.189475
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,setup-component,release prepared vertical operator source after provider preparation,shared,setup-only,12586914240,0,0
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,setup-component,release fixture and correctness-only storage,shared,setup-only,4730270400,0,0
+20260829T210554Z-issue19-authoritative-wvm-direct-lyra,pipeline-production-lifetime-wvm-direct-authoritative,uninstrumented-total,authoritative production-lifetime streamed four-target spectral-flux composition,forward,executed,27361050624,0,2.570373542

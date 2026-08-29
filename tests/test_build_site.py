@@ -361,6 +361,21 @@ class BuildSiteTests(unittest.TestCase):
             )
             self.assertIn("451f4e612e31e0dfc9ed3003433bf36ddb7326f2", issue_19_html)
             self.assertIn("does not evaluate the 0.90 adoption gate", issue_19_html)
+            self.assertIn(
+                "Authoritative larger-workload correctness and capacity scale-out",
+                issue_19_html,
+            )
+            self.assertIn("512²/Nz=257: 0.660×", issue_19_html)
+            self.assertIn("1024²/Nz=129: 0.195×", issue_19_html)
+            self.assertIn("512²/Nz=257: 0.625×", issue_19_html)
+            self.assertIn("1024²/Nz=129: 0.758×", issue_19_html)
+            self.assertIn("130.47 GiB—2.47 GiB over capacity", issue_19_html)
+            self.assertIn("while the WVM-order control requires 226.46 GiB", issue_19_html)
+            self.assertIn("excluded from the 0.90 adoption gate", issue_19_html)
+            self.assertIn(
+                "The immutable run pages retain the full primitive vertical",
+                issue_19_html,
+            )
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

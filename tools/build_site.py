@@ -5308,8 +5308,172 @@ def ordering_packing_closeout_synthesis(
     """
 
 
+def production_lifetime_flux_scaleout_synthesis(
+    bundles: list[PublishedBundle], evidence: dict | None,
+) -> str:
+    if evidence is None:
+        return ""
+    expected_schema = (
+        "spectral-kernel-authoritative-scaleout-capacity-publication-v1"
+    )
+    if evidence.get("schema") != expected_schema:
+        raise ValueError("issue #19 authoritative scale-out evidence has the wrong schema")
+    increment_id = "production-lifetime-flux-authoritative-scaleout-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "preliminary"
+    ]
+    if len(cohort) != 4:
+        return ""
+    by_run = {bundle.result["run"]["id"]: bundle for bundle in cohort}
+    candidate_labels = {
+        "production-lifetime-wvm-direct-authoritative": "WVM-order control",
+        "production-lifetime-streaming-pruned-tile16-authoritative":
+            "Streaming tile 16",
+    }
+    rows: list[str] = []
+    diagnostic_totals: dict[tuple[str, str], float] = {}
+    observed_memory: dict[tuple[str, str], float] = {}
+    for workload in evidence.get("workloads", []):
+        profile = workload["profile"]
+        dimensions = workload["dimensions"]
+        workload_label = (
+            f'{dimensions["Nx"]}² / N<sub>z</sub>={dimensions["Nz"]}'
+        )
+        for graph in workload.get("graphs", []):
+            candidate_id = graph["candidateId"]
+            if candidate_id not in candidate_labels:
+                raise ValueError(
+                    f"issue #19 scale-out evidence has unknown candidate {candidate_id}"
+                )
+            status = graph["status"]
+            if status == "passed":
+                run_id = graph.get("runId")
+                bundle = by_run.get(run_id)
+                if bundle is None:
+                    raise ValueError(
+                        f"issue #19 scale-out evidence lacks published run {run_id}"
+                    )
+                providers = bundle.result.get("providers", [])
+                if len(providers) != 1:
+                    raise ValueError(
+                        f"issue #19 scale-out run {run_id} must have one provider"
+                    )
+                provider = providers[0]
+                total_matches = [
+                    item for item in provider.get("timings", [])
+                    if item.get("scope") == "uninstrumented-total"
+                    and item.get("stage") == (
+                        "authoritative production-lifetime streamed four-target "
+                        "spectral-flux composition"
+                    )
+                ]
+                if len(total_matches) != 1:
+                    raise ValueError(
+                        f"issue #19 scale-out run {run_id} lacks one total"
+                    )
+                total = float(total_matches[0]["medianSeconds"])
+                error = maximum_correctness_error(provider)
+                memory = provider["memory"]
+                if (
+                    int(memory["algorithmResidentBytes"]) !=
+                        graph["algorithmResidentBytes"]
+                    or int(memory["observedProcessHighWaterBytes"]) !=
+                        graph["observedProcessHighWaterBytes"]
+                    or error is None
+                    or not math.isclose(
+                        float(error), float(graph["maximumCorrectnessError"]),
+                        rel_tol=0.0, abs_tol=0.0,
+                    )
+                ):
+                    raise ValueError(
+                        f"issue #19 scale-out evidence disagrees with run {run_id}"
+                    )
+                diagnostic_totals[(profile, candidate_id)] = total
+                observed_memory[(profile, candidate_id)] = float(
+                    graph["observedProcessHighWaterBytes"]
+                )
+                outcome = (
+                    f'<a href="../../runs/{quote(run_id)}/index.html">passed</a>'
+                )
+                diagnostic = format_ms(total)
+                resident = format_bytes(graph["algorithmResidentBytes"])
+                observed = format_bytes(graph["observedProcessHighWaterBytes"])
+                correctness_value = format_error(graph["maximumCorrectnessError"])
+            elif status == "capacity-exclusion":
+                outcome = "capacity exclusion"
+                diagnostic = "not executed"
+                resident = "not allocated"
+                observed = "not observed"
+                correctness_value = "not executed"
+            else:
+                raise ValueError(
+                    f"issue #19 scale-out evidence has unsupported status {status}"
+                )
+            rows.append(
+                "<tr>"
+                f'<th scope="row">{workload_label}<br><span class="muted">'
+                f'{escaped(profile)}</span></th>'
+                f'<td>{escaped(candidate_labels[candidate_id])}</td>'
+                f'<td>{outcome}</td>'
+                f'<td class="numeric">{diagnostic}</td>'
+                f'<td class="numeric">{format_bytes(graph["requiredPhysicalMemoryBytes"])}</td>'
+                f'<td class="numeric">{resident}</td>'
+                f'<td class="numeric">{observed}</td>'
+                f'<td class="numeric">{correctness_value}</td>'
+                "</tr>"
+            )
+
+    control_id = "production-lifetime-wvm-direct-authoritative"
+    compact_id = "production-lifetime-streaming-pruned-tile16-authoritative"
+    diagnostic_descriptions: list[str] = []
+    memory_descriptions: list[str] = []
+    for profile in ("wvm-current-512-nz257-f4", "wvm-large-1024-nz129-f4"):
+        if (profile, control_id) not in diagnostic_totals:
+            raise ValueError(f"issue #19 scale-out lacks control total for {profile}")
+        time_ratio = (
+            diagnostic_totals[(profile, compact_id)] /
+            diagnostic_totals[(profile, control_id)]
+        )
+        memory_ratio = (
+            observed_memory[(profile, compact_id)] /
+            observed_memory[(profile, control_id)]
+        )
+        short = "512²/Nz=257" if profile.startswith("wvm-current") else "1024²/Nz=129"
+        diagnostic_descriptions.append(f"{short}: {time_ratio:.3f}×")
+        memory_descriptions.append(f"{short}: {memory_ratio:.3f}×")
+    deep = next(
+        item for item in evidence["workloads"]
+        if item["profile"] == "wvm-large-512-nz513-f4"
+    )
+    deep_by_candidate = {
+        item["candidateId"]: item for item in deep["graphs"]
+    }
+    physical = int(evidence["machine"]["physicalMemoryBytes"])
+    compact_required = int(
+        deep_by_candidate[compact_id]["requiredPhysicalMemoryBytes"]
+    )
+    control_required = int(
+        deep_by_candidate[control_id]["requiredPhysicalMemoryBytes"]
+    )
+    return f"""
+      <h2>Authoritative larger-workload correctness and capacity scale-out</h2>
+      <p>This increment extends the 256² authoritative pilot while holding the mathematical 15-to-4 operator, WVM fixture contract, normalization, frozen graphs, scheduling, and mode-keyed oracle fixed. It changes only horizontal size or vertical depth. Every safely feasible graph passed; the maximum error across the four runs is {max(float(graph["maximumCorrectnessError"]) for workload in evidence["workloads"] for graph in workload["graphs"] if graph["status"] == "passed"):.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Capacity is the pre-execution requirement: exact explicit setup arrays plus a 10% physical-memory reserve. Total time is one post-warmup diagnostic sample, not a reference median. Algorithm-resident and observed high-water storage come from the completed process. Excluded graphs were not allocated.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Graph</th><th scope="col">Outcome</th><th scope="col">Diagnostic total</th><th scope="col">Required capacity</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p>The single-sample compact/control total ratios were {escaped('; '.join(diagnostic_descriptions))}; observed-process high-water ratios were {escaped('; '.join(memory_descriptions))}. These describe exercised boundaries only and are deliberately excluded from the 0.90 adoption gate.</p>
+      <p>The deep 512²/N<sub>z</sub>=513 case is a published capability result. On {format_bytes(physical)} of physical memory, the compact graph requires {format_bytes(compact_required)}—{format_bytes(compact_required - physical)} over capacity—while the WVM-order control requires {format_bytes(control_required)}. The compact representation therefore preserves a large memory advantage even though neither graph is safe to execute on Lyra.</p>
+      <p class="method-note"><strong>Preliminary only:</strong> one warmup and one measured execution were used to validate complete-boundary feasibility and correctness. This increment adds no reference timing, confidence interval, adoption inference, complete nonlinear-flux claim, or size-dependent dispatch. The immutable run pages retain the full primitive vertical, horizontal, movement, pointwise, memory, and uninstrumented-total ledgers.</p>
+    """
+
+
 def production_lifetime_flux_synthesis(
     bundles: list[PublishedBundle],
+    scaleout_evidence: dict | None = None,
 ) -> str:
     increment_id = "production-lifetime-flux-preliminary-harness-v1"
     cohort = [
@@ -5439,8 +5603,11 @@ def production_lifetime_flux_synthesis(
             "production-lifetime-flux-authoritative-pilot-v1"
         and bundle.publication["status"] == "preliminary"
     ]
+    scaleout = production_lifetime_flux_scaleout_synthesis(
+        bundles, scaleout_evidence
+    )
     if len(pilot) != 2:
-        return preliminary
+        return preliminary + scaleout
     pilot_provider_ids = {
         "pipeline-production-lifetime-wvm-direct-authoritative":
             "WVM-order control",
@@ -5573,7 +5740,7 @@ def production_lifetime_flux_synthesis(
         <tbody>{''.join(pilot_rows)}</tbody>
       </table></div>
       <p class="method-note"><strong>Authoritative fixture, preliminary campaign status:</strong> fixture <code>{escaped(fixture_hash)}</code> came from WVM commit <code>{escaped(wvm_commit)}</code>. This establishes the exact 15-to-4 operator bridge for one workload. It does not evaluate the 0.90 adoption gate; the multi-workload, repeated-round, capacity, and cross-Mac campaign remains outstanding.</p>
-    """
+    """ + scaleout
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
@@ -5646,7 +5813,10 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
     )
 
 
-def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> str:
+def build_experiment_page(
+    experiment: dict, bundles: list[PublishedBundle],
+    issue19_scaleout_evidence: dict | None = None,
+) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
     prior_links = [
@@ -5678,7 +5848,9 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
     elif experiment_id == "issue-018-vertically-batched-advection-pipeline":
         synthesis = vertically_batched_advection_synthesis(related)
     elif experiment_id == "issue-019-production-lifetime-spectral-flux-composition":
-        synthesis = production_lifetime_flux_synthesis(related)
+        synthesis = production_lifetime_flux_synthesis(
+            related, issue19_scaleout_evidence
+        )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
@@ -6090,6 +6262,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     shutil.copyfile(results_dir / "catalog.json", output_dir / "catalog.json")
     decision_artifacts = results_dir / "decisions"
     cross_mac_synthesis = None
+    issue19_scaleout_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -6102,6 +6275,20 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 "spectral-kernel-cross-mac-portability-synthesis-v1"
             ):
                 raise ValueError("cross-Mac decision synthesis has the wrong schema")
+        scaleout_path = (
+            decision_artifacts /
+            "issue-019-authoritative-scaleout-capacity-v1.json"
+        )
+        if scaleout_path.is_file():
+            issue19_scaleout_evidence = json.loads(
+                scaleout_path.read_text(encoding="utf-8")
+            )
+            if issue19_scaleout_evidence.get("schema") != (
+                "spectral-kernel-authoritative-scaleout-capacity-publication-v1"
+            ):
+                raise ValueError(
+                    "issue #19 authoritative scale-out evidence has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
 
@@ -6125,7 +6312,9 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     for experiment in catalog["experiments"]:
         write_page(
             output_dir / "experiments" / experiment["id"] / "index.html",
-            build_experiment_page(experiment, bundles),
+            build_experiment_page(
+                experiment, bundles, issue19_scaleout_evidence
+            ),
         )
     write_page(
         output_dir / "methods" / "operators-and-representations" / "index.html",

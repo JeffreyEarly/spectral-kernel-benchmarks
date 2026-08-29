@@ -1,0 +1,118 @@
+{
+  "schema": "spectral-kernel-authoritative-scaleout-capacity-publication-v1",
+  "experimentId": "issue-019-production-lifetime-spectral-flux-composition",
+  "incrementId": "production-lifetime-flux-authoritative-scaleout-v1",
+  "createdAtUtc": "2026-08-29T20:24:47.609653Z",
+  "classification": "preliminary-correctness-and-capacity-evidence",
+  "eligibleForReference": false,
+  "adoptionGateEvaluated": false,
+  "benchmarkCommit": "6601bb4720b4e0fd8accf7a9dcb60f079e9f4789",
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "machine": {
+    "hostname": "lyra",
+    "physicalMemoryBytes": 137438953472,
+    "freeDiskBytesAtPreflight": 238326345728,
+    "recommendedAggregateDiskBytes": 191039175986,
+    "aggregateDiskFeasible": true
+  },
+  "method": "Exact explicit arrays from the frozen graph and WVM source/canonical group counts, including simultaneous source/reordered fixture payloads and all mode-keyed correctness copies retained until validation, plus max(8 GiB, 10% physical memory) for opaque providers and the operating system. This is a conservative allocation preflight, not an observed high-water measurement.",
+  "timingInterpretation": "Each feasible graph used one warmup and one measured execution only to exercise its complete boundary. Timing values are diagnostics and must not enter reference or adoption statistics.",
+  "workloads": [
+    {
+      "profile": "wvm-current-512-nz257-f4",
+      "dimensions": {"Nx": 512, "Ny": 512, "Nz": 257, "Nj": 170, "Nkl": 45765, "fields": 4},
+      "fixtureHash": "sha256:4b093e014b335156137f43eac33fb1ce5ab43dcbd6075e6858dc7265ff153251",
+      "sourceFixtureBytes": 14952671324,
+      "graphs": [
+        {
+          "candidateId": "production-lifetime-wvm-direct-authoritative",
+          "status": "passed",
+          "estimatedSteadyExplicitBytes": 63369110912,
+          "estimatedSetupPeakExplicitBytes": 72580690112,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 86324585460,
+          "algorithmResidentBytes": 56945531392,
+          "observedProcessHighWaterBytes": 72528461824,
+          "maximumCorrectnessError": 1.0437808098907416e-15,
+          "runId": "20260829T210554Z-issue19-authoritative-wvm-direct-lyra"
+        },
+        {
+          "candidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+          "status": "passed",
+          "estimatedSteadyExplicitBytes": 30641874768,
+          "estimatedSetupPeakExplicitBytes": 39853453968,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 53597349316,
+          "algorithmResidentBytes": 27756950080,
+          "observedProcessHighWaterBytes": 45359448064,
+          "maximumCorrectnessError": 1.0437808098907416e-15,
+          "runId": "20260829T210622Z-issue19-authoritative-streaming-pruned-compact-split-lyra"
+        }
+      ]
+    },
+    {
+      "profile": "wvm-large-1024-nz129-f4",
+      "dimensions": {"Nx": 1024, "Ny": 1024, "Nz": 129, "Nj": 85, "Nkl": 183037, "fields": 4},
+      "fixtureHash": "sha256:f32fabbbd14d54ad67612787672f7237835ef62e2018f0097576ebad9928e130",
+      "sourceFixtureBytes": 16741014664,
+      "graphs": [
+        {
+          "candidateId": "production-lifetime-wvm-direct-authoritative",
+          "status": "passed",
+          "estimatedSteadyExplicitBytes": 87107265408,
+          "estimatedSetupPeakExplicitBytes": 105528109088,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 119272004436,
+          "algorithmResidentBytes": 80118520704,
+          "observedProcessHighWaterBytes": 89235603456,
+          "maximumCorrectnessError": 1.0278393568705624e-15,
+          "runId": "20260829T210644Z-issue19-authoritative-wvm-direct-lyra"
+        },
+        {
+          "candidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+          "status": "passed",
+          "estimatedSteadyExplicitBytes": 41504061088,
+          "estimatedSetupPeakExplicitBytes": 59924904768,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 73668800116,
+          "algorithmResidentBytes": 39316603264,
+          "observedProcessHighWaterBytes": 67647242240,
+          "maximumCorrectnessError": 1.0454622930550571e-15,
+          "runId": "20260829T201848Z-issue19-authoritative-streaming-pruned-compact-split-lyra"
+        }
+      ]
+    },
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "dimensions": {"Nx": 512, "Ny": 512, "Nz": 513, "Nj": 341, "Nkl": 45765, "fields": 4},
+      "fixtureHash": null,
+      "sourceFixtureBytes": 55142303096,
+      "graphs": [
+        {
+          "candidateId": "production-lifetime-wvm-direct-authoritative",
+          "status": "capacity-exclusion",
+          "estimatedSteadyExplicitBytes": 207577670336,
+          "estimatedSetupPeakExplicitBytes": 229414970960,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 243158866308,
+          "algorithmResidentBytes": null,
+          "observedProcessHighWaterBytes": null,
+          "maximumCorrectnessError": null,
+          "runId": null
+        },
+        {
+          "candidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+          "status": "capacity-exclusion",
+          "estimatedSteadyExplicitBytes": 101697415488,
+          "estimatedSetupPeakExplicitBytes": 126352325520,
+          "opaqueAndSystemReserveBytes": 13743895348,
+          "requiredPhysicalMemoryBytes": 140096220868,
+          "algorithmResidentBytes": null,
+          "observedProcessHighWaterBytes": null,
+          "maximumCorrectnessError": null,
+          "runId": null
+        }
+      ]
+    }
+  ]
+}

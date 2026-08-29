@@ -28292,6 +28292,110 @@
         "samplesSha256": "5272d0d95e4a3fc51345815392e3fb078b213a7b1161e5b6c183cbdce206a4b6"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T210554Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-scaleout-v1",
+      "campaignPhase": "authoritative-scaleout-correctness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM larger-workload correctness and capacity scale-out on Lyra at benchmark commit 6601bb4; one warmup and one sample per feasible graph, so timing is diagnostic only and excluded from reference and adoption statistics. Both 512-squared/Nz=513 graphs are explicit capacity exclusions under the corrected conservative preflight.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T210554Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T210554Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "b6462e290009f08d95b9b0a2cc38153be9ff3954afa938f6ac0e0aafc3235733",
+        "samplesSha256": "65c15a0cc8eeace841cb08beb858c0bcf055d52d3e234a3214c1c29a44fd982b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T210622Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-scaleout-v1",
+      "campaignPhase": "authoritative-scaleout-correctness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM larger-workload correctness and capacity scale-out on Lyra at benchmark commit 6601bb4; one warmup and one sample per feasible graph, so timing is diagnostic only and excluded from reference and adoption statistics. Both 512-squared/Nz=513 graphs are explicit capacity exclusions under the corrected conservative preflight.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T210622Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T210622Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "5e7f7aca5b79adac0aa61b7a465014359fc2a7d2027850449b9235347a7525ec",
+        "samplesSha256": "ef99bfebe604e56894bd9877d23e26d5e589a75bea6ada5f39fb364bb238a5c3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T210644Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-scaleout-v1",
+      "campaignPhase": "authoritative-scaleout-correctness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM larger-workload correctness and capacity scale-out on Lyra at benchmark commit 6601bb4; one warmup and one sample per feasible graph, so timing is diagnostic only and excluded from reference and adoption statistics. Both 512-squared/Nz=513 graphs are explicit capacity exclusions under the corrected conservative preflight.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T210644Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T210644Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "5f7a03e6005f8b6add08b3f37664f6bcae2598df74557c203f8702bdf38ec5d9",
+        "samplesSha256": "66cb5489ba510144d99acf83267c787d5b96dd628763dab12a2f4b817e895ee9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T201848Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-scaleout-v1",
+      "campaignPhase": "authoritative-scaleout-correctness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "preliminary",
+      "statusReason": "Authoritative WVM larger-workload correctness and capacity scale-out on Lyra at benchmark commit 6601bb4; one warmup and one sample per feasible graph, so timing is diagnostic only and excluded from reference and adoption statistics. Both 512-squared/Nz=513 graphs are explicit capacity exclusions under the corrected conservative preflight.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T201848Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T201848Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "bedeb46a02aa1540be34204425a92a5fff36d1c0d0e2be609d38621a86961448",
+        "samplesSha256": "475d28ff67d9a394e870d35e5b00f73628831c47f55871ca6a7988d868a7c42f"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
