@@ -317,6 +317,20 @@ python3 tools/run_authoritative_spectral_flux_scaleout.py \
 
 The runner first records source-fixture disk, exporter memory, canonical group-segment expansion, and graph-specific setup/steady-state memory. It exports and prepares each feasible fixture sequentially, runs one non-reference correctness execution of each feasible frozen graph, and records explicit capacity exclusions instead of resizing the workload or changing algorithms. Its one-sample timing fields are diagnostics only and cannot enter the issue #19 gate.
 
+After machine-local scheduling calibration has frozen one topology for each graph, collect the authoritative reference campaign with:
+
+```sh
+python3 tools/run_authoritative_spectral_flux_reference.py \
+  --calibration-analysis results/local/<calibration>/analysis.json \
+  --capacity-evidence results/published/decisions/issue-019-authoritative-scaleout-lyra-v1.json \
+  --fixture wvm-current-256-nz129-f4=/path/to/prepared-256.bin \
+  --fixture wvm-current-512-nz257-f4=/path/to/prepared-512.bin \
+  --fixture wvm-large-1024-nz129-f4=/path/to/prepared-1024.bin \
+  --output results/local/<reference-campaign>
+```
+
+The runner reuses the exact clean executable calibrated on that machine, rotates candidate and profile order, and collects three warmups plus 21 samples in each isolated timing process. It runs memory-only workers separately, verifies the authoritative fixture and WVM commit on every observation, and never reuses calibration or preliminary samples. After three balanced rounds it adds rounds four and five only when the preregistered stability or decision-boundary triggers fire. The analysis reports raw component medians and setup independently from the authoritative uninstrumented total, applies the 0.90 geometric adoption gate and 1.03 worst-profile guardrail, and keeps deep-workload capacity exclusions visible. Passing this benchmark gate advances the graph only to a later WVM integration experiment; it does not implement the complete nonlinear flux or authorize a WVM source change.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

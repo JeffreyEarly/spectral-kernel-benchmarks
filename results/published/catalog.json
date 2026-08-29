@@ -28812,6 +28812,630 @@
         "samplesSha256": "53c495217b107910e197c29a989be200a14bd2a19ec2455810d19a71e24acdc9"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T221606Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T221606Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T221606Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "e19df0ec9a4bb3974557cf671b35312212c8d4ceef451fbd96c759e41fa52213",
+        "samplesSha256": "724d2512a25892e661d81aaf9af19d540f6b839eb2dbe84cc2dd4a60d4b67a7c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T221626Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T221626Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T221626Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "8334f85a3848903559806a582793edd663f91e3f9b5048f4342a6cfcfddfa5e7",
+        "samplesSha256": "aa3cdaf78790020c13fd557b54e08b06a0bbb476258c9c109b34d266d31d1ada"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T221642Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T221642Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T221642Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "6d6c2c9fb6fbaddb19160f4fc26e0b8675b3e004bd4acd4fbccd8111de9f922a",
+        "samplesSha256": "b08e7015f98c25db4500038b7298d428e13f002350a2a435c1eee7d1e12e154c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T221927Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T221927Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T221927Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "4ad09c0c34737b91a1a8ef34402ceff2e7c1eaa4ef208b6694fb37775f2947ed",
+        "samplesSha256": "741a270ef68dc8508f3862351cef75ecd91bbd5b21a6976ae93b9fc2f21a2d83"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T222122Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T222122Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T222122Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "efbadb344b13ddd1ebdbb4186581cd0c1df3e5d0aba86d034582fbb839dbd7b0",
+        "samplesSha256": "c417c50e4d88d6e186b347872f290086588811ec83f10692b33e10c87b0859f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T223358Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T223358Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T223358Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "ebe3e7d72fe4f36658a6e8bda78fbed9707b235c53e6283a123f3afbe5bedd9f",
+        "samplesSha256": "d7d6dfa9e6e3f3c8c8910154da1d9e6e9b6870ae7e64daf45fd4b1c81643f812"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T223749Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T223749Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T223749Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "4a83929f7c7a97ad511642dcba85bbf54a89532dffa6f9b060bc51d34020a635",
+        "samplesSha256": "ab122f7d79826f845981673b384cb884914b0fbf7479bdaf24d85b432d0c1def"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T223944Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T223944Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T223944Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "476bdc320dbb60cd31ee7d74d6c451258b3370e03939088db5133c9dc8076fc4",
+        "samplesSha256": "60424a11e7c00dce119deb014799cd92c7dad5a46566cd3872efaebf5f57876d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T224232Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T224232Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T224232Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "defdd7daa55a8929ad454472acf5d3c8246389c0040005138e0b436f72e0cf38",
+        "samplesSha256": "d7b676fb58f374aa33bf6b43301b6332e966e77029c82f662a8298c3a2a0df54"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T224624Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T224624Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T224624Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "346fca74e45a139877a48c497a6569684cd1de7765d08a483162f64077ca64fa",
+        "samplesSha256": "c5ebf115d53853e00b35eccb9d680058bb06445bc3b020e2de84ccc17c064088"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T225912Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T225912Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T225912Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "0af9a2478257f27a9bab8bc8365822b3a9af0cfc414f3abb6184001202345fa8",
+        "samplesSha256": "74b3fdf95853fb9813a16efe7105125a2a0dbcacba21d32e53460d03fa277e88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T225926Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T225926Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T225926Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "9dcbba03c52c5892d273d61d79fbecb3d316446618c7aba518755e127ca5642d",
+        "samplesSha256": "d7bf0dcd8f3530dc84f659a97678085940261189dfe847db386796b9b6dfa953"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T225951Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T225951Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T225951Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "ea74e8edce14e0298cb9b3cbe7ba1446776b750ddadb5586d59002f874ace47f",
+        "samplesSha256": "1cd77453ceb5a75345375d677ee9ee5928ab5e1802fea4a18e8b54f4b641723b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T231302Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T231302Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T231302Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "b7889d99eaff756a64bcac2e09786106d116942e2a30038fd5d23c13eeaf392f",
+        "samplesSha256": "fad60db53bffce4cdbd66a1738001ad8c0e08792005a6386932e8a2d0839d1d9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T231647Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T231647Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T231647Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "16ac9dd8c08002cc605fa31f19e66df183f23afc98c3e8ab4454679e73069fbc",
+        "samplesSha256": "dd75f4e3b7a7ed76bf88097718c825fb23553443e37f0abd779a4c0dc5bc023b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T231707Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T231707Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T231707Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "de8b8279c66f8b586f275528fcc903792d483579956ac5032959245cbb9971ac",
+        "samplesSha256": "30a42f6b682f0e67a47e58146215cff3cc47f27ec92530a84b43a76aa1b82c94"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T231725Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T231725Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T231725Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "8cbba4bb7c7666b5cec17320473f67bf8ae34b8c9a40b9a8123336ea32756d4c",
+        "samplesSha256": "827480941e55cbba7ab4f7d98e470aef75332085b4a27340b262bd4ee05c6b66"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232013Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232013Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T232013Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "64c13b3486a700256afcc79b047595f1b605d7a9996b891d6592867570b77e44",
+        "samplesSha256": "93a30a932479f52809be8aff78c3454f92425da6cc3f5e50fcd8c0f686ae523c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232204Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232204Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T232204Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "b36a8efa27e73de3806041f2512a2ba0e61b3f13ea8b13923a30c4d00a32192e",
+        "samplesSha256": "9ad69f764fa4d9e416959ba3b4b6d4b1961711f2f001c1983036101acca111cf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232207Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232207Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T232207Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "b31bd398ee96ca3771e75eb0174a293afed878bdc61f455cc3e27fcb84f472e4",
+        "samplesSha256": "ebb20a3e6c782423325625dbed97993019e9a6b3f9abd0aca6a2bfc8942c8709"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232213Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232213Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T232213Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "ca840320d70425e212654e6233567d285a3c569aad6442635b3b2a3438d304fb",
+        "samplesSha256": "0e4e23ce8e6f2e955fc78d44aea1684e9d321cb6ba411cc29e925fe77f5e5646"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232240Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232240Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T232240Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "342dd783358120b3a4302d0685bb117c0715c08d4fddcadda7a5b9228fc9a22d",
+        "samplesSha256": "453006fe41f89072f25f292b2d0f15e52d2907a5c5270bf076ee4e2b65e0a013"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232302Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232302Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T232302Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "b33e90f45b2a31ac593c8b54cdc23a3266b55dbaeeaf4ce42060a209255e789b",
+        "samplesSha256": "c5d872eef2dfe9a95db4eac793394cc73a9e78c1639f067154f2bfe470a21145"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T232435Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "status": "reference",
+      "statusReason": "Authoritative issue #19 Lyra reference campaign using the frozen 18ccde6 executable, WVM commit 6ad254fb, one calibrated topology per graph, three balanced rotated rounds with three warmups and 21 samples, separate memory-only workers, and explicit deep-workload capacity exclusions. Reference status records the controlled evidence independently of the winning graph.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T232435Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T232435Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "9347d9b7bccc0d592485f7b568804ef6819e9e4e6fff4b298e5157216d8b80ab",
+        "samplesSha256": "ac7456f47d1e26ea4631cc7b67508cff8aacfceeb4fe2b2b0d1061b9a788e23c"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

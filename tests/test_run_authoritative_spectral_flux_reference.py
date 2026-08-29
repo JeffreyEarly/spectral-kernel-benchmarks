@@ -193,6 +193,20 @@ class AuthoritativeSpectralFluxReferenceTests(unittest.TestCase):
             BENCHMARK_COMMIT, 3, 21,
         )
         self.assertFalse(invalid["valid"])
+        result["provenance"]["spectralFluxFixture"]["fixtureHash"] = (
+            "sha256:" + "c" * 64
+        )
+        result["environment"]["gitCommit"] = ""
+        missing_source = result_record(
+            candidate, TOPOLOGY, result,
+            {
+                "fixtureHash": "sha256:" + "c" * 64,
+                "waveVortexModelCommit": WVM_COMMIT,
+            },
+            BENCHMARK_COMMIT, 3, 21,
+        )
+        self.assertFalse(missing_source["sourceMetadataMatches"])
+        self.assertFalse(missing_source["valid"])
 
     def test_conditional_rule_stops_clear_win_after_three_rounds(self) -> None:
         records = []

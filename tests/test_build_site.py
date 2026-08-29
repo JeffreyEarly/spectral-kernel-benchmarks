@@ -74,6 +74,10 @@ class BuildSiteTests(unittest.TestCase):
                 output / "artifacts" / "decisions" /
                 "issue-019-authoritative-calibration-lyra-v1.json"
             )
+            issue_19_reference_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-019-authoritative-reference-lyra-v1.json"
+            )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
@@ -101,6 +105,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(decision_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
             self.assertTrue(issue_19_calibration_artifact.is_file())
+            self.assertTrue(issue_19_reference_artifact.is_file())
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)
@@ -348,7 +353,10 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Experiment · issue #19 · collecting", issue_19_html)
             self.assertIn("15 ready retained and vertically truncated modal fields", issue_19_html)
             self.assertIn("Issue #18 is attribution evidence", issue_19_html)
-            self.assertIn("No reference run has been published", issue_19_html)
+            self.assertIn(
+                "24 reference run(s) currently contribute to comparisons",
+                issue_19_html,
+            )
             self.assertIn("First production-lifetime harness pair", issue_19_html)
             self.assertIn("Streaming tile 16 is 0.731×", issue_19_html)
             self.assertIn("0.405× the algorithm-resident storage", issue_19_html)
@@ -396,6 +404,22 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("these preliminary samples freeze one topology per graph", issue_19_html)
             self.assertIn("do not compare the two graphs", issue_19_html)
             self.assertIn("never reused as reference observations", issue_19_html)
+            self.assertIn(
+                "Authoritative production-lifetime reference campaign",
+                issue_19_html,
+            )
+            self.assertIn("Streaming tile 16 is <strong>0.403×</strong>", issue_19_html)
+            self.assertIn("0.394×–0.406×", issue_19_html)
+            self.assertIn("worst profile remains 0.661×", issue_19_html)
+            self.assertIn("Maximum WVM-oracle error is 1.237e-15", issue_19_html)
+            self.assertIn("0.489× algorithm-resident", issue_19_html)
+            self.assertIn("0.643× observed process high water", issue_19_html)
+            self.assertIn("Primitive and component attribution", issue_19_html)
+            self.assertIn("issue #21's preregistered activation condition is satisfied", issue_19_html)
+            self.assertIn("The trigger list is empty", issue_19_html)
+            self.assertIn("<strong>Gate passed:</strong>", issue_19_html)
+            self.assertIn("advances streaming tile 16 to a later integration experiment", issue_19_html)
+            self.assertIn("authorizes neither a WVM source change", issue_19_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

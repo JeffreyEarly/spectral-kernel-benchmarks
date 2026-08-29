@@ -266,6 +266,11 @@ def result_record(
         "-per-operator-family"
     )
     embedded_commit = result.get("environment", {}).get("gitCommit", "")
+    source_matches = bool(
+        embedded_commit and embedded_commit != "unknown"
+        and benchmark_commit.startswith(embedded_commit)
+        and result.get("environment", {}).get("gitDirty") is False
+    )
     authoritative = bool(
         fixture.get("schema") == "spectral-flux-fixture-v1"
         and fixture.get("status") == "authoritative-wvm-export"
@@ -283,8 +288,7 @@ def result_record(
         and math.isfinite(error) and error <= TOLERANCE
         and authoritative
         and provider.get("schedulingId") == expected_schedule
-        and benchmark_commit.startswith(embedded_commit)
-        and result.get("environment", {}).get("gitDirty") is False
+        and source_matches
         and placement_valid(provider)
         and allocation_ledger_valid(provider)
     )
@@ -304,10 +308,7 @@ def result_record(
         "schedulingId": provider.get("schedulingId"),
         "placementContractValid": placement_valid(provider),
         "allocationLedgerValid": allocation_ledger_valid(provider),
-        "sourceMetadataMatches": bool(
-            benchmark_commit.startswith(embedded_commit)
-            and result.get("environment", {}).get("gitDirty") is False
-        ),
+        "sourceMetadataMatches": source_matches,
         "valid": valid,
     }
 
@@ -554,13 +555,22 @@ def analyze(
         )
     )
     allocation = allocation_verification.get("exitCode") == 0
-    single_schedule = bool(
-        all(
-            calibration["selections"][candidate.id]["selectedTopology"]["id"]
-            == "horizontal-performance-12--vertical-dynamic-total-16"
-            for candidate in candidate_matrix()
+    single_schedule = True
+    for candidate in candidate_matrix():
+        observed_schedules = {
+            item["record"]["schedulingId"]
+            for item in timing_records + memory_records
+            if item["candidateId"] == candidate.id
+        }
+        topology = calibration["selections"][candidate.id]["selectedTopology"]
+        expected_schedule = (
+            f"horizontal-outer-{topology['horizontal_workers']};"
+            f"vertical-{topology['vertical_schedule']}-"
+            f"{topology['vertical_workers']}-per-operator-family"
         )
-    )
+        single_schedule = bool(
+            single_schedule and observed_schedules == {expected_schedule}
+        )
     passed = bool(
         protocol_complete and full_workload_disposition and correctness
         and allocation and memory_complete and improvement and regression

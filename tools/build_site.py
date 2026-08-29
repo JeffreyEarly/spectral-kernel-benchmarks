@@ -5654,10 +5654,331 @@ def production_lifetime_flux_calibration_synthesis(
     """
 
 
+def production_lifetime_flux_reference_synthesis(
+    bundles: list[PublishedBundle], evidence: dict | None,
+) -> str:
+    if evidence is None:
+        return ""
+    expected_schema = (
+        "spectral-kernel-authoritative-production-lifetime-reference-"
+        "publication-v1"
+    )
+    if evidence.get("schema") != expected_schema:
+        raise ValueError("issue #19 authoritative reference has the wrong schema")
+    increment_id = "production-lifetime-flux-authoritative-reference-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    timing_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "reference"
+    ]
+    memory_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "memory"
+    ]
+    if len(timing_bundles) != 18 or len(memory_bundles) != 6:
+        return ""
+    provider_ids = {
+        "production-lifetime-wvm-direct-authoritative":
+            "pipeline-production-lifetime-wvm-direct-authoritative",
+        "production-lifetime-streaming-pruned-tile16-authoritative":
+            "pipeline-production-lifetime-streaming-pruned-tile16-authoritative",
+    }
+    candidate_labels = {
+        "production-lifetime-wvm-direct-authoritative": "WVM-order control",
+        "production-lifetime-streaming-pruned-tile16-authoritative":
+            "Streaming tile 16",
+    }
+    control_id = "production-lifetime-wvm-direct-authoritative"
+    candidate_id = (
+        "production-lifetime-streaming-pruned-tile16-authoritative"
+    )
+    expected_schedule = (
+        "horizontal-outer-12;vertical-outer-dynamic-16-per-operator-family"
+    )
+    profile_evidence = {
+        item["profile"]: item for item in evidence.get("profiles", [])
+    }
+    if set(profile_evidence) != {
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    }:
+        raise ValueError("issue #19 reference has the wrong matched profiles")
+
+    def bundle_record(bundle: PublishedBundle, expected_samples: int) -> dict:
+        publication = bundle.publication
+        candidate = publication.get("campaignCandidateId")
+        if candidate not in provider_ids:
+            raise ValueError(
+                f"issue #19 reference has unknown candidate {candidate}"
+            )
+        result = bundle.result
+        providers = result.get("providers", [])
+        if len(providers) != 1 or providers[0].get("id") != provider_ids[candidate]:
+            raise ValueError(
+                f"issue #19 reference run {result['run']['id']} has wrong provider"
+            )
+        provider = providers[0]
+        profile = result["run"]["profile"]
+        fixture = result.get("provenance", {}).get("spectralFluxFixture", {})
+        if (
+            profile not in profile_evidence
+            or result["run"].get("samples") != expected_samples
+            or provider.get("schedulingId") != expected_schedule
+            or result.get("environment", {}).get("gitCommit") !=
+                evidence["benchmarkExecutableCommit"][:12]
+            or result.get("environment", {}).get("gitDirty") is not False
+            or fixture.get("fixtureHash") != evidence["fixtures"][profile]
+            or fixture.get("waveVortexModelCommit") !=
+                evidence["waveVortexModelCommit"]
+        ):
+            raise ValueError(
+                f"issue #19 reference metadata disagrees for {result['run']['id']}"
+            )
+        total_matches = [
+            item for item in provider.get("timings", [])
+            if item.get("scope") == "uninstrumented-total"
+            and item.get("stage") == (
+                "authoritative production-lifetime streamed four-target "
+                "spectral-flux composition"
+            )
+        ]
+        error = maximum_correctness_error(provider)
+        if len(total_matches) != 1 or error is None or float(error) > 1.0e-12:
+            raise ValueError(
+                f"issue #19 reference run {result['run']['id']} is invalid"
+            )
+        return {
+            "bundle": bundle,
+            "candidate": candidate,
+            "profile": profile,
+            "round": publication.get("campaignRound"),
+            "provider": provider,
+            "seconds": float(total_matches[0]["medianSeconds"]),
+            "error": float(error),
+        }
+
+    timing_records = [bundle_record(bundle, 21) for bundle in timing_bundles]
+    memory_records = [bundle_record(bundle, 1) for bundle in memory_bundles]
+    timing_cells: dict[tuple[str, str], dict[int, dict]] = {}
+    for record in timing_records:
+        round_number = record["round"]
+        if not isinstance(round_number, int):
+            raise ValueError("issue #19 timing run lacks campaign round")
+        key = (record["candidate"], record["profile"])
+        if round_number in timing_cells.setdefault(key, {}):
+            raise ValueError("issue #19 reference repeats a timing cell")
+        timing_cells[key][round_number] = record
+    memory_cells: dict[tuple[str, str], dict] = {}
+    for record in memory_records:
+        key = (record["candidate"], record["profile"])
+        if key in memory_cells:
+            raise ValueError("issue #19 reference repeats a memory cell")
+        memory_cells[key] = record
+
+    profile_labels = {
+        "wvm-current-256-nz129-f4": "256² / Nz=129 / F4",
+        "wvm-current-512-nz257-f4": "512² / Nz=257 / F4",
+        "wvm-large-1024-nz129-f4": "1024² / Nz=129 / F4",
+    }
+    summary_rows: list[str] = []
+    component_rows: list[str] = []
+    candidate_vertical_movement_shares: list[tuple[str, float]] = []
+
+    def stage_seconds(provider: dict, stage: str) -> float:
+        matches = [
+            item for item in provider.get("timings", [])
+            if item.get("stage") == stage
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"issue #19 provider {provider['id']} lacks one {stage} timing"
+            )
+        return float(matches[0]["medianSeconds"])
+
+    for profile, expected in profile_evidence.items():
+        baseline = timing_cells.get((control_id, profile), {})
+        candidate = timing_cells.get((candidate_id, profile), {})
+        if sorted(baseline) != [1, 2, 3] or sorted(candidate) != [1, 2, 3]:
+            raise ValueError(f"issue #19 reference is incomplete for {profile}")
+        ratios = [candidate[index]["seconds"] / baseline[index]["seconds"]
+                  for index in (1, 2, 3)]
+        baseline_median = statistics.median(
+            baseline[index]["seconds"] for index in (1, 2, 3)
+        )
+        candidate_median = statistics.median(
+            candidate[index]["seconds"] for index in (1, 2, 3)
+        )
+        if (
+            not math.isclose(
+                baseline_median, float(expected["baselineMedianSeconds"]),
+                rel_tol=0.0, abs_tol=1e-15,
+            )
+            or not math.isclose(
+                candidate_median, float(expected["candidateMedianSeconds"]),
+                rel_tol=0.0, abs_tol=1e-15,
+            )
+            or any(
+                not math.isclose(left, float(right), rel_tol=0.0, abs_tol=1e-15)
+                for left, right in zip(ratios, expected["roundRatios"])
+            )
+        ):
+            raise ValueError(f"issue #19 reference timing disagrees for {profile}")
+        baseline_memory = memory_cells[(control_id, profile)]["provider"]["memory"]
+        candidate_memory = memory_cells[(candidate_id, profile)]["provider"]["memory"]
+        expected_memory = expected["memoryOnly"]
+        for actual, key in (
+            (baseline_memory["algorithmResidentBytes"],
+             "baselineAlgorithmResidentBytes"),
+            (candidate_memory["algorithmResidentBytes"],
+             "candidateAlgorithmResidentBytes"),
+            (baseline_memory["observedProcessHighWaterBytes"],
+             "baselineObservedProcessHighWaterBytes"),
+            (candidate_memory["observedProcessHighWaterBytes"],
+             "candidateObservedProcessHighWaterBytes"),
+        ):
+            if int(actual) != int(expected_memory[key]):
+                raise ValueError(
+                    f"issue #19 reference memory disagrees for {profile}/{key}"
+                )
+        links = []
+        for label, records in (("control", baseline), ("compact", candidate)):
+            round_links = " · ".join(
+                f'<a href="../../runs/{quote(records[index]["bundle"].result["run"]["id"])}/index.html">R{index}</a>'
+                for index in (1, 2, 3)
+            )
+            links.append(f"{label}: {round_links}")
+        summary_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile_labels[profile])}<br>'
+            f'<span class="muted">{escaped(profile)}</span></th>'
+            f'<td class="numeric">{format_ms(baseline_median)}</td>'
+            f'<td class="numeric">{format_ms(candidate_median)}</td>'
+            f'<td class="numeric"><strong>{statistics.median(ratios):.3f}×</strong></td>'
+            f'<td class="numeric">{float(expected["empiricalPairedRange"]["lower"]):.3f}×–'
+            f'{float(expected["empiricalPairedRange"]["upper"]):.3f}×</td>'
+            f'<td class="numeric">{format_bytes(int(baseline_memory["algorithmResidentBytes"]))} → '
+            f'{format_bytes(int(candidate_memory["algorithmResidentBytes"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(baseline_memory["observedProcessHighWaterBytes"]))} → '
+            f'{format_bytes(int(candidate_memory["observedProcessHighWaterBytes"]))}</td>'
+            f'<td>{"<br>".join(links)}</td>'
+            "</tr>"
+        )
+
+        stage_names = {
+            control_id: {
+                "forwardHorizontal": "four streamed full horizontal forward FFTs",
+                "movement": "WVM-order triple extraction and target scatter",
+            },
+            candidate_id: {
+                "forwardHorizontal":
+                    "four streamed horizontal forward transforms and retention",
+                "movement": "native split triple extraction and target scatter",
+            },
+        }
+        for current_id, records in ((control_id, baseline), (candidate_id, candidate)):
+            medians: dict[str, float] = {}
+            common_stages = {
+                "inverseVertical":
+                    "raw inverse vertical MM (15 modal inputs; exact WVM F/G families)",
+                "sharedHorizontal": "shared U,V,W horizontal reconstruction",
+                "derivativeHorizontal":
+                    "per-target derivative horizontal reconstruction",
+                "pointwise": "four streamed pointwise advection expressions",
+                "forwardVertical":
+                    "raw forward vertical MM (4 modal targets; exact WVM F/G families)",
+            }
+            for key, stage in common_stages.items():
+                medians[key] = statistics.median(
+                    stage_seconds(records[index]["provider"], stage)
+                    for index in (1, 2, 3)
+                )
+            for key in ("forwardHorizontal", "movement"):
+                medians[key] = statistics.median(
+                    stage_seconds(
+                        records[index]["provider"], stage_names[current_id][key]
+                    )
+                    for index in (1, 2, 3)
+                )
+            total = statistics.median(
+                records[index]["seconds"] for index in (1, 2, 3)
+            )
+            component_rows.append(
+                "<tr>"
+                f'<th scope="row">{escaped(profile_labels[profile])}</th>'
+                f'<td>{escaped(candidate_labels[current_id])}</td>'
+                f'<td class="numeric">{format_ms(medians["inverseVertical"])}</td>'
+                f'<td class="numeric">{format_ms(medians["sharedHorizontal"])}</td>'
+                f'<td class="numeric">{format_ms(medians["derivativeHorizontal"])}</td>'
+                f'<td class="numeric">{format_ms(medians["pointwise"])}</td>'
+                f'<td class="numeric">{format_ms(medians["forwardHorizontal"])}</td>'
+                f'<td class="numeric">{format_ms(medians["movement"])}</td>'
+                f'<td class="numeric">{format_ms(medians["forwardVertical"])}</td>'
+                f'<td class="numeric"><strong>{format_ms(total)}</strong></td>'
+                "</tr>"
+            )
+            if current_id == candidate_id:
+                share = (
+                    medians["inverseVertical"] + medians["movement"]
+                    + medians["forwardVertical"]
+                ) / total
+                candidate_vertical_movement_shares.append((profile, share))
+
+    aggregate = float(evidence["geometricCandidateToBaseline"])
+    interval = evidence["empiricalStratifiedPairedRange"]
+    memory_ratios = evidence["memoryOnlyGeometricRatios"]
+    gate = evidence["gate"]
+    if not all(
+        gate.get(key) is True for key in (
+            "improvementPassed", "regressionPassed",
+            "empiricalIntervalExcludesTie", "correctnessPassed",
+            "referenceRoundProtocolPassed", "allocationVerificationPassed",
+            "memoryEvidenceComplete", "capacityEvidenceComplete",
+            "singleGraphAndSchedulePassed",
+            "advanceToWvmIntegrationExperiment",
+        )
+    ):
+        raise ValueError("issue #19 published reference does not pass its gate")
+    activated_profiles = [
+        profile for profile, share in candidate_vertical_movement_shares
+        if share >= 0.20
+    ]
+    share_text = "; ".join(
+        f"{profile_labels[profile]}: {share:.1%}"
+        for profile, share in candidate_vertical_movement_shares
+    )
+    return f"""
+      <h2>Authoritative production-lifetime reference campaign</h2>
+      <p>The reference campaign uses the exact WVM-exported 15-to-4 operator and the same streamed seven-real-volume lifetime for both frozen graphs. It reuses the clean calibrated <code>{escaped(evidence["benchmarkExecutableCommit"][:12])}</code> executable; the later runner commit changes only orchestration and publication code. Three balanced rounds rotate profile and candidate order, with three warmups and 21 samples per isolated timing process. Six separate processes provide memory evidence and never enter timing inference.</p>
+      <p>Streaming tile 16 is <strong>{aggregate:.3f}×</strong> the WVM-order control geometrically across the three supported profiles, with a stratified paired empirical interval of <strong>{float(interval["lower"]):.3f}×–{float(interval["upper"]):.3f}×</strong>. The worst profile remains {float(evidence["maximumProfileCandidateToBaseline"]):.3f}×. Maximum WVM-oracle error is {float(evidence["maximumCorrectnessError"]):.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Times are medians of three process medians in milliseconds. Ratios are paired within process round. Memory comes from separate one-warmup/one-sample workers and is control → compact; it is not included in timing inference.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Control total</th><th scope="col">Compact total</th><th scope="col">Compact/control</th><th scope="col">Empirical range</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th><th scope="col">Timing runs</th></tr></thead>
+        <tbody>{''.join(summary_rows)}</tbody>
+      </table></div>
+      <p>Geometric memory ratios are {float(memory_ratios["algorithmResidentBytes"]):.3f}× algorithm-resident, {float(memory_ratios["scratchBytes"]):.3f}× reusable scratch, and {float(memory_ratios["observedProcessHighWaterBytes"]):.3f}× observed process high water. The deep 512²/N<sub>z</sub>=513/F4 workload remains an explicit capacity result: the compact graph requires {format_bytes(int(evidence["capacityExclusions"][1]["requiredPhysicalMemoryBytes"]))} and the control {format_bytes(int(evidence["capacityExclusions"][0]["requiredPhysicalMemoryBytes"]))} on a {format_bytes(int(evidence["machine"]["physicalMemoryBytes"]))} machine, so neither is silently resized or forced through swap.</p>
+      <h3>Primitive and component attribution</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Process-median component times are diagnostic and non-additive; the independently sampled total is authoritative. Primitive vertical GEMM, horizontal work, movement, and pointwise work remain separately visible.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Graph</th><th scope="col">Inverse vertical</th><th scope="col">Shared inverse H</th><th scope="col">Derivative inverse H</th><th scope="col">Pointwise</th><th scope="col">Forward H</th><th scope="col">Movement</th><th scope="col">Forward vertical</th><th scope="col">Total</th></tr></thead>
+        <tbody>{''.join(component_rows)}</tbody>
+      </table></div>
+      <p>The candidate's descriptive inverse-vertical plus required-movement plus forward-vertical shares are {escaped(share_text)}. The 20% condition is met on {len(activated_profiles)} workloads, so issue #21's preregistered activation condition is satisfied; this does not make the non-additive components a reconstruction of total time.</p>
+      <h3>Conditional protocol and decision</h3>
+      <p>All three initial aggregate ratios—{', '.join(f'{float(value):.4f}×' for value in evidence["protocol"]["conditionalRoundDecision"]["aggregateRoundRatios"])}—are far below 0.90. No profile has more than 10% ratio spread, no profile straddles 1.03, the aggregate does not straddle 0.90, and its median is outside 0.85–0.95. The trigger list is empty, so the preregistered protocol stops after three rounds rather than spending two unneeded rounds.</p>
+      <p class="method-note"><strong>Gate passed:</strong> the complete composed boundary exceeds the 10% improvement requirement, its empirical interval excludes a tie, no workload regresses, correctness and same-commit allocation checks pass, memory/setup/capacity evidence is complete, and one graph and schedule is used everywhere supported. This advances streaming tile 16 to a later integration experiment inside WVM. It does <strong>not</strong> measure the complete nonlinear flux, MATLAB dispatch, phase or coefficient assembly/accumulation, model state, or time integration; it authorizes neither a WVM source change nor a general-Mac default.</p>
+    """
+
+
 def production_lifetime_flux_synthesis(
     bundles: list[PublishedBundle],
     scaleout_evidence: dict | None = None,
     calibration_evidence: dict | None = None,
+    reference_evidence: dict | None = None,
 ) -> str:
     increment_id = "production-lifetime-flux-preliminary-harness-v1"
     cohort = [
@@ -5793,8 +6114,11 @@ def production_lifetime_flux_synthesis(
     calibration = production_lifetime_flux_calibration_synthesis(
         bundles, calibration_evidence
     )
+    reference = production_lifetime_flux_reference_synthesis(
+        bundles, reference_evidence
+    )
     if len(pilot) != 2:
-        return preliminary + scaleout + calibration
+        return preliminary + scaleout + calibration + reference
     pilot_provider_ids = {
         "pipeline-production-lifetime-wvm-direct-authoritative":
             "WVM-order control",
@@ -5927,7 +6251,7 @@ def production_lifetime_flux_synthesis(
         <tbody>{''.join(pilot_rows)}</tbody>
       </table></div>
       <p class="method-note"><strong>Authoritative fixture, preliminary campaign status:</strong> fixture <code>{escaped(fixture_hash)}</code> came from WVM commit <code>{escaped(wvm_commit)}</code>. This establishes the exact 15-to-4 operator bridge for one workload. It does not evaluate the 0.90 adoption gate; the multi-workload, repeated-round, capacity, and cross-Mac campaign remains outstanding.</p>
-    """ + scaleout + calibration
+    """ + scaleout + calibration + reference
 
 
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
@@ -6004,6 +6328,7 @@ def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
     issue19_calibration_evidence: dict | None = None,
+    issue19_reference_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -6037,7 +6362,8 @@ def build_experiment_page(
         synthesis = vertically_batched_advection_synthesis(related)
     elif experiment_id == "issue-019-production-lifetime-spectral-flux-composition":
         synthesis = production_lifetime_flux_synthesis(
-            related, issue19_scaleout_evidence, issue19_calibration_evidence
+            related, issue19_scaleout_evidence, issue19_calibration_evidence,
+            issue19_reference_evidence,
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -6452,6 +6778,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     cross_mac_synthesis = None
     issue19_scaleout_evidence = None
     issue19_calibration_evidence = None
+    issue19_reference_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -6492,6 +6819,21 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #19 authoritative calibration has the wrong schema"
                 )
+        reference_path = (
+            decision_artifacts /
+            "issue-019-authoritative-reference-lyra-v1.json"
+        )
+        if reference_path.is_file():
+            issue19_reference_evidence = json.loads(
+                reference_path.read_text(encoding="utf-8")
+            )
+            if issue19_reference_evidence.get("schema") != (
+                "spectral-kernel-authoritative-production-lifetime-reference-"
+                "publication-v1"
+            ):
+                raise ValueError(
+                    "issue #19 authoritative reference has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
 
@@ -6518,6 +6860,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
             build_experiment_page(
                 experiment, bundles, issue19_scaleout_evidence,
                 issue19_calibration_evidence,
+                issue19_reference_evidence,
             ),
         )
     write_page(

@@ -1,0 +1,166 @@
+{
+  "schema": "spectral-kernel-authoritative-production-lifetime-reference-publication-v1",
+  "experimentId": "issue-019-production-lifetime-spectral-flux-composition",
+  "incrementId": "production-lifetime-flux-authoritative-reference-v1",
+  "createdAtUtc": "2026-08-29T23:26:12Z",
+  "classification": "reference",
+  "eligibleForAdoptionInference": true,
+  "benchmarkExecutableCommit": "18ccde6d36b920a186a601b977d2513d77f9fb99",
+  "runnerSourceTreeGitCommit": "225a43ecbc188878692275f2f8d6d20016176a88",
+  "benchmarkSourcesUnchangedSinceCalibration": true,
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "machine": {
+    "hostname": "lyra.ad.nwra.com",
+    "cpuBrand": "Apple M4 Max",
+    "hardwareModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "totalPhysicalCores": 16,
+    "physicalMemoryBytes": 137438953472,
+    "macOS": "26.6.1",
+    "macOSBuild": "25G76"
+  },
+  "frozenTopology": {
+    "horizontalWorkers": 12,
+    "horizontalWorkerClass": "performance",
+    "verticalSchedule": "outer-dynamic",
+    "verticalWorkers": 16,
+    "verticalWorkerClass": "total"
+  },
+  "protocol": {
+    "initialRounds": 3,
+    "maximumRounds": 5,
+    "finalRounds": 3,
+    "warmupsPerTimingProcess": 3,
+    "samplesPerTimingProcess": 21,
+    "timingProcesses": 18,
+    "memoryOnlyProcesses": 6,
+    "candidateOrderRotatedByRound": true,
+    "profileOrderRotatedByRound": true,
+    "calibrationSamplesUsedForInference": false,
+    "memorySamplesUsedForTimingInference": false,
+    "conditionalRoundDecision": {
+      "completeInitialThreeRoundMatrix": true,
+      "aggregateRoundRatios": [
+        0.40199809075500437,
+        0.4037167372452243,
+        0.39685665948716425
+      ],
+      "triggers": [],
+      "runAdditionalTwoRounds": false
+    }
+  },
+  "fixtures": {
+    "wvm-current-256-nz129-f4": "sha256:ef17efc2fc760709a9a06b252d0bc1a8fb909620461755a0705516195b20f51b",
+    "wvm-current-512-nz257-f4": "sha256:4b093e014b335156137f43eac33fb1ce5ab43dcbd6075e6858dc7265ff153251",
+    "wvm-large-1024-nz129-f4": "sha256:f32fabbbd14d54ad67612787672f7237835ef62e2018f0097576ebad9928e130"
+  },
+  "profiles": [
+    {
+      "profile": "wvm-current-256-nz129-f4",
+      "baselineMedianSeconds": 0.308569667,
+      "candidateMedianSeconds": 0.203497959,
+      "candidateToBaseline": 0.6588394321783158,
+      "roundRatios": [
+        0.647544038349337,
+        0.6588394321783158,
+        0.6633618138493179
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.647544038349337,
+        "upper": 0.6633618138493179
+      },
+      "memoryOnly": {
+        "baselineAlgorithmResidentBytes": 4984816704,
+        "candidateAlgorithmResidentBytes": 2438956320,
+        "baselineObservedProcessHighWaterBytes": 6478495744,
+        "candidateObservedProcessHighWaterBytes": 3904471040
+      }
+    },
+    {
+      "profile": "wvm-current-512-nz257-f4",
+      "baselineMedianSeconds": 2.581458333,
+      "candidateMedianSeconds": 1.713892791,
+      "candidateToBaseline": 0.661140678641517,
+      "roundRatios": [
+        0.661140678641517,
+        0.6647818901673513,
+        0.6604276567628886
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.6604276567628886,
+        "upper": 0.6647818901673513
+      },
+      "memoryOnly": {
+        "baselineAlgorithmResidentBytes": 56945531392,
+        "candidateAlgorithmResidentBytes": 27756950080,
+        "baselineObservedProcessHighWaterBytes": 72528347136,
+        "candidateObservedProcessHighWaterBytes": 45359366144
+      }
+    },
+    {
+      "profile": "wvm-large-1024-nz129-f4",
+      "baselineMedianSeconds": 23.249921209,
+      "candidateMedianSeconds": 3.47463675,
+      "candidateToBaseline": 0.15023513097532062,
+      "roundRatios": [
+        0.15174304081839057,
+        0.15023513097532062,
+        0.14266758092355655
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.14266758092355655,
+        "upper": 0.15174304081839057
+      },
+      "memoryOnly": {
+        "baselineAlgorithmResidentBytes": 80118520704,
+        "candidateAlgorithmResidentBytes": 39316603264,
+        "baselineObservedProcessHighWaterBytes": 96052133888,
+        "candidateObservedProcessHighWaterBytes": 67643998208
+      }
+    }
+  ],
+  "capacityExclusions": [
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "production-lifetime-wvm-direct-authoritative",
+      "requiredPhysicalMemoryBytes": 243158866308
+    },
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "production-lifetime-streaming-pruned-tile16-authoritative",
+      "requiredPhysicalMemoryBytes": 140096220868
+    }
+  ],
+  "maximumCorrectnessError": 1.2373266069030009e-15,
+  "geometricCandidateToBaseline": 0.4029782944733823,
+  "maximumProfileCandidateToBaseline": 0.661140678641517,
+  "empiricalStratifiedPairedRange": {
+    "lower": 0.3936769187695729,
+    "upper": 0.40598763833981644
+  },
+  "memoryOnlyGeometricRatios": {
+    "algorithmResidentBytes": 0.4891439246906031,
+    "scratchBytes": 0.8544575786180688,
+    "estimatedProcessPeakBytes": 0.4891439246906031,
+    "observedProcessHighWaterBytes": 0.6426726609124067
+  },
+  "gate": {
+    "geometricTimeRatioAtMost": 0.9,
+    "maximumProfileTimeRatioAtMost": 1.03,
+    "improvementPassed": true,
+    "regressionPassed": true,
+    "empiricalIntervalExcludesTie": true,
+    "correctnessPassed": true,
+    "referenceRoundProtocolPassed": true,
+    "allocationVerificationPassed": true,
+    "memoryEvidenceComplete": true,
+    "capacityEvidenceComplete": true,
+    "singleGraphAndSchedulePassed": true,
+    "advanceToWvmIntegrationExperiment": true,
+    "completeNonlinearFluxMeasured": false,
+    "wvmSourceChangeAuthorized": false,
+    "generalMacClaimAllowed": false,
+    "sizeDependentDispatchAllowed": false
+  }
+}
