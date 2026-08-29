@@ -87,7 +87,13 @@ def matlab_capacity(matlab: str, wvm_repository: Path,
         text=True, capture_output=True,
     )
     if completed.returncode != 0:
-        diagnostic = (completed.stderr or completed.stdout).strip()
+        diagnostic = "\n".join(
+            part.strip()
+            for part in (completed.stdout, completed.stderr)
+            if part and part.strip()
+        )
+        if not diagnostic:
+            diagnostic = f"MATLAB exited with status {completed.returncode}"
         raise RuntimeError(
             f"MATLAB capacity preflight failed for {workload.profile}: "
             f"{diagnostic[-2000:]}"
