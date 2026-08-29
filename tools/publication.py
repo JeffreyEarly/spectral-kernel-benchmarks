@@ -363,6 +363,10 @@ def load_and_validate(results_dir: Path, baseline_ref: str | None = None) -> tup
         for path in results_dir.rglob("*")
         if path.is_file()
         and path != catalog_path
+        and not (
+            path.suffix == ".json"
+            and path.relative_to(results_dir).parts[0] == "decisions"
+        )
         and (path.suffix == ".csv" or (path.suffix == ".json" and "schema" not in path.parts))
     }
     unlisted = sorted(discovered_artifacts - catalog_artifacts)

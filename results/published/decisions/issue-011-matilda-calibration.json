@@ -1,0 +1,292 @@
+{
+  "schema": "spectral-kernel-cross-mac-calibration-analysis-v1",
+  "experimentId": "issue-009-combined-spectral-pipeline",
+  "incrementId": "synthetic-spectral-pipeline-cross-mac-topology-calibration-v1",
+  "phase": "calibration",
+  "profiles": [
+    "wvm-current-256-nz129-f4",
+    "wvm-current-512-nz257-f4"
+  ],
+  "algorithms": [
+    {
+      "algorithm": {
+        "id": "wvm-direct",
+        "policy": "wvm-direct",
+        "primary_provider": "pipeline-wvm-direct",
+        "role": "wvm-order-control",
+        "tile_width": 0
+      },
+      "topologies": [
+        {
+          "topology": {
+            "id": "horizontal-performance-8--vertical-dynamic-total-10",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.2729342555029297,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.081120416,
+              "maximumCorrectnessError": 6.19278847791033e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.918302833,
+              "maximumCorrectnessError": 8.45372929437836e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-performance-8--vertical-static-performance-8",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-static",
+            "vertical_workers": 8,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "performance"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.26845299243536475,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.076165916,
+              "maximumCorrectnessError": 7.538816005343714e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.9461845,
+              "maximumCorrectnessError": 8.45372929437836e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-total-10--vertical-dynamic-total-10",
+            "horizontal_workers": 10,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "total",
+            "vertical_worker_class": "total"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.2841404812619807,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.088700042,
+              "maximumCorrectnessError": 6.578253604386402e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.910211667,
+              "maximumCorrectnessError": 8.436980533628702e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-total-10--vertical-static-performance-8",
+            "horizontal_workers": 10,
+            "vertical_schedule": "outer-static",
+            "vertical_workers": 8,
+            "horizontal_worker_class": "total",
+            "vertical_worker_class": "performance"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.2901122131751904,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.089803375,
+              "maximumCorrectnessError": 6.578253604386402e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.937215291,
+              "maximumCorrectnessError": 8.436980533628702e-16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "algorithm": {
+        "id": "streaming-pruned-tiled-16",
+        "policy": "streaming-pruned-compact-split",
+        "primary_provider": "pipeline-streaming-pruned-compact-split",
+        "role": "persistent-compiled-engine-candidate",
+        "tile_width": 16
+      },
+      "topologies": [
+        {
+          "topology": {
+            "id": "horizontal-performance-8--vertical-dynamic-total-10",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.14594924354336336,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.04368,
+              "maximumCorrectnessError": 6.592323218420674e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.487664416,
+              "maximumCorrectnessError": 9.426402201255608e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-performance-8--vertical-static-performance-8",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-static",
+            "vertical_workers": 8,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "performance"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.1558457898190203,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.045951333,
+              "maximumCorrectnessError": 6.792090588675846e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.52855725,
+              "maximumCorrectnessError": 9.707207550114462e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-total-10--vertical-dynamic-total-10",
+            "horizontal_workers": 10,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "total",
+            "vertical_worker_class": "total"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.15898904294784436,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.052343667,
+              "maximumCorrectnessError": 6.592323218420674e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.4829145,
+              "maximumCorrectnessError": 8.45372929437836e-16
+            }
+          ]
+        },
+        {
+          "topology": {
+            "id": "horizontal-total-10--vertical-static-performance-8",
+            "horizontal_workers": 10,
+            "vertical_schedule": "outer-static",
+            "vertical_workers": 8,
+            "horizontal_worker_class": "total",
+            "vertical_worker_class": "performance"
+          },
+          "complete": true,
+          "correctWithin1e-12": true,
+          "geometricSeconds": 0.17174020712404026,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.05527475,
+              "maximumCorrectnessError": 6.792090588675846e-16
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.533601667,
+              "maximumCorrectnessError": 8.45372929437836e-16
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "selections": {
+    "wvm-direct": {
+      "selectedTopology": {
+        "id": "horizontal-performance-8--vertical-dynamic-total-10",
+        "horizontal_workers": 8,
+        "vertical_schedule": "outer-dynamic",
+        "vertical_workers": 10,
+        "horizontal_worker_class": "performance",
+        "vertical_worker_class": "total"
+      },
+      "geometricSeconds": 0.2729342555029297,
+      "fastestGeometricSeconds": 0.26845299243536475,
+      "selectedToFastest": 1.016692915310467,
+      "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+    },
+    "streaming-pruned-tiled-16": {
+      "selectedTopology": {
+        "id": "horizontal-performance-8--vertical-dynamic-total-10",
+        "horizontal_workers": 8,
+        "vertical_schedule": "outer-dynamic",
+        "vertical_workers": 10,
+        "horizontal_worker_class": "performance",
+        "vertical_worker_class": "total"
+      },
+      "geometricSeconds": 0.14594924354336336,
+      "fastestGeometricSeconds": 0.14594924354336336,
+      "selectedToFastest": 1.0,
+      "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+    }
+  },
+  "allCompleteTopologiesCorrectWithin1e-12": true,
+  "maximumCorrectnessError": 9.707207550114462e-16,
+  "calibrationContributesToReferenceInference": false,
+  "sizeDependentDispatchAllowed": false,
+  "profilesRequested": [
+    "wvm-current-256-nz129-f4",
+    "wvm-current-512-nz257-f4"
+  ],
+  "machine": {
+    "hostname": "matilda-2.local",
+    "cpuBrand": "Apple M1 Max",
+    "hardwareModel": "MacBookPro18,2",
+    "performanceCores": 8,
+    "efficiencyCores": 2,
+    "totalPhysicalCores": 10,
+    "physicalMemoryBytes": 68719476736,
+    "macOS": "26.5.2",
+    "macOSBuild": "25F84",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+    "cmake": "cmake version 4.4.2\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "power": "AC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n disksleep            10",
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "sourceTreeGitCommit": "d8d6a506121343a2008e50ce32f81c656ebfdb6d",
+  "sourceTreeDirty": false,
+  "capacityExclusions": []
+}

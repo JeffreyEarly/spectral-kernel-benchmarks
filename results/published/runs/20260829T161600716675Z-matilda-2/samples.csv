@@ -1,0 +1,56 @@
+run_id,provider,scope,stage,direction,state,bytes_moved,sample_index,seconds
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,setup-shared-component,logical matrix-family fixture generation,shared,setup-only,358774800,0,0.041757415999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,setup-shared-component,mode-keyed modal weight generation,shared,setup-only,31114080,0,0.0039357089999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,setup-component,FFTW planning,shared,setup-only,543178752,0,0.46720716699999998
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,setup-component,vertical matrix preparation,shared,setup-only,717549600,0,0.052389708
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,0,0.021698334
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,1,0.022227833999999998
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,2,0.021487249999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,3,0.02144925
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,4,0.022091834000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,5,0.021141709000000002
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,forward,executed,543178752,6,0.021451375000000002
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,0,0.02272275
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,1,0.022605125
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,2,0.022925500000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,3,0.022042709000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,4,0.022530833
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,5,0.022694667000000002
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw FFT,inverse,executed,543178752,6,0.022922958
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,logical retained provider-order view,forward,elided,0,,
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,0,0.018278875
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,1,0.018319833000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,2,0.018550832999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,3,0.018431834000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,4,0.018344458000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,5,0.019714916999999998
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,forward,executed,515443344,6,0.0204195
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,0,0.0055905829999999997
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,1,0.005515458
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,2,0.0054632910000000003
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,3,0.0054612920000000004
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,4,0.0054705830000000002
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,5,0.0054631669999999997
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,component,mode-keyed modal work,modal,executed,155570400,6,0.0054717500000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,0,0.019061291000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,1,0.018664333000000002
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,2,0.018752333
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,3,0.018491207999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,4,0.018743625
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,5,0.018698625
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,primitive,raw vertical MM,inverse,executed,515443344,6,0.018658999999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,0,0.003320333
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,1,0.0033119579999999998
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,2,0.00330475
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,3,0.0033174580000000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,4,0.003313
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,5,0.0033141249999999998
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,adapter-component,rebuild zero-padded inverse spectrum,inverse,executed,272646144,6,0.0033142499999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,setup-component,release correctness-only benchmark storage,shared,setup-only,1442499072,0,7.1250000000000004e-06
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,0,0.089803375000000005
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,1,0.089794957999999994
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,2,0.089408874999999999
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,3,0.090413875000000005
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,4,0.087407542000000005
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,5,0.12796370800000001
+20260829T161600716675Z-matilda-2,pipeline-wvm-direct,uninstrumented-total,synthetic antialiased spectral pipeline,round-trip,executed,2545460736,6,0.090972959000000006
