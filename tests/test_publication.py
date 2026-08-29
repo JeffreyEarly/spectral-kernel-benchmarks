@@ -53,6 +53,34 @@ class PublicationValidationTests(unittest.TestCase):
                 "issue-019-production-lifetime-spectral-flux-composition"
             ],
         )
+        production_lifetime_flux = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "production-lifetime-flux-preliminary-harness-v1"
+        ]
+        self.assertEqual(2, len(production_lifetime_flux))
+        self.assertEqual(
+            {
+                "pipeline-production-lifetime-wvm-direct",
+                "pipeline-production-lifetime-streaming-pruned-tile16",
+            },
+            {
+                bundle.result["providers"][0]["id"]
+                for bundle in production_lifetime_flux
+            },
+        )
+        for bundle in production_lifetime_flux:
+            self.assertEqual("preliminary", bundle.publication["status"])
+            self.assertEqual("352d7cf1e43b", bundle.result["environment"]["gitCommit"])
+            self.assertFalse(bundle.result["environment"]["gitDirty"])
+            fixture = bundle.result["provenance"]["spectralFluxFixture"]
+            self.assertEqual(
+                "provider-independent-synthetic-development", fixture["status"]
+            )
+            self.assertFalse(fixture["authoritative"])
+            self.assertEqual(
+                0, bundle.result["providers"][0]["memory"]["benchmarkHarnessBytes"]
+            )
         fftw_production_reference = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==

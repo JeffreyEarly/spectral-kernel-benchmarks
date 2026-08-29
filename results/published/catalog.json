@@ -28174,6 +28174,66 @@
         "samplesSha256": "64283b93001c04c7f7b6586b6a1b39bb27b8f32532362194d4bd7a10ba6807d3"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T175138Z-issue19-wvm-direct-lyra",
+      "incrementId": "production-lifetime-flux-preliminary-harness-v1",
+      "campaignPhase": "preliminary-harness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-wvm-direct",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max synthetic-development harness pair at commit 352d7cf; validates the issue #19 streamed lifetime, four-target correctness, component ledger, and memory accounting, but lacks authoritative WVM-exported fixtures and cannot enter the 0.90 adoption gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split",
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T175138Z-issue19-wvm-direct-lyra/result.json",
+        "samples": "runs/20260829T175138Z-issue19-wvm-direct-lyra/samples.csv",
+        "resultSha256": "b964fc72f52dd16b72ef6d8a71518e2a9cb5ad145e3a66e9bd304be241beec4a",
+        "samplesSha256": "604bf4823efb7d6daf9bf7f4526ade188ad2c0ae7fa7995d4b70dab7221c0880"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T175148Z-issue19-streaming-pruned-compact-split-lyra",
+      "incrementId": "production-lifetime-flux-preliminary-harness-v1",
+      "campaignPhase": "preliminary-harness",
+      "campaignRound": 1,
+      "campaignCandidateId": "production-lifetime-streaming-pruned-tile16",
+      "status": "preliminary",
+      "statusReason": "Clean M4 Max synthetic-development harness pair at commit 352d7cf; validates the issue #19 streamed lifetime, four-target correctness, component ledger, and memory accounting, but lacks authoritative WVM-exported fixtures and cannot enter the 0.90 adoption gate.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-k2-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        19
+      ],
+      "experiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "priorExperiments": [
+        "issue-013-ordering-packing-crossover",
+        "issue-016-streaming-pruned-compact-split",
+        "issue-018-vertically-batched-advection-pipeline"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T175148Z-issue19-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260829T175148Z-issue19-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "a8701946a483ff64de797d8c3df1e775ff7ba0506be3bfa9e028fd7f6acc4428",
+        "samplesSha256": "4ef4d0aab13a5343c7cb1a0cad720e81c236503ac9756dca22c4b40e7f433afa"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

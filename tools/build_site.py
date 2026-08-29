@@ -5308,6 +5308,133 @@ def ordering_packing_closeout_synthesis(
     """
 
 
+def production_lifetime_flux_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "production-lifetime-flux-preliminary-harness-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "preliminary"
+    ]
+    if len(cohort) != 2:
+        return ""
+    provider_ids = {
+        "pipeline-production-lifetime-wvm-direct": "WVM-order control",
+        "pipeline-production-lifetime-streaming-pruned-tile16":
+            "Streaming tile 16",
+    }
+    cells: dict[str, dict] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        if len(bundle.result.get("providers", [])) != 1:
+            return ""
+        provider = bundle.result["providers"][0]
+        provider_id = provider.get("id")
+        if provider_id not in provider_ids:
+            return ""
+        fixture = bundle.result.get("provenance", {}).get(
+            "spectralFluxFixture", {}
+        )
+        if (
+            fixture.get("status") !=
+                "provider-independent-synthetic-development"
+            or fixture.get("authoritative") is not False
+        ):
+            return ""
+
+        def required(stage: str) -> float:
+            matches = [
+                timing for timing in provider.get("timings", [])
+                if timing.get("stage") == stage
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"issue #19 preliminary provider lacks one {stage} timing"
+                )
+            return float(matches[0]["medianSeconds"])
+
+        forward_horizontal_stage = (
+            "four streamed full horizontal forward FFTs"
+            if provider_id == "pipeline-production-lifetime-wvm-direct"
+            else "four streamed horizontal forward transforms and retention"
+        )
+        movement_stage = (
+            "WVM-order triple extraction and target scatter"
+            if provider_id == "pipeline-production-lifetime-wvm-direct"
+            else "native split triple extraction and target scatter"
+        )
+        memory = provider["memory"]
+        cells[provider_id] = {
+            "bundle": bundle,
+            "inverseVertical": required(
+                "raw inverse vertical MM (15 modal inputs)"
+            ),
+            "shared": required("shared U,V,W horizontal reconstruction"),
+            "derivatives": required(
+                "per-target derivative horizontal reconstruction"
+            ),
+            "pointwise": required(
+                "four streamed pointwise advection expressions"
+            ),
+            "forwardHorizontal": required(forward_horizontal_stage),
+            "movement": required(movement_stage),
+            "forwardVertical": required(
+                "raw forward vertical MM (4 modal targets)"
+            ),
+            "total": required(
+                "production-lifetime streamed four-target spectral-flux composition"
+            ),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+
+    control_id = "pipeline-production-lifetime-wvm-direct"
+    candidate_id = "pipeline-production-lifetime-streaming-pruned-tile16"
+    if set(cells) != {control_id, candidate_id}:
+        return ""
+    control = cells[control_id]
+    candidate = cells[candidate_id]
+    time_ratio = candidate["total"] / control["total"]
+    resident_ratio = candidate["resident"] / control["resident"]
+    observed_ratio = candidate["observed"] / control["observed"]
+    rows: list[str] = []
+    for provider_id in (control_id, candidate_id):
+        cell = cells[provider_id]
+        run_id = cell["bundle"].result["run"]["id"]
+        rows.append(
+            "<tr>"
+            f'<th scope="row"><a href="../../runs/{quote(run_id)}/index.html">'
+            f'{escaped(provider_ids[provider_id])}</a></th>'
+            f'<td class="numeric">{format_ms(cell["inverseVertical"])}</td>'
+            f'<td class="numeric">{format_ms(cell["shared"])}</td>'
+            f'<td class="numeric">{format_ms(cell["derivatives"])}</td>'
+            f'<td class="numeric">{format_ms(cell["pointwise"])}</td>'
+            f'<td class="numeric">{format_ms(cell["forwardHorizontal"])}</td>'
+            f'<td class="numeric">{format_ms(cell["movement"])}</td>'
+            f'<td class="numeric">{format_ms(cell["forwardVertical"])}</td>'
+            f'<td class="numeric"><strong>{format_ms(cell["total"])}</strong></td>'
+            f'<td class="numeric">{format_bytes(int(cell["resident"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(cell["observed"]))}</td>'
+            "</tr>"
+        )
+    maximum_error = max(errors) if errors else math.inf
+    return f"""
+      <h2>First production-lifetime harness pair</h2>
+      <p>This clean M4 Max pair changes the buffer lifetime and transform multiplicity while holding one 15-to-4 synthetic operator fixed. Unlike issue #18, the matched WVM-order control reconstructs shared U,V,W once and reuses one derivative triple plus one target volume, so it is the performance denominator for this experiment.</p>
+      <p>Streaming tile 16 is {time_ratio:.3f}× the WVM-order control in the separately measured total, with {resident_ratio:.3f}× the algorithm-resident storage and {observed_ratio:.3f}× the observed process high water. Maximum mode-keyed error is {maximum_error:.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>One preliminary process per graph, two warmups and nine samples at 256²/N<sub>z</sub>=129/F4. Times are medians in milliseconds. Components are diagnostic, overlap in their data movement, and must not be added; the uninstrumented total is authoritative for this run.</caption>
+        <thead><tr><th scope="col">Graph</th><th scope="col">Inverse vertical</th><th scope="col">Shared inverse H</th><th scope="col">Four derivative inverse H</th><th scope="col">Pointwise</th><th scope="col">Four forward H</th><th scope="col">Movement</th><th scope="col">Forward vertical</th><th scope="col">Total</th><th scope="col">Algorithm resident</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p class="method-note"><strong>Preliminary only:</strong> both runs use provider-independent synthetic inputs and vertical operators. They establish harness correctness, four-target ordering, seven-real-volume reuse, component reporting, and descriptive machine behavior. They do not evaluate the 0.90 gate and cannot enter adoption statistics until the <a href="../../methods/wvm-spectral-flux-fixture/index.html">authoritative WVM fixture contract</a> is satisfied.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-009-combined-spectral-pipeline":
         return spectral_pipeline_evidence_table(bundles)
@@ -5409,6 +5536,8 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         synthesis = dealiased_convolution_synthesis(related)
     elif experiment_id == "issue-018-vertically-batched-advection-pipeline":
         synthesis = vertically_batched_advection_synthesis(related)
+    elif experiment_id == "issue-019-production-lifetime-spectral-flux-composition":
+        synthesis = production_lifetime_flux_synthesis(related)
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":

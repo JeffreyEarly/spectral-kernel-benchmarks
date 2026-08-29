@@ -344,6 +344,12 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("15 ready retained and vertically truncated modal fields", issue_19_html)
             self.assertIn("Issue #18 is attribution evidence", issue_19_html)
             self.assertIn("No reference run has been published", issue_19_html)
+            self.assertIn("First production-lifetime harness pair", issue_19_html)
+            self.assertIn("Streaming tile 16 is 0.731×", issue_19_html)
+            self.assertIn("0.405× the algorithm-resident storage", issue_19_html)
+            self.assertIn("0.583× the observed process high water", issue_19_html)
+            self.assertIn("Maximum mode-keyed error is 9.550e-20", issue_19_html)
+            self.assertIn("They do not evaluate the 0.90 gate", issue_19_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

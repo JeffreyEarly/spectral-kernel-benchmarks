@@ -120,9 +120,24 @@ def _validate_result(path: Path, result: dict, run_id: str, grandfathered: bool)
         )
         if any(key in memory for key in memory_aware_keys):
             _require_keys(memory, memory_aware_keys, f"{context}.memory")
-            for key in memory_aware_keys:
+            positive_keys = (
+                "algorithmResidentBytes",
+                "estimatedProcessPeakBytes",
+                "observedProcessHighWaterBytes",
+            )
+            for key in positive_keys:
                 if not isinstance(memory[key], int) or memory[key] <= 0:
-                    raise ValueError(f"{context}.memory.{key}: expected a positive integer")
+                    raise ValueError(
+                        f"{context}.memory.{key}: expected a positive integer"
+                    )
+            if (
+                not isinstance(memory["benchmarkHarnessBytes"], int)
+                or memory["benchmarkHarnessBytes"] < 0
+            ):
+                raise ValueError(
+                    f"{context}.memory.benchmarkHarnessBytes: expected a "
+                    "nonnegative integer"
+                )
             if (
                 memory["algorithmResidentBytes"] + memory["benchmarkHarnessBytes"]
                 != memory["estimatedProcessPeakBytes"]
