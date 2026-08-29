@@ -123,7 +123,9 @@ def graph_capacity(capacity: dict, physical_bytes: int) -> dict:
     canonical_operator = 32 * nz * nj * segments
     fixture_modal = 16 * nj * nkl * 19
     packed_inputs = 16 * nj * nkl * 15
+    per_target_correctness_pair = 32 * nj * nkl
     real_volume = 8 * nx * ny * nz
+    fixture_load_peak = source_operator + 2 * fixture_modal
 
     split_operands = 16 * nkl * (nz + nj) * 19
     split_scratch = 16 * nkl * nz * 4 + 7 * real_volume
@@ -132,8 +134,13 @@ def graph_capacity(capacity: dict, physical_bytes: int) -> dict:
         source_operator // 2 + canonical_operator + split_operands +
         fixture_modal + packed_inputs
     )
-    split_post_setup = split_steady + fixture_modal + packed_inputs
-    split_peak = max(split_construction, split_post_setup)
+    split_post_setup = (
+        split_steady + 3 * fixture_modal + packed_inputs +
+        per_target_correctness_pair
+    )
+    split_peak = max(
+        fixture_load_peak, split_construction, split_post_setup
+    )
 
     half_rows = (nx // 2 + 1) * ny
     direct_arrays = 16 * half_rows * (nz + nj) * 19
@@ -143,10 +150,15 @@ def graph_capacity(capacity: dict, physical_bytes: int) -> dict:
         source_operator // 2 + 2 * canonical_operator + direct_arrays +
         fixture_modal + packed_inputs
     )
-    direct_post_setup = direct_steady + fixture_modal + packed_inputs
-    direct_peak = max(direct_construction, direct_post_setup)
+    direct_post_setup = (
+        direct_steady + 3 * fixture_modal + packed_inputs +
+        per_target_correctness_pair
+    )
+    direct_peak = max(
+        fixture_load_peak, direct_construction, direct_post_setup
+    )
 
-    opaque_reserve = max(4 * 1024**3, math.ceil(0.05 * physical_bytes))
+    opaque_reserve = max(8 * 1024**3, math.ceil(0.10 * physical_bytes))
 
     def record(steady: int, peak: int) -> dict:
         required = peak + opaque_reserve
@@ -169,9 +181,11 @@ def graph_capacity(capacity: dict, physical_bytes: int) -> dict:
         CANDIDATES[1].id: record(split_steady, split_peak),
         "method": (
             "Exact explicit arrays from the frozen graph and WVM source/canonical "
-            "group counts, plus max(4 GiB, 5% physical memory) for opaque providers "
-            "and the operating system. This is a conservative allocation preflight, "
-            "not an observed high-water measurement."
+            "group counts, including simultaneous source/reordered fixture payloads "
+            "and all mode-keyed correctness copies retained until validation, plus "
+            "max(8 GiB, 10% physical memory) for opaque providers and the operating "
+            "system. This is a conservative allocation preflight, not an observed "
+            "high-water measurement."
         ),
     }
 

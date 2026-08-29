@@ -27,7 +27,7 @@ class AuthoritativeSpectralFluxScaleoutTests(unittest.TestCase):
             "payloadBytes": {"verticalOperators": source_operator},
         }
 
-    def test_deep_vertical_preflight_excludes_only_wvm_direct_on_128_gib(self) -> None:
+    def test_deep_vertical_preflight_excludes_both_graphs_on_128_gib(self) -> None:
         result = graph_capacity(
             self.capacity(
                 nz=513, nj=341, segments=14431,
@@ -36,10 +36,31 @@ class AuthoritativeSpectralFluxScaleoutTests(unittest.TestCase):
             128 * 1024**3,
         )
         self.assertFalse(result[CANDIDATES[0].id]["feasible"])
-        self.assertTrue(result[CANDIDATES[1].id]["feasible"])
+        self.assertFalse(result[CANDIDATES[1].id]["feasible"])
         self.assertGreater(
             result[CANDIDATES[0].id]["estimatedSteadyExplicitBytes"],
             result[CANDIDATES[1].id]["estimatedSteadyExplicitBytes"],
+        )
+
+    def test_1024_compact_preflight_covers_observed_correctness_high_water(self) -> None:
+        result = graph_capacity(
+            {
+                "workload": {
+                    "Nx": 1024,
+                    "Ny": 1024,
+                    "Nz": 129,
+                    "Nkl": 183037,
+                    "Nj": 85,
+                    "canonicalGroupSegmentCount": 58454,
+                },
+                "payloadBytes": {"verticalOperators": 12008868000},
+            },
+            128 * 1024**3,
+        )
+        compact = result[CANDIDATES[1].id]
+        self.assertTrue(compact["feasible"])
+        self.assertGreaterEqual(
+            compact["requiredPhysicalMemoryBytes"], 67647242240
         )
 
     def test_medium_case_fits_both_graphs(self) -> None:
