@@ -61,8 +61,9 @@ def analyze(results: list[tuple[int, dict]], performance_workers: int) -> dict:
         maximum_error = max(maximum_error, error)
         all_correct = all_correct and math.isfinite(error) and error <= 1.0e-12
         scheduling = provider.get("scheduling", {})
+        planning_configuration = provider.get("planning", {}).get("configuration", "")
         contracts_valid = contracts_valid and (
-            provider.get("planningConfiguration", "").startswith("FFTW_MEASURE|FFTW_UNALIGNED")
+            planning_configuration.startswith("FFTW_MEASURE|FFTW_UNALIGNED")
             and scheduling.get("internalWorkers") == performance_workers
             and scheduling.get("outerWorkers") == 1
             and provider["executionContract"]["forward"]["nativePlacement"] == "out-of-place"
