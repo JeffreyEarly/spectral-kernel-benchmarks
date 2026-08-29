@@ -30,25 +30,19 @@ std::size_t checkedProduct(std::size_t left, std::size_t right,
 
 class Reader {
 public:
-    explicit Reader(const std::filesystem::path& path) : path_(path) {
-        std::ifstream stream(path_, std::ios::binary | std::ios::ate);
-        if (!stream) {
+    explicit Reader(const std::filesystem::path& path)
+        : path_(path), stream_(path_, std::ios::binary | std::ios::ate) {
+        if (!stream_) {
             throw std::runtime_error(
                 "Unable to open prepared spectral-flux fixture: " + path_.string());
         }
-        const auto end = stream.tellg();
+        const auto end = stream_.tellg();
         if (end < 0) {
             throw std::runtime_error(
                 "Unable to size prepared spectral-flux fixture: " + path_.string());
         }
-        bytes_.resize(static_cast<std::size_t>(end));
-        stream.seekg(0);
-        stream.read(reinterpret_cast<char*>(bytes_.data()),
-                    static_cast<std::streamsize>(bytes_.size()));
-        if (!stream) {
-            throw std::runtime_error(
-                "Unable to read prepared spectral-flux fixture: " + path_.string());
-        }
+        size_ = static_cast<std::size_t>(end);
+        stream_.seekg(0);
     }
 
     template <typename Value>
@@ -56,8 +50,7 @@ public:
         static_assert(std::is_trivially_copyable_v<Value>);
         require(sizeof(Value), label);
         Value result{};
-        std::memcpy(&result, bytes_.data() + offset_, sizeof(Value));
-        offset_ += sizeof(Value);
+        read(&result, sizeof(Value), label);
         return result;
     }
 
@@ -67,8 +60,7 @@ public:
         const auto byteCount = checkedProduct(count, sizeof(Value), label);
         require(byteCount, label);
         std::vector<Value> result(count);
-        std::memcpy(result.data(), bytes_.data() + offset_, byteCount);
-        offset_ += byteCount;
+        read(result.data(), byteCount, label);
         return result;
     }
 
@@ -78,9 +70,8 @@ public:
             throw std::runtime_error(std::string(label) + " length exceeds size_t.");
         }
         require(static_cast<std::size_t>(length), label);
-        const auto* first = reinterpret_cast<const char*>(bytes_.data() + offset_);
-        std::string result(first, first + static_cast<std::ptrdiff_t>(length));
-        offset_ += static_cast<std::size_t>(length);
+        std::string result(static_cast<std::size_t>(length), '\0');
+        read(result.data(), result.size(), label);
         if (result.find('\0') != std::string::npos) {
             throw std::runtime_error(std::string(label) + " contains NUL bytes.");
         }
@@ -88,7 +79,7 @@ public:
     }
 
     void requireFinished() const {
-        if (offset_ != bytes_.size()) {
+        if (offset_ != size_) {
             throw std::runtime_error(
                 "Prepared spectral-flux fixture contains trailing bytes.");
         }
@@ -96,14 +87,34 @@ public:
 
 private:
     void require(std::size_t count, const char* label) const {
-        if (count > bytes_.size() - offset_) {
+        if (count > size_ - offset_) {
             throw std::runtime_error(
                 std::string("Prepared spectral-flux fixture is truncated at ") + label + '.');
         }
     }
 
+    void read(void* destination, std::size_t count, const char* label) {
+        auto* output = static_cast<char*>(destination);
+        std::size_t remaining = count;
+        constexpr auto maximumRead = static_cast<std::size_t>(
+            std::numeric_limits<std::streamsize>::max());
+        while (remaining != 0) {
+            const auto chunk = std::min(remaining, maximumRead);
+            stream_.read(output, static_cast<std::streamsize>(chunk));
+            if (!stream_) {
+                throw std::runtime_error(
+                    std::string("Unable to read prepared spectral-flux fixture at ") +
+                    label + '.');
+            }
+            output += chunk;
+            remaining -= chunk;
+            offset_ += chunk;
+        }
+    }
+
     std::filesystem::path path_;
-    std::vector<std::byte> bytes_;
+    std::ifstream stream_;
+    std::size_t size_ = 0;
     std::size_t offset_ = 0;
 };
 
@@ -231,25 +242,6 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
     fixture.targetFieldFamilies = reader.values<std::uint32_t>(
         targetCount, "target field families");
 
-    const auto matrixElements = checkedProduct(
-        checkedProduct(fixture.workload.nz, nj, "operator matrix"),
-        checkedProduct(familyCount, groupCount, "operator family"),
-        "operator payload");
-    fixture.inverseOperators = reader.values<double>(
-        matrixElements, "inverse operators");
-    fixture.forwardOperators = reader.values<double>(
-        matrixElements, "forward operators");
-    const auto inputElements = checkedProduct(
-        checkedProduct(nj, inputCount, "modal input fields"), nkl,
-        "modal inputs");
-    const auto targetElements = checkedProduct(
-        checkedProduct(nj, targetCount, "modal target fields"), nkl,
-        "modal targets");
-    fixture.modalInputs = reader.values<Complex>(inputElements, "modal inputs");
-    fixture.expectedModalTargets = reader.values<Complex>(
-        targetElements, "expected modal targets");
-    reader.requireFinished();
-
     for (std::size_t j = 0; j < nj; ++j) {
         requireText(verticalKeys[j] == static_cast<std::int32_t>(j),
                     "Spectral-flux fixture vertical mode keys are not j=0..Nj-1.");
@@ -296,11 +288,91 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
                 "Spectral-flux fixture does not use every declared mode group.");
     requireText(std::is_sorted(fixture.groupKeys.begin(), fixture.groupKeys.end()),
                 "Spectral-flux fixture group diagnostic keys are not nondecreasing.");
+    std::vector<std::uint32_t> reorderedGroups(nkl);
+    std::vector<VerticalModeGroup> operatorGroups;
+    std::vector<std::size_t> sourceGroups;
+    for (std::size_t mode = 0; mode < nkl; ++mode) {
+        const auto source = sourceForExpectedMode[mode];
+        const auto sourceGroup = fixture.modeGroupIndices[source];
+        reorderedGroups[mode] = sourceGroup;
+        if (operatorGroups.empty() || sourceGroups.back() != sourceGroup) {
+            operatorGroups.push_back(
+                {fixture.groupKeys[sourceGroup], mode, 1});
+            sourceGroups.push_back(sourceGroup);
+        } else {
+            ++operatorGroups.back().modeCount;
+        }
+    }
+    const auto perGroup = checkedProduct(fixture.workload.nz, nj,
+                                         "operator matrix");
+    const auto familyElements = checkedProduct(
+        groupCount, perGroup, "operator family");
+    for (std::size_t family = 0; family < familyCount; ++family) {
+        auto& operators = fixture.operatorFamilies[family];
+        operators.id = family == 0 ? "wvm-wave-f-floating-k2" :
+                                     "wvm-wave-g-floating-k2";
+        operators.nz = fixture.workload.nz;
+        operators.nj = nj;
+        operators.groups = operatorGroups;
+        operators.matrixSourceGroups = sourceGroups;
+        operators.inverse.resize(familyElements);
+        operators.forward.resize(familyElements);
+    }
+    auto copyInverse = [&](const std::vector<double>& raw,
+                           std::size_t sourceGroup, std::size_t family) {
+        const auto destinationBase = sourceGroup * perGroup;
+        for (std::size_t z = 0; z < fixture.workload.nz; ++z) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                fixture.operatorFamilies[family].inverse[
+                    destinationBase + z * nj + j] =
+                    raw[z + fixture.workload.nz * j];
+            }
+        }
+    };
+    auto copyForward = [&](const std::vector<double>& raw,
+                           std::size_t sourceGroup, std::size_t family) {
+        const auto destinationBase = sourceGroup * perGroup;
+        for (std::size_t z = 0; z < fixture.workload.nz; ++z) {
+            for (std::size_t j = 0; j < nj; ++j) {
+                fixture.operatorFamilies[family].forward[
+                    destinationBase + j * fixture.workload.nz + z] =
+                    raw[j + nj * z];
+            }
+        }
+    };
+    for (std::size_t sourceGroup = 0; sourceGroup < groupCount; ++sourceGroup) {
+        for (std::size_t family = 0; family < familyCount; ++family) {
+            auto raw = reader.values<double>(perGroup, "inverse operator matrix");
+            requireFinite(raw, "Inverse operator payload");
+            copyInverse(raw, sourceGroup, family);
+        }
+    }
+    for (std::size_t sourceGroup = 0; sourceGroup < groupCount; ++sourceGroup) {
+        for (std::size_t family = 0; family < familyCount; ++family) {
+            auto raw = reader.values<double>(perGroup, "forward operator matrix");
+            requireFinite(raw, "Forward operator payload");
+            copyForward(raw, sourceGroup, family);
+        }
+    }
+    fixture.verticalOperatorSourceBytes = static_cast<std::uint64_t>(
+        checkedProduct(2, checkedProduct(
+            checkedProduct(perGroup, familyCount, "operator direction"),
+            groupCount, "operator source groups"), "operator directions")) *
+        sizeof(double);
+    const auto inputElements = checkedProduct(
+        checkedProduct(nj, inputCount, "modal input fields"), nkl,
+        "modal inputs");
+    const auto targetElements = checkedProduct(
+        checkedProduct(nj, targetCount, "modal target fields"), nkl,
+        "modal targets");
+    fixture.modalInputs = reader.values<Complex>(inputElements, "modal inputs");
+    fixture.expectedModalTargets = reader.values<Complex>(
+        targetElements, "modal targets");
+    reader.requireFinished();
     const auto inputBlock = checkedProduct(nj, inputCount, "modal input mode block");
     const auto targetBlock = checkedProduct(nj, targetCount, "modal target mode block");
     std::vector<Complex> reorderedInputs(fixture.modalInputs.size());
     std::vector<Complex> reorderedTargets(fixture.expectedModalTargets.size());
-    std::vector<std::uint32_t> reorderedGroups(nkl);
     for (std::size_t mode = 0; mode < nkl; ++mode) {
         const auto source = sourceForExpectedMode[mode];
         std::copy_n(fixture.modalInputs.begin() +
@@ -325,8 +397,6 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
                 "Spectral-flux fixture input field-to-operator map is inconsistent.");
     requireText(fixture.targetFieldFamilies == expectedTargetFamilies,
                 "Spectral-flux fixture target-to-operator map is inconsistent.");
-    requireFinite(fixture.inverseOperators, "Inverse operator payload");
-    requireFinite(fixture.forwardOperators, "Forward operator payload");
     requireFinite(fixture.modalInputs, "Modal input payload");
     requireFinite(fixture.expectedModalTargets, "Modal target payload");
     for (std::size_t field = 0; field < inputCount; ++field) {
@@ -336,50 +406,6 @@ SpectralFluxFixture loadPreparedSpectralFluxFixture(
         }
     }
     return fixture;
-}
-
-GroupedVerticalOperators spectralFluxOperatorFamily(
-    const SpectralFluxFixture& fixture, std::size_t family) {
-    if (family >= 2) {
-        throw std::invalid_argument("Spectral-flux operator family must be zero or one.");
-    }
-    std::vector<VerticalModeGroup> groups;
-    std::vector<std::size_t> sourceGroups;
-    for (std::size_t mode = 0; mode < fixture.modes.size(); ++mode) {
-        const auto sourceGroup = static_cast<std::size_t>(
-            fixture.modeGroupIndices[mode]);
-        if (groups.empty() || sourceGroups.back() != sourceGroup) {
-            groups.push_back({fixture.groupKeys[sourceGroup], mode, 1});
-            sourceGroups.push_back(sourceGroup);
-        } else {
-            ++groups.back().modeCount;
-        }
-    }
-    const auto nz = fixture.workload.nz;
-    const auto nj = fixture.workload.retainedVerticalModes();
-    const auto perGroup = checkedProduct(nz, nj, "operator matrix");
-    GroupedVerticalOperators result;
-    result.id = family == 0 ? "wvm-wave-f-floating-k2" :
-                              "wvm-wave-g-floating-k2";
-    result.nz = nz;
-    result.nj = nj;
-    result.groups = groups;
-    result.inverse.resize(checkedProduct(groups.size(), perGroup,
-                                         "inverse operator family"));
-    result.forward.resize(result.inverse.size());
-    for (std::size_t group = 0; group < groups.size(); ++group) {
-        const auto sourceBase = perGroup * (family + 2 * sourceGroups[group]);
-        const auto destinationBase = perGroup * group;
-        for (std::size_t z = 0; z < nz; ++z) {
-            for (std::size_t j = 0; j < nj; ++j) {
-                result.inverse[destinationBase + z * nj + j] =
-                    fixture.inverseOperators[sourceBase + z + nz * j];
-                result.forward[destinationBase + j * nz + z] =
-                    fixture.forwardOperators[sourceBase + j + nj * z];
-            }
-        }
-    }
-    return result;
 }
 
 } // namespace skbench

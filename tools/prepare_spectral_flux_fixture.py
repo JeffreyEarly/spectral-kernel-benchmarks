@@ -9,6 +9,7 @@ import json
 import math
 import pathlib
 import re
+import shutil
 import struct
 import sys
 from typing import Any
@@ -176,8 +177,18 @@ def unpack(payload: bytes, code: str) -> tuple[Any, ...]:
     return struct.unpack(f"<{len(payload) // struct.calcsize(code)}{code}", payload)
 
 
+def hash_file(path: pathlib.Path) -> tuple[int, str]:
+    digest = hashlib.sha256()
+    byte_count = 0
+    with path.open("rb") as stream:
+        while chunk := stream.read(16 * 1024 * 1024):
+            digest.update(chunk)
+            byte_count += len(chunk)
+    return byte_count, digest.hexdigest()
+
+
 def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
-                                                         dict[str, bytes]]:
+                                                         dict[str, pathlib.Path]]:
     require(directory.is_dir(), f"fixture directory does not exist: {directory}")
     manifest_path = directory / "manifest.json"
     require(manifest_path.is_file(), f"fixture manifest is missing: {manifest_path}")
@@ -297,7 +308,7 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
     declared = sequence(manifest.get("payloads"), "payloads")
     expected = expected_payloads(nx, ny, nz, nkl, nj, group_count)
     require(len(declared) == len(expected), "fixture must declare exactly eight payloads")
-    payload_bytes: dict[str, bytes] = {}
+    payload_paths: dict[str, pathlib.Path] = {}
     for index, (actual_value, specification) in enumerate(zip(declared, expected)):
         actual = mapping(actual_value, f"payloads[{index}]")
         path_text = text(actual.get("path"), f"payloads[{index}].path")
@@ -325,16 +336,16 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
                 f"{path_text} SHA-256 is malformed")
         payload_path = directory / path_text
         require(payload_path.is_file(), f"payload is missing: {payload_path}")
-        content = payload_path.read_bytes()
-        require(len(content) == expected_bytes,
+        byte_count, actual_digest = hash_file(payload_path)
+        require(byte_count == expected_bytes,
                 f"{path_text} actual byte count does not match the manifest")
-        require(hashlib.sha256(content).hexdigest() == digest,
+        require(actual_digest == digest,
                 f"{path_text} SHA-256 does not match the manifest")
-        payload_bytes[path_text] = content
+        payload_paths[path_text] = payload_path
 
     expected_modes = retained_modes(nx, ny)
     require(len(expected_modes) == nkl, "Nkl does not match radial retention")
-    raw_modes = unpack(payload_bytes["horizontal-mode-keys.i32le"], "i")
+    raw_modes = unpack(payload_paths["horizontal-mode-keys.i32le"].read_bytes(), "i")
     actual_modes = list(zip(raw_modes[0::2], raw_modes[1::2]))
     require(len(set(actual_modes)) == nkl,
             "horizontal mode keys must be unique")
@@ -343,11 +354,11 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
     actual_squared_keys = [k * k + l * l for k, l in actual_modes]
     require(actual_squared_keys == sorted(actual_squared_keys),
             "horizontal mode keys are not in nondecreasing radial groups")
-    vertical_keys = unpack(payload_bytes["vertical-mode-keys.i32le"], "i")
+    vertical_keys = unpack(payload_paths["vertical-mode-keys.i32le"].read_bytes(), "i")
     require(list(vertical_keys) == list(range(nj)),
             "vertical mode keys must be j=0..Nj-1")
-    group_indices = unpack(payload_bytes["mode-group-indices.u32le"], "I")
-    group_keys = unpack(payload_bytes["group-keys.u64le"], "Q")
+    group_indices = unpack(payload_paths["mode-group-indices.u32le"].read_bytes(), "I")
+    group_keys = unpack(payload_paths["group-keys.u64le"].read_bytes(), "Q")
     require(list(group_indices) == sorted(group_indices),
             "WVM mode group indices must be nondecreasing")
     require(sorted(set(group_indices)) == list(range(group_count)),
@@ -358,22 +369,16 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
                 for index in range(nkl)),
             "WVM group diagnostic keys do not match their mode coordinates")
 
-    for path_text in ("inverse-operators.f64le", "forward-operators.f64le"):
-        values = unpack(payload_bytes[path_text], "d")
-        require(all(math.isfinite(value) for value in values),
-                f"{path_text} contains non-finite values")
-    for path_text in ("modal-inputs.c128le", "expected-modal-targets.c128le"):
-        values = unpack(payload_bytes[path_text], "d")
-        require(all(math.isfinite(value) for value in values),
-                f"{path_text} contains non-finite values")
-    modal_values = unpack(payload_bytes["modal-inputs.c128le"], "d")
+    modal_dc_bytes = nj * 15 * 16
+    with payload_paths["modal-inputs.c128le"].open("rb") as stream:
+        modal_values = unpack(stream.read(modal_dc_bytes), "d")
     for field in range(15):
         for j in range(nj):
             complex_index = j + nj * field
             require(modal_values[2 * complex_index + 1] == 0.0,
                     "DC modal inputs must be exactly real")
 
-    return manifest, manifest_bytes, payload_bytes
+    return manifest, manifest_bytes, payload_paths
 
 
 def fixture_identity(manifest: dict[str, Any], manifest_bytes: bytes) -> str:
@@ -424,11 +429,13 @@ def prepare(directory: pathlib.Path, output: pathlib.Path) -> dict[str, Any]:
             workload["Nx"], workload["Ny"], workload["Nz"],
             workload["Nkl"], workload["Nj"], operator["groupCount"])
         for specification in specifications[:4]:
-            stream.write(payloads[specification["path"]])
+            with payloads[specification["path"]].open("rb") as source:
+                shutil.copyfileobj(source, stream, 16 * 1024 * 1024)
         stream.write(struct.pack("<15I", *INPUT_FAMILIES))
         stream.write(struct.pack("<4I", *TARGET_FAMILIES))
         for specification in specifications[4:]:
-            stream.write(payloads[specification["path"]])
+            with payloads[specification["path"]].open("rb") as source:
+                shutil.copyfileobj(source, stream, 16 * 1024 * 1024)
     return {
         "fixtureId": manifest["fixtureId"],
         "fixtureHash": identity,

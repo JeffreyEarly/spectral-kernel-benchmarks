@@ -307,6 +307,16 @@ python3 tools/run_production_lifetime_flux_authoritative_pilot.py \
 
 The pilot publishes one exact-operator correctness and descriptive-performance increment only. It does not evaluate the issue #19 multi-workload adoption gate.
 
+Before the reference campaign, preflight and exercise the three larger authoritative fixtures with the resumable scale-out runner:
+
+```sh
+python3 tools/run_authoritative_spectral_flux_scaleout.py \
+  --wvm-repository /path/to/wave-vortex-model \
+  --output results/local/issue19-authoritative-scaleout
+```
+
+The runner first records source-fixture disk, exporter memory, canonical group-segment expansion, and graph-specific setup/steady-state memory. It exports and prepares each feasible fixture sequentially, runs one non-reference correctness execution of each feasible frozen graph, and records explicit capacity exclusions instead of resizing the workload or changing algorithms. Its one-sample timing fields are diagnostics only and cannot enter the issue #19 gate.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

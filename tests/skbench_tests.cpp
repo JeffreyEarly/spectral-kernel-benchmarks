@@ -1799,6 +1799,50 @@ int main() {
         packedGroupedProvider.copyForwardOutput(groupedForwardExpected.data());
         packedGroupedProvider.copyInverseOutput(groupedInverseExpected.data());
         packedGroupedProvider.embedPhysicalOutputToWvm(modes, groupedFullExpected.data());
+        {
+            const auto matrixElements = groupedVertical.nz * groupedVertical.nj;
+            auto reusedOperators = groupedVertical;
+            reusedOperators.matrixSourceGroups.assign(
+                reusedOperators.groups.size(), 0);
+            reusedOperators.forward.resize(matrixElements);
+            reusedOperators.inverse.resize(matrixElements);
+            auto expandedOperators = reusedOperators;
+            expandedOperators.matrixSourceGroups.clear();
+            expandedOperators.forward.resize(
+                matrixElements * expandedOperators.groups.size());
+            expandedOperators.inverse.resize(expandedOperators.forward.size());
+            for (std::size_t group = 1;
+                 group < expandedOperators.groups.size(); ++group) {
+                std::copy_n(
+                    expandedOperators.forward.begin(), matrixElements,
+                    expandedOperators.forward.begin() +
+                        static_cast<std::ptrdiff_t>(group * matrixElements));
+                std::copy_n(
+                    expandedOperators.inverse.begin(), matrixElements,
+                    expandedOperators.inverse.begin() +
+                        static_cast<std::ptrdiff_t>(group * matrixElements));
+            }
+            skbench::VerticalGemmProvider reusedProvider(
+                workload, reusedOperators,
+                skbench::VerticalGemmLayout::split,
+                {skbench::VerticalGemmSchedule::serial, 1});
+            skbench::VerticalGemmProvider expandedProvider(
+                workload, expandedOperators,
+                skbench::VerticalGemmLayout::split,
+                {skbench::VerticalGemmSchedule::serial, 1});
+            reusedProvider.loadPhysicalInput(retained.data());
+            expandedProvider.loadPhysicalInput(retained.data());
+            reusedProvider.executeForward();
+            expandedProvider.executeForward();
+            std::vector<skbench::Complex> reusedOutput(modal.size());
+            std::vector<skbench::Complex> expandedOutput(modal.size());
+            reusedProvider.copyForwardOutput(reusedOutput.data());
+            expandedProvider.copyForwardOutput(expandedOutput.data());
+            require(skbench::maximumRelativeError(
+                        reusedOutput.data(), expandedOutput.data(),
+                        reusedOutput.size()) == 0.0,
+                    "vertical GEMM matrix-source reuse equivalence");
+        }
         for (const auto strategy : {
                  skbench::VerticalGemmStrategy{skbench::VerticalGemmSchedule::serial, 1},
                  skbench::VerticalGemmStrategy{skbench::VerticalGemmSchedule::outerStatic, 2},

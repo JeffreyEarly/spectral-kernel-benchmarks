@@ -51,6 +51,36 @@ int checkedBlasDimension(std::size_t value, const char* label) {
     return static_cast<int>(value);
 }
 
+std::size_t operatorSourceGroup(const GroupedVerticalOperators& operators,
+                                std::size_t group) {
+    return operators.matrixSourceGroups.empty()
+        ? group : operators.matrixSourceGroups[group];
+}
+
+std::size_t operatorSourceGroupCount(
+    const GroupedVerticalOperators& operators, std::size_t elementsPerGroup,
+    const char* label) {
+    if (operators.forward.size() != operators.inverse.size() ||
+        operators.forward.size() % elementsPerGroup != 0) {
+        throw std::invalid_argument(
+            std::string(label) + " matrix-family storage is inconsistent.");
+    }
+    const auto sourceCount = operators.forward.size() / elementsPerGroup;
+    if (sourceCount == 0 ||
+        (!operators.matrixSourceGroups.empty() &&
+         operators.matrixSourceGroups.size() != operators.groups.size())) {
+        throw std::invalid_argument(
+            std::string(label) + " matrix-source mapping is inconsistent.");
+    }
+    for (std::size_t group = 0; group < operators.groups.size(); ++group) {
+        if (operatorSourceGroup(operators, group) >= sourceCount) {
+            throw std::invalid_argument(
+                std::string(label) + " matrix-source index is out of range.");
+        }
+    }
+    return sourceCount;
+}
+
 class PersistentGroupExecutor {
 public:
     using Task = void (*)(void*, std::size_t);
@@ -314,10 +344,11 @@ struct VerticalGemmProvider::Impl {
         physicalCount = checkedProduct(workload.nz, columnCount, "vertical GEMM physical operand");
         modalCount = checkedProduct(operators.nj, columnCount, "vertical GEMM modal operand");
         matrixElementsPerGroup = checkedProduct(operators.nj, operators.nz, "vertical GEMM matrix");
-        const auto familyElements = checkedProduct(groups.size(), matrixElementsPerGroup, "vertical GEMM matrix family");
-        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
-            throw std::invalid_argument("Vertical GEMM matrix-family storage does not match its groups and dimensions.");
-        }
+        operatorSourceGroupCount(
+            operators, matrixElementsPerGroup, "Vertical GEMM");
+        const auto familyElements = checkedProduct(
+            groups.size(), matrixElementsPerGroup,
+            "vertical GEMM prepared matrix family");
         nz = checkedBlasDimension(workload.nz, "Nz");
         nj = checkedBlasDimension(operators.nj, "Nj");
         checkedBlasDimension(columnCount, "K");
@@ -364,10 +395,14 @@ struct VerticalGemmProvider::Impl {
         const auto preparationStart = Clock::now();
         for (std::size_t groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
             const auto offset = groupIndex * matrixElementsPerGroup;
+            const auto sourceOffset = operatorSourceGroup(
+                operators, groupIndex) * matrixElementsPerGroup;
             for (std::size_t z = 0; z < operators.nz; ++z) {
                 for (std::size_t j = 0; j < operators.nj; ++j) {
-                    const double forwardValue = operators.forward[offset + j * operators.nz + z];
-                    const double inverseValue = operators.inverse[offset + z * operators.nj + j];
+                    const double forwardValue = operators.forward[
+                        sourceOffset + j * operators.nz + z];
+                    const double inverseValue = operators.inverse[
+                        sourceOffset + z * operators.nj + j];
                     const auto forwardIndex = offset + j + operators.nj * z;
                     const auto inverseIndex = offset + z + operators.nz * j;
                     if (layout == VerticalGemmLayout::complexInterleaved) {
@@ -908,6 +943,7 @@ struct WvmDirectVerticalGemmProvider::Impl {
     std::size_t modalSpectrumCount = 0;
     std::size_t matrixElementsPerGroup = 0;
     VerticalGemmStrategy strategy;
+    VerticalGemmBufferPolicy bufferPolicy = VerticalGemmBufferPolicy::bidirectional;
     bool available = SKBENCH_HAVE_ACCELERATE != 0;
     std::string capabilityText;
     double allocationTime = 0.0;
@@ -925,8 +961,10 @@ struct WvmDirectVerticalGemmProvider::Impl {
     int fields = 0;
 
     Impl(const Workload& inputWorkload, const std::vector<RetainedMode>& inputModes,
-         const GroupedVerticalOperators& operators, VerticalGemmStrategy inputStrategy)
-        : workload(inputWorkload), strategy(inputStrategy), modes(inputModes) {
+         const GroupedVerticalOperators& operators, VerticalGemmStrategy inputStrategy,
+         VerticalGemmBufferPolicy inputBufferPolicy)
+        : workload(inputWorkload), strategy(inputStrategy),
+          bufferPolicy(inputBufferPolicy), modes(inputModes) {
         if (operators.nz != workload.nz || operators.nj != workload.retainedVerticalModes()) {
             throw std::invalid_argument("Direct WVM vertical GEMM operator dimensions do not match the workload.");
         }
@@ -942,12 +980,11 @@ struct WvmDirectVerticalGemmProvider::Impl {
         }
 
         matrixElementsPerGroup = checkedProduct(operators.nz, operators.nj, "direct WVM matrix");
+        operatorSourceGroupCount(
+            operators, matrixElementsPerGroup, "Direct WVM vertical GEMM");
         const auto familyElements = checkedProduct(
-            operators.groups.size(), matrixElementsPerGroup, "direct WVM matrix family");
-        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
-            throw std::invalid_argument(
-                "Direct WVM vertical GEMM matrix-family storage does not match its groups and dimensions.");
-        }
+            operators.groups.size(), matrixElementsPerGroup,
+            "direct WVM prepared matrix family");
         std::size_t expectedFirstMode = 0;
         modeGroupIndices.resize(modes.size());
         for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
@@ -996,21 +1033,33 @@ struct WvmDirectVerticalGemmProvider::Impl {
         }
 
         const auto allocationStart = Clock::now();
-        complexForwardMatrix.allocate(familyElements);
-        complexInverseMatrix.allocate(familyElements);
+        const bool allocateForward =
+            bufferPolicy != VerticalGemmBufferPolicy::inverseOnly;
+        const bool allocateInverse =
+            bufferPolicy != VerticalGemmBufferPolicy::forwardOnly;
+        if (allocateForward) complexForwardMatrix.allocate(familyElements);
+        if (allocateInverse) complexInverseMatrix.allocate(familyElements);
         allocationTime = elapsedSeconds(allocationStart);
 
         const auto preparationStart = Clock::now();
         for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
             const auto offset = groupIndex * matrixElementsPerGroup;
+            const auto sourceOffset = operatorSourceGroup(
+                operators, groupIndex) * matrixElementsPerGroup;
             for (std::size_t z = 0; z < operators.nz; ++z) {
                 for (std::size_t j = 0; j < operators.nj; ++j) {
-                    const auto forwardValue = operators.forward[offset + j * operators.nz + z];
-                    const auto inverseValue = operators.inverse[offset + z * operators.nj + j];
-                    complexForwardMatrix.data()[offset + j + operators.nj * z] =
-                        {forwardValue, 0.0};
-                    complexInverseMatrix.data()[offset + z + operators.nz * j] =
-                        {inverseValue, 0.0};
+                    const auto forwardValue = operators.forward[
+                        sourceOffset + j * operators.nz + z];
+                    const auto inverseValue = operators.inverse[
+                        sourceOffset + z * operators.nj + j];
+                    if (allocateForward) {
+                        complexForwardMatrix.data()[offset + j + operators.nj * z] =
+                            {forwardValue, 0.0};
+                    }
+                    if (allocateInverse) {
+                        complexInverseMatrix.data()[offset + z + operators.nz * j] =
+                            {inverseValue, 0.0};
+                    }
                 }
             }
         }
@@ -1029,6 +1078,22 @@ struct WvmDirectVerticalGemmProvider::Impl {
 
     void requireAvailable() const {
         if (!available) throw std::runtime_error(capabilityText);
+    }
+
+    void requireForward() const {
+        requireAvailable();
+        if (bufferPolicy == VerticalGemmBufferPolicy::inverseOnly) {
+            throw std::logic_error(
+                "Forward GEMM requested from an inverse-only direct WVM provider.");
+        }
+    }
+
+    void requireInverse() const {
+        requireAvailable();
+        if (bufferPolicy == VerticalGemmBufferPolicy::forwardOnly) {
+            throw std::logic_error(
+                "Inverse GEMM requested from a forward-only direct WVM provider.");
+        }
     }
 
     std::size_t persistentBytes() const noexcept {
@@ -1105,8 +1170,10 @@ struct WvmDirectVerticalGemmProvider::Impl {
 
 WvmDirectVerticalGemmProvider::WvmDirectVerticalGemmProvider(
     const Workload& workload, const std::vector<RetainedMode>& modes,
-    const GroupedVerticalOperators& operators, VerticalGemmStrategy strategy)
-    : impl_(std::make_unique<Impl>(workload, modes, operators, strategy)) {}
+    const GroupedVerticalOperators& operators, VerticalGemmStrategy strategy,
+    VerticalGemmBufferPolicy bufferPolicy)
+    : impl_(std::make_unique<Impl>(
+          workload, modes, operators, strategy, bufferPolicy)) {}
 
 WvmDirectVerticalGemmProvider::~WvmDirectVerticalGemmProvider() = default;
 WvmDirectVerticalGemmProvider::WvmDirectVerticalGemmProvider(
@@ -1135,7 +1202,8 @@ std::size_t WvmDirectVerticalGemmProvider::schedulerPersistentBytes() const noex
     return impl_->executor == nullptr ? 0 : impl_->executor->explicitBytes();
 }
 std::size_t WvmDirectVerticalGemmProvider::matrixBytesPerDirection() const noexcept {
-    return impl_->complexForwardMatrix.bytes();
+    return std::max(impl_->complexForwardMatrix.bytes(),
+                    impl_->complexInverseMatrix.bytes());
 }
 double WvmDirectVerticalGemmProvider::allocationSeconds() const noexcept {
     return impl_->allocationTime;
@@ -1169,7 +1237,7 @@ void WvmDirectVerticalGemmProvider::initializeSpectrumOutput(Complex* fullSpectr
 
 void WvmDirectVerticalGemmProvider::executeForward(
     const Complex* fullSpectrum, Complex* fullModalSpectrum) {
-    impl_->requireAvailable();
+    impl_->requireForward();
 #if SKBENCH_HAVE_ACCELERATE
     Impl::ExecutionContext context{impl_.get(), fullSpectrum, fullModalSpectrum};
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -1184,7 +1252,7 @@ void WvmDirectVerticalGemmProvider::executeForward(
 
 void WvmDirectVerticalGemmProvider::executeInverse(
     const Complex* fullModalSpectrum, Complex* fullSpectrum) {
-    impl_->requireAvailable();
+    impl_->requireInverse();
 #if SKBENCH_HAVE_ACCELERATE
     Impl::ExecutionContext context{impl_.get(), fullModalSpectrum, fullSpectrum};
     if (impl_->strategy.schedule == VerticalGemmSchedule::serial) {
@@ -1250,12 +1318,12 @@ struct PlaneMajorDirectVerticalGemmProvider::Impl {
         }
 
         matrixElementsPerGroup = checkedProduct(operators.nz, operators.nj, "plane-major matrix");
+        operatorSourceGroupCount(
+            operators, matrixElementsPerGroup,
+            "Plane-major direct vertical GEMM");
         const auto familyElements = checkedProduct(
-            operators.groups.size(), matrixElementsPerGroup, "plane-major matrix family");
-        if (operators.forward.size() != familyElements || operators.inverse.size() != familyElements) {
-            throw std::invalid_argument(
-                "Plane-major vertical GEMV matrix-family storage does not match its groups and dimensions.");
-        }
+            operators.groups.size(), matrixElementsPerGroup,
+            "plane-major prepared matrix family");
 
         std::size_t expectedFirstMode = 0;
         modeGroupIndices.resize(modes.size());
@@ -1311,12 +1379,14 @@ struct PlaneMajorDirectVerticalGemmProvider::Impl {
         const auto preparationStart = Clock::now();
         for (std::size_t groupIndex = 0; groupIndex < operators.groups.size(); ++groupIndex) {
             const auto offset = groupIndex * matrixElementsPerGroup;
+            const auto sourceOffset = operatorSourceGroup(
+                operators, groupIndex) * matrixElementsPerGroup;
             for (std::size_t z = 0; z < operators.nz; ++z) {
                 for (std::size_t j = 0; j < operators.nj; ++j) {
                     complexForwardMatrix.data()[offset + j + operators.nj * z] =
-                        {operators.forward[offset + j * operators.nz + z], 0.0};
+                        {operators.forward[sourceOffset + j * operators.nz + z], 0.0};
                     complexInverseMatrix.data()[offset + z + operators.nz * j] =
-                        {operators.inverse[offset + z * operators.nj + j], 0.0};
+                        {operators.inverse[sourceOffset + z * operators.nj + j], 0.0};
                 }
             }
         }

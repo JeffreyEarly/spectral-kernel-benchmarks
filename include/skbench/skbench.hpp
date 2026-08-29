@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -109,6 +110,7 @@ struct GroupedVerticalOperators {
     std::size_t nz = 0;
     std::size_t nj = 0;
     std::vector<VerticalModeGroup> groups;
+    std::vector<std::size_t> matrixSourceGroups;
     std::vector<double> forward;
     std::vector<double> inverse;
 };
@@ -220,7 +222,9 @@ public:
     WvmDirectVerticalGemmProvider(const Workload& workload,
                                   const std::vector<RetainedMode>& modes,
                                   const GroupedVerticalOperators& operators,
-                                  VerticalGemmStrategy strategy);
+                                  VerticalGemmStrategy strategy,
+                                  VerticalGemmBufferPolicy bufferPolicy =
+                                      VerticalGemmBufferPolicy::bidirectional);
     ~WvmDirectVerticalGemmProvider();
     WvmDirectVerticalGemmProvider(WvmDirectVerticalGemmProvider&&) noexcept;
     WvmDirectVerticalGemmProvider& operator=(WvmDirectVerticalGemmProvider&&) noexcept;
@@ -751,16 +755,14 @@ struct SpectralFluxFixture {
     std::vector<std::uint64_t> groupKeys;
     std::vector<std::uint32_t> inputFieldFamilies;
     std::vector<std::uint32_t> targetFieldFamilies;
-    std::vector<double> inverseOperators;
-    std::vector<double> forwardOperators;
+    std::array<GroupedVerticalOperators, 2> operatorFamilies;
+    std::uint64_t verticalOperatorSourceBytes = 0;
     std::vector<Complex> modalInputs;
     std::vector<Complex> expectedModalTargets;
 };
 
 SpectralFluxFixture loadPreparedSpectralFluxFixture(
     const std::filesystem::path& path);
-GroupedVerticalOperators spectralFluxOperatorFamily(
-    const SpectralFluxFixture& fixture, std::size_t family);
 
 struct BenchmarkReport {
     std::string schema = "spectral-kernel-benchmark-v1";

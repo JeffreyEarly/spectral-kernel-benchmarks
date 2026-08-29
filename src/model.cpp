@@ -515,6 +515,7 @@ GroupedVerticalOperators commonVerticalFixture(std::size_t horizontalModeCount,
         operators.nz,
         operators.nj,
         {{0, 0, horizontalModeCount}},
+        {},
         operators.forward,
         operators.inverse};
 }

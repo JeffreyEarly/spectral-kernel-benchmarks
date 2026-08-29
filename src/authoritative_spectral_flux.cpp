@@ -292,14 +292,26 @@ struct FamilyOperators {
     std::array<GroupedVerticalOperators, 2> values;
 };
 
-FamilyOperators familyOperators(const SpectralFluxFixture& fixture) {
-    return {{spectralFluxOperatorFamily(fixture, 0),
-             spectralFluxOperatorFamily(fixture, 1)}};
+FamilyOperators familyOperators(SpectralFluxFixture& fixture) {
+    return {{std::move(fixture.operatorFamilies[0]),
+             std::move(fixture.operatorFamilies[1])}};
+}
+
+template <typename Values>
+void releaseStorage(Values& values) {
+    Values{}.swap(values);
+}
+
+void releaseOperatorSource(GroupedVerticalOperators& operators) {
+    releaseStorage(operators.forward);
+    releaseStorage(operators.inverse);
+    releaseStorage(operators.groups);
+    releaseStorage(operators.matrixSourceGroups);
 }
 
 ProviderRecord runStreaming(
     const RunOptions& options, const SharedContext& context,
-    SpectralFluxFixture& fixture, const FamilyOperators& operators,
+    SpectralFluxFixture& fixture, FamilyOperators& operators,
     const VerticalGemmStrategy& verticalStrategy,
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
     double fixtureSeconds) {
@@ -320,7 +332,11 @@ ProviderRecord runStreaming(
     }
     std::array<std::unique_ptr<VerticalGemmProvider>, 2> reconstruction;
     std::array<std::unique_ptr<VerticalGemmProvider>, 2> projection;
+    std::uint64_t operatorPreparationSourceBytes = 0;
     for (std::size_t family = 0; family < 2; ++family) {
+        operatorPreparationSourceBytes += byteCount(
+            operators.values[family].forward.size() +
+                operators.values[family].inverse.size(), sizeof(double));
         reconstruction[family] = std::make_unique<VerticalGemmProvider>(
             context.inputFamilyWorkloads[family], operators.values[family],
             VerticalGemmLayout::split, verticalStrategy,
@@ -330,6 +346,7 @@ ProviderRecord runStreaming(
             VerticalGemmLayout::split, verticalStrategy,
             VerticalGemmBufferPolicy::forwardOnly);
         reconstruction[family]->loadModalInput(inputModal[family].data());
+        releaseOperatorSource(operators.values[family]);
     }
     FFTWStreamingPrunedSplitProvider inverse(
         context.tripleWorkload, context.modes,
@@ -529,8 +546,7 @@ ProviderRecord runStreaming(
     record.timings = {
         timing("setup-shared-component", "strict authoritative fixture load, validation, and F/G preparation",
                "shared", StageState::setupOnly,
-               byteCount(fixture.inverseOperators.size() + fixture.forwardOperators.size(),
-                         sizeof(double)) +
+               fixture.verticalOperatorSourceBytes +
                    byteCount(fixture.modalInputs.size() +
                                  fixture.expectedModalTargets.size(), sizeof(Complex)),
                {fixtureSeconds}),
@@ -573,25 +589,20 @@ ProviderRecord runStreaming(
 
     const auto correctnessBytes = byteCount(
         fixture.modalInputs.size() + fixture.expectedModalTargets.size() +
-            actual.size() + preserved.size(), sizeof(Complex)) +
-        byteCount(fixture.inverseOperators.size() + fixture.forwardOperators.size(),
-                  sizeof(double));
-    auto release = [](auto& values) {
-        using Values = std::remove_reference_t<decltype(values)>;
-        Values{}.swap(values);
-    };
-    release(fixture.modalInputs);
-    release(fixture.expectedModalTargets);
-    release(fixture.inverseOperators);
-    release(fixture.forwardOperators);
-    release(actual);
-    release(preserved);
-    release(actualFamily[0]);
-    release(actualFamily[1]);
-    release(preservedFamily[0]);
-    release(preservedFamily[1]);
-    release(inputModal[0]);
-    release(inputModal[1]);
+            actual.size() + preserved.size(), sizeof(Complex));
+    releaseStorage(fixture.modalInputs);
+    releaseStorage(fixture.expectedModalTargets);
+    releaseStorage(actual);
+    releaseStorage(preserved);
+    releaseStorage(actualFamily[0]);
+    releaseStorage(actualFamily[1]);
+    releaseStorage(preservedFamily[0]);
+    releaseStorage(preservedFamily[1]);
+    releaseStorage(inputModal[0]);
+    releaseStorage(inputModal[1]);
+    record.timings.push_back(timing(
+        "setup-component", "release prepared vertical operator source after provider preparation",
+        "shared", StageState::setupOnly, operatorPreparationSourceBytes, {0.0}));
     record.timings.push_back(timing(
         "setup-component", "release fixture and correctness-only storage", "shared",
         StageState::setupOnly, correctnessBytes, {0.0}));
@@ -629,7 +640,7 @@ ProviderRecord runStreaming(
 
 ProviderRecord runWvmDirect(
     const RunOptions& options, const SharedContext& context,
-    SpectralFluxFixture& fixture, const FamilyOperators& operators,
+    SpectralFluxFixture& fixture, FamilyOperators& operators,
     const VerticalGemmStrategy& verticalStrategy,
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
     double fixtureSeconds) {
@@ -641,6 +652,7 @@ ProviderRecord runWvmDirect(
     std::array<std::vector<Complex>, 2> fullModalOutput;
     std::array<std::unique_ptr<WvmDirectVerticalGemmProvider>, 2> reconstruction;
     std::array<std::unique_ptr<WvmDirectVerticalGemmProvider>, 2> projection;
+    std::uint64_t operatorPreparationSourceBytes = 0;
     for (std::size_t family = 0; family < 2; ++family) {
         compactInput[family] = packModalFamily(
             context.inputWorkload, fixture.modalInputs,
@@ -658,12 +670,18 @@ ProviderRecord runWvmDirect(
         fullModalOutput[family].resize(
             context.targetFamilyWorkloads[family].halfRows() * context.nj *
             context.targetFamilyWorkloads[family].fields);
+        operatorPreparationSourceBytes += byteCount(
+            operators.values[family].forward.size() +
+                operators.values[family].inverse.size(), sizeof(double));
         reconstruction[family] = std::make_unique<WvmDirectVerticalGemmProvider>(
             context.inputFamilyWorkloads[family], context.modes,
-            operators.values[family], verticalStrategy);
+            operators.values[family], verticalStrategy,
+            VerticalGemmBufferPolicy::inverseOnly);
         projection[family] = std::make_unique<WvmDirectVerticalGemmProvider>(
             context.targetFamilyWorkloads[family], context.modes,
-            operators.values[family], verticalStrategy);
+            operators.values[family], verticalStrategy,
+            VerticalGemmBufferPolicy::forwardOnly);
+        releaseOperatorSource(operators.values[family]);
     }
     FFTWProvider inverse(
         context.tripleWorkload, FFTWStrategy{
@@ -864,8 +882,7 @@ ProviderRecord runWvmDirect(
     record.timings = {
         timing("setup-shared-component", "strict authoritative fixture load, validation, and F/G preparation",
                "shared", StageState::setupOnly,
-               byteCount(fixture.inverseOperators.size() + fixture.forwardOperators.size(),
-                         sizeof(double)) +
+               fixture.verticalOperatorSourceBytes +
                    byteCount(fixture.modalInputs.size() +
                                  fixture.expectedModalTargets.size(), sizeof(Complex)),
                {fixtureSeconds}),
@@ -908,24 +925,19 @@ ProviderRecord runWvmDirect(
 
     const auto correctnessBytes = byteCount(
         fixture.modalInputs.size() + fixture.expectedModalTargets.size() +
-            actual.size() + preserved.size(), sizeof(Complex)) +
-        byteCount(fixture.inverseOperators.size() + fixture.forwardOperators.size(),
-                  sizeof(double));
-    auto release = [](auto& values) {
-        using Values = std::remove_reference_t<decltype(values)>;
-        Values{}.swap(values);
-    };
-    release(fixture.modalInputs);
-    release(fixture.expectedModalTargets);
-    release(fixture.inverseOperators);
-    release(fixture.forwardOperators);
-    release(actual);
-    release(preserved);
+            actual.size() + preserved.size(), sizeof(Complex));
+    releaseStorage(fixture.modalInputs);
+    releaseStorage(fixture.expectedModalTargets);
+    releaseStorage(actual);
+    releaseStorage(preserved);
     for (std::size_t family = 0; family < 2; ++family) {
-        release(compactInput[family]);
-        release(actualFamily[family]);
-        release(preservedFamily[family]);
+        releaseStorage(compactInput[family]);
+        releaseStorage(actualFamily[family]);
+        releaseStorage(preservedFamily[family]);
     }
+    record.timings.push_back(timing(
+        "setup-component", "release prepared vertical operator source after provider preparation",
+        "shared", StageState::setupOnly, operatorPreparationSourceBytes, {0.0}));
     record.timings.push_back(timing(
         "setup-component", "release fixture and correctness-only storage", "shared",
         StageState::setupOnly, correctnessBytes, {0.0}));
@@ -1002,7 +1014,7 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
             "Prepared spectral-flux fixture dimensions do not match the selected profile.");
     }
     const auto context = sharedContext(fixture);
-    const auto operators = familyOperators(fixture);
+    auto operators = familyOperators(fixture);
     const auto fixtureSeconds =
         std::chrono::duration<double>(Clock::now() - fixtureStart).count();
     const auto warmups = options.warmups == 0 ? std::size_t{1} : options.warmups;
@@ -1033,8 +1045,7 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
         fixture.modalInputs.size() + fixture.expectedModalTargets.size(),
         sizeof(Complex));
     report.verticalMatrixFamilySourceBytes = byteCount(
-        fixture.inverseOperators.size() + fixture.forwardOperators.size(),
-        sizeof(double));
+        fixture.verticalOperatorSourceBytes, 1);
     report.verticalMatrixFamilyId = "wvm-wave-f+wave-g-floating-k2-exact";
     const auto& groups = operators.values[0].groups;
     report.verticalGroupCount = groups.size();
