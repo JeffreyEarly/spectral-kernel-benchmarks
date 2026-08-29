@@ -17,6 +17,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <type_traits>
 #include <utility>
 
 #include <sys/utsname.h>
@@ -3111,6 +3112,29 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
     const auto inverseProbeOracle = directVerticalInverseProbes(
         vertical, workload, probes, referencePostWorkModal.data());
 
+    auto releaseVector = [](auto& values) {
+        using Vector = std::remove_reference_t<decltype(values)>;
+        Vector{}.swap(values);
+    };
+    auto sharedCorrectnessBytes = [&] {
+        return bytes(referenceSpectrum.size(), sizeof(Complex)) +
+            bytes(referenceRetained.size(), sizeof(Complex)) +
+            bytes(referenceForwardModal.size(), sizeof(Complex)) +
+            bytes(referencePostWorkModal.size(), sizeof(Complex)) +
+            bytes(referenceInversePhysical.size(), sizeof(Complex)) +
+            bytes(referenceInverseSpectrum.size(), sizeof(Complex)) +
+            bytes(referencePipelineOutput.size(), sizeof(double));
+    };
+    auto releaseSharedCorrectness = [&] {
+        releaseVector(referenceSpectrum);
+        releaseVector(referenceRetained);
+        releaseVector(referenceForwardModal);
+        releaseVector(referencePostWorkModal);
+        releaseVector(referenceInversePhysical);
+        releaseVector(referenceInverseSpectrum);
+        releaseVector(referencePipelineOutput);
+    };
+
     auto makeRecord = [&](std::string id, std::string algorithm,
                           std::string representation) {
         ProviderRecord record;
@@ -3282,6 +3306,8 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
              "full spectrum is zeroed every invocation before inverse vertical reconstruction"},
             {"raw inverse FFT", StageState::executed,
              "full WVM-order FFTW c2r destroys the rebuilt spectrum"},
+            {"benchmark correctness storage", StageState::setupOnly,
+             "mode-keyed oracle and diagnostic copies are released before the uninstrumented total"},
             {"uninstrumented total", StageState::executed,
              "complete synthetic spectral operator; nonlinear flux excluded"}};
         addCorrectness(record, horizontal, forward, postWork, inverse, output);
@@ -3344,23 +3370,38 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                    StageState::executed, report.fullSpectrumBytes,
                    measure(warmups, sampleCount, [&] {
                        provider.initializeSpectrumOutput(fullSpectrum.data());
-                   })),
-            series("uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
-                   StageState::executed,
-                   2 * report.fullRealBytes + 2 * report.fullSpectrumBytes +
-                       2 * verticalBytes + modalWorkBytes + report.fullSpectrumBytes,
-                   measure(warmups, sampleCount, [&] {
-                       fftw.forward(input.data(), fullSpectrum.data());
-                       provider.executeForward(
-                           fullSpectrum.data(), fullModalOutput.data());
-                       applySyntheticModalWorkWvm(
-                           workload, modes, modalWeights.data(), fullModalOutput.data(),
-                           fullModalInput.data());
-                       provider.initializeSpectrumOutput(fullSpectrum.data());
-                       provider.executeInverse(
-                           fullModalInput.data(), fullSpectrum.data());
-                       fftw.inverse(fullSpectrum.data(), output.data());
                    }))};
+        const auto correctnessOnlyBytes = sharedCorrectnessBytes() +
+            bytes(horizontal.size() + forward.size() + postWork.size() + inverse.size(),
+                  sizeof(Complex));
+        const auto releaseStart = Clock::now();
+        releaseSharedCorrectness();
+        releaseVector(horizontal);
+        releaseVector(forward);
+        releaseVector(postWork);
+        releaseVector(inverse);
+        const auto releaseSeconds =
+            std::chrono::duration<double>(Clock::now() - releaseStart).count();
+        record.timings.push_back(series(
+            "setup-component", "release correctness-only benchmark storage", "shared",
+            StageState::setupOnly, correctnessOnlyBytes, {releaseSeconds}));
+        record.timings.push_back(series(
+            "uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
+            StageState::executed,
+            2 * report.fullRealBytes + 2 * report.fullSpectrumBytes +
+                2 * verticalBytes + modalWorkBytes + report.fullSpectrumBytes,
+            measure(warmups, sampleCount, [&] {
+                fftw.forward(input.data(), fullSpectrum.data());
+                provider.executeForward(
+                    fullSpectrum.data(), fullModalOutput.data());
+                applySyntheticModalWorkWvm(
+                    workload, modes, modalWeights.data(), fullModalOutput.data(),
+                    fullModalInput.data());
+                provider.initializeSpectrumOutput(fullSpectrum.data());
+                provider.executeInverse(
+                    fullModalInput.data(), fullSpectrum.data());
+                fftw.inverse(fullSpectrum.data(), output.data());
+            })));
         report.spectralPipelineEstimatedExplicitPeakBytes =
             report.verticalMatrixFamilySourceBytes + record.explicitPersistentBytes +
             2 * report.fullSpectrumBytes + 2 * report.fullRealBytes +
@@ -3503,6 +3544,8 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                  : "compact split input is embedded into one zeroed worker-local plane at a time"},
             {"raw inverse FFT", StageState::fused,
              "selected-column synthesis and row reconstruction consume each embedded plane before reuse"},
+            {"benchmark correctness storage", StageState::setupOnly,
+             "mode-keyed oracle and diagnostic copies are released before the uninstrumented total"},
             {"uninstrumented total", StageState::executed,
              "complete streaming synthetic spectral operator; nonlinear flux excluded"}};
         addCorrectness(record, horizontal, forward, postWork, inverse, output);
@@ -3613,28 +3656,43 @@ BenchmarkReport runSpectralPipelineBenchmark(const RunOptions& options) {
                    StageState::executed, 0,
                    measure(warmups, sampleCount, [&] {
                        fftw.executeSchedulerNoop();
-                   })),
-            series("uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
-                   StageState::executed,
-                   forwardHorizontalBytes + 2 * verticalBytes +
-                       modalWorkBytes + inverseHorizontalBytes,
-                   measure(warmups, sampleCount, [&] {
-                       fftw.forwardSplit(
-                           input.data(), provider.splitPhysicalInputRealData(),
-                           provider.splitPhysicalInputImaginaryData());
-                       provider.executeForward();
-                       applySyntheticModalWorkSplit(
-                           modalElements, modalWeights.data(),
-                           provider.splitModalOutputRealData(),
-                           provider.splitModalOutputImaginaryData(),
-                           provider.splitModalInputRealData(),
-                           provider.splitModalInputImaginaryData());
-                       provider.executeInverse();
-                       fftw.inverseSplit(
-                           provider.splitPhysicalOutputRealData(),
-                           provider.splitPhysicalOutputImaginaryData(),
-                           output.data());
                    }))};
+        const auto correctnessOnlyBytes = sharedCorrectnessBytes() +
+            bytes(horizontal.size() + forward.size() + postWork.size() + inverse.size(),
+                  sizeof(Complex));
+        const auto releaseStart = Clock::now();
+        releaseSharedCorrectness();
+        releaseVector(horizontal);
+        releaseVector(forward);
+        releaseVector(postWork);
+        releaseVector(inverse);
+        const auto releaseSeconds =
+            std::chrono::duration<double>(Clock::now() - releaseStart).count();
+        record.timings.push_back(series(
+            "setup-component", "release correctness-only benchmark storage", "shared",
+            StageState::setupOnly, correctnessOnlyBytes, {releaseSeconds}));
+        record.timings.push_back(series(
+            "uninstrumented-total", "synthetic antialiased spectral pipeline", "round-trip",
+            StageState::executed,
+            forwardHorizontalBytes + 2 * verticalBytes +
+                modalWorkBytes + inverseHorizontalBytes,
+            measure(warmups, sampleCount, [&] {
+                fftw.forwardSplit(
+                    input.data(), provider.splitPhysicalInputRealData(),
+                    provider.splitPhysicalInputImaginaryData());
+                provider.executeForward();
+                applySyntheticModalWorkSplit(
+                    modalElements, modalWeights.data(),
+                    provider.splitModalOutputRealData(),
+                    provider.splitModalOutputImaginaryData(),
+                    provider.splitModalInputRealData(),
+                    provider.splitModalInputImaginaryData());
+                provider.executeInverse();
+                fftw.inverseSplit(
+                    provider.splitPhysicalOutputRealData(),
+                    provider.splitPhysicalOutputImaginaryData(),
+                    output.data());
+            })));
         report.spectralPipelineEstimatedExplicitPeakBytes =
             report.verticalMatrixFamilySourceBytes + record.explicitPersistentBytes +
             record.scratchBytes + 2 * report.fullSpectrumBytes +

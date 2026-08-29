@@ -38,6 +38,10 @@ CANDIDATE_ID = "streaming-pruned-tiled-16--outer-dynamic-16"
 REFERENCE_ROUNDS = 3
 
 
+def ratio_or_none(numerator: float, denominator: float) -> float | None:
+    return numerator / denominator if denominator > 0.0 else None
+
+
 def candidate_matrix() -> list[LocalityCandidate]:
     return [
         LocalityCandidate(
@@ -183,7 +187,8 @@ def analyze(results: list[tuple[LocalityCandidate, int, dict]]) -> dict:
         component_rows[key] = {
             "baselineSeconds": baseline_value,
             "candidateSeconds": candidate_value,
-            "candidateToBaseline": candidate_value / baseline_value,
+            "candidateToBaseline": ratio_or_none(candidate_value, baseline_value),
+            "baselineElided": baseline_value == 0.0,
         }
 
     memory_rows: dict[str, dict[str, float]] = {}
@@ -242,6 +247,29 @@ def estimated_peak(profile: str, candidate: LocalityCandidate) -> int:
     return streaming_estimated_peak(profile, candidate)
 
 
+def analyze_existing(output: Path) -> dict:
+    manifest_path = output / "manifest.json"
+    if not manifest_path.is_file():
+        raise ValueError(f"analysis input lacks manifest.json: {output}")
+    with manifest_path.open(encoding="utf-8") as stream:
+        manifest = json.load(stream)
+    candidates = {candidate.id: candidate for candidate in candidate_matrix()}
+    completed_results: list[tuple[LocalityCandidate, int, dict]] = []
+    for entry in manifest.get("runs", []):
+        candidate_id = entry.get("candidate", {}).get("id")
+        result_name = entry.get("result")
+        if (
+            entry.get("exitCode") != 0
+            or candidate_id not in candidates
+            or not isinstance(result_name, str)
+        ):
+            raise ValueError(f"analysis input contains an incomplete run: {entry.get('id')}")
+        with (output / result_name).open(encoding="utf-8") as stream:
+            result = json.load(stream)
+        completed_results.append((candidates[candidate_id], int(entry["round"]), result))
+    return analyze(completed_results)
+
+
 def main() -> int:
     repository_root = Path(__file__).resolve().parents[1]
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -261,9 +289,24 @@ def main() -> int:
     parser.add_argument("--max-memory-fraction", type=float, default=0.75)
     parser.add_argument("--allow-memory-risk", action="store_true")
     parser.add_argument("--allow-dirty-tree", action="store_true")
+    parser.add_argument(
+        "--analyze-only", type=Path,
+        help="Rebuild analysis.json from an already completed campaign directory",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--continue-on-error", action="store_true")
     arguments = parser.parse_args()
+
+    if arguments.analyze_only is not None:
+        try:
+            analysis = analyze_existing(arguments.analyze_only)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        with (arguments.analyze_only / "analysis.json").open("w", encoding="utf-8") as stream:
+            json.dump(analysis, stream, indent=2)
+            stream.write("\n")
+        print(f"Updated {arguments.analyze_only / 'analysis.json'}.")
+        return 0
 
     if min(arguments.rounds, arguments.warmups, arguments.samples) < 1:
         parser.error("rounds, warmups, and samples must be positive")

@@ -1845,6 +1845,7 @@ int main() {
             bool foundRetainedInverse = false;
             bool foundPrunedRows = false;
             bool foundPrunedColumns = false;
+            bool foundCorrectnessRelease = false;
             bool modalLedgerExecuted = false;
             for (const auto& timing : provider.timings) {
                 foundRoundTrip = foundRoundTrip ||
@@ -1867,6 +1868,11 @@ int main() {
                 foundPrunedColumns = foundPrunedColumns ||
                     (timing.scope == "primitive-component" &&
                      timing.stage == "selected-kx complex column FFTs");
+                foundCorrectnessRelease = foundCorrectnessRelease ||
+                    (timing.scope == "setup-component" &&
+                     timing.stage == "release correctness-only benchmark storage" &&
+                     timing.state == skbench::StageState::setupOnly &&
+                     timing.seconds.size() == 1 && timing.bytesMoved > 0);
             }
             for (const auto& entry : provider.ledger) {
                 modalLedgerExecuted = modalLedgerExecuted ||
@@ -1875,6 +1881,10 @@ int main() {
             }
             require(foundRoundTrip && foundModalWork,
                     "spectral-pipeline total and modal timing series");
+            if (pipelinePolicy != "plane-major-fused-split") {
+                require(foundCorrectnessRelease,
+                        "spectral-pipeline releases correctness-only storage before total");
+            }
             require(modalLedgerExecuted,
                     "spectral-pipeline modal ledger state");
             require(pipelineReport.spectralPipelineEstimatedExplicitPeakBytes >

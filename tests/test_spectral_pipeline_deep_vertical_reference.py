@@ -10,6 +10,10 @@ import run_spectral_pipeline_deep_vertical_reference as reference  # noqa: E402
 
 
 class SpectralPipelineDeepVerticalReferenceTests(unittest.TestCase):
+    def test_elided_baseline_ratio_is_explicit(self) -> None:
+        self.assertIsNone(reference.ratio_or_none(1.0, 0.0))
+        self.assertEqual(reference.ratio_or_none(0.5, 2.0), 0.25)
+
     def test_frozen_candidates_and_profile(self) -> None:
         self.assertEqual(reference.PROFILE, "wvm-large-512-nz513-f4")
         self.assertEqual(
