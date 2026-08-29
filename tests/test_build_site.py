@@ -64,6 +64,10 @@ class BuildSiteTests(unittest.TestCase):
             decision_page = output / "decisions" / "v1" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
             samples_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "samples.csv"
+            cross_mac_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-011-cross-mac-portability.json"
+            )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
@@ -87,6 +91,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_18_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(decision_page.is_file())
+            self.assertTrue(cross_mac_artifact.is_file())
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)
@@ -449,10 +454,21 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("WVM direct/no-reorder pipeline", native_bridge_run_html)
             self.assertIn("wvm-frequency-major-interleaved", native_bridge_run_html)
             decision_html = decision_page.read_text(encoding="utf-8")
-            self.assertIn("M4 deployment decision recorded", decision_html)
+            self.assertIn("Two-Mac portability decision recorded", decision_html)
             self.assertIn("Persistent compiled spectral engine", decision_html)
             self.assertIn("MATLAB + compiled core with WVM-native arrays", decision_html)
             self.assertIn("0.620× WVM direct", decision_html)
+            self.assertIn("Two-machine frozen-finalist result", decision_html)
+            self.assertIn("Apple M4 Max", decision_html)
+            self.assertIn("Apple M1 Max", decision_html)
+            self.assertIn("0.593× geometric", decision_html)
+            self.assertIn("0.538× geometric", decision_html)
+            self.assertIn("streaming-only capacity for wvm-large-1024-nz129-f4", decision_html)
+            self.assertIn("resolution-capacity advantage", decision_html)
+            self.assertIn("not a general-Mac default recommendation", decision_html)
+            self.assertIn("issue #19", decision_html)
+            self.assertIn("Machine-local calibration runs (32)", decision_html)
+            self.assertIn("Reference timing and memory runs (52)", decision_html)
             self.assertIn("0.691× fused split", decision_html)
             self.assertIn("general-Mac default recommendation", decision_html)
             self.assertNotIn("Adoption decision not yet ready", decision_html)

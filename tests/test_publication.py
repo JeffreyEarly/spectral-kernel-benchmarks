@@ -43,13 +43,10 @@ class PublicationValidationTests(unittest.TestCase):
         for experiment_id in (
             "issue-003-fftw-production-baseline",
             "issue-008-vertical-projection-gemm",
+            "issue-009-combined-spectral-pipeline",
             "issue-013-ordering-packing-crossover",
         ):
             self.assertEqual("complete", experiment_phases[experiment_id])
-        self.assertEqual(
-            "collecting",
-            experiment_phases["issue-009-combined-spectral-pipeline"],
-        )
         fftw_production_reference = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==

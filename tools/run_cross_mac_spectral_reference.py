@@ -733,6 +733,9 @@ def combine_machine_analyses(analyses: list[dict]) -> dict:
         "machines": [
             {
                 "machine": analysis["machine"],
+                "profilesRequested": analysis.get(
+                    "profilesRequested", analysis.get("profilesMatched", [])
+                ),
                 "profilesMatched": analysis.get("profilesMatched", []),
                 "capacityExclusions": analysis.get("capacityExclusions", []),
                 "calibrationSelections": analysis.get("calibrationSelections", {}),
@@ -983,7 +986,28 @@ def planned_commands(
                                   else (algorithm,))
                         ),
                     })
-    return commands, exclusions
+    return commands, unique_capacity_exclusions(exclusions)
+
+
+def unique_capacity_exclusions(exclusions: list[dict]) -> list[dict]:
+    """Keep one capacity record per algorithm/topology/profile outcome."""
+    unique: list[dict] = []
+    seen: set[tuple] = set()
+    for exclusion in exclusions:
+        key = (
+            exclusion.get("algorithmId"),
+            exclusion.get("topologyId"),
+            exclusion.get("profile"),
+            exclusion.get("estimatedExplicitPeakBytes"),
+            exclusion.get("physicalMemoryBytes"),
+            exclusion.get("maximumMemoryFraction"),
+            exclusion.get("reason"),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(exclusion)
+    return unique
 
 
 def main() -> int:
@@ -1215,7 +1239,9 @@ def main() -> int:
             profiles, [4, 5], REFERENCE_WARMUPS, REFERENCE_SAMPLES,
             arguments.seed, physical_memory, arguments.max_memory_fraction, "timing",
         )
-        timing_manifest["capacityExclusions"].extend(extra_exclusions)
+        timing_manifest["capacityExclusions"] = unique_capacity_exclusions(
+            timing_manifest["capacityExclusions"] + extra_exclusions
+        )
         extra_results, extra_failed = run_commands(
             repository_root, timing_output, timing_manifest, extra_commands,
             source_commit, source_dirty, arguments.continue_on_error,

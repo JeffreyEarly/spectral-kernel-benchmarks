@@ -1,0 +1,225 @@
+{
+  "schema": "spectral-kernel-cross-mac-portability-synthesis-v1",
+  "experimentId": "issue-009-combined-spectral-pipeline",
+  "incrementId": "synthetic-spectral-pipeline-cross-mac-portability-reference-v1",
+  "sourceTreeGitCommit": "d8d6a506121343a2008e50ce32f81c656ebfdb6d",
+  "sameCleanCommit": true,
+  "differentMachineClasses": true,
+  "commonMatchedProfiles": [
+    "wvm-current-256-nz129-f4",
+    "wvm-current-512-nz257-f4"
+  ],
+  "machines": [
+    {
+      "machine": {
+        "hostname": "lyra.ad.nwra.com",
+        "cpuBrand": "Apple M4 Max",
+        "hardwareModel": "Mac16,9",
+        "performanceCores": 12,
+        "efficiencyCores": 4,
+        "totalPhysicalCores": 16,
+        "physicalMemoryBytes": 137438953472,
+        "macOS": "26.6.1",
+        "macOSBuild": "25G76",
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+        "cmake": "cmake version 3.31.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+        "power": "AC Power:\n Sleep On Power Button 1\n autorestartatconnect 0\n lowpowermode         0\n standby              0\n ttyskeepawake        1\n powernap             1\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n autorestart          1\n disksleep            10",
+        "threadEnvironment": {
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "profilesRequested": [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+        "wvm-large-512-nz513-f4"
+      ],
+      "profilesMatched": [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+        "wvm-large-512-nz513-f4"
+      ],
+      "capacityExclusions": [],
+      "calibrationSelections": {
+        "wvm-direct": {
+          "selectedTopology": {
+            "id": "horizontal-performance-12--vertical-dynamic-total-16",
+            "horizontal_workers": 12,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 16,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "geometricSeconds": 0.10250207498465334,
+          "fastestGeometricSeconds": 0.10250207498465334,
+          "selectedToFastest": 1.0,
+          "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+        },
+        "streaming-pruned-tiled-16": {
+          "selectedTopology": {
+            "id": "horizontal-performance-12--vertical-dynamic-total-16",
+            "horizontal_workers": 12,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 16,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "geometricSeconds": 0.06044971393778881,
+          "fastestGeometricSeconds": 0.06044971393778881,
+          "selectedToFastest": 1.0,
+          "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+        }
+      },
+      "geometricCandidateToBaseline": 0.5932988202703189,
+      "maximumProfileCandidateToBaseline": 0.7129841259384436,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.5896495096506851,
+        "upper": 0.5974954452576846
+      },
+      "memoryOnlyGeometricRatios": {
+        "algorithmResidentBytes": 0.6354380791229018,
+        "estimatedProcessPeakBytes": 0.7879911021308958,
+        "observedProcessHighWaterBytes": 0.8944728358464049
+      },
+      "decisionGate": {
+        "geometricRatioAtMost": 0.9,
+        "maximumProfileRatioAtMost": 1.03,
+        "improvementPassed": true,
+        "regressionPassed": true,
+        "empiricalIntervalExcludesTie": true,
+        "correctnessPassed": true,
+        "placementContractPassed": true,
+        "referenceRoundProtocolPassed": true,
+        "zeroSteadyStateAllocationRequired": true,
+        "portabilityCandidatePassedOnThisMachine": true,
+        "generalMacClaimAllowed": false,
+        "sizeDependentDispatchAllowed": false
+      }
+    },
+    {
+      "machine": {
+        "hostname": "matilda-2.local",
+        "cpuBrand": "Apple M1 Max",
+        "hardwareModel": "MacBookPro18,2",
+        "performanceCores": 8,
+        "efficiencyCores": 2,
+        "totalPhysicalCores": 10,
+        "physicalMemoryBytes": 68719476736,
+        "macOS": "26.5.2",
+        "macOSBuild": "25F84",
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+        "cmake": "cmake version 4.4.2\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+        "power": "AC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n disksleep            10",
+        "threadEnvironment": {
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "profilesRequested": [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+        "wvm-large-512-nz513-f4"
+      ],
+      "profilesMatched": [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4"
+      ],
+      "capacityExclusions": [
+        {
+          "algorithmId": "wvm-direct",
+          "topologyId": "horizontal-performance-8--vertical-dynamic-total-10",
+          "profile": "wvm-large-1024-nz129-f4",
+          "estimatedExplicitPeakBytes": 51846237936,
+          "physicalMemoryBytes": 68719476736,
+          "maximumMemoryFraction": 0.75,
+          "reason": "estimated explicit peak exceeds the safe physical-memory fraction"
+        },
+        {
+          "algorithmId": "wvm-direct",
+          "topologyId": "horizontal-performance-8--vertical-dynamic-total-10",
+          "profile": "wvm-large-512-nz513-f4",
+          "estimatedExplicitPeakBytes": 99976417344,
+          "physicalMemoryBytes": 68719476736,
+          "maximumMemoryFraction": 0.75,
+          "reason": "estimated explicit peak exceeds the safe physical-memory fraction"
+        },
+        {
+          "algorithmId": "streaming-pruned-tiled-16",
+          "topologyId": "horizontal-performance-8--vertical-dynamic-total-10",
+          "profile": "wvm-large-512-nz513-f4",
+          "estimatedExplicitPeakBytes": 74073331168,
+          "physicalMemoryBytes": 68719476736,
+          "maximumMemoryFraction": 0.75,
+          "reason": "estimated explicit peak exceeds the safe physical-memory fraction"
+        }
+      ],
+      "calibrationSelections": {
+        "wvm-direct": {
+          "selectedTopology": {
+            "id": "horizontal-performance-8--vertical-dynamic-total-10",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "geometricSeconds": 0.2729342555029297,
+          "fastestGeometricSeconds": 0.26845299243536475,
+          "selectedToFastest": 1.016692915310467,
+          "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+        },
+        "streaming-pruned-tiled-16": {
+          "selectedTopology": {
+            "id": "horizontal-performance-8--vertical-dynamic-total-10",
+            "horizontal_workers": 8,
+            "vertical_schedule": "outer-dynamic",
+            "vertical_workers": 10,
+            "horizontal_worker_class": "performance",
+            "vertical_worker_class": "total"
+          },
+          "geometricSeconds": 0.14594924354336336,
+          "fastestGeometricSeconds": 0.14594924354336336,
+          "selectedToFastest": 1.0,
+          "selectionRule": "Prefer horizontal-performance/vertical-dynamic-total when within 2% of the fastest complete correct topology; otherwise select the lowest geometric time with a deterministic worker-count tie break."
+        }
+      },
+      "geometricCandidateToBaseline": 0.5377794803856449,
+      "maximumProfileCandidateToBaseline": 0.5389532795813307,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.5343043938381823,
+        "upper": 0.5476809494391632
+      },
+      "memoryOnlyGeometricRatios": {
+        "algorithmResidentBytes": 0.6397175221289017,
+        "estimatedProcessPeakBytes": 0.792849631880093,
+        "observedProcessHighWaterBytes": 0.8881882138473892
+      },
+      "decisionGate": {
+        "geometricRatioAtMost": 0.9,
+        "maximumProfileRatioAtMost": 1.03,
+        "improvementPassed": true,
+        "regressionPassed": true,
+        "empiricalIntervalExcludesTie": true,
+        "correctnessPassed": true,
+        "placementContractPassed": true,
+        "referenceRoundProtocolPassed": true,
+        "zeroSteadyStateAllocationRequired": true,
+        "portabilityCandidatePassedOnThisMachine": true,
+        "generalMacClaimAllowed": false,
+        "sizeDependentDispatchAllowed": false
+      }
+    }
+  ],
+  "crossMacPortabilityGate": {
+    "atLeastTwoDifferentMachineClasses": true,
+    "sameCleanSourceCommit": true,
+    "atLeastTwoCommonMatchedProfiles": true,
+    "everyMachinePassesItsFrozenTupleGate": true,
+    "portabilityQualifiedAcrossTestedMachines": true,
+    "generalMacClaimAllowed": false,
+    "wvmIntegrationAuthorized": false,
+    "sizeDependentDispatchAllowed": false
+  },
+  "claimScope": "The named Apple-silicon hardware-plus-toolchain configurations and their common feasible workloads only. The result advances a candidate to issue #19 and does not establish a general-Mac default."
+}

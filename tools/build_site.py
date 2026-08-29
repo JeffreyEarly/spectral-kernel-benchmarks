@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import math
 import random
 import re
@@ -29,6 +30,13 @@ EXPERIMENT_PROVIDER_IDS = {
     "issue-005-vdsp-native-baseline": "accelerate-vdsp",
     "issue-006-vdsp-batching-scheduling": "accelerate-vdsp",
 }
+
+CROSS_MAC_CALIBRATION_INCREMENT = (
+    "synthetic-spectral-pipeline-cross-mac-topology-calibration-v1"
+)
+CROSS_MAC_REFERENCE_INCREMENT = (
+    "synthetic-spectral-pipeline-cross-mac-portability-reference-v1"
+)
 
 
 def escaped(value: object) -> str:
@@ -5548,7 +5556,119 @@ def build_methods_page(methods_source: Path) -> str:
     return shell("Operators and representations", content, "../../")
 
 
-def build_decision_page(catalog: dict, bundles: list[PublishedBundle]) -> str:
+def capacity_outcome(machine_result: dict) -> str:
+    requested = machine_result.get(
+        "profilesRequested", machine_result.get("profilesMatched", [])
+    )
+    matched = set(machine_result.get("profilesMatched", []))
+    exclusions = machine_result.get("capacityExclusions", [])
+    excluded = {
+        algorithm_id: {
+            item["profile"]
+            for item in exclusions
+            if item.get("algorithmId") == algorithm_id
+        }
+        for algorithm_id in ("wvm-direct", "streaming-pruned-tiled-16")
+    }
+    candidate_only = [
+        profile for profile in requested
+        if profile in excluded["wvm-direct"]
+        and profile not in excluded["streaming-pruned-tiled-16"]
+    ]
+    both_excluded = [
+        profile for profile in requested
+        if profile in excluded["wvm-direct"]
+        and profile in excluded["streaming-pruned-tiled-16"]
+    ]
+    pieces = [f"{len(matched)} of {len(requested)} requested profiles paired"]
+    if candidate_only:
+        pieces.append(
+            "streaming-only capacity for " + ", ".join(candidate_only)
+        )
+    if both_excluded:
+        pieces.append("both excluded for " + ", ".join(both_excluded))
+    return "; ".join(pieces) + "."
+
+
+def selected_topology(machine_result: dict, algorithm_id: str) -> str:
+    topology = machine_result["calibrationSelections"][algorithm_id][
+        "selectedTopology"
+    ]
+    return (
+        f'{topology["horizontal_workers"]} horizontal '
+        f'{topology["horizontal_worker_class"]}-core workers + '
+        f'{topology["vertical_schedule"]}-'
+        f'{topology["vertical_workers"]} vertical workers'
+    )
+
+
+def cross_mac_decision_section(
+    synthesis: dict, bundles: list[PublishedBundle],
+) -> str:
+    gate = synthesis["crossMacPortabilityGate"]
+    rows: list[str] = []
+    for machine_result in synthesis["machines"]:
+        machine = machine_result["machine"]
+        timing_range = machine_result["empiricalStratifiedPairedRange"]
+        memory = machine_result["memoryOnlyGeometricRatios"]
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(machine["cpuBrand"])}<br>'
+            f'<span class="muted">{escaped(machine["hardwareModel"])} · '
+            f'{machine["performanceCores"]}P + {machine["efficiencyCores"]}E · '
+            f'{format_bytes(machine["physicalMemoryBytes"])}</span></th>'
+            f'<td>{escaped(selected_topology(machine_result, "wvm-direct"))}<br>'
+            f'<span class="muted">streaming: '
+            f'{escaped(selected_topology(machine_result, "streaming-pruned-tiled-16"))}</span></td>'
+            f'<td>{escaped(capacity_outcome(machine_result))}</td>'
+            f'<td class="numeric">{machine_result["geometricCandidateToBaseline"]:.3f}× geometric<br>'
+            f'<span class="muted">worst {machine_result["maximumProfileCandidateToBaseline"]:.3f}× · '
+            f'range {timing_range["lower"]:.3f}×–{timing_range["upper"]:.3f}×</span></td>'
+            f'<td class="numeric">resident {memory["algorithmResidentBytes"]:.3f}×<br>'
+            f'<span class="muted">estimated peak {memory["estimatedProcessPeakBytes"]:.3f}× · '
+            f'high water {memory["observedProcessHighWaterBytes"]:.3f}×</span></td>'
+            '<td><span class="status passed">passes</span></td>'
+            "</tr>"
+        )
+    calibration_runs = sorted(
+        [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            CROSS_MAC_CALIBRATION_INCREMENT
+        ],
+        key=lambda bundle: bundle.result["environment"]["timestampUtc"],
+    )
+    reference_runs = sorted(
+        [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            CROSS_MAC_REFERENCE_INCREMENT
+            and bundle.publication["status"] == "reference"
+        ],
+        key=lambda bundle: bundle.result["environment"]["timestampUtc"],
+    )
+    result_word = "passes" if gate["portabilityQualifiedAcrossTestedMachines"] else "does not pass"
+    return f"""
+        <section class="section" aria-labelledby="cross-mac-heading">
+          <p class="eyebrow">Issue #11 portability campaign</p><h2 id="cross-mac-heading">Two-machine frozen-finalist result</h2>
+          <p>The preregistered cross-Mac gate {result_word} on the named M4 Max desktop and M1 Max laptop. Both machines used the same clean source commit, Float64, four fields, an out-of-place placement contract, one FFTW internal worker, one requested Accelerate thread, and the fixed WVM-direct and streaming tile-16 graphs. Only topology-derived worker counts were calibrated locally.</p>
+          <div class="table-scroll"><table>
+            <caption>Streaming-pruned tile-16 divided by the WVM-native direct control; lower is better. Timing statistics use only mutually feasible paired reference profiles. Memory comes from separate isolated processes.</caption>
+            <thead><tr><th scope="col">Machine</th><th scope="col">Frozen local schedule</th><th scope="col">Profile and capacity outcome</th><th scope="col">Authoritative total</th><th scope="col">Memory ratios</th><th scope="col">Gate</th></tr></thead>
+            <tbody>{''.join(rows)}</tbody>
+          </table></div>
+          <p>On the 64 GiB M1 Max, streaming tile-16 completed the 1024²/N<sub>z</sub>=129/F4 case while the WVM-native control exceeded the preregistered 75% physical-memory safety limit. That is evidence of a resolution-capacity advantage, but it is deliberately excluded from paired timing statistics. The deep 512²/N<sub>z</sub>=513/F4 case exceeded the limit for both graphs.</p>
+          <p>The conclusion is portability-qualified only for these hardware/toolchain combinations and their common feasible workloads. It is not a general-Mac default recommendation and does not authorize size-dependent dispatch or WVM integration. The selected candidate advances to the narrowed <a href="{REPOSITORY_URL}/issues/19">full nonlinear-flux validation in issue #19</a>.</p>
+          <p><a href="../../artifacts/decisions/issue-011-cross-mac-portability.json">Download the reviewed cross-Mac synthesis JSON</a>.</p>
+          <details><summary>Machine-local calibration runs ({len(calibration_runs)})</summary>{archive(calibration_runs, '../../')}</details>
+          <details><summary>Reference timing and memory runs ({len(reference_runs)})</summary>{archive(reference_runs, '../../')}</details>
+        </section>
+    """
+
+
+def build_decision_page(
+    catalog: dict, bundles: list[PublishedBundle], cross_mac_synthesis: dict | None,
+) -> str:
     reference_bundles = [bundle for bundle in bundles if bundle.publication["status"] == "reference"]
     experiment_rows = []
     for experiment in sorted(catalog["experiments"], key=lambda item: item["issue"]):
@@ -5611,6 +5731,19 @@ def build_decision_page(catalog: dict, bundles: list[PublishedBundle]) -> str:
             else "No reference runs exist yet, so no adoption statistics or provider recommendation can be produced."
         )
         decision_sections = ""
+    if cross_mac_synthesis is not None:
+        decision_sections += cross_mac_decision_section(
+            cross_mac_synthesis, bundles,
+        )
+        if cross_mac_synthesis["crossMacPortabilityGate"][
+            "portabilityQualifiedAcrossTestedMachines"
+        ]:
+            heading = "Two-Mac portability decision recorded"
+            readiness = (
+                "Streaming tile-16 clears the frozen synthetic-pipeline gate on "
+                "the tested M4 Max and M1 Max configurations. Full nonlinear-flux "
+                "validation remains in issue #19 before WVM integration."
+            )
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Decision record · v1</p>
@@ -5668,6 +5801,20 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     for schema_path in sorted((repository_root / "schema").glob("*.json")):
         shutil.copyfile(schema_path, output_dir / "schema" / schema_path.name)
     shutil.copyfile(results_dir / "catalog.json", output_dir / "catalog.json")
+    decision_artifacts = results_dir / "decisions"
+    cross_mac_synthesis = None
+    if decision_artifacts.is_dir():
+        output_decisions = output_dir / "artifacts" / "decisions"
+        output_decisions.mkdir()
+        for decision_path in sorted(decision_artifacts.glob("*.json")):
+            shutil.copyfile(decision_path, output_decisions / decision_path.name)
+        synthesis_path = decision_artifacts / "issue-011-cross-mac-portability.json"
+        if synthesis_path.is_file():
+            cross_mac_synthesis = json.loads(synthesis_path.read_text(encoding="utf-8"))
+            if cross_mac_synthesis.get("schema") != (
+                "spectral-kernel-cross-mac-portability-synthesis-v1"
+            ):
+                raise ValueError("cross-Mac decision synthesis has the wrong schema")
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
 
@@ -5697,7 +5844,10 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         output_dir / "methods" / "operators-and-representations" / "index.html",
         build_methods_page(repository_root / "docs" / "benchmark-contract.md"),
     )
-    write_page(output_dir / "decisions" / "v1" / "index.html", build_decision_page(catalog, bundles))
+    write_page(
+        output_dir / "decisions" / "v1" / "index.html",
+        build_decision_page(catalog, bundles, cross_mac_synthesis),
+    )
 
 
 def main() -> int:

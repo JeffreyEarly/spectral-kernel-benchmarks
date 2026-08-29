@@ -228,6 +228,23 @@ class CrossMacSpectralReferenceTests(unittest.TestCase):
             analysis["decisionGate"]["portabilityCandidatePassedOnThisMachine"]
         )
 
+    def test_capacity_exclusions_are_unique_across_rounds(self) -> None:
+        baseline, candidate = cross_mac.algorithm_graphs()
+        topology = cross_mac.topology_matrix(4, 8)[0]
+        algorithms = [baseline, candidate]
+        commands, exclusions = cross_mac.planned_commands(
+            Path("skbench"), Path("results"), algorithms,
+            {algorithm.id: [topology] for algorithm in algorithms},
+            [cross_mac.PROFILES[2]], [1, 2, 3], 1, 1, 129,
+            1, 0.75, "timing",
+        )
+        self.assertEqual([], commands)
+        self.assertEqual(2, len(exclusions))
+        self.assertEqual(
+            {baseline.id, candidate.id},
+            {exclusion["algorithmId"] for exclusion in exclusions},
+        )
+
     def test_cross_machine_synthesis_requires_distinct_machines_and_same_commit(self) -> None:
         def analysis(model: str, cpu: str) -> dict:
             return {
@@ -238,6 +255,7 @@ class CrossMacSpectralReferenceTests(unittest.TestCase):
                     "hardwareModel": model,
                     "cpuBrand": cpu,
                 },
+                "profilesRequested": list(cross_mac.PROFILES),
                 "profilesMatched": list(cross_mac.PROFILES[:2]),
                 "capacityExclusions": [],
                 "calibrationSelections": {},
@@ -259,6 +277,9 @@ class CrossMacSpectralReferenceTests(unittest.TestCase):
         self.assertTrue(
             synthesis["crossMacPortabilityGate"]
             ["portabilityQualifiedAcrossTestedMachines"]
+        )
+        self.assertEqual(
+            list(cross_mac.PROFILES), synthesis["machines"][0]["profilesRequested"]
         )
         self.assertFalse(
             synthesis["crossMacPortabilityGate"]["generalMacClaimAllowed"]
