@@ -236,8 +236,8 @@ def validate_and_read(directory: pathlib.Path) -> tuple[dict[str, Any], bytes,
     require(retention.get("verticalPolicy") == "floor(2*(Nz-1)/3)",
             "vertical retention policy is inconsistent")
     require(number(retention.get("verticalRetainedFraction"),
-                   "verticalRetainedFraction") == 2.0 / 3.0,
-            "vertical retained fraction must be exactly 2/3 in Float64")
+                   "verticalRetainedFraction") == nj / float(nz - 1),
+            "vertical retained fraction must equal Nj/(Nz-1) after flooring")
 
     mode_order = mapping(manifest.get("modeOrder"), "modeOrder")
     require(mode_order.get("logicalAxes") == ["k", "l", "j", "field"],
