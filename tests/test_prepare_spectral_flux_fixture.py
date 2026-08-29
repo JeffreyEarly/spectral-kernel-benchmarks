@@ -26,7 +26,7 @@ from prepare_spectral_flux_fixture import (  # noqa: E402
 
 
 class SpectralFluxFixturePreparationTests(unittest.TestCase):
-    def make_fixture(self, root: Path) -> Path:
+    def make_fixture(self, root: Path, *, split_repeated_key: bool = False) -> Path:
         fixture = root / "fixture"
         fixture.mkdir()
         nx = ny = 8
@@ -38,7 +38,8 @@ class SpectralFluxFixturePreparationTests(unittest.TestCase):
         distinct: list[int] = []
         indices: list[int] = []
         for key in keys:
-            if not distinct or distinct[-1] != key:
+            if (not distinct or distinct[-1] != key or
+                    (split_repeated_key and key == 1)):
                 distinct.append(key)
             indices.append(len(distinct) - 1)
         group_count = len(distinct)
@@ -198,6 +199,13 @@ class SpectralFluxFixturePreparationTests(unittest.TestCase):
             payload.write_bytes(content)
             with self.assertRaisesRegex(FixtureError, "SHA-256"):
                 prepare(fixture, root / "prepared.bin")
+
+    def test_repeated_integer_keys_preserve_distinct_wvm_groups(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fixture = self.make_fixture(root, split_repeated_key=True)
+            summary = prepare(fixture, root / "prepared.bin")
+            self.assertEqual("format-test-only", summary["fixtureId"])
 
     def test_dirty_tree_cannot_claim_authoritative_status(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
