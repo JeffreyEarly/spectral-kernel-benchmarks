@@ -36,6 +36,75 @@ class PublicationValidationTests(unittest.TestCase):
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
         self.assertEqual(14, len(catalog["experiments"]))
+        experiment_phases = {
+            experiment["id"]: experiment["phase"]
+            for experiment in catalog["experiments"]
+        }
+        for experiment_id in (
+            "issue-003-fftw-production-baseline",
+            "issue-008-vertical-projection-gemm",
+            "issue-009-combined-spectral-pipeline",
+            "issue-013-ordering-packing-crossover",
+        ):
+            self.assertEqual("complete", experiment_phases[experiment_id])
+        fftw_production_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "fftw-production-baseline-reference-v1"
+        ]
+        self.assertEqual(30, len(fftw_production_reference))
+        self.assertEqual(10, len({
+            bundle.result["run"]["profile"]
+            for bundle in fftw_production_reference
+        }))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"]
+            for bundle in fftw_production_reference
+        })
+        self.assertEqual({"9c28eab8d148"}, {
+            bundle.result["environment"]["gitCommit"]
+            for bundle in fftw_production_reference
+        })
+        vertical_finalist_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "vertical-k2-grouped-finalists-reference-v1"
+        ]
+        self.assertEqual(60, len(vertical_finalist_reference))
+        self.assertEqual(
+            {"outer-dynamic-16", "outer-static-12"},
+            {
+                bundle.publication["campaignCandidateId"]
+                for bundle in vertical_finalist_reference
+            },
+        )
+        self.assertEqual({"28d8cd90710a"}, {
+            bundle.result["environment"]["gitCommit"]
+            for bundle in vertical_finalist_reference
+        })
+        deep_vertical_reference = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "synthetic-spectral-pipeline-deep-vertical-reference-v1"
+        ]
+        self.assertEqual(6, len(deep_vertical_reference))
+        self.assertEqual({"wvm-large-512-nz513-f4"}, {
+            bundle.result["run"]["profile"]
+            for bundle in deep_vertical_reference
+        })
+        self.assertEqual({"a7989508e60a"}, {
+            bundle.result["environment"]["gitCommit"]
+            for bundle in deep_vertical_reference
+        })
+        for bundle in deep_vertical_reference:
+            provider = bundle.result["providers"][0]
+            self.assertTrue(any(
+                timing["scope"] == "setup-component"
+                and timing["stage"] ==
+                "release correctness-only benchmark storage"
+                and timing["state"] == "setup-only"
+                for timing in provider["timings"]
+            ))
         pipeline_screen = [
             bundle for bundle in bundles
             if bundle.publication.get("incrementId") ==
@@ -292,6 +361,14 @@ class PublicationValidationTests(unittest.TestCase):
                 for bundle in streaming_reference
             },
         )
+        self.assertTrue(all(
+            bundle.publication["issues"] == [13, 16]
+            and bundle.publication["experiments"] == [
+                "issue-013-ordering-packing-crossover",
+                "issue-016-streaming-pruned-compact-split",
+            ]
+            for bundle in streaming_reference
+        ))
         for bundle in streaming_reference:
             provider = bundle.result["providers"][0]
             memory = provider["memory"]

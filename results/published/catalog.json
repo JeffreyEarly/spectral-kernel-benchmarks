@@ -20605,9 +20605,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20633,9 +20635,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20661,9 +20665,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20689,9 +20695,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20717,9 +20725,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20745,9 +20755,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20773,9 +20785,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20801,9 +20815,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20829,9 +20845,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20857,9 +20875,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20885,9 +20905,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20913,9 +20935,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20941,9 +20965,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20969,9 +20995,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -20997,9 +21025,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -21025,9 +21055,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -21053,9 +21085,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-plane-major-fftw+fused-retained-split+split-k2-dgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -21081,9 +21115,11 @@
       "statusReason": "Clean three-round fixed tile-16 reference campaign; all correctness, timing-confidence, memory, and uniform-policy gates passed.",
       "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
       "issues": [
+        13,
         16
       ],
       "experiments": [
+        "issue-013-ordering-packing-crossover",
         "issue-016-streaming-pruned-compact-split"
       ],
       "priorExperiments": [
@@ -23338,13 +23374,2533 @@
         "samplesSha256": "cb772bbbe2619201af8491aa21082e2520768da15af1663e6118d9a25947e428"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260829T044741076496Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044741076496Z-lyra/result.json",
+        "samples": "runs/20260829T044741076496Z-lyra/samples.csv",
+        "resultSha256": "82d1a397fe08182fd98d8078763df218297641e263120b8855f49a2047d1a8c4",
+        "samplesSha256": "895dcd10e42414e46d74e209161f52b85f1be781a2b07f52d8ef8fc4d5d081e8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044747312854Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044747312854Z-lyra/result.json",
+        "samples": "runs/20260829T044747312854Z-lyra/samples.csv",
+        "resultSha256": "6fa8d2997784bdb6d5c14025bf0ec8029d7fe144cd8b5aa702e5e49a9b8753ce",
+        "samplesSha256": "cbbd154694d23ce0ad8e78c4a93454ea6aabe877e74f2e551bca730d50bceab0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044754591248Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044754591248Z-lyra/result.json",
+        "samples": "runs/20260829T044754591248Z-lyra/samples.csv",
+        "resultSha256": "accdf80ea8fba1c0ff7374ff5728172604ea711b2904f6af27c36b9c557c0520",
+        "samplesSha256": "76198d1bfac677dcbc2907e8d03cd7b049cfebc695e944d3932b126fb6de82b6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044819056643Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044819056643Z-lyra/result.json",
+        "samples": "runs/20260829T044819056643Z-lyra/samples.csv",
+        "resultSha256": "cc9f218ba63f5270084da43d1596499b8e75410659e2ea2f3f453d697ab60a32",
+        "samplesSha256": "90e870542422b3664cf7d1b9f8d0b0d9cd5e5eb621961305003feac63cf7762b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044846324921Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044846324921Z-lyra/result.json",
+        "samples": "runs/20260829T044846324921Z-lyra/samples.csv",
+        "resultSha256": "62034921ea0ea488a2e82675c59c47c1e87ddb45db3c4ff08395b3e307c6041f",
+        "samplesSha256": "402630527718f307781f0bb978cea2ad8846785c56c2d675fbe4e78231c1b2da"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044851906791Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044851906791Z-lyra/result.json",
+        "samples": "runs/20260829T044851906791Z-lyra/samples.csv",
+        "resultSha256": "18b801aaf35cb2487718fa7a4f44fe362ec4a2424b201b94c55c33c418dc7c5c",
+        "samplesSha256": "671c555af16d631ee63745bf2f6e481863b8f0287a345698b744af8d733c20a6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044903040385Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044903040385Z-lyra/result.json",
+        "samples": "runs/20260829T044903040385Z-lyra/samples.csv",
+        "resultSha256": "3775526b72a237f8b8449d174ed732c7e1e128d115011ef4b0f5289c242a55f0",
+        "samplesSha256": "ed6b8a8d1b463371a1f85b912a9e5c01deac54efbecff8f99c9ea0c223832641"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044913784536Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044913784536Z-lyra/result.json",
+        "samples": "runs/20260829T044913784536Z-lyra/samples.csv",
+        "resultSha256": "022ab4562c9e842ec8fc94d3bc4ecf134cc554807bb514b6d83ad9e73efbb645",
+        "samplesSha256": "2d9aea69f9d324240f4eb209af0e013bdab77a0d612cf09159add2821505a703"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T044929740342Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T044929740342Z-lyra/result.json",
+        "samples": "runs/20260829T044929740342Z-lyra/samples.csv",
+        "resultSha256": "77bfd8998aaf9b60c593a4706769428d8c2d72e43c138af53699843e10724617",
+        "samplesSha256": "ddf1a3fd06ac44997f090ff339dfee4c623cc011181b3d59b59a5ec4c5b3de0d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045008292523Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045008292523Z-lyra/result.json",
+        "samples": "runs/20260829T045008292523Z-lyra/samples.csv",
+        "resultSha256": "8ad6befd2bf0ff9cc1f6604ecacef82cd37acfb5c0c07674320c23e3af552401",
+        "samplesSha256": "4a563f683146722490a81767863575fbac1076294335c66c5b466ca519b976b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045055448858Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045055448858Z-lyra/result.json",
+        "samples": "runs/20260829T045055448858Z-lyra/samples.csv",
+        "resultSha256": "87604644d2f150a9d7032c0d7926b6d534bec1abf32fbbfe53d9dacae3192abf",
+        "samplesSha256": "de802b627c1e9f2f7590c0422493f6faf1c74ad6a69f1976fcda2db58863e051"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045102677759Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045102677759Z-lyra/result.json",
+        "samples": "runs/20260829T045102677759Z-lyra/samples.csv",
+        "resultSha256": "57d057c19c205e5178429aedbbeed908d8f642b3ee560f487c720a83c7c9a40d",
+        "samplesSha256": "2fbcc63dac1800b04993da3a05983ff520816ecbb13f08a44cb3c77cea2fc281"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045127312160Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045127312160Z-lyra/result.json",
+        "samples": "runs/20260829T045127312160Z-lyra/samples.csv",
+        "resultSha256": "e18fc7b200fd973ef26036e2596692ab0fd59c00586e1c8bb6986fa7cff3ae7e",
+        "samplesSha256": "61ae7b3776b35f47895411e236ffcc019022f65f4a469bbdb221b781a360ee33"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045154663998Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045154663998Z-lyra/result.json",
+        "samples": "runs/20260829T045154663998Z-lyra/samples.csv",
+        "resultSha256": "b2b0f528a9307190731ef480c7b5964d2307296a91c5e9fe993301f92bd8ddd1",
+        "samplesSha256": "73e02a6393c1254072a8aaa2f277e494ffeca3804f4f4b5065d1b76403f7601c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045200245974Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045200245974Z-lyra/result.json",
+        "samples": "runs/20260829T045200245974Z-lyra/samples.csv",
+        "resultSha256": "295ae2a0c29b56514c5cf3555cbd448cfe1492f5a040bc119581c2cff52f28c0",
+        "samplesSha256": "26b4d17cdb7c3c7e0513e79bcfe2ba982d8832ea2d2119db300d832dd33ffeb8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045211382053Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045211382053Z-lyra/result.json",
+        "samples": "runs/20260829T045211382053Z-lyra/samples.csv",
+        "resultSha256": "3f8d99aeeb66985d6f1b82917d4f787cfc6c8ec2d1e8b36a3e72ea0d7fa6c704",
+        "samplesSha256": "7f41b96248a3475637c2ea32e9b33bf62f089a9f2f72522927cfc635362ec05f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045222095942Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045222095942Z-lyra/result.json",
+        "samples": "runs/20260829T045222095942Z-lyra/samples.csv",
+        "resultSha256": "12d845ec4f223976a6c0fd8f8697148384de6cecd04469032cc6e2c6938173ac",
+        "samplesSha256": "4eed55814572df67c38a10ba7598b0bd41d7b359813bf140a1d08f39d51369cc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045238114803Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045238114803Z-lyra/result.json",
+        "samples": "runs/20260829T045238114803Z-lyra/samples.csv",
+        "resultSha256": "96dee45b3ffc9779268adf113e8d6c99a99c76b8a340512bc4d66651d60e9b7f",
+        "samplesSha256": "e90893f304490e45a55c1facd4d69ce6b60dd95cb50a80ebfe292a5f65957961"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045316487376Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045316487376Z-lyra/result.json",
+        "samples": "runs/20260829T045316487376Z-lyra/samples.csv",
+        "resultSha256": "d9566f1f08f708ec0e7706cc55f184ccc95e5b4e40582a618d6b544cd8842e7c",
+        "samplesSha256": "ed92ba533149312f4c1396ac1783e2232ff03080a741c461e069a199b6a54672"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045404027491Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045404027491Z-lyra/result.json",
+        "samples": "runs/20260829T045404027491Z-lyra/samples.csv",
+        "resultSha256": "6cd9e9a622c95eed422e493bba434b0770cda84c725ea5593deeccf51b9b34d9",
+        "samplesSha256": "a6172d0893dfd2f4fe5cbb5cc3c5e5e8ee3d43957b660ec28d3cb8740af03d1f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045410275041Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045410275041Z-lyra/result.json",
+        "samples": "runs/20260829T045410275041Z-lyra/samples.csv",
+        "resultSha256": "f3ebd7a9da39b5528d5b29cb1f8e0033b9464e532fb3b6dc1db9d84116efa866",
+        "samplesSha256": "b7d18bc3c69d56270ccda2d45f106fd68ccb5351be3aed7b4171c5bbd6da25de"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045435125946Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045435125946Z-lyra/result.json",
+        "samples": "runs/20260829T045435125946Z-lyra/samples.csv",
+        "resultSha256": "8f92382d43416dbc6149d690c06fb94e4f0a043a7b6a114185dc67063e742652",
+        "samplesSha256": "dc0632e20b8c5cff51f4e7e2695a44b7b40c178a1e250f0674adbb5f8325a898"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045502557733Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045502557733Z-lyra/result.json",
+        "samples": "runs/20260829T045502557733Z-lyra/samples.csv",
+        "resultSha256": "28e07f9bc81114127e56c3956089d826d3d3c723d4f513bee19caf827a0cbc19",
+        "samplesSha256": "2fd17a262a5bb262c9ff32583bc7fe9b10894aedfa133dfc2f4053861484155d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045508183810Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045508183810Z-lyra/result.json",
+        "samples": "runs/20260829T045508183810Z-lyra/samples.csv",
+        "resultSha256": "8a6f23147637d5ee9a961c37589f6bfbb20214a31c893e7773d088ca384fe57e",
+        "samplesSha256": "23202d495b796ec8e7d836793b36185704ab83410bfceb180ded34e009f4577a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045519353240Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045519353240Z-lyra/result.json",
+        "samples": "runs/20260829T045519353240Z-lyra/samples.csv",
+        "resultSha256": "ef1a196aee814b33f8bb71f79cb20844c63fa1d9445940f2ead287d6295fc693",
+        "samplesSha256": "1eec2f07cd16448b088cd1fe5a894dbe59f6dd3b9b841c616bb3eb0f65f8236e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045530119912Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045530119912Z-lyra/result.json",
+        "samples": "runs/20260829T045530119912Z-lyra/samples.csv",
+        "resultSha256": "fd55435ab7006ee7a2950433b12f1044310a1559315b08f4fd2ac52b8bd54914",
+        "samplesSha256": "f87aae182749a2f9a180359a11a169e099fdafd0f930518739cb490d3940e070"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045546116068Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045546116068Z-lyra/result.json",
+        "samples": "runs/20260829T045546116068Z-lyra/samples.csv",
+        "resultSha256": "ceb785149f6503a9c2a51c485f80fac23a4e8456fc4fd230c998ea4cb44b76c6",
+        "samplesSha256": "a08cad16b22e24d2b433421a6393df20386c5412d18dfb93b26bd459a043706d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045624752645Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045624752645Z-lyra/result.json",
+        "samples": "runs/20260829T045624752645Z-lyra/samples.csv",
+        "resultSha256": "a000d32461afa9a801930584ae2abdf1076e09b6df17c5bc8a6f965d26ccbe6a",
+        "samplesSha256": "1386bf0712bcedfcf04d8e7a74be145d394f154afc3f7285926ea5ef5ddc37bf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045711585963Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045711585963Z-lyra/result.json",
+        "samples": "runs/20260829T045711585963Z-lyra/samples.csv",
+        "resultSha256": "2da9305072ad8f0d7e76f09a2ce847d97cc8864afb3ae4bc0c4307705bd596a7",
+        "samplesSha256": "d933c35d15fa2c78a9c9169d4c007bfbc5eb9e3c19721fa342d5a7326cd63ca4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045718094538Z-lyra",
+      "incrementId": "fftw-production-baseline-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-interleaved-measure-internal-performance",
+      "status": "reference",
+      "statusReason": "Exact WVM production FFTW contract across the complete ten-profile v1 matrix, three isolated rounds per profile, on the M4 Max reference machine.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using wvm-guru64-interleaved-measure-unaligned-cold (internal=12, outer=1).",
+      "issues": [
+        3
+      ],
+      "experiments": [
+        "issue-003-fftw-production-baseline"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045718094538Z-lyra/result.json",
+        "samples": "runs/20260829T045718094538Z-lyra/samples.csv",
+        "resultSha256": "d958a7e6f1677628bb8b93fe77c1215e23bb675c68297528e480557ab035f371",
+        "samplesSha256": "ecaa6a0c520cbba6a7fc6583f920aedf507567a83e69dcd431f5d983bc7a8ce2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045813014216Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045813014216Z-lyra/result.json",
+        "samples": "runs/20260829T045813014216Z-lyra/samples.csv",
+        "resultSha256": "942f070eb926f860296971427328fd074f4c1fc7eb52ca60a63c03a019f66823",
+        "samplesSha256": "b50c8e19110dbaa927413687bd47a0a472a0e12198e70fffa8423aa652191639"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045813489148Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045813489148Z-lyra/result.json",
+        "samples": "runs/20260829T045813489148Z-lyra/samples.csv",
+        "resultSha256": "07aa8d2776f1216b3097760e16d0f49dd13a2239bc8ad96e3ab2c0f6d789070b",
+        "samplesSha256": "e616da2c990ea35fffb60e781b1396df99e69edb075e1d7c79cac9bc1d93c741"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045813931040Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045813931040Z-lyra/result.json",
+        "samples": "runs/20260829T045813931040Z-lyra/samples.csv",
+        "resultSha256": "203d7f0a4f8860cb47337f577f05aed0ddfbe1cfee3f062fbe1cdbbfd95896b5",
+        "samplesSha256": "910f278dd17ad81fb1f0c5eb0fb19bc774a16361f3af112c8ee2470835ff299f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045814487109Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045814487109Z-lyra/result.json",
+        "samples": "runs/20260829T045814487109Z-lyra/samples.csv",
+        "resultSha256": "29f308f5ec910d9db5de2024ee97e617f63ae20581103d15147940ae6e7d38c7",
+        "samplesSha256": "62c28792719f7899929096169687997836b6f9ebf4a0fb1bce9bcfbac83d1a58"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045815046379Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045815046379Z-lyra/result.json",
+        "samples": "runs/20260829T045815046379Z-lyra/samples.csv",
+        "resultSha256": "f546f5f9693f283847ca0d609f72f5ddf18dcbbcd8ced13f86f35eeaac2fb6ae",
+        "samplesSha256": "bd9773da206466544d2299b9269976303f3ed33023c0b12be9dbd72d5d4ee800"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045819181793Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045819181793Z-lyra/result.json",
+        "samples": "runs/20260829T045819181793Z-lyra/samples.csv",
+        "resultSha256": "07e85f04156665427409c8be4f5dd07ee57fd8a4177056f8e739d33bf5b24516",
+        "samplesSha256": "1098127c04a6b032ee2a8ae1d2bf5946fa7f27f0a117cf11a261eca8b002202a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045823732473Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045823732473Z-lyra/result.json",
+        "samples": "runs/20260829T045823732473Z-lyra/samples.csv",
+        "resultSha256": "992dd07812d484b3f6b1e18c349471f233e81fc748e05ea58fb907e4c09a54cf",
+        "samplesSha256": "445d292d34254c69ab2a2c817ff16b67195bf6e5dc190b6ae03f4820be1a1b19"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045828843074Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045828843074Z-lyra/result.json",
+        "samples": "runs/20260829T045828843074Z-lyra/samples.csv",
+        "resultSha256": "465b938629ef09490c8ca70803a060d82b686e05acde735791e18d285c9ec392",
+        "samplesSha256": "3f0d22e7bc38d89b7c8ef5a2425f5fb83ab15b6d385582187726de9ba0e9006e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045834421414Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045834421414Z-lyra/result.json",
+        "samples": "runs/20260829T045834421414Z-lyra/samples.csv",
+        "resultSha256": "db305401a6139bc383c38153a737e31da22fa4aecf590b0c67bdc9c2be4dc221",
+        "samplesSha256": "17a6033130a5c99b8e80f7be7955acfdaea0059f63dbd0d363bb12bdec1a3b2c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045834966360Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045834966360Z-lyra/result.json",
+        "samples": "runs/20260829T045834966360Z-lyra/samples.csv",
+        "resultSha256": "fffd4c678606c68e6d9ea6a9e19bbf3766e8f00b190ae8a63a9d47dc34490efa",
+        "samplesSha256": "87710dffa649bc1bb25a95f02307122d19d366e9823b676be1bffb692a21700a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045835527841Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045835527841Z-lyra/result.json",
+        "samples": "runs/20260829T045835527841Z-lyra/samples.csv",
+        "resultSha256": "d361013ec1810f45a87ef0bff41ac48392f70aacd7e353718b9b1dac8531a9d3",
+        "samplesSha256": "cc7c8e48ff7e37e5046bdd4dc5d9d25d4506d0c5611f12be7d69daad4d5c1626"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045836607745Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045836607745Z-lyra/result.json",
+        "samples": "runs/20260829T045836607745Z-lyra/samples.csv",
+        "resultSha256": "aca10a47d20cf5681495e003335655a7258b188c6d482ef005e1e35b609c037b",
+        "samplesSha256": "487cb451712aebc2433c875918ad9ce3f40d0c9340516eac5009c76d52c2b3a3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045837797313Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045837797313Z-lyra/result.json",
+        "samples": "runs/20260829T045837797313Z-lyra/samples.csv",
+        "resultSha256": "9789cf2ad9b8a8901ab9b8625f5b993a92ad18e9facd260f69b31c5fb0d970dd",
+        "samplesSha256": "971a2ea9c26835f44f8383bbd24c36a7ba126decd12196a3416593d465b9925a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045839127981Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045839127981Z-lyra/result.json",
+        "samples": "runs/20260829T045839127981Z-lyra/samples.csv",
+        "resultSha256": "0676374c39f08eb143f6c9d1dd59dc7162be92139cc8c1296d0da43faa042ab0",
+        "samplesSha256": "c39922e16feafffbad036254b6f42e1db261d557e567e985473f74f2aaa931de"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045840580590Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045840580590Z-lyra/result.json",
+        "samples": "runs/20260829T045840580590Z-lyra/samples.csv",
+        "resultSha256": "ec586dc29d5d8332d2d91f217da8ff11cb138d5623610dffcd2cc1053f65eb97",
+        "samplesSha256": "c34d18c249ffd550da67032065dae159b8e21ca93c836813c75c1ad00c8a2514"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045846879513Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045846879513Z-lyra/result.json",
+        "samples": "runs/20260829T045846879513Z-lyra/samples.csv",
+        "resultSha256": "09ede21d904e4fe5a9f64bede7483d5b902ad43211bc4dfd1e5958e2e2c30d25",
+        "samplesSha256": "e234d3b26ffd5b8ddb02115fc1c48cb84eaa9a55b703b697b28121e0aa16308e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045853929706Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045853929706Z-lyra/result.json",
+        "samples": "runs/20260829T045853929706Z-lyra/samples.csv",
+        "resultSha256": "a9b8c407a6b99f12d8b905f5569797e0b2afe48989366dda9741318df1c3e1eb",
+        "samplesSha256": "a547ea056252a14a73cfcf984da3103e0cc7b1c529b1981f0cd57e63e52658e2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045906012412Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045906012412Z-lyra/result.json",
+        "samples": "runs/20260829T045906012412Z-lyra/samples.csv",
+        "resultSha256": "8bd60df3283d6449293527213f38ddaecf484aa0ba4f3cf68e957419ea10b421",
+        "samplesSha256": "68a02430fa440eca9fc494c05dbf8691870010ac3ef386e0039c9729c1441205"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045919587457Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045919587457Z-lyra/result.json",
+        "samples": "runs/20260829T045919587457Z-lyra/samples.csv",
+        "resultSha256": "a6ba23c70e789495daed54eb0c6057755adc0e41d93c4b34d2f7a8a2e4384863",
+        "samplesSha256": "37a106a9a81bcda787407d0a0247857695afda750bd6670d7683d59c2fda9a89"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045934394980Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045934394980Z-lyra/result.json",
+        "samples": "runs/20260829T045934394980Z-lyra/samples.csv",
+        "resultSha256": "8a5263ef82ea936fa81f15edf49ef60772c35d2168c560d6157db45eeea4b2f2",
+        "samplesSha256": "9c2fc2bb1c22e99cd8b3d17baf23ff0305b4d9517c41979bd59e0ace3a20ff59"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045950691986Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045950691986Z-lyra/result.json",
+        "samples": "runs/20260829T045950691986Z-lyra/samples.csv",
+        "resultSha256": "16a9f7035114b401da8c58440db6216cc94700bdc2d1a97ac761f3cc6e3082ad",
+        "samplesSha256": "807898be64ffa798ec14b40e93849a66a4e7ead0e3378150946b0cce0c3cf95e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045951249717Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045951249717Z-lyra/result.json",
+        "samples": "runs/20260829T045951249717Z-lyra/samples.csv",
+        "resultSha256": "5af280cb11fa00a6295581af00754623ad6761298f147bbe3a74871d3a5e5baa",
+        "samplesSha256": "e99eb1a7d9711dcaa55d3fdf67980064273677bce51ef04ce8259223dab0e733"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045951801791Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045951801791Z-lyra/result.json",
+        "samples": "runs/20260829T045951801791Z-lyra/samples.csv",
+        "resultSha256": "6a9c5b1880414befa0fbf2d3b44f34e57f746c748751607f4c08b0815278a262",
+        "samplesSha256": "b2f7e55fbcd89022edcaee6a8d8147c5fe86e682e92a87cd39ccceb0b3f57ad1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T045956329433Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T045956329433Z-lyra/result.json",
+        "samples": "runs/20260829T045956329433Z-lyra/samples.csv",
+        "resultSha256": "d91082da0e32a5311eb40806182b595bda19f79fca1f5a38d45bb7ee8f46302c",
+        "samplesSha256": "7dfdca39959bd32af08a1360f6a22e1f8bba88d0aa63293bf9a48703505f1e22"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050000453099Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050000453099Z-lyra/result.json",
+        "samples": "runs/20260829T050000453099Z-lyra/samples.csv",
+        "resultSha256": "beaa7c223575d52eacbcb08bd274429c042adcc9b2a1db8a5cbf99cfdfa4eade",
+        "samplesSha256": "b17e34413aed990d3a1ddd3909cd979f32f7d49fc12c4b21cddb209e20ff592a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050006045035Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050006045035Z-lyra/result.json",
+        "samples": "runs/20260829T050006045035Z-lyra/samples.csv",
+        "resultSha256": "1ab559f0cad3e4bba14e600834a02ac72ed8f65a312fae6596936b000a821e0a",
+        "samplesSha256": "55ddfe89149f402f29fa526cbdc2f5a7b1a902f6c58f9edeb3b3e9fabd4967de"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050011157424Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050011157424Z-lyra/result.json",
+        "samples": "runs/20260829T050011157424Z-lyra/samples.csv",
+        "resultSha256": "066ad232ce36670771d9cd3c77dcca68e888635d4024b5fbc9107f1900ab5850",
+        "samplesSha256": "97b9e3e25bf9aaab01c759b2b84e33607abbf4f68c43097afd1ed6b9407c7a79"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050011718367Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050011718367Z-lyra/result.json",
+        "samples": "runs/20260829T050011718367Z-lyra/samples.csv",
+        "resultSha256": "71d73f1f26fb65649db8d495ef1153a55afb79e12180e30be5a2f8d70fcb6fcf",
+        "samplesSha256": "e5470383c11fba2a4c20ec9986351f199c2df5a6574f80f494a9dee0a7005bfa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050012260818Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050012260818Z-lyra/result.json",
+        "samples": "runs/20260829T050012260818Z-lyra/samples.csv",
+        "resultSha256": "8179710d54e7c0e2b345caffe96a363ae765b07e7ac59f83861b0ca02cd9b982",
+        "samplesSha256": "2f68f825e706946b84296127783c72e21e5abfbf98147cdbca6fbedf721fe773"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050013452173Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050013452173Z-lyra/result.json",
+        "samples": "runs/20260829T050013452173Z-lyra/samples.csv",
+        "resultSha256": "d6696b387f3d3b31c7286c1b2b03b07632df4716d122e9199574446fac8037c2",
+        "samplesSha256": "ff60e7d6f6912a8ebaedd3b9fecf08e91749c980a742264b5f4875d22b200d57"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050014538124Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050014538124Z-lyra/result.json",
+        "samples": "runs/20260829T050014538124Z-lyra/samples.csv",
+        "resultSha256": "50a51c81afb2536da465c010f838a2cdc9ff3dec15433d57991f252e8d956f26",
+        "samplesSha256": "6ebeb419c60a606a357b2fd336ee3e89deee2d70b26d55f16f9ac2474c0e0658"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050015990864Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050015990864Z-lyra/result.json",
+        "samples": "runs/20260829T050015990864Z-lyra/samples.csv",
+        "resultSha256": "83c6847df43890b57eda08b58600d650141da3726c67074eac65c6e97d3a711a",
+        "samplesSha256": "0ebd934b28e76e659993803e28a41df86c620a413a070808f5b01fb48696787f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050017330322Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050017330322Z-lyra/result.json",
+        "samples": "runs/20260829T050017330322Z-lyra/samples.csv",
+        "resultSha256": "83a04049e4dd15b64a98360f5f7aaccacd1113dba67224dc7270d2e338cc2cca",
+        "samplesSha256": "96695ddf0048fcef0d3ac5283b2425ce3ded0c67488527a32e13de1168cdf13b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050024388900Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050024388900Z-lyra/result.json",
+        "samples": "runs/20260829T050024388900Z-lyra/samples.csv",
+        "resultSha256": "9fa3ec35ee1b2cab319bb87de1bc63e49820ac201b236e2c440e608fc9559839",
+        "samplesSha256": "60db25f5a22e9814c016ca2b3efaeadbb36362cdfb4daaa1c9c4c4c1c5a6ce42"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050030722138Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050030722138Z-lyra/result.json",
+        "samples": "runs/20260829T050030722138Z-lyra/samples.csv",
+        "resultSha256": "dddc0d608426edbd1c080b3b8909045ee5a3b9a4bd7ec711f73a7260cd34fac3",
+        "samplesSha256": "25a76ac57ac94d0779dcaee2c079b981038f72f1114101ae69a65f8a3558bdc3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050044296053Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050044296053Z-lyra/result.json",
+        "samples": "runs/20260829T050044296053Z-lyra/samples.csv",
+        "resultSha256": "1484d49f3c7d2303ce10913dea1cf531fa57955961524e43425d5f790eb6170e",
+        "samplesSha256": "d9c59496a4273140b5321b6f53f5ae8938d940327d1784ce804714058f49b8ea"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050056426300Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050056426300Z-lyra/result.json",
+        "samples": "runs/20260829T050056426300Z-lyra/samples.csv",
+        "resultSha256": "2ae80c77df3c628900edc97132f8648edfb5a66dae049673d2e18c9920ace29b",
+        "samplesSha256": "f42157bf201572758ca6216c691ad17514406c062be68024dfcf303259b687fe"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050112692193Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050112692193Z-lyra/result.json",
+        "samples": "runs/20260829T050112692193Z-lyra/samples.csv",
+        "resultSha256": "8356dc4d6cda959345b5f88a0bad56ef79672bda307a3481a75b0a4c08a71834",
+        "samplesSha256": "aa07ee2aeb4bff7da410572dc38bed6688287d67629cd6a2175f474360f78cf3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050127454096Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050127454096Z-lyra/result.json",
+        "samples": "runs/20260829T050127454096Z-lyra/samples.csv",
+        "resultSha256": "3a5054fee76f4a250d0181e8746078c48511d278eaae19a6054612e0b1486729",
+        "samplesSha256": "70c8703364ba1c709ea3fd5845d3a61665cb8165135e8112beae94c87aae2a45"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050127886506Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050127886506Z-lyra/result.json",
+        "samples": "runs/20260829T050127886506Z-lyra/samples.csv",
+        "resultSha256": "1e7f0fc37e757f3499835ce57ee30fd61ecd163422e70a49272110c5fc6b4de6",
+        "samplesSha256": "efd77dfcf6dfd02a5d30e4f64d5480f303724703f0db2f694b9cfa493d835798"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050128332811Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050128332811Z-lyra/result.json",
+        "samples": "runs/20260829T050128332811Z-lyra/samples.csv",
+        "resultSha256": "635e1456b8ae392da6c9f2d22c901c13a0d060bafd6922912bc2b3707e25b7b6",
+        "samplesSha256": "cce3c077cf99e0a72deab15d0e79a0a87af8a27c58b73581a731463ebd8aafd3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050132457396Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050132457396Z-lyra/result.json",
+        "samples": "runs/20260829T050132457396Z-lyra/samples.csv",
+        "resultSha256": "19671e405788d2cc0937bb80e8d632a42f1824dfef6c2f54f9cadc287c4c93d4",
+        "samplesSha256": "a65060dd07d1cce58d948e1ca49cf785251cf1832291c5f6bfcb196eda0b4b0b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050137004681Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050137004681Z-lyra/result.json",
+        "samples": "runs/20260829T050137004681Z-lyra/samples.csv",
+        "resultSha256": "3d0b3255bb2b32fe0bab17bacac1d170e2c0662ca1d2d57dcc2081737fd7bb1a",
+        "samplesSha256": "af243d3af427783c859e41417fecdb3128b5d932d740241f5456052589c029f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050142131628Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050142131628Z-lyra/result.json",
+        "samples": "runs/20260829T050142131628Z-lyra/samples.csv",
+        "resultSha256": "6536f9e23b53d17b984919e1158f7daec78812b0b50eba09673060ee03146a3a",
+        "samplesSha256": "ae7ee074e2c07664c7613ff4e0360262bad404731120936e4ac138522acb3564"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050147716245Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050147716245Z-lyra/result.json",
+        "samples": "runs/20260829T050147716245Z-lyra/samples.csv",
+        "resultSha256": "f3515495eac30193304afd3e3980145e44c80f9eab5dcc14ac4b82459ccdb4b9",
+        "samplesSha256": "82892d095d182fbda263f4bf2caa6f4b1feaa70a62116e8fba6d1b634a9ca566"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050148257691Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050148257691Z-lyra/result.json",
+        "samples": "runs/20260829T050148257691Z-lyra/samples.csv",
+        "resultSha256": "cb4b8a68f858190444045dd008d24ec3881a91c417cb076eb37c5aa38fb18d8e",
+        "samplesSha256": "15e3a6b8717eb9a0996fbb47b3bdbc650d41c67bf1d0dd22dd3a51ef64a67057"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050148821570Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050148821570Z-lyra/result.json",
+        "samples": "runs/20260829T050148821570Z-lyra/samples.csv",
+        "resultSha256": "0d74b2c8f1f542baa2af5d90693b352f59916599a702a7df32068d4a3d27486c",
+        "samplesSha256": "80b7cef0c5e38736da6135fbcf252b5566f3358d96ba82d2cb96537c1b8dd569"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050149905937Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050149905937Z-lyra/result.json",
+        "samples": "runs/20260829T050149905937Z-lyra/samples.csv",
+        "resultSha256": "c57765c237a7e3fd49aab77d572515406edd33934013c7dd8275c8778022ce1a",
+        "samplesSha256": "c95eeab0c5e24a590c79ffba8d03031a8bf13d093a5238bceca0eabd16d554c0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050151103357Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050151103357Z-lyra/result.json",
+        "samples": "runs/20260829T050151103357Z-lyra/samples.csv",
+        "resultSha256": "c95fd40fb7def118374a582d8576ce84055a4e2821f4385ddfc88e7fad49db7d",
+        "samplesSha256": "41b45232047be4374600f18048ec07a6c01c3d03865a974b03431e0589832919"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050152426584Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050152426584Z-lyra/result.json",
+        "samples": "runs/20260829T050152426584Z-lyra/samples.csv",
+        "resultSha256": "bed641b61523dd505c89270c8867b3e369094232a2030df38a318b66139e89a0",
+        "samplesSha256": "6f352044362e7cad3740c98a3268e0bf8ebd78b0bd63ed98c8388ad458f4804b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050153876043Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050153876043Z-lyra/result.json",
+        "samples": "runs/20260829T050153876043Z-lyra/samples.csv",
+        "resultSha256": "f004be77aac6c0ec4567063de094bfbbdaa1955fc96913e97c3761ce5a643c99",
+        "samplesSha256": "5a763b1a7396e6c0e81863580c78edc05cf8b2614992985cd675727c42bde9ee"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050200183725Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=1 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050200183725Z-lyra/result.json",
+        "samples": "runs/20260829T050200183725Z-lyra/samples.csv",
+        "resultSha256": "477ad89ed6d038e1bb5711eef1d22014ef7a8f5c8beec73215216fe864c034ee",
+        "samplesSha256": "d11b872dba75ca98dec1da58568ee1fa6791ec145693ecf639f0c549e46b15c3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050207219739Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050207219739Z-lyra/result.json",
+        "samples": "runs/20260829T050207219739Z-lyra/samples.csv",
+        "resultSha256": "3255b3f98f2e14ab5f97513038cf639e27485080e050605a5aa8fb81260a6e05",
+        "samplesSha256": "5fb0a94894cf93a82e6a78d30e603fea10a6f04179fbb1623ae74e4574a1e462"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050219340566Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050219340566Z-lyra/result.json",
+        "samples": "runs/20260829T050219340566Z-lyra/samples.csv",
+        "resultSha256": "502be27f699b57e8b73ce180db973862426f47c1d1a8646761d2f42c2e6b95a7",
+        "samplesSha256": "4cd4cf3bd4a4a1613553077cc1fbddeed305c3ebd69ab9a295538e9c559b5765"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050232878642Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050232878642Z-lyra/result.json",
+        "samples": "runs/20260829T050232878642Z-lyra/samples.csv",
+        "resultSha256": "29aab298e95789f4db270edea3c3ee65b772eb54ef843ff7c5db0c1c76b45bc6",
+        "samplesSha256": "107aaf62e7e34102c77c7f471275b1f61328903bcede44b86c1b6f029c4ab58f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050247719653Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050247719653Z-lyra/result.json",
+        "samples": "runs/20260829T050247719653Z-lyra/samples.csv",
+        "resultSha256": "9d60417f6baa881871738d4c986b20c5c399e704817ca1ff7e13c35ef2a35e6b",
+        "samplesSha256": "683710eeb14d0112ce5048742306aef86851402a9ba6d0abe80e75df714be075"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050303987429Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050303987429Z-lyra/result.json",
+        "samples": "runs/20260829T050303987429Z-lyra/samples.csv",
+        "resultSha256": "f241b6fc2de32279a1eda945989043bc97b84cde8b101b720ed17d87b6fd4107",
+        "samplesSha256": "41938e1024f2f72880f41f2eb4b80ccbe99df4ffcd2993abf02ab0298f71789d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050304434514Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=3 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050304434514Z-lyra/result.json",
+        "samples": "runs/20260829T050304434514Z-lyra/samples.csv",
+        "resultSha256": "04f22dec5d9cf0d4e5f537fcafc290648890a93b2b49518f827cd8f94b5cc34b",
+        "samplesSha256": "d228d508e9cd17a339c2c90c90e47be68be472951369bf45a7afe8203146a7ce"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050304867528Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-dynamic-split (internal=1, outer=16).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050304867528Z-lyra/result.json",
+        "samples": "runs/20260829T050304867528Z-lyra/samples.csv",
+        "resultSha256": "604853da915bfaa9705227209d86f7acfa226b84699f0570b886c20647dcb871",
+        "samplesSha256": "3282d9ba2205036d123ab22361c6f34895c5db6aa261dc7dd51021f49233f99a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T050305423634Z-lyra",
+      "incrementId": "vertical-k2-grouped-finalists-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "outer-static-12",
+      "status": "reference",
+      "statusReason": "Frozen K\u00b2-grouped vertical projection reference comparing outer-dynamic-16 and outer-static-12 for complex and split GEMM across the complete ten-profile v1 matrix.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=65, fields=4 using accelerate-two-dgemm-k2-group-outer-static-split (internal=1, outer=12).",
+      "issues": [
+        8
+      ],
+      "experiments": [
+        "issue-008-vertical-projection-gemm"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T050305423634Z-lyra/result.json",
+        "samples": "runs/20260829T050305423634Z-lyra/samples.csv",
+        "resultSha256": "fd57b5671ed5db03a6e910657452069cc2dd453cf9a09a51810ffef93a655c3b",
+        "samplesSha256": "1ee11ab8ccab06bb66d743d88da90bfe919e091ef5bf5896d4a0d5c29d0a3b8b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054007024798Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054007024798Z-lyra/result.json",
+        "samples": "runs/20260829T054007024798Z-lyra/samples.csv",
+        "resultSha256": "7941d7cbcdc513f6ad1aafa83d14e784b6731de70c8358a6fa01b39cd9d42621",
+        "samplesSha256": "28cf73a38ae378e79582479fb9b0e8f01cce52b4fefde4f24875be85b3eb03e0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054207188478Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054207188478Z-lyra/result.json",
+        "samples": "runs/20260829T054207188478Z-lyra/samples.csv",
+        "resultSha256": "220f7e9e8e3154f72fd950f14957be02f17549bbb1abe99ebe24cce004dac6f0",
+        "samplesSha256": "e63b2a9882d8467c136e2bde3882e0faa49f7e1abd7b09763cddb9ee57ea0fcd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054304961401Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054304961401Z-lyra/result.json",
+        "samples": "runs/20260829T054304961401Z-lyra/samples.csv",
+        "resultSha256": "66e9dd97f1cc297d89d82e2621459989a1530da7afd094a6a7013b4e042ac98a",
+        "samplesSha256": "7870d578d585e4b78202ce4c53ecd8bb2cc69fd10dfa5b81b00a0fc684d36d63"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054402666160Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054402666160Z-lyra/result.json",
+        "samples": "runs/20260829T054402666160Z-lyra/samples.csv",
+        "resultSha256": "b2f6345f22be45ce29f323afea4c071283196a64a9a31b594492124aed837957",
+        "samplesSha256": "0f23f79f2ef91d8f4a739dbc56f0abca033ae1ad46780038a7d9a3ec151f3a1c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054603490870Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-direct--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using full-wvm-order-fftw+direct-per-mode-zgemm+modal-diagonal+inverse-v1 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054603490870Z-lyra/result.json",
+        "samples": "runs/20260829T054603490870Z-lyra/samples.csv",
+        "resultSha256": "0b69cc2c9b4aea994797493247c5dacf4c07ee8c11d71e6521535c5c73f1db13",
+        "samplesSha256": "e238e940bc043b1a0242ed315fadff5ca09f3c1c060ee66a3b397e95826d5c0a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260829T054802297522Z-lyra",
+      "incrementId": "synthetic-spectral-pipeline-deep-vertical-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-pruned-tiled-16--outer-dynamic-16",
+      "status": "reference",
+      "statusReason": "Deep-vertical 512\u00b2/Nz=513/four-field robustness reference comparing WVM-native direct and the selected compact streaming tile-16 pipeline after releasing correctness-only storage before authoritative total timing.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=513, fields=4 using streaming-partial-column-pruned-fftw+plane-major-compact-tile+blocked-radial-split-transpose+split-k2-dgemm+modal-diagonal+inverse-v2 (internal=1, outer=12).",
+      "issues": [
+        9
+      ],
+      "experiments": [
+        "issue-009-combined-spectral-pipeline"
+      ],
+      "priorExperiments": [
+        "issue-007-retained-horizontal-algorithms",
+        "issue-008-vertical-projection-gemm",
+        "issue-013-ordering-packing-crossover"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260829T054802297522Z-lyra/result.json",
+        "samples": "runs/20260829T054802297522Z-lyra/samples.csv",
+        "resultSha256": "80cc8a2780be1d867c38716bf61c29d7400e98d63b1005a6fa92d675c9d66d59",
+        "samplesSha256": "736e0b4bc20ec97e9208ff3f4bf563e89ade2409125a63ef01872d2ae7180f94"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
     {
       "id": "issue-003-fftw-production-baseline",
       "issue": 3,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "FFTW production baseline",
       "question": "Can the benchmark reproduce WVM's production FFTW configuration and the historical issue #129 workloads exactly?",
       "baseline": "This is the foundational raw-FFT baseline after the operator and representation contract in issue #2.",
@@ -23558,7 +26114,7 @@
     {
       "id": "issue-008-vertical-projection-gemm",
       "issue": 8,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "Vertical projection and split-complex GEMM",
       "question": "Which primitive and split-complex GEMM strategy is fastest for the antialiased vertical projection independently of horizontal layout?",
       "baseline": "Establish the vertical-kernel baseline used by issue #13 and issue #9.",
@@ -23597,7 +26153,7 @@
     {
       "id": "issue-009-combined-spectral-pipeline",
       "issue": 9,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "Combined spectral pipeline",
       "question": "Which complete synthetic spectral-operator graph is fastest after composing the best horizontal, vertical, and ordering policies?",
       "baseline": "Compose reference candidates from issues #7, #8, and #13; provide primary evidence to issue #11.",
@@ -23715,7 +26271,7 @@
     {
       "id": "issue-013-ordering-packing-crossover",
       "issue": 13,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "Ordering and packing crossover",
       "question": "When does optional reordering between horizontal transforms and vertical projections repay its movement cost?",
       "baseline": "Cross issue #7 horizontal candidates with issue #8 vertical kernels; feed complete policies to issue #9.",

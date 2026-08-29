@@ -4888,6 +4888,418 @@ def vertically_batched_advection_synthesis(bundles: list[PublishedBundle]) -> st
     """
 
 
+def fftw_production_closeout_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "fftw-production-baseline-reference-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    if not cohort:
+        return ""
+    profiles = sorted({bundle.result["run"]["profile"] for bundle in cohort})
+    rows: list[str] = []
+    errors: list[float] = []
+    contract_passed = True
+    for profile in profiles:
+        profile_bundles = [
+            bundle for bundle in cohort
+            if bundle.result["run"]["profile"] == profile
+        ]
+        if len(profile_bundles) != 3:
+            return ""
+        forward: list[float] = []
+        inverse: list[float] = []
+        setup: list[float] = []
+        for bundle in profile_bundles:
+            provider = next(
+                item for item in bundle.result["providers"] if item["id"] == "fftw"
+            )
+            forward_timing = stage_timing(
+                provider, "primitive", "raw FFT", "forward"
+            )
+            inverse_timing = stage_timing(
+                provider, "primitive", "raw FFT", "inverse"
+            )
+            if forward_timing is None or inverse_timing is None:
+                return ""
+            forward.append(float(forward_timing["medianSeconds"]))
+            inverse.append(float(inverse_timing["medianSeconds"]))
+            setup.append(float(provider["setup"]["totalSeconds"]))
+            error = maximum_correctness_error(provider)
+            if error is not None:
+                errors.append(float(error))
+            configuration = provider["planning"]["configuration"]
+            contract_passed = contract_passed and bool(
+                provider["algorithmId"] ==
+                "wvm-guru64-interleaved-measure-unaligned-cold"
+                and provider["scheduling"] == {
+                    "internalWorkers": 12,
+                    "outerWorkers": 1,
+                    "totalLogicalWorkers": 12,
+                }
+                and "FFTW_MEASURE|FFTW_UNALIGNED" in configuration
+                and "spectrum-order=wvm" in configuration
+                and "wisdom=cold" in configuration
+            )
+        workload = profile_bundles[0].result["workload"]
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{workload["Nx"]}² / {workload["Nz"]} / '
+            f'{workload["fields"]}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(forward))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(inverse))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(setup))}</td>'
+            "<td class=\"numeric\">3</td>"
+            "</tr>"
+        )
+    maximum_error = max(errors) if errors else math.inf
+    if len(cohort) != 30 or len(profiles) != 10 or not contract_passed:
+        return ""
+    return f"""
+      <h2>Exact production FFTW reference baseline</h2>
+      <p>This close-out campaign freezes WVM’s production raw-FFT contract: FFTW guru64, interleaved WVM frequency-major half-spectra, <code>FFTW_MEASURE | FFTW_UNALIGNED</code>, cold wisdom, 12 internal workers, one outer worker, and the production compiler build. It covers all ten historical and current v1 profiles in three isolated process rounds with three warmups and 21 samples.</p>
+      <p>All 30 runs pass the exact configuration audit and the Float64 mode-keyed correctness contract. The largest recorded error is {maximum_error:.3e}. This is the foundational raw FFT baseline for later retained-operator and pipeline comparisons; it does not by itself select a provider or representation.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three-round medians. Raw forward and inverse calls exclude retention, conversion, vertical projection, modal work, and nonlinear flux. Setup contains FFTW planning and allocation outside the steady-state boundary.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">N² / N<sub>z</sub> / fields</th><th scope="col">Raw forward FFT ms</th><th scope="col">Raw inverse FFT ms</th><th scope="col">Setup ms</th><th scope="col">Rounds</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">No adapter time is folded into the primitive FFT values. Zero warmed steady-state allocation is enforced by the same-commit allocator-interposer test; opaque FFTW planning memory remains reported separately by each immutable run.</p>
+    """
+
+
+def vertical_gemm_closeout_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "vertical-k2-grouped-finalists-reference-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    if not cohort:
+        return ""
+    candidates = ("outer-dynamic-16", "outer-static-12")
+    provider_ids = ("accelerate-zgemm", "accelerate-split-dgemm")
+    profiles = sorted({bundle.result["run"]["profile"] for bundle in cohort})
+    cells: dict[tuple[str, str, str, str], list[float]] = {}
+    persistent: dict[tuple[str, str, str], list[float]] = {}
+    errors: list[float] = []
+    for bundle in cohort:
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in candidates:
+            continue
+        profile = bundle.result["run"]["profile"]
+        for provider in bundle.result["providers"]:
+            if provider["id"] not in provider_ids:
+                continue
+            persistent.setdefault(
+                (candidate, profile, provider["id"]), []
+            ).append(float(provider["memory"]["persistentBytes"]))
+            for direction in ("forward", "inverse"):
+                item = stage_timing(
+                    provider, "primitive", "raw vertical GEMM", direction
+                )
+                if item is None:
+                    return ""
+                cells.setdefault(
+                    (candidate, profile, provider["id"], direction), []
+                ).append(float(item["medianSeconds"]))
+            error = maximum_correctness_error(provider)
+            if error is not None:
+                errors.append(float(error))
+    if len(cohort) != 60 or len(profiles) != 10:
+        return ""
+
+    def median_cell(candidate: str, profile: str, provider: str, direction: str) -> float:
+        values = cells.get((candidate, profile, provider, direction), [])
+        if len(values) != 3:
+            raise ValueError("incomplete vertical GEMM close-out cell")
+        return statistics.median(values)
+
+    dynamic_static_ratios: list[float] = []
+    dynamic_wins = 0
+    split_complex_by_candidate: dict[str, list[float]] = {
+        candidate: [] for candidate in candidates
+    }
+    rows: list[str] = []
+    for profile in profiles:
+        dynamic_values: dict[tuple[str, str], float] = {}
+        static_values: dict[tuple[str, str], float] = {}
+        for provider in provider_ids:
+            for direction in ("forward", "inverse"):
+                dynamic_value = median_cell(
+                    candidates[0], profile, provider, direction
+                )
+                static_value = median_cell(
+                    candidates[1], profile, provider, direction
+                )
+                dynamic_values[(provider, direction)] = dynamic_value
+                static_values[(provider, direction)] = static_value
+                ratio = dynamic_value / static_value
+                dynamic_static_ratios.append(ratio)
+                dynamic_wins += ratio < 1.0
+        for candidate, values in (
+            (candidates[0], dynamic_values), (candidates[1], static_values)
+        ):
+            for direction in ("forward", "inverse"):
+                split_complex_by_candidate[candidate].append(
+                    values[("accelerate-split-dgemm", direction)]
+                    / values[("accelerate-zgemm", direction)]
+                )
+        profile_schedule_ratio = math.exp(statistics.fmean(
+            math.log(dynamic_values[key] / static_values[key])
+            for key in dynamic_values
+        ))
+        rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(profile)}</th>'
+            f'<td class="numeric">{format_ms(dynamic_values[("accelerate-zgemm", "forward")])} / '
+            f'{format_ms(dynamic_values[("accelerate-zgemm", "inverse")])}</td>'
+            f'<td class="numeric">{format_ms(dynamic_values[("accelerate-split-dgemm", "forward")])} / '
+            f'{format_ms(dynamic_values[("accelerate-split-dgemm", "inverse")])}</td>'
+            f'<td class="numeric">{dynamic_values[("accelerate-split-dgemm", "forward")] / dynamic_values[("accelerate-zgemm", "forward")]:.3f}× / '
+            f'{dynamic_values[("accelerate-split-dgemm", "inverse")] / dynamic_values[("accelerate-zgemm", "inverse")]:.3f}×</td>'
+            f'<td class="numeric">{profile_schedule_ratio:.3f}×</td>'
+            "</tr>"
+        )
+    schedule_geometric = math.exp(statistics.fmean(
+        math.log(value) for value in dynamic_static_ratios
+    ))
+    split_geometric = {
+        candidate: math.exp(statistics.fmean(
+            math.log(value) for value in split_complex_by_candidate[candidate]
+        ))
+        for candidate in candidates
+    }
+    maximum_error = max(errors) if errors else math.inf
+    return f"""
+      <h2>Frozen K²-grouped vertical reference</h2>
+      <p>The close-out campaign holds the antialiased projection, matrix family, mode grouping, ready column-major operands, one requested Accelerate thread per GEMM, and sampling protocol fixed. It compares only the two scheduling finalists—outer-dynamic-16 and outer-static-12—across all ten v1 profiles, both directions, and both complex zgemm and two-real-dgemm formulations.</p>
+      <p>Outer-dynamic-16 is {schedule_geometric:.3f}× outer-static-12 geometrically and wins {dynamic_wins} of {len(dynamic_static_ratios)} provider/direction/profile cells. Under dynamic-16, split dgemm is {split_geometric[candidates[0]]:.3f}× complex zgemm geometrically; under static-12 it is {split_geometric[candidates[1]]:.3f}×. The selected primitive policy is therefore <code>outer-dynamic-16</code> with split storage. Maximum error is {maximum_error:.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three-round dynamic-16 medians in milliseconds are forward / inverse. Split / complex excludes packing. Dynamic / static is geometric across both providers and directions for the profile.</caption>
+        <thead><tr><th scope="col">Profile</th><th scope="col">Complex zgemm</th><th scope="col">Split dgemm</th><th scope="col">Split / complex</th><th scope="col">Dynamic / static</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table></div>
+      <p class="method-note">Matrix-family generation, complex expansion or split preparation, scheduler creation, and memory are setup-only and remain published per run. Horizontal transforms and representation packing are excluded here and are resolved by issues #7 and #13.</p>
+    """
+
+
+def spectral_pipeline_deep_vertical_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "synthetic-spectral-pipeline-deep-vertical-reference-v1"
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "wvm-direct--outer-dynamic-16"
+    candidate_id = "streaming-pruned-tiled-16--outer-dynamic-16"
+    cells: dict[tuple[str, int], dict[str, float]] = {}
+    errors: list[float] = []
+    release_contract = True
+    for bundle in cohort:
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in {baseline_id, candidate_id}:
+            continue
+        provider = spectral_pipeline_provider(bundle)
+        round_number = int(bundle.publication["campaignRound"])
+        horizontal_scope = (
+            "primitive" if candidate == baseline_id else "retained-operator-total"
+        )
+        horizontal_stage = (
+            "raw FFT" if candidate == baseline_id
+            else "streaming pruned compact split horizontal operator"
+        )
+
+        def required(scope: str, stage: str, direction: str) -> float:
+            item = stage_timing(provider, scope, stage, direction)
+            if item is None:
+                raise ValueError(
+                    f"deep vertical reference lacks {scope}/{stage}/{direction}"
+                )
+            return float(item["medianSeconds"])
+
+        memory = provider["memory"]
+        cells[(candidate, round_number)] = {
+            "total": required(
+                "uninstrumented-total",
+                "synthetic antialiased spectral pipeline", "round-trip",
+            ),
+            "horizontalForward": required(
+                horizontal_scope, horizontal_stage, "forward"
+            ),
+            "horizontalInverse": required(
+                horizontal_scope, horizontal_stage, "inverse"
+            ),
+            "verticalForward": required(
+                "primitive", "raw vertical MM", "forward"
+            ),
+            "verticalInverse": required(
+                "primitive", "raw vertical MM", "inverse"
+            ),
+            "modal": required(
+                "component", "mode-keyed modal work", "modal"
+            ),
+            "resident": float(memory["algorithmResidentBytes"]),
+            "estimated": float(memory["estimatedProcessPeakBytes"]),
+            "observed": float(memory["observedProcessHighWaterBytes"]),
+        }
+        release_contract = release_contract and stage_timing(
+            provider, "setup-component",
+            "release correctness-only benchmark storage", "shared",
+        ) is not None
+        error = maximum_correctness_error(provider)
+        if error is not None:
+            errors.append(float(error))
+    rounds = sorted(
+        round_number for candidate, round_number in cells
+        if candidate == baseline_id and (candidate_id, round_number) in cells
+    )
+    if len(cohort) != 6 or len(rounds) != 3 or not release_contract:
+        return ""
+    baseline = [cells[(baseline_id, round_number)] for round_number in rounds]
+    candidate = [cells[(candidate_id, round_number)] for round_number in rounds]
+    ratios = [left["total"] / right["total"] for left, right in zip(candidate, baseline)]
+    total_ratio = (
+        statistics.median(item["total"] for item in candidate)
+        / statistics.median(item["total"] for item in baseline)
+    )
+    lower, upper = paired_round_bootstrap(ratios, 913)
+    resident_ratio = (
+        statistics.median(item["resident"] for item in candidate)
+        / statistics.median(item["resident"] for item in baseline)
+    )
+    estimated_ratio = (
+        statistics.median(item["estimated"] for item in candidate)
+        / statistics.median(item["estimated"] for item in baseline)
+    )
+    observed_ratio = (
+        statistics.median(item["observed"] for item in candidate)
+        / statistics.median(item["observed"] for item in baseline)
+    )
+    component_rows: list[str] = []
+    labels = (("WVM direct", baseline), ("Streaming tile 16", candidate))
+    for label, values in labels:
+        component_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(label)}</th>'
+            f'<td class="numeric">{format_ms(statistics.median(item["horizontalForward"] for item in values))} / '
+            f'{format_ms(statistics.median(item["horizontalInverse"] for item in values))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(item["verticalForward"] for item in values))} / '
+            f'{format_ms(statistics.median(item["verticalInverse"] for item in values))}</td>'
+            f'<td class="numeric">{format_ms(statistics.median(item["modal"] for item in values))}</td>'
+            f'<td class="numeric"><strong>{format_ms(statistics.median(item["total"] for item in values))}</strong></td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["resident"] for item in values)))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["estimated"] for item in values)))}</td>'
+            f'<td class="numeric">{format_bytes(int(statistics.median(item["observed"] for item in values)))}</td>'
+            "</tr>"
+        )
+    maximum_error = max(errors) if errors else math.inf
+    return f"""
+      <h2>Deep-vertical four-field robustness reference</h2>
+      <p>This final issue #9 increment tests the already selected uniform policy at 512²/N<sub>z</sub>=513/fields=4 against the MATLAB-visible WVM direct control. It changes vertical depth only; the mathematical operator, radial and vertical antialiasing, four-field workload, schedules, and out-of-place steady-state boundary remain fixed.</p>
+      <p>Streaming tile 16 is {total_ratio:.3f}× WVM direct in the authoritative total, with a paired three-round 95% interval of {lower:.3f}×–{upper:.3f}×. Algorithm-resident memory is {resident_ratio:.3f}×, estimated process peak is {estimated_ratio:.3f}×, and observed process high water is {observed_ratio:.3f}×. Maximum mode-keyed error is {maximum_error:.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three-round medians. Horizontal and vertical pairs are forward / inverse milliseconds. WVM horizontal is raw full FFT; streaming horizontal is the complete retained operator. Components are diagnostic and the separately measured total is authoritative.</caption>
+        <thead><tr><th scope="col">Graph</th><th scope="col">Horizontal</th><th scope="col">Raw vertical MM</th><th scope="col">Modal work</th><th scope="col">Total</th><th scope="col">Algorithm resident</th><th scope="col">Estimated peak</th><th scope="col">Observed high water</th></tr></thead>
+        <tbody>{''.join(component_rows)}</tbody>
+      </table></div>
+      <p class="method-note">Independent oracle and diagnostic arrays are constructed for validation and remain counted in peak-memory reporting, but both graphs release them before the uninstrumented total. The result therefore preserves honest capacity evidence without timing either candidate under artificial correctness-harness pressure. The nonlinear flux calculation remains excluded.</p>
+    """
+
+
+def ordering_packing_closeout_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    increment_id = "streaming-pruned-compact-split-reference-v1"
+    cohort = [
+        bundle for bundle in spectral_pipeline_bundles(bundles)
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    if not cohort:
+        return ""
+    baseline_id = "plane-major-fused-split--outer-dynamic-16"
+    candidate_id = "streaming-pruned-tiled-16--outer-dynamic-16"
+    cells: dict[tuple[str, str, int], dict[str, float]] = {}
+    for bundle in cohort:
+        candidate = bundle.publication.get("campaignCandidateId")
+        if candidate not in {baseline_id, candidate_id}:
+            continue
+        provider = spectral_pipeline_provider(bundle)
+        total = stage_timing(
+            provider, "uninstrumented-total",
+            "synthetic antialiased spectral pipeline", "round-trip",
+        )
+        if total is None:
+            return ""
+        memory = provider["memory"]
+        cells[(
+            candidate,
+            bundle.result["run"]["profile"],
+            int(bundle.publication["campaignRound"]),
+        )] = {
+            "total": float(total["medianSeconds"]),
+            "resident": float(memory["algorithmResidentBytes"]),
+        }
+    profiles = sorted({profile for _, profile, _ in cells})
+    profile_ratios: dict[str, list[float]] = {}
+    median_ratios: list[float] = []
+    resident_ratios: list[float] = []
+    for profile in profiles:
+        rounds = [
+            round_number for round_number in (1, 2, 3)
+            if (baseline_id, profile, round_number) in cells
+            and (candidate_id, profile, round_number) in cells
+        ]
+        if len(rounds) != 3:
+            return ""
+        baseline = [cells[(baseline_id, profile, round_number)] for round_number in rounds]
+        candidate = [cells[(candidate_id, profile, round_number)] for round_number in rounds]
+        profile_ratios[profile] = [
+            left["total"] / right["total"]
+            for left, right in zip(candidate, baseline)
+        ]
+        median_ratios.append(
+            statistics.median(item["total"] for item in candidate)
+            / statistics.median(item["total"] for item in baseline)
+        )
+        resident_ratios.append(
+            statistics.median(item["resident"] for item in candidate)
+            / statistics.median(item["resident"] for item in baseline)
+        )
+    if len(cohort) != 18 or len(profiles) != 3:
+        return ""
+    geometric_time = math.exp(statistics.fmean(
+        math.log(value) for value in median_ratios
+    ))
+    lower, upper = spectral_pipeline_bootstrap(profile_ratios)
+    geometric_resident = math.exp(statistics.fmean(
+        math.log(value) for value in resident_ratios
+    ))
+    return f"""
+      <h2>Ordering and packing close-out disposition</h2>
+      <p>The optional movement search is complete for v1. The evidence chain separately preserves direct WVM order with no mathematical gather, the historical MATLAB gather/radial pack, provider-order persistent matrices, fused retained selection and split conversion, and persistent compact representations. The final tiled candidate adds bounded plane-major compact staging plus a blocked transpose instead of imposing a canonical order.</p>
+      <p>The shared 18-run reference cohort shows that the fixed tile-16 movement policy is {geometric_time:.3f}× fused split geometrically across the three decision workloads, with a stratified paired-bootstrap interval of {lower:.3f}×–{upper:.3f}× and {geometric_resident:.3f}× the algorithm-resident memory. This evidence supports both issue #16’s streaming question and issue #13’s ordering/packing conclusion without duplicating immutable runs.</p>
+      <ul>
+        <li><strong>Selected:</strong> persistent compact split storage with fused retained selection and fixed 16-plane tiling; no size-dependent dispatch.</li>
+        <li><strong>Retained boundary:</strong> WVM direct/no-reorder remains the measured MATLAB-owned native-layout answer.</li>
+        <li><strong>Capability result:</strong> public Accelerate CBLAS exposes no variable-size grouped GEMM batch API, so no hidden batched alternative is assumed.</li>
+        <li><strong>Stopped optional tail:</strong> a broader synthetic reuse-count and matrix-prepermutation search cannot change the selected v1 graph after the complete #9 reference campaigns; it remains visible as unpursued optional work rather than omitted evidence.</li>
+      </ul>
+      <p class="method-note">Primitive FFT and GEMM results remain independent. This disposition selects an algorithmic movement policy; it does not make horizontal gather/order a mathematical requirement.</p>
+    """
+
+
 def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) -> str:
     if experiment["id"] == "issue-009-combined-spectral-pipeline":
         return spectral_pipeline_evidence_table(bundles)
@@ -4976,8 +5388,13 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
     evidence_table = experiment_evidence_table(experiment, related)
-    if experiment_id == "issue-009-combined-spectral-pipeline":
-        synthesis = spectral_pipeline_synthesis(related)
+    if experiment_id == "issue-003-fftw-production-baseline":
+        synthesis = fftw_production_closeout_synthesis(related)
+    elif experiment_id == "issue-009-combined-spectral-pipeline":
+        synthesis = (
+            spectral_pipeline_synthesis(related)
+            + spectral_pipeline_deep_vertical_synthesis(related)
+        )
     elif experiment_id == "issue-016-streaming-pruned-compact-split":
         synthesis = streaming_pruned_pipeline_synthesis(related)
     elif experiment_id == "issue-017-implicit-hybrid-dealiased-convolution":
@@ -4989,9 +5406,19 @@ def build_experiment_page(experiment: dict, bundles: list[PublishedBundle]) -> s
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
         synthesis = vdsp_batch_synthesis(related)
     elif experiment_id == "issue-008-vertical-projection-gemm":
-        synthesis = vertical_gemm_synthesis(related)
+        synthesis = (
+            vertical_gemm_synthesis([
+                bundle for bundle in related
+                if bundle.publication.get("incrementId") !=
+                "vertical-k2-grouped-finalists-reference-v1"
+            ])
+            + vertical_gemm_closeout_synthesis(related)
+        )
     elif experiment_id == "issue-013-ordering-packing-crossover":
-        synthesis = ordering_packing_synthesis(related)
+        synthesis = (
+            ordering_packing_synthesis(related)
+            + ordering_packing_closeout_synthesis(related)
+        )
     elif experiment_id == "issue-012-pruned-horizontal-transforms":
         synthesis = pruned_horizontal_synthesis(related)
     elif experiment_id == "issue-007-retained-horizontal-algorithms":

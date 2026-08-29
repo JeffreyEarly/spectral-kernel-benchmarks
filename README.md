@@ -244,6 +244,22 @@ python3 tools/run_streaming_pruned_locality_sweep.py
 
 The selection is uniform across all three workloads. A tiled candidate must retain at least a 10% geometric algorithm-resident-memory reduction relative to fused split and materially improve the two-large-case timing relative to direct streaming; the runner never defines a size-dependent dispatch rule. Individual exploratory runs select a tile with `--streaming-tile-width 4|8|16`.
 
+## v1 close-out reference campaigns
+
+The v1 close-out freezes the production FFTW contract, the two vertical-scheduling finalists, and one deep-vertical pipeline robustness case. These are independent reference campaigns rather than one blended benchmark, so raw FFT, raw vertical GEMM, and the complete synthetic pipeline remain separately reusable:
+
+```sh
+python3 tools/run_fftw_production_reference.py --dry-run --allow-dirty-tree
+python3 tools/run_vertical_gemm_reference.py --dry-run --allow-dirty-tree
+python3 tools/run_spectral_pipeline_deep_vertical_reference.py --dry-run --allow-dirty-tree
+```
+
+The FFTW campaign covers all ten v1 profiles with the exact WVM-order guru64, `FFTW_MEASURE | FFTW_UNALIGNED`, cold-wisdom, 12-internal-worker contract. The vertical campaign compares fixed outer-dynamic-16 and outer-static-12 K²-grouped schedules for complex zgemm and split dgemm over the same ten profiles. The deep pipeline campaign changes only vertical depth to `512²/Nz=513/fields=4` and compares WVM direct with the already selected uniform streaming tile-16 graph.
+
+Pipeline correctness constructs independent mode-keyed oracle and diagnostic arrays and counts them in the reported setup/high-water capacity evidence. Before the authoritative uninstrumented total, those correctness-only buffers are explicitly released for every compared graph. This prevents the validation harness from creating unequal steady-state memory pressure while preserving an honest record of the complete benchmark process peak.
+
+Issue #13 closes from the accumulated evidence rather than another algorithm screen. The existing tile-16 reference runs are associated with both the streaming experiment and the ordering/packing experiment; their immutable JSON and CSV artifacts are neither copied nor modified. The close-out records direct WVM order, MATLAB gather/radial packing, provider-order matrices, fused conversion, tiled staging, and persistent compact storage as algorithmic alternatives—not mathematical layout requirements.
+
 Only compact reviewed artifacts belong under `results/published/`. New immutable bundles use `results/published/runs/<run-id>/result.json` and `samples.csv`; `results/published/catalog.json` records their hashes, issue-level experiment associations, publication status, and supersession relationships. When a sweep manifest supplies a stable `incrementId`, publication preserves it so an experiment page can separate successive methods without rewriting earlier evidence. The original M4 bundle remains byte-identical at its legacy paths.
 
 ## Timing boundaries
