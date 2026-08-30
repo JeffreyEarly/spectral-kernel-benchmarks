@@ -1337,6 +1337,10 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     if (options.streamingTileWidth != 1 && options.streamingTileWidth != 16)
         throw std::invalid_argument(
             "The composed constant-stratification candidate freezes tile width 16.");
+    if (options.comparisonOrder != "control-first" &&
+        options.comparisonOrder != "candidate-first")
+        throw std::invalid_argument(
+            "comparison order must be control-first or candidate-first.");
     const auto warmups = options.warmups == 0 ? selected.warmups : options.warmups;
     const auto samples = options.samples == 0 ? selected.samples : options.samples;
     const auto verticalWorkers = options.fftwInternalWorkers == 0
@@ -1590,14 +1594,29 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     const auto expectedTarget = fullTarget;
     executeCompact(nullptr);
 
-    const auto fullStages = measureComposedStages(
-        warmups, samples, executeFull);
-    const auto compactStages = measureComposedStages(
-        warmups, samples, executeCompact);
-    const auto fullTotals = measure(
-        warmups, samples, [&] { executeFull(nullptr); });
-    const auto compactTotals = measure(
-        warmups, samples, [&] { executeCompact(nullptr); });
+    ComposedStageSamples fullStages;
+    ComposedStageSamples compactStages;
+    std::vector<double> fullTotals;
+    std::vector<double> compactTotals;
+    if (options.comparisonOrder == "candidate-first") {
+        compactStages = measureComposedStages(
+            warmups, samples, executeCompact);
+        fullStages = measureComposedStages(
+            warmups, samples, executeFull);
+        compactTotals = measure(
+            warmups, samples, [&] { executeCompact(nullptr); });
+        fullTotals = measure(
+            warmups, samples, [&] { executeFull(nullptr); });
+    } else {
+        fullStages = measureComposedStages(
+            warmups, samples, executeFull);
+        compactStages = measureComposedStages(
+            warmups, samples, executeCompact);
+        fullTotals = measure(
+            warmups, samples, [&] { executeFull(nullptr); });
+        compactTotals = measure(
+            warmups, samples, [&] { executeCompact(nullptr); });
+    }
 
     BenchmarkReport report;
     report.environment = environmentRecord();
@@ -1700,7 +1719,8 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             ";horizontal-internal-1-outer-" +
             std::to_string(horizontalWorkers) + ";pointwise-" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + '-' +
-            std::to_string(pointwiseWorkers);
+            std::to_string(pointwiseWorkers) + ";comparison-" +
+            options.comparisonOrder;
         record.workers = std::max(
             {verticalWorkers, horizontalWorkers, pointwiseWorkers});
         record.internalWorkers = verticalWorkers;
@@ -1799,6 +1819,8 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
         record.execution.forward.adapterPlacement = "out-of-place";
         record.execution.forward.destroysNativeInput = false;
         record.execution.forward.adapterPreservesCallerInput = true;
+        record.execution.forward.requiresPreservationCopyForRepeatedExecution =
+            false;
         record.execution.forward.nativeInputRepresentationId =
             "three retained mode-keyed coefficient arrays";
         record.execution.forward.nativeOutputRepresentationId =

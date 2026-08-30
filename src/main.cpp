@@ -31,6 +31,7 @@ void usage(std::ostream& output) {
            << "              [--streaming-tile-width N]\n"
            << "              [--pointwise-policy serial|vector-serial|spatial-static]\n"
            << "              [--pointwise-workers N]\n"
+           << "              [--comparison-order control-first|candidate-first]\n"
            << "              [--convolution-map independent-products|wvm-advection]\n"
            << "              [--convolution-candidate all|explicit-parallel|fftwpp-parallel]\n"
            << "              [--convolution-products 4|12]\n"
@@ -195,6 +196,7 @@ int main(int argc, char** argv) {
                 else if (key == "--streaming-inverse-policy") options.streamingInversePolicy = requireValue(argc, argv, index);
                 else if (key == "--pointwise-policy") options.pointwisePolicy = requireValue(argc, argv, index);
                 else if (key == "--pointwise-workers") options.pointwiseWorkers = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--comparison-order") options.comparisonOrder = requireValue(argc, argv, index);
                 else if (key == "--convolution-map") options.convolutionMap = requireValue(argc, argv, index);
                 else if (key == "--convolution-candidate") options.convolutionCandidate = requireValue(argc, argv, index);
                 else if (key == "--convolution-products") options.convolutionProducts = std::stoull(requireValue(argc, argv, index));

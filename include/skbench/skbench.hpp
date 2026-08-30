@@ -909,6 +909,7 @@ struct RunOptions {
     std::string streamingInversePolicy = "full-zero";
     std::string pointwisePolicy = "serial";
     std::size_t pointwiseWorkers = 0;
+    std::string comparisonOrder = "control-first";
     std::string convolutionMap = "independent-products";
     std::string convolutionCandidate = "all";
     std::size_t convolutionProducts = 4;

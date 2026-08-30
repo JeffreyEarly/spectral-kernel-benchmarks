@@ -5391,6 +5391,11 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
             "--pointwise-policy and --pointwise-workers are valid only for "
             "production-lifetime-flux or constant-stratification-flux.");
     }
+    if (options.kernel != "constant-stratification-flux" &&
+        options.comparisonOrder != "control-first") {
+        throw std::invalid_argument(
+            "--comparison-order is valid only for constant-stratification-flux.");
+    }
     if (options.kernel != "production-lifetime-flux" &&
         options.streamingInversePolicy != "full-zero") {
         throw std::invalid_argument(

@@ -2561,6 +2561,7 @@ int main() {
             options.streamingTileWidth = 16;
             options.pointwisePolicy = "spatial-static";
             options.pointwiseWorkers = 2;
+            options.comparisonOrder = "candidate-first";
             options.warmups = 1;
             options.samples = 2;
             const auto report = skbench::runBenchmark(options);
@@ -2579,8 +2580,13 @@ int main() {
                 require(provider.execution.forward.nativePlacement ==
                             "out-of-place" &&
                             provider.execution.forward.adapterPlacement ==
-                            "out-of-place",
+                            "out-of-place" &&
+                            !provider.execution.forward.
+                                requiresPreservationCopyForRepeatedExecution,
                         "constant-stratification composed placement schema");
+                require(provider.schedulingId.ends_with(
+                            ";comparison-candidate-first"),
+                        "constant-stratification composed measurement order");
                 require(provider.algorithmResidentBytes +
                             provider.benchmarkHarnessBytes ==
                             provider.estimatedProcessPeakBytes,

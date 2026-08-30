@@ -392,6 +392,27 @@ build/release/skbench run \
 
 This is a production-shaped development graph, not an authoritative WVM nonlinear-flux fixture. Its symmetry-preserving synthetic coefficient map lets the benchmark attribute horizontal, vertical, pointwise, coefficient-pass, memory, and total costs without duplicating WVM's physical coefficient formulas. A favorable result advances to exact WVM-exported or in-repository flux validation; it cannot itself establish adoption.
 
+Supplying an authoritative prepared fixture upgrades that development composition to the exact complete WVM constant-stratification nonlinear-flux boundary. The benchmark reconstructs phase, every physical coefficient formula and special mode, all four products, modal projection, and reference-time phase removal independently, then compares all retained `Fp/Fm/F0` values with a MATLAB WVM oracle cross-checked against the compiled WVM kernel:
+
+```sh
+python3 tools/prepare_constant_stratification_flux_fixture.py \
+  --fixture /path/to/wvm-export \
+  --output /new/path/constant-flux-fixture.bin
+
+build/release/skbench run \
+  --kernel constant-stratification-flux \
+  --profile wvm-current-256-nz129-f4 \
+  --constant-stratification-flux-fixture /new/path/constant-flux-fixture.bin \
+  --fftw-internal-workers 16 \
+  --fftw-outer-workers 12 \
+  --pointwise-policy spatial-static \
+  --pointwise-workers 8 \
+  --comparison-order control-first \
+  --streaming-tile-width 16
+```
+
+The actual WVM graph has no explicit pointwise FFT scaling; its modal projection applies the horizontal normalization. This differs from the earlier synthetic composition and is enforced by the authoritative fixture. See [the complete constant-stratification fixture contract](docs/wvm-constant-stratification-flux-fixture-contract.md) for the oracle, exact boundary, placement, memory interpretation, and conditional reference protocol.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.
