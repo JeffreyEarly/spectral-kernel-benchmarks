@@ -2552,6 +2552,63 @@ int main() {
         }
 
         {
+            skbench::RunOptions options;
+            options.kernel = "constant-stratification-flux";
+            options.profile = "smoke";
+            options.fftwPlanning = "estimate";
+            options.fftwInternalWorkers = 1;
+            options.fftwOuterWorkers = 2;
+            options.streamingTileWidth = 16;
+            options.pointwisePolicy = "spatial-static";
+            options.pointwiseWorkers = 2;
+            options.warmups = 1;
+            options.samples = 2;
+            const auto report = skbench::runBenchmark(options);
+            require(report.status == "passed" && report.providers.size() == 2,
+                    "constant-stratification composed smoke benchmark");
+            require(report.fixtureProvenance.schema ==
+                        "constant-stratification-composed-fixture-v1" &&
+                        !report.fixtureProvenance.authoritative,
+                    "constant-stratification composed fixture scope");
+            require(report.providers[0].id ==
+                        "pipeline-constant-stratification-wvm-full-half" &&
+                        report.providers[1].id ==
+                        "pipeline-constant-stratification-streaming-pruned-tile16",
+                    "constant-stratification composed provider identities");
+            for (const auto& provider : report.providers) {
+                require(provider.correctness.size() == 5 && std::all_of(
+                            provider.correctness.begin(),
+                            provider.correctness.end(),
+                            [](const skbench::CorrectnessMetric& item) {
+                                return item.passed &&
+                                    item.maximumRelativeError <= 1.0e-12;
+                            }),
+                        "constant-stratification composed correctness");
+                require(std::any_of(
+                            provider.timings.begin(), provider.timings.end(),
+                            [](const skbench::TimingSeries& timing) {
+                                return timing.scope == "uninstrumented-total" &&
+                                    timing.stage ==
+                                        "production-shaped constant-stratification spectral-flux composition" &&
+                                    timing.seconds.size() == 2;
+                            }),
+                        "constant-stratification composed total boundary");
+                require(std::any_of(
+                            provider.ledger.begin(), provider.ledger.end(),
+                            [](const skbench::LedgerEntry& entry) {
+                                return entry.stage ==
+                                           "exact WVM coefficient formulas and complete nonlinear flux" &&
+                                    entry.state ==
+                                        skbench::StageState::unsupported;
+                            }),
+                        "constant-stratification interpretation limit");
+            }
+            require(report.providers[1].explicitPersistentBytes <
+                        report.providers[0].explicitPersistentBytes,
+                    "compact constant-stratification type-I arena");
+        }
+
+        {
             skbench::RunOptions missingFixture;
             missingFixture.kernel = "production-lifetime-flux";
             missingFixture.profile = "smoke";

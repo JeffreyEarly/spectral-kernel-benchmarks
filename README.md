@@ -376,6 +376,22 @@ build/release/skbench run \
 
 The experiment publishes primitive DCT-I/DST-I, normalization, complete vertical-schedule, and explicit arena-memory measurements separately. It deliberately excludes horizontal FFTs, coefficient construction, pointwise products, and the complete nonlinear flux. See [the constant-stratification vertical contract](docs/wvm-constant-stratification-vertical-contract.md) for the exact mathematics, production-source provenance, timed boundary, and interpretation limits.
 
+The next `constant-stratification-flux` increment composes that vertical policy with the fixed tile-16 pruned horizontal provider and the streamed four-target physical lifetime. It compares a WVM-order full-half control with a compact split candidate while holding the declared coefficient map, exact type-I family schedule, pointwise kernel, normalization, and output accumulation fixed:
+
+```sh
+build/release/skbench run \
+  --kernel constant-stratification-flux \
+  --profile wvm-current-256-nz129-f4 \
+  --fftw-planning measure \
+  --fftw-internal-workers 16 \
+  --fftw-outer-workers 12 \
+  --streaming-tile-width 16 \
+  --pointwise-policy spatial-static \
+  --pointwise-workers 8
+```
+
+This is a production-shaped development graph, not an authoritative WVM nonlinear-flux fixture. Its symmetry-preserving synthetic coefficient map lets the benchmark attribute horizontal, vertical, pointwise, coefficient-pass, memory, and total costs without duplicating WVM's physical coefficient formulas. A favorable result advances to exact WVM-exported or in-repository flux validation; it cannot itself establish adoption.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

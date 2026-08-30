@@ -52,3 +52,21 @@ A favorable result supports integrating retained-row vertical transforms with th
 The timed benchmark action performs no application allocation and reuses its arenas and plans. FFTW's threaded real-to-real executor may perform provider-owned scheduling allocations during execution; those remain opaque provider activity and are not mislabeled as benchmark-owned storage. The later integration experiment must report this distinction explicitly.
 
 The next production experiment must compose the winning retained horizontal transform with this vertical policy inside the existing WVM nonlinear-flux lifetime. Only that integration can apply issue #20's complete-call adoption gate. Split-complex unit-stride transforms, fused normalization, and explicit even/odd extensions remain later candidates and should be attempted only after this control/candidate result is stable.
+
+## First composed development boundary
+
+The `constant-stratification-flux` kernel is the next bounded experiment. It begins with three ready, radially retained, mode-keyed coefficient arrays and ends with three accumulated mode-keyed coefficient arrays. Inside that boundary it executes:
+
+1. five symmetry-preserving coefficient-assembly passes;
+2. the exact 15-channel inverse DCT-I/DST-I family schedule;
+3. five horizontal inverse transforms, reconstructing shared `U,V,W` once and one derivative triple per target;
+4. four streamed `-(U*qx+V*qy+W*qz)` pointwise expressions;
+5. four horizontal forward transforms with radial retention;
+6. the exact four-channel forward DCT-I/DST-I schedule and normalization; and
+7. four target-accumulation passes into three output coefficient arrays.
+
+The full control clears and assembles a WVM-order half-spectrum before the production-layout horizontal FFTs. The candidate writes compact split rows, uses the fixed tile-16 partial-column-pruned horizontal provider, and never creates a complete type-I half-spectrum. Both paths use the same type-I algorithms, family assignments, horizontal and vertical normalization, pointwise implementation, mode order, coefficient map, and persistent-buffer lifetime.
+
+The development coefficient map is deterministic, Hermitian-symmetry preserving, endpoint aware, and derivative-family aware. It is intentionally not a copy of WVM's `WVCoefficientFormulas.hpp`. Consequently, compact-versus-full agreement establishes that the two benchmark algorithms implement the declared composed mathematical graph, but it is not authoritative validation of WVM's phase evolution, physical coefficient formulas, or complete nonlinear flux. Those formulas must enter through a later WVM-exported fixture or direct WVM integration before any issue #20 adoption decision.
+
+Component timings separately report coefficient assembly, inverse type-I work, horizontal inverse work, pointwise work, horizontal forward work, forward type-I work, coefficient accumulation, and the independently sampled uninstrumented total. Application-owned storage is persistent. FFTW-owned execution allocation and plan/thread memory remain opaque. Explicit algorithm-resident memory includes the reusable type-I arena, seven-real-volume streamed physical lifetime, horizontal scratch, and pointwise worker state; caller coefficient arrays are reported separately.

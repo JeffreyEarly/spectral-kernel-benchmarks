@@ -5379,10 +5379,11 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
             "--spectral-flux-fixture is valid only for production-lifetime-flux.");
     }
     if (options.kernel != "production-lifetime-flux" &&
+        options.kernel != "constant-stratification-flux" &&
         (options.pointwisePolicy != "serial" || options.pointwiseWorkers != 0)) {
         throw std::invalid_argument(
             "--pointwise-policy and --pointwise-workers are valid only for "
-            "production-lifetime-flux.");
+            "production-lifetime-flux or constant-stratification-flux.");
     }
     if (options.kernel != "production-lifetime-flux" &&
         options.streamingInversePolicy != "full-zero") {
@@ -5393,6 +5394,8 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         return runProductionLifetimeFluxBenchmark(options);
     if (options.kernel == "constant-stratification-vertical")
         return runConstantStratificationVerticalBenchmark(options);
+    if (options.kernel == "constant-stratification-flux")
+        return runConstantStratificationFluxBenchmark(options);
     if (options.kernel == "vertically-batched-advection")
         return runVerticallyBatchedAdvectionBenchmark(options);
     if (options.kernel == "dealiased-convolution") return runDealiasedConvolutionBenchmark(options);
@@ -5405,7 +5408,8 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         throw std::invalid_argument(
             "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', "
             "'ordering-packing', 'spectral-boundary', 'spectral-pipeline', "
-            "'production-lifetime-flux', 'constant-stratification-vertical', or "
+            "'production-lifetime-flux', 'constant-stratification-vertical', "
+            "'constant-stratification-flux', or "
             "'dealiased-convolution', or 'vertically-batched-advection'.");
     }
     auto selected = profileNamed(options.profile);

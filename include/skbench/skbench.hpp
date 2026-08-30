@@ -908,6 +908,8 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
     const RunOptions& options);
 BenchmarkReport runConstantStratificationVerticalBenchmark(
     const RunOptions& options);
+BenchmarkReport runConstantStratificationFluxBenchmark(
+    const RunOptions& options);
 BenchmarkReport runDealiasedConvolutionBenchmark(const RunOptions& options);
 BenchmarkReport runVerticallyBatchedAdvectionBenchmark(const RunOptions& options);
 ValidationReport validateBenchmark(std::string_view profileName);
