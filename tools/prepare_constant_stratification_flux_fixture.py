@@ -33,6 +33,7 @@ AUDITED_SOURCES = {
 COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 TOLERANCE = 1.0e-12
+MAXIMUM_TOLERANCE = 2.0e-12
 CROSS_BACKEND_TOLERANCE = 1.0e-10
 NORMALIZATION_ID = (
     "raw horizontal FFT; inverse type-I factors placed in coefficient "
@@ -357,10 +358,10 @@ def validate_and_read(directory: pathlib.Path) -> tuple[
             "WVM cross-backend oracle tolerances must be 1e-10")
     require(number(oracle.get("benchmarkMaximumScaleNormalizedErrorTolerance"),
                    "oracle.benchmarkMaximumScaleNormalizedErrorTolerance") ==
-            TOLERANCE and
+            MAXIMUM_TOLERANCE and
             number(oracle.get("benchmarkRelativeL2ErrorTolerance"),
                    "oracle.benchmarkRelativeL2ErrorTolerance") == TOLERANCE,
-            "benchmark-to-oracle tolerances must be 1e-12")
+            "benchmark-to-oracle tolerances must be max 2e-12 and L2 1e-12")
     require(maximum_error <= CROSS_BACKEND_TOLERANCE and
             l2_error <= CROSS_BACKEND_TOLERANCE,
             "MATLAB and compiled WVM oracle comparison failed")

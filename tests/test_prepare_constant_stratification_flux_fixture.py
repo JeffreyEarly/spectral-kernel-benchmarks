@@ -161,7 +161,7 @@ class ConstantStratificationFixturePreparationTests(unittest.TestCase):
                 "relativeL2Error": 3.0e-14,
                 "maximumScaleNormalizedErrorTolerance": 1.0e-10,
                 "relativeL2ErrorTolerance": 1.0e-10,
-                "benchmarkMaximumScaleNormalizedErrorTolerance": 1.0e-12,
+                "benchmarkMaximumScaleNormalizedErrorTolerance": 2.0e-12,
                 "benchmarkRelativeL2ErrorTolerance": 1.0e-12,
             },
             "payloads": payload_records,

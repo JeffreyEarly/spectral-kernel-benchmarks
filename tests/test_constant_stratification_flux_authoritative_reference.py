@@ -139,8 +139,8 @@ class AuthoritativeConstantFluxCampaignTests(unittest.TestCase):
                 ))
         analysis = campaign.analyze(records, "a" * 40)
         self.assertTrue(analysis["allRecordsValid"])
-        self.assertTrue(analysis["allAlgorithmEquivalenceWithin1e12"])
-        self.assertTrue(analysis["allAuthoritativeOracleWithin2e12"])
+        self.assertTrue(analysis["algorithmEquivalenceDualNormPassed"])
+        self.assertTrue(analysis["authoritativeOracleDualNormPassed"])
         self.assertAlmostEqual(0.7, analysis["geometricCandidateToControl"])
         self.assertTrue(
             analysis["adoptionGate"]["advanceConstantStratificationCandidate"]

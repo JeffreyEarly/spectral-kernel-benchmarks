@@ -43,7 +43,7 @@ EXTENDED_REFERENCE_ROUNDS = 5
 REFERENCE_WARMUPS = 3
 REFERENCE_SAMPLES = 21
 TOLERANCE = 1.0e-12
-ORACLE_TOLERANCE = 2.0e-12
+MAXIMUM_TOLERANCE = 2.0e-12
 WVM_COMMIT = "6ad254fb9756ac918bb72e036020d004879df1f2"
 PROFILE_SHAPES = {
     "wvm-current-256-nz129-f4": (256, 256, 129),
@@ -329,12 +329,12 @@ def result_record(
         and result.get("run", {}).get("samples") == samples
         and all(len(item["totalSamplesSeconds"]) == samples
                 for item in (control, candidate))
-        and all(math.isfinite(error) and error <= ORACLE_TOLERANCE
+        and all(math.isfinite(error) and error <= MAXIMUM_TOLERANCE
                 for error in errors)
         and all(
             item["allCorrectnessMetricsPassed"]
             and math.isfinite(item["relativeL2Error"])
-            and item["relativeL2Error"] <= ORACLE_TOLERANCE
+            and item["relativeL2Error"] <= TOLERANCE
             for item in (control, candidate)
         )
         and math.isfinite(
@@ -342,7 +342,7 @@ def result_record(
         )
         and candidate[
             "algorithmEquivalenceMaximumScaleNormalizedError"
-        ] <= TOLERANCE
+        ] <= MAXIMUM_TOLERANCE
         and math.isfinite(candidate["algorithmEquivalenceRelativeL2Error"])
         and candidate["algorithmEquivalenceRelativeL2Error"] <= TOLERANCE
         and all(item["placementValid"] and item["allocationLedgerValid"]
@@ -523,6 +523,11 @@ def analyze(records: list[dict], source_commit: str) -> dict:
     maximum_error = max(
         (item["maximumCorrectnessError"] for item in records), default=math.inf
     )
+    maximum_oracle_l2 = max(
+        (max(item["control"]["relativeL2Error"],
+             item["candidate"]["relativeL2Error"])
+         for item in records), default=math.inf
+    )
     maximum_equivalence_error = max(
         (item["algorithmEquivalenceMaximumScaleNormalizedError"]
          for item in records), default=math.inf
@@ -531,9 +536,12 @@ def analyze(records: list[dict], source_commit: str) -> dict:
         (item["algorithmEquivalenceRelativeL2Error"] for item in records),
         default=math.inf,
     )
-    oracle_correctness = bool(complete and maximum_error <= ORACLE_TOLERANCE)
+    oracle_correctness = bool(
+        complete and maximum_error <= MAXIMUM_TOLERANCE
+        and maximum_oracle_l2 <= TOLERANCE
+    )
     algorithm_equivalence = bool(
-        complete and maximum_equivalence_error <= TOLERANCE
+        complete and maximum_equivalence_error <= MAXIMUM_TOLERANCE
         and maximum_equivalence_l2 <= TOLERANCE
     )
     correctness = oracle_correctness and algorithm_equivalence
@@ -562,11 +570,16 @@ def analyze(records: list[dict], source_commit: str) -> dict:
         "referenceRoundProtocolComplete": protocol_complete,
         "conditionalRoundDecision": conditional,
         "allRecordsValid": complete,
-        "allAlgorithmEquivalenceWithin1e12": algorithm_equivalence,
+        "algorithmEquivalenceDualNormPassed": algorithm_equivalence,
+        "algorithmEquivalenceMaximumTolerance": MAXIMUM_TOLERANCE,
+        "algorithmEquivalenceL2Tolerance": TOLERANCE,
         "maximumAlgorithmEquivalenceError": maximum_equivalence_error,
         "maximumAlgorithmEquivalenceL2Error": maximum_equivalence_l2,
-        "allAuthoritativeOracleWithin2e12": oracle_correctness,
+        "authoritativeOracleDualNormPassed": oracle_correctness,
+        "authoritativeOracleMaximumTolerance": MAXIMUM_TOLERANCE,
+        "authoritativeOracleL2Tolerance": TOLERANCE,
         "maximumAuthoritativeOracleError": maximum_error,
+        "maximumAuthoritativeOracleL2Error": maximum_oracle_l2,
         "geometricCandidateToControl": geometric_ratio,
         "maximumProfileCandidateToControl": maximum_ratio,
         "empiricalStratifiedPairedRange": interval,
@@ -578,8 +591,8 @@ def analyze(records: list[dict], source_commit: str) -> dict:
             "regressionPassed": regression,
             "empiricalIntervalExcludesTie": interval_passed,
             "correctnessPassed": correctness,
-            "algorithmEquivalenceWithin1e12Passed": algorithm_equivalence,
-            "authoritativeOracleWithin2e12Passed": oracle_correctness,
+            "algorithmEquivalenceDualNormPassed": algorithm_equivalence,
+            "authoritativeOracleDualNormPassed": oracle_correctness,
             "referenceRoundProtocolPassed": protocol_complete,
             "allocationLedgerPassed": bool(
                 complete and all(

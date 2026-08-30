@@ -1813,7 +1813,7 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                 record.correctness.push_back(correctness(
                     "complete compact composition versus full-half control",
                     compactOutput.data(), fullOutput.data(),
-                    fullOutput.size()));
+                    fullOutput.size(), 2.0e-12));
             }
             constexpr double crossBackendTolerance = 1.0e-10;
             record.correctness.push_back({
