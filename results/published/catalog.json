@@ -29436,6 +29436,678 @@
         "samplesSha256": "ac7456f47d1e26ea4631cc7b67508cff8aacfceeb4fe2b2b0d1061b9a788e23c"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260830T001549Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T001549Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T001549Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "da8cf406e1c157955fa03ab560b79064309f1099e4f9485da7f5bc12b32d998e",
+        "samplesSha256": "f747298a5aadc0ae9dfbc885a53022e5e8f6a8a6010803d0cd1bf824fb0536be"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T001606Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T001606Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T001606Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "ee94eb637b3abba724f70651429ea8020cf2a6c06b09aa4212355cf5386dfbbc",
+        "samplesSha256": "6f1c8ee85895aded83c43004148d5a61bc497a5f14c3fd7c16cf7ef1ecdece5e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T001614Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T001614Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T001614Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "9b9da2b611f034f3668b0c9703e826ebefaf649278d2cc217e5ce56fcb6bd7d4",
+        "samplesSha256": "1960b4384db2d84246a4fa07ea07de0a9de33049fa81c8a7c87b70cd069275d9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T001833Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T001833Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T001833Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "57f0087392127432fe3750b5a1a6e02d106fcc8819a721cb8ef47ed56a4b220d",
+        "samplesSha256": "ed3c267f8518d9a24af1294f670f5b54b398ac124b54c576ba9d3632cce07424"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T001920Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T001920Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T001920Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "beb2af113d0f8d3fe74c034e1975769fb21471591f2b4615802329858605ada4",
+        "samplesSha256": "d93afdfa648434174d7c1184aa5948d06b025aa20134f86d653d441932ad0560"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T002404Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T002404Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T002404Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "22fea09300fd464638f96fea1c1484394f27e156dde7e7e1036dcc7d670d135f",
+        "samplesSha256": "8deb62a34ec4ecbc5220f9904092533c86a2040c9d1b9a1e1440525738fa28d4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T002532Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T002532Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T002532Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "8bf365a265f9a735d3a65dd84ff010af2feef1f6f0607b0f64317f82d1e0bc6e",
+        "samplesSha256": "c5ecd74c382f77f9cd111402ec3ef76b959423efdf849a197c0e6ad427f8c334"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T002619Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T002619Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T002619Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "9eb05a8bebed1084a765a2dd277c1441810ee07ed5339abc85bf99db232ebdcf",
+        "samplesSha256": "6d8dc080d2a8dc29600dcbbdd2e50775af55f77706f25f68d7f53a5370d2ea1f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T002841Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T002841Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T002841Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "8647855dfebdcc2e658da813dda31fb59d0e34ab018d88ad75696fba9243801e",
+        "samplesSha256": "6728d819968c71605285b4f49235fba8c8886eb2d905fb4762fdc22f4182c565"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T003009Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T003009Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T003009Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "7daca3c11c5771728e6c056a3abc58db2984180b091f3097508e8d98708f37e3",
+        "samplesSha256": "3e46b3691d312b070821a3bbbcd28307581102c07aa76a512c14f528a3b913ba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T003452Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T003452Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T003452Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "eca54b8d94c6fc1a5e04391c9a4eb172d16ed70ba59380438b8edf1e26a24517",
+        "samplesSha256": "0bba5dbfde2893f82459c5d0c6673d3fb2b2c4d9cb6df29537e9784679a8e22d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T003457Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T003457Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T003457Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "9ed4b5bd1e8ed44647c1ecc9563f2dde5f21af1ce683f76053696c62b377ed42",
+        "samplesSha256": "824e2f984a774a3536b2bc5583fd679a0e8ae8a59ce70e992a9269fd41f74d11"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T003519Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T003519Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T003519Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "afdd2ce3ee78e08f42f3b42839ed7eb9a38929752f873195f8e8d7650eee37d5",
+        "samplesSha256": "b39de4216308c67743043c8dce4966e352b295442c67d604a3d62344eb44de61"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004005Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004005Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004005Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "78c25c45d104b97e6742ef0dec7e6f00504b2125e20acfc68ea0c759db5d1b9d",
+        "samplesSha256": "e64c1e53202bd96ca96876e482861564958bbade7af054f9d9264d7dddffc61b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004130Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004130Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T004130Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "d15170ba9ab3a861a59a4e426c20c2ef0807fd411235a99d4953b69effb9c8bd",
+        "samplesSha256": "3df9f586a41ce45ca368a5536bb8765b3658c9e95e041e7e81302cfc6f22fe8e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004148Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004148Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004148Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "894e4d6e7ce235b373e23ac9ba2b65d045d4f1da24732e5cb5aa1ae3fbb9b37a",
+        "samplesSha256": "864e032f9856fbc2db1087de2567070725f6f529f59a559c3721881783b1ff09"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004156Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004156Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T004156Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "cae9ba8f0eca9cea298caae69430a5654b27f8c5c4f8bbebd45f4980185d0806",
+        "samplesSha256": "806f66c73b6eb73831e464b31309c51d8ee7f3de42746f401f6ea9b7f41ab6f6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004417Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004417Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004417Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "5e79ffd01ae75b96ebbca65cc05162a446b4975e1425815721c6d8a2b0c7d17a",
+        "samplesSha256": "835b54ad37e9a57dcec563d5b10bc6f9d7c63aad2ff04b7125cbee2c3d084519"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004501Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004501Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T004501Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "108abc83f33c5039acae04ba315ce0d04fefbab6f71dbff9c2b255f501ac3a15",
+        "samplesSha256": "748ec41a10dda26c531b1a089cb7392a42191b225b6c442d6de842d8e68cdcf2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004504Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004504Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004504Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "4acb856d50b10b158a69ec78a9343f7fd28c1218e760d1e01c8f2164878e6f85",
+        "samplesSha256": "593cda15aec553dc5ee7d0d17c5138632e5052f873f67e68f37b343baa834f12"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004509Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004509Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T004509Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "e09cec9c6e1d3afec59dbcdc24913df6fdf1110e23323f7d01d4554f76aa4afe",
+        "samplesSha256": "ddff222f77467b42e5fa775136c686f4c09188f9301dc87e79007530e3a07820"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004531Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004531Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004531Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "798cf8339a16e1c106ec5c3d85a09e904f28dbcd15c0e2a6bdebe4400e673d9a",
+        "samplesSha256": "ba44726a64d426033707a53a44ecb138068a33b3b8d8ca505c17b6a51fcbde8a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004546Z-issue19-authoritative-streaming-pruned-compact-split-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-materialized-family-bridge",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004546Z-issue19-authoritative-streaming-pruned-compact-split-lyra/result.json",
+        "samples": "runs/20260830T004546Z-issue19-authoritative-streaming-pruned-compact-split-lyra/samples.csv",
+        "resultSha256": "7d76fb4a3b4f9ce63dc3371c60e106830b8d689c6ce65232c7728cf640a5af9d",
+        "samplesSha256": "fff10a43cc00b67f5aeccd998433ade433f434759a4369984116023a7852b2b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T004629Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "fused-vertical-family-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "streaming-tile16-fused-vertical-family-views",
+      "status": "reference",
+      "statusReason": "Authoritative issue #21 Lyra reference campaign on clean commit 511a55d, preserving the frozen issue #19 graph and changing only materialized split-family bridges to direct strided family views; three balanced rotated rounds, three warmups, 21 samples, exact WVM fixtures, zero warmed application allocations, and separate memory workers.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        21
+      ],
+      "experiments": [
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T004629Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T004629Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "a756a98a2ffe838c61b50fe931a94e5d883b3208a660225a2380153ae7391d25",
+        "samplesSha256": "e3dffa171611c01736919d23ee7c45dfc870537aa2a3ccf55d3f4d67ec4b7761"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -30070,6 +30742,45 @@
         "application-resident, scratch, opaque, peak, and capacity memory",
         "uninstrumented composed total",
         "paired reference inference"
+      ]
+    },
+    {
+      "id": "issue-021-fused-small-grouped-gemm",
+      "issue": 21,
+      "phase": "collecting",
+      "title": "Fused vertical family views and grouped GEMM",
+      "question": "Can eliminating or fusing the vertical-family packing and movement exposed by issue #19 improve the frozen streaming tile-16 production-lifetime graph by at least 10% without changing its FFT, GEMM, workload, schedule, correctness, placement, or allocation contracts?",
+      "baseline": "Use the authoritative issue #19 streaming-pruned compact-split tile-16 graph with materialized reusable three-field and one-field compact split bridges. Preserve its exact WVM fixture, production-lifetime boundary, arithmetic, and calibrated Lyra topology.",
+      "priorExperiments": [
+        "issue-008-vertical-projection-gemm",
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "The complete issue #19 15-input-to-4-output production-lifetime spectral-flux composition, beginning and ending with ready vertically truncated retained modal fields.",
+        "candidates": "The materialized issue #19 streaming tile-16 control and a direct-strided family-view implementation in which the pruned horizontal transforms consume and produce the exact wave-f and wave-g split vertical-kernel buffers without materializing reusable compact bridge arrays. Future grouped-GEMM arithmetic remains a separate candidate, not part of this increment.",
+        "workloads": "Authoritative Float64 four-target WVM fixtures at 256 squared/Nz=129, 512 squared/Nz=257, and 1024 squared/Nz=129, all with radial horizontal and vertical two-thirds retention.",
+        "controlledVariables": "Logical 15-to-4 operator, WVM fixture and hashes, FFTW provider and planning, pruned tile width, split representation, raw vertical matrices and BLAS calls, worker topology, pointwise work, normalization, oracle, workload matrix, process isolation, and balanced repeated-reference protocol.",
+        "changedVariables": "Only the ownership and addressing of the split buffers between the vertical kernels and pruned horizontal transforms: materialized family-to-canonical extraction and target scatter versus direct strided family views.",
+        "timedBoundary": "Independently sampled uninstrumented production-lifetime total plus a non-additive component ledger. Control extraction/scatter and candidate direct-view diagnostics are timed separately; fused stages are not assigned fabricated standalone times.",
+        "excludedWork": "New GEMM arithmetic, alternative vertical matrices, changed FFT arithmetic, the rest of the nonlinear flux, WVM source integration, MATLAB dispatch, phase evolution, time integration, I/O, fixture loading, and oracle evaluation.",
+        "allocationPolicy": "Zero warmed application allocations. Publish algorithm-resident, reusable scratch, estimated-peak, and observed process high-water memory from separate processes."
+      },
+      "correctness": {
+        "oracle": "The exact versioned WVM-exported issue #19 fixtures and mode-keyed expected four-target modal outputs, including input preservation, family mapping, target order, DC, Nyquist, Hermitian-boundary, and direct-view stride checks.",
+        "tolerance": "Float64 maximum scale-normalized and relative L2 errors at most 1e-12.",
+        "capabilityHandling": "An unsupported view shape, allocation violation, correctness failure, memory regression, or failure of the preregistered 0.90 complete-boundary gate remains visible and prevents promotion. Negative grouped-GEMM feasibility remains publishable separately.",
+        "canSupport": "Adoption of direct fused vertical-family views in the streaming compiled-engine candidate and a bounded statement about the remaining vertical-kernel optimization headroom on Lyra.",
+        "cannotSupport": "A claim that new grouped GEMM arithmetic was measured, a complete WVM nonlinear-flux or source-integration result, Float32 performance, or a general-Mac recommendation."
+      },
+      "requiredTables": [
+        "authoritative complete-boundary totals and paired inference",
+        "materialized versus fused movement attribution",
+        "raw forward and inverse vertical GEMM",
+        "horizontal transform and pointwise components",
+        "algorithm-resident, scratch, estimated-peak, and observed memory",
+        "fixture provenance and correctness",
+        "setup, scheduling, placement, and allocation verification"
       ]
     }
   ]

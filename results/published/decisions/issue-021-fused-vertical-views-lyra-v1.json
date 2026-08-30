@@ -1,0 +1,180 @@
+{
+  "schema": "spectral-kernel-fused-vertical-views-reference-publication-v1",
+  "experimentId": "issue-021-fused-small-grouped-gemm",
+  "incrementId": "fused-vertical-family-views-v1",
+  "createdAtUtc": "2026-08-30T00:45:00Z",
+  "classification": "reference",
+  "eligibleForAdoptionInference": true,
+  "benchmarkExecutableCommit": "511a55dc96b3c92c8fd3f5ce88667f07a6d2fa6f",
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "machine": {
+    "hostname": "lyra.ad.nwra.com",
+    "cpuBrand": "Apple M4 Max",
+    "hardwareModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "totalPhysicalCores": 16,
+    "physicalMemoryBytes": 137438953472,
+    "macOS": "26.6.1",
+    "macOSBuild": "25G76"
+  },
+  "frozenTopology": {
+    "horizontalWorkers": 12,
+    "horizontalWorkerClass": "performance",
+    "verticalSchedule": "outer-dynamic",
+    "verticalWorkers": 16,
+    "verticalWorkerClass": "total",
+    "fftwInternalWorkers": 1,
+    "accelerateThreads": 1,
+    "streamingTileWidth": 16
+  },
+  "protocol": {
+    "finalRounds": 3,
+    "warmupsPerTimingProcess": 3,
+    "samplesPerTimingProcess": 21,
+    "timingProcesses": 18,
+    "memoryOnlyProcesses": 6,
+    "candidateOrderRotatedByRound": true,
+    "profileOrderRotatedByRound": true,
+    "screenSamplesUsedForInference": false,
+    "memorySamplesUsedForTimingInference": false
+  },
+  "fixtures": {
+    "wvm-current-256-nz129-f4": "sha256:ef17efc2fc760709a9a06b252d0bc1a8fb909620461755a0705516195b20f51b",
+    "wvm-current-512-nz257-f4": "sha256:4b093e014b335156137f43eac33fb1ce5ab43dcbd6075e6858dc7265ff153251",
+    "wvm-large-1024-nz129-f4": "sha256:f32fabbbd14d54ad67612787672f7237835ef62e2018f0097576ebad9928e130"
+  },
+  "changedVariable": "Replace the materialized reusable compact split three-field extraction and one-field target scatter with direct strided wave-f and wave-g family views consumed and produced by the pruned horizontal provider.",
+  "heldFixed": [
+    "complete issue #19 production-lifetime timed boundary",
+    "authoritative WVM fixtures and mode-keyed oracle",
+    "horizontal and vertical arithmetic",
+    "FFTW provider and planning policy",
+    "vertical matrices and raw Accelerate GEMM calls",
+    "pruned tile width and split representation",
+    "worker topology and thread limits",
+    "pointwise expression and physical-buffer lifetime",
+    "zero warmed application allocations"
+  ],
+  "profiles": [
+    {
+      "profile": "wvm-current-256-nz129-f4",
+      "controlMedianSeconds": 0.208325833,
+      "candidateMedianSeconds": 0.0665365,
+      "candidateToControl": 0.32560347348215607,
+      "roundRatios": [
+        0.32560347348215607,
+        0.27092961502389856,
+        0.3306487006822625
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.27092961502389856,
+        "upper": 0.3306487006822625
+      },
+      "controlMaterializedMovementSeconds": 0.143935584,
+      "candidateFusedInverseViewDiagnosticSeconds": 0.014099542,
+      "candidateFusedForwardViewDiagnosticSeconds": 0.002221,
+      "controlRawVerticalSeconds": 0.015298834,
+      "candidateRawVerticalSeconds": 0.015265959,
+      "memoryOnly": {
+        "controlAlgorithmResidentBytes": 2438956320,
+        "candidateAlgorithmResidentBytes": 2344515936,
+        "controlScratchBytes": 650834880,
+        "candidateScratchBytes": 556394496,
+        "controlObservedProcessHighWaterBytes": 3904438272,
+        "candidateObservedProcessHighWaterBytes": 3810017280
+      }
+    },
+    {
+      "profile": "wvm-current-512-nz257-f4",
+      "controlMedianSeconds": 1.713422333,
+      "candidateMedianSeconds": 0.678735125,
+      "candidateToControl": 0.39697820650159626,
+      "roundRatios": [
+        0.39697820650159626,
+        0.39855157356583837,
+        0.395691195317613
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.395691195317613,
+        "upper": 0.39855157356583837
+      },
+      "controlMaterializedMovementSeconds": 1.0711445,
+      "candidateFusedInverseViewDiagnosticSeconds": 0.121797792,
+      "candidateFusedForwardViewDiagnosticSeconds": 0.021922083,
+      "controlRawVerticalSeconds": 0.22147425,
+      "candidateRawVerticalSeconds": 0.22143325,
+      "memoryOnly": {
+        "controlAlgorithmResidentBytes": 27756950080,
+        "candidateAlgorithmResidentBytes": 27004207360,
+        "controlScratchBytes": 4857227584,
+        "candidateScratchBytes": 4104484864,
+        "controlObservedProcessHighWaterBytes": 45357432832,
+        "candidateObservedProcessHighWaterBytes": 44604243968
+      }
+    },
+    {
+      "profile": "wvm-large-1024-nz129-f4",
+      "controlMedianSeconds": 3.47581775,
+      "candidateMedianSeconds": 1.317741625,
+      "candidateToControl": 0.3785452836872119,
+      "roundRatios": [
+        0.3785452836872119,
+        0.3784859968446375,
+        0.38009133505345616
+      ],
+      "empiricalPairedRange": {
+        "lower": 0.3784859968446375,
+        "upper": 0.38009133505345616
+      },
+      "controlMaterializedMovementSeconds": 2.254756792,
+      "candidateFusedInverseViewDiagnosticSeconds": 0.260379334,
+      "candidateFusedForwardViewDiagnosticSeconds": 0.047632625,
+      "controlRawVerticalSeconds": 0.24029425,
+      "candidateRawVerticalSeconds": 0.240532083,
+      "memoryOnly": {
+        "controlAlgorithmResidentBytes": 39316603264,
+        "candidateAlgorithmResidentBytes": 37805449792,
+        "controlScratchBytes": 10412365632,
+        "candidateScratchBytes": 8901212160,
+        "controlObservedProcessHighWaterBytes": 67644178432,
+        "candidateObservedProcessHighWaterBytes": 66133016576
+      }
+    }
+  ],
+  "maximumCorrectnessError": 1.2349379351873506e-15,
+  "geometricCandidateToControl": 0.3657557632429749,
+  "maximumProfileCandidateToControl": 0.39697820650159626,
+  "empiricalStratifiedPairedRange": {
+    "lower": 0.3436272218310902,
+    "upper": 0.36862074504231573
+  },
+  "memoryOnlyGeometricRatios": {
+    "algorithmResidentBytes": 0.965226177933456,
+    "scratchBytes": 0.8515836563928527,
+    "estimatedProcessPeakBytes": 0.965226177933456,
+    "observedProcessHighWaterBytes": 0.9789518596744969
+  },
+  "gate": {
+    "geometricTimeRatioAtMost": 0.9,
+    "maximumProfileTimeRatioAtMost": 1.03,
+    "improvementPassed": true,
+    "regressionPassed": true,
+    "empiricalIntervalExcludesTie": true,
+    "correctnessPassed": true,
+    "referenceRoundProtocolPassed": true,
+    "allocationVerificationPassed": true,
+    "memoryDoesNotRegress": true,
+    "advanceFusedViewsToWvmIntegration": true,
+    "newGemmArithmeticMeasured": false,
+    "completeNonlinearFluxMeasured": false,
+    "wvmSourceChangeAuthorized": false,
+    "generalMacClaimAllowed": false
+  },
+  "interpretation": {
+    "result": "The direct family-view candidate passes the preregistered complete-boundary gate on every workload and becomes the strongest streaming compiled-engine graph tested on Lyra.",
+    "mechanism": "The gain comes from eliminating serial full-volume materialization between vertical split-family buffers and the pruned horizontal transforms. Raw vertical GEMM time is essentially unchanged and no new grouped-GEMM arithmetic was tested.",
+    "remainingHeadroom": "After eliminating the materialized bridge, the bounded next question is WVM integration and profiling of the real production call graph; custom small grouped GEMM should be reconsidered only if that profile still exposes vertical arithmetic as material.",
+    "limitations": "This is the declared synthetic production-lifetime spectral boundary, not the complete nonlinear flux, MATLAB-to-core boundary, WVM source integration, Float32 result, or a cross-Mac default."
+  }
+}

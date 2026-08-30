@@ -35,7 +35,7 @@ class PublicationValidationTests(unittest.TestCase):
         grandfathered = next(bundle for bundle in bundles if bundle.publication["grandfathered"])
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
-        self.assertEqual(15, len(catalog["experiments"]))
+        self.assertEqual(16, len(catalog["experiments"]))
         experiment_phases = {
             experiment["id"]: experiment["phase"]
             for experiment in catalog["experiments"]
@@ -52,6 +52,10 @@ class PublicationValidationTests(unittest.TestCase):
             experiment_phases[
                 "issue-019-production-lifetime-spectral-flux-composition"
             ],
+        )
+        self.assertEqual(
+            "collecting",
+            experiment_phases["issue-021-fused-small-grouped-gemm"],
         )
         production_lifetime_flux = [
             bundle for bundle in bundles
@@ -528,6 +532,57 @@ class PublicationValidationTests(unittest.TestCase):
                 "out-of-place-view"
             for provider in retained_views
             for direction in ("forward", "inverse")
+        ))
+        fused_vertical_views = [
+            bundle for bundle in bundles
+            if bundle.publication.get("incrementId") ==
+            "fused-vertical-family-views-v1"
+        ]
+        self.assertEqual(24, len(fused_vertical_views))
+        self.assertEqual({"reference", "memory"}, {
+            bundle.publication["campaignPhase"]
+            for bundle in fused_vertical_views
+        })
+        self.assertEqual(18, sum(
+            bundle.publication["campaignPhase"] == "reference"
+            for bundle in fused_vertical_views
+        ))
+        self.assertEqual(6, sum(
+            bundle.publication["campaignPhase"] == "memory"
+            for bundle in fused_vertical_views
+        ))
+        self.assertEqual({1, 2, 3}, {
+            bundle.publication["campaignRound"]
+            for bundle in fused_vertical_views
+            if bundle.publication["campaignPhase"] == "reference"
+        })
+        self.assertEqual({"reference"}, {
+            bundle.publication["status"] for bundle in fused_vertical_views
+        })
+        self.assertEqual({"511a55dc96b3"}, {
+            bundle.result["environment"]["gitCommit"]
+            for bundle in fused_vertical_views
+        })
+        self.assertTrue(all(
+            not bundle.result["environment"]["gitDirty"]
+            and bundle.publication["experiments"] == [
+                "issue-021-fused-small-grouped-gemm"
+            ]
+            and bundle.publication["priorExperiments"] == [
+                "issue-019-production-lifetime-spectral-flux-composition"
+            ]
+            for bundle in fused_vertical_views
+        ))
+        self.assertEqual({
+            "pipeline-production-lifetime-streaming-pruned-tile16-authoritative",
+            "pipeline-production-lifetime-streaming-pruned-tile16-fused-vertical-views-authoritative",
+        }, {
+            bundle.result["providers"][0]["id"]
+            for bundle in fused_vertical_views
+        })
+        self.assertTrue(all(
+            bundle.result["provenance"]["spectralFluxFixture"]["authoritative"]
+            for bundle in fused_vertical_views
         ))
 
     def test_duplicate_run_id_is_rejected(self) -> None:

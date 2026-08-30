@@ -61,6 +61,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_17_page = output / "experiments" / "issue-017-implicit-hybrid-dealiased-convolution" / "index.html"
             issue_18_page = output / "experiments" / "issue-018-vertically-batched-advection-pipeline" / "index.html"
             issue_19_page = output / "experiments" / "issue-019-production-lifetime-spectral-flux-composition" / "index.html"
+            issue_21_page = output / "experiments" / "issue-021-fused-small-grouped-gemm" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
@@ -77,6 +78,10 @@ class BuildSiteTests(unittest.TestCase):
             issue_19_reference_artifact = (
                 output / "artifacts" / "decisions" /
                 "issue-019-authoritative-reference-lyra-v1.json"
+            )
+            issue_21_reference_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-021-fused-vertical-views-lyra-v1.json"
             )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
@@ -100,12 +105,14 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_17_page.is_file())
             self.assertTrue(issue_18_page.is_file())
             self.assertTrue(issue_19_page.is_file())
+            self.assertTrue(issue_21_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
             self.assertTrue(issue_19_calibration_artifact.is_file())
             self.assertTrue(issue_19_reference_artifact.is_file())
+            self.assertTrue(issue_21_reference_artifact.is_file())
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)
@@ -420,6 +427,28 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("<strong>Gate passed:</strong>", issue_19_html)
             self.assertIn("advances streaming tile 16 to a later integration experiment", issue_19_html)
             self.assertIn("authorizes neither a WVM source change", issue_19_html)
+            issue_21_html = issue_21_page.read_text(encoding="utf-8")
+            self.assertIn("Fused vertical family views and grouped GEMM", issue_21_html)
+            self.assertIn("24 reference run(s) currently contribute", issue_21_html)
+            self.assertIn(
+                "Authoritative fused vertical-family-view reference",
+                issue_21_html,
+            )
+            self.assertIn("issue #19's streaming tile-16 winner", issue_21_html)
+            self.assertIn("Direct fused family views are <strong>0.366×</strong>", issue_21_html)
+            self.assertIn("0.344×–0.369×", issue_21_html)
+            self.assertIn("worst workload is 0.397×", issue_21_html)
+            self.assertIn("maximum WVM-oracle error is 1.235e-15", issue_21_html)
+            self.assertIn("Why it is faster", issue_21_html)
+            self.assertIn("143.9", issue_21_html)
+            self.assertIn("2254.8", issue_21_html)
+            self.assertIn("raw vertical arithmetic is effectively unchanged", issue_21_html)
+            self.assertIn("no new grouped-GEMM arithmetic was measured", issue_21_html)
+            self.assertIn("0.965× algorithm-resident", issue_21_html)
+            self.assertIn("0.852× reusable scratch", issue_21_html)
+            self.assertIn("<strong>Gate passed:</strong>", issue_21_html)
+            self.assertIn("advances to a bounded WVM integration benchmark", issue_21_html)
+            self.assertIn("does not measure the complete nonlinear flux", issue_21_html)
             large_f4_run_page = (
                 output / "runs" / "20260828T150329017392Z-lyra" / "index.html"
             )

@@ -85,6 +85,10 @@ def provider_name(provider: dict) -> str:
         "pipeline-wvm-direct": "WVM direct/no-reorder pipeline",
         "pipeline-plane-major-fused-split": "Plane-major fused-split pipeline",
         "pipeline-streaming-pruned-compact-split": "Streaming pruned compact-split pipeline",
+        "pipeline-production-lifetime-streaming-pruned-tile16-authoritative":
+            "Streaming tile 16 with materialized family bridge",
+        "pipeline-production-lifetime-streaming-pruned-tile16-fused-vertical-views-authoritative":
+            "Streaming tile 16 with fused vertical-family views",
         "fftw-explicit-dealiased-convolution": "Explicit FFTW dealiased convolution",
         "fftwpp-hybrid-hermitian-convolution": "FFTW++ implicit/hybrid Hermitian convolution",
         "fftw-explicit-streamed-wvm-advection": "Explicit FFTW streamed WVM advection",
@@ -5974,6 +5978,252 @@ def production_lifetime_flux_reference_synthesis(
     """
 
 
+def fused_vertical_views_reference_synthesis(
+    bundles: list[PublishedBundle], evidence: dict | None,
+) -> str:
+    if evidence is None:
+        return ""
+    if evidence.get("schema") != (
+        "spectral-kernel-fused-vertical-views-reference-publication-v1"
+    ):
+        raise ValueError("issue #21 fused-view reference has the wrong schema")
+    increment_id = "fused-vertical-family-views-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    timing_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "reference"
+    ]
+    memory_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "memory"
+    ]
+    if len(timing_bundles) != 18 or len(memory_bundles) != 6:
+        return ""
+    control_id = "streaming-tile16-materialized-family-bridge"
+    candidate_id = "streaming-tile16-fused-vertical-family-views"
+    provider_ids = {
+        control_id:
+            "pipeline-production-lifetime-streaming-pruned-tile16-authoritative",
+        candidate_id: (
+            "pipeline-production-lifetime-streaming-pruned-tile16-"
+            "fused-vertical-views-authoritative"
+        ),
+    }
+    expected_schedule = (
+        "horizontal-outer-12;vertical-outer-dynamic-16-per-operator-family"
+    )
+    profile_evidence = {
+        item["profile"]: item for item in evidence.get("profiles", [])
+    }
+    expected_profiles = {
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    }
+    if set(profile_evidence) != expected_profiles:
+        raise ValueError("issue #21 fused-view reference has wrong profiles")
+
+    def record(bundle: PublishedBundle, samples: int) -> dict:
+        publication = bundle.publication
+        candidate = publication.get("campaignCandidateId")
+        result = bundle.result
+        providers = result.get("providers", [])
+        if candidate not in provider_ids or len(providers) != 1:
+            raise ValueError("issue #21 fused-view reference has unknown candidate")
+        provider = providers[0]
+        profile = result["run"]["profile"]
+        fixture = result.get("provenance", {}).get("spectralFluxFixture", {})
+        if (
+            profile not in expected_profiles
+            or provider.get("id") != provider_ids[candidate]
+            or provider.get("schedulingId") != expected_schedule
+            or result["run"].get("samples") != samples
+            or result.get("environment", {}).get("gitCommit") !=
+                evidence["benchmarkExecutableCommit"][:12]
+            or result.get("environment", {}).get("gitDirty") is not False
+            or fixture.get("fixtureHash") != evidence["fixtures"][profile]
+            or fixture.get("waveVortexModelCommit") !=
+                evidence["waveVortexModelCommit"]
+        ):
+            raise ValueError(
+                f"issue #21 fused-view metadata disagrees for {result['run']['id']}"
+            )
+        totals = [
+            item for item in provider.get("timings", [])
+            if item.get("scope") == "uninstrumented-total"
+            and item.get("stage") == (
+                "authoritative production-lifetime streamed four-target "
+                "spectral-flux composition"
+            )
+        ]
+        error = maximum_correctness_error(provider)
+        if len(totals) != 1 or error is None or float(error) > 1.0e-12:
+            raise ValueError(
+                f"issue #21 fused-view run {result['run']['id']} is invalid"
+            )
+        return {
+            "bundle": bundle,
+            "candidate": candidate,
+            "profile": profile,
+            "round": publication.get("campaignRound"),
+            "seconds": float(totals[0]["medianSeconds"]),
+            "memory": provider["memory"],
+        }
+
+    timing_records = [record(bundle, 21) for bundle in timing_bundles]
+    memory_records = [record(bundle, 1) for bundle in memory_bundles]
+    timing_cells: dict[tuple[str, str], dict[int, dict]] = {}
+    for item in timing_records:
+        round_number = item["round"]
+        if not isinstance(round_number, int):
+            raise ValueError("issue #21 fused-view timing run lacks a round")
+        key = (item["candidate"], item["profile"])
+        if round_number in timing_cells.setdefault(key, {}):
+            raise ValueError("issue #21 fused-view reference repeats a timing cell")
+        timing_cells[key][round_number] = item
+    memory_cells: dict[tuple[str, str], dict] = {}
+    for item in memory_records:
+        key = (item["candidate"], item["profile"])
+        if key in memory_cells:
+            raise ValueError("issue #21 fused-view reference repeats a memory cell")
+        memory_cells[key] = item
+
+    labels = {
+        "wvm-current-256-nz129-f4": "256² / Nz=129 / F4",
+        "wvm-current-512-nz257-f4": "512² / Nz=257 / F4",
+        "wvm-large-1024-nz129-f4": "1024² / Nz=129 / F4",
+    }
+    summary_rows: list[str] = []
+    attribution_rows: list[str] = []
+    for profile in (
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    ):
+        expected = profile_evidence[profile]
+        control = timing_cells.get((control_id, profile), {})
+        candidate = timing_cells.get((candidate_id, profile), {})
+        if sorted(control) != [1, 2, 3] or sorted(candidate) != [1, 2, 3]:
+            raise ValueError(f"issue #21 reference is incomplete for {profile}")
+        control_median = statistics.median(
+            control[index]["seconds"] for index in (1, 2, 3)
+        )
+        candidate_median = statistics.median(
+            candidate[index]["seconds"] for index in (1, 2, 3)
+        )
+        ratios = [
+            candidate[index]["seconds"] / control[index]["seconds"]
+            for index in (1, 2, 3)
+        ]
+        if (
+            not math.isclose(
+                control_median, float(expected["controlMedianSeconds"]),
+                rel_tol=0.0, abs_tol=1e-15,
+            )
+            or not math.isclose(
+                candidate_median, float(expected["candidateMedianSeconds"]),
+                rel_tol=0.0, abs_tol=1e-15,
+            )
+            or any(
+                not math.isclose(left, float(right), rel_tol=0.0, abs_tol=1e-15)
+                for left, right in zip(ratios, expected["roundRatios"])
+            )
+        ):
+            raise ValueError(f"issue #21 timing disagrees for {profile}")
+        control_memory = memory_cells[(control_id, profile)]["memory"]
+        candidate_memory = memory_cells[(candidate_id, profile)]["memory"]
+        expected_memory = expected["memoryOnly"]
+        for actual, key in (
+            (control_memory["algorithmResidentBytes"],
+             "controlAlgorithmResidentBytes"),
+            (candidate_memory["algorithmResidentBytes"],
+             "candidateAlgorithmResidentBytes"),
+            (control_memory["scratchBytes"], "controlScratchBytes"),
+            (candidate_memory["scratchBytes"], "candidateScratchBytes"),
+            (control_memory["observedProcessHighWaterBytes"],
+             "controlObservedProcessHighWaterBytes"),
+            (candidate_memory["observedProcessHighWaterBytes"],
+             "candidateObservedProcessHighWaterBytes"),
+        ):
+            if int(actual) != int(expected_memory[key]):
+                raise ValueError(
+                    f"issue #21 memory disagrees for {profile}/{key}"
+                )
+        run_links = []
+        for label, records in (("bridge", control), ("views", candidate)):
+            links = " · ".join(
+                f'<a href="../../runs/{quote(records[index]["bundle"].publication["id"])}/index.html">R{index}</a>'
+                for index in (1, 2, 3)
+            )
+            run_links.append(f"{label}: {links}")
+        summary_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(labels[profile])}<br>'
+            f'<span class="muted">{escaped(profile)}</span></th>'
+            f'<td class="numeric">{format_ms(control_median)}</td>'
+            f'<td class="numeric">{format_ms(candidate_median)}</td>'
+            f'<td class="numeric"><strong>{statistics.median(ratios):.3f}×</strong></td>'
+            f'<td class="numeric">{float(expected["empiricalPairedRange"]["lower"]):.3f}×–'
+            f'{float(expected["empiricalPairedRange"]["upper"]):.3f}×</td>'
+            f'<td class="numeric">{format_bytes(int(control_memory["algorithmResidentBytes"]))} → '
+            f'{format_bytes(int(candidate_memory["algorithmResidentBytes"]))}</td>'
+            f'<td>{"<br>".join(run_links)}</td>'
+            "</tr>"
+        )
+        fused_diagnostic = (
+            float(expected["candidateFusedInverseViewDiagnosticSeconds"])
+            + float(expected["candidateFusedForwardViewDiagnosticSeconds"])
+        )
+        attribution_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(labels[profile])}</th>'
+            f'<td class="numeric">{format_ms(float(expected["controlMaterializedMovementSeconds"]))}</td>'
+            f'<td class="numeric">{format_ms(fused_diagnostic)}</td>'
+            f'<td class="numeric"><strong>{fused_diagnostic / float(expected["controlMaterializedMovementSeconds"]):.3f}×</strong></td>'
+            f'<td class="numeric">{format_ms(float(expected["controlRawVerticalSeconds"]))}</td>'
+            f'<td class="numeric">{format_ms(float(expected["candidateRawVerticalSeconds"]))}</td>'
+            f'<td class="numeric">{float(expected["candidateRawVerticalSeconds"]) / float(expected["controlRawVerticalSeconds"]):.3f}×</td>'
+            "</tr>"
+        )
+
+    gate = evidence["gate"]
+    required_gate_fields = (
+        "improvementPassed", "regressionPassed",
+        "empiricalIntervalExcludesTie", "correctnessPassed",
+        "referenceRoundProtocolPassed", "allocationVerificationPassed",
+        "memoryDoesNotRegress", "advanceFusedViewsToWvmIntegration",
+    )
+    if not all(gate.get(key) is True for key in required_gate_fields):
+        raise ValueError("issue #21 published fused-view reference fails its gate")
+    if gate.get("newGemmArithmeticMeasured") is not False:
+        raise ValueError("issue #21 must not attribute fused-view gains to new GEMM")
+    interval = evidence["empiricalStratifiedPairedRange"]
+    memory_ratios = evidence["memoryOnlyGeometricRatios"]
+    return f"""
+      <h2>Authoritative fused vertical-family-view reference</h2>
+      <p>This comparison starts from <strong>issue #19's streaming tile-16 winner</strong>, not from the original WVM-order control. It changes one boundary: the control materializes reusable compact split three-field and one-field bridges, while the candidate gives the pruned inverse and forward transforms direct strided views of the exact wave-f and wave-g vertical-kernel buffers. FFT arithmetic, raw vertical GEMM calls and matrices, pointwise work, topology, fixtures, placement, and lifetime remain fixed.</p>
+      <p>Direct fused family views are <strong>{float(evidence["geometricCandidateToControl"]):.3f}×</strong> the materialized issue #19 graph geometrically, with a stratified paired empirical interval of <strong>{float(interval["lower"]):.3f}×–{float(interval["upper"]):.3f}×</strong>. The worst workload is {float(evidence["maximumProfileCandidateToControl"]):.3f}× and maximum WVM-oracle error is {float(evidence["maximumCorrectnessError"]):.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Complete production-lifetime totals are medians of three isolated process medians. Each process uses three warmups and 21 samples; candidate and profile order rotate by round. Memory is collected in separate processes and never enters timing inference.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Materialized bridge</th><th scope="col">Direct views</th><th scope="col">Views/bridge</th><th scope="col">Paired range</th><th scope="col">Algorithm resident</th><th scope="col">Timing runs</th></tr></thead>
+        <tbody>{''.join(summary_rows)}</tbody>
+      </table></div>
+      <h3>Why it is faster</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Component diagnostics are medians across the three reference processes and are sampled separately from the authoritative total. The fused-view diagnostic includes the transform's necessary load/embedding and retention/write work; it is not a standalone FFT and components must not be summed to reconstruct the total.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Materialized extraction + scatter</th><th scope="col">Fused view diagnostics</th><th scope="col">Fused/materialized</th><th scope="col">Control raw vertical MM</th><th scope="col">View raw vertical MM</th><th scope="col">Vertical ratio</th></tr></thead>
+        <tbody>{''.join(attribution_rows)}</tbody>
+      </table></div>
+      <p>The raw vertical arithmetic is effectively unchanged; no new grouped-GEMM arithmetic was measured. The gain comes from eliminating serial full-volume extraction and scatter and letting the already-pruned horizontal provider address the vertical family buffers directly. This is exactly the distinction the component ledger is intended to preserve.</p>
+      <p>Memory also improves without changing the workload: geometric ratios are {float(memory_ratios["algorithmResidentBytes"]):.3f}× algorithm-resident, {float(memory_ratios["scratchBytes"]):.3f}× reusable scratch, and {float(memory_ratios["observedProcessHighWaterBytes"]):.3f}× observed process high water.</p>
+      <p class="method-note"><strong>Gate passed:</strong> all three profiles exceed the preregistered 10% complete-boundary improvement, no profile regresses, the empirical interval excludes a tie, correctness is within 10<sup>−12</sup>, warmed application allocation is zero, and memory does not regress. The direct-view graph advances to a bounded WVM integration benchmark. This result does not measure the complete nonlinear flux, a MATLAB-to-core boundary, new GEMM arithmetic, Float32, or cross-Mac portability, and it does not itself authorize a WVM source change.</p>
+    """
+
+
 def production_lifetime_flux_synthesis(
     bundles: list[PublishedBundle],
     scaleout_evidence: dict | None = None,
@@ -6329,6 +6579,7 @@ def build_experiment_page(
     issue19_scaleout_evidence: dict | None = None,
     issue19_calibration_evidence: dict | None = None,
     issue19_reference_evidence: dict | None = None,
+    issue21_fused_views_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -6364,6 +6615,10 @@ def build_experiment_page(
         synthesis = production_lifetime_flux_synthesis(
             related, issue19_scaleout_evidence, issue19_calibration_evidence,
             issue19_reference_evidence,
+        )
+    elif experiment_id == "issue-021-fused-small-grouped-gemm":
+        synthesis = fused_vertical_views_reference_synthesis(
+            related, issue21_fused_views_evidence,
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -6779,6 +7034,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue19_scaleout_evidence = None
     issue19_calibration_evidence = None
     issue19_reference_evidence = None
+    issue21_fused_views_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -6834,6 +7090,19 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #19 authoritative reference has the wrong schema"
                 )
+        fused_views_path = (
+            decision_artifacts / "issue-021-fused-vertical-views-lyra-v1.json"
+        )
+        if fused_views_path.is_file():
+            issue21_fused_views_evidence = json.loads(
+                fused_views_path.read_text(encoding="utf-8")
+            )
+            if issue21_fused_views_evidence.get("schema") != (
+                "spectral-kernel-fused-vertical-views-reference-publication-v1"
+            ):
+                raise ValueError(
+                    "issue #21 fused-view reference has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
 
@@ -6861,6 +7130,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 experiment, bundles, issue19_scaleout_evidence,
                 issue19_calibration_evidence,
                 issue19_reference_evidence,
+                issue21_fused_views_evidence,
             ),
         )
     write_page(
