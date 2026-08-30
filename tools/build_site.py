@@ -6582,6 +6582,7 @@ def build_experiment_page(
     issue19_calibration_evidence: dict | None = None,
     issue19_reference_evidence: dict | None = None,
     issue21_fused_views_evidence: dict | None = None,
+    issue22_pointwise_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -6599,6 +6600,15 @@ def build_experiment_page(
         if reference_count
         else "No reference run has been published. Planned, preliminary, negative, and capability evidence remains visible below."
     )
+    if (
+        experiment_id == "issue-022-pointwise-advection-optimization"
+        and issue22_pointwise_evidence is not None
+    ):
+        evidence_statement = (
+            "One compact reference-campaign summary currently contributes to the "
+            "M4 decision. Permanent raw run pages remain a separate append-only "
+            "publication increment."
+        )
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-003-fftw-production-baseline":
         synthesis = fftw_production_closeout_synthesis(related)
@@ -6621,6 +6631,10 @@ def build_experiment_page(
     elif experiment_id == "issue-021-fused-small-grouped-gemm":
         synthesis = fused_vertical_views_reference_synthesis(
             related, issue21_fused_views_evidence,
+        )
+    elif experiment_id == "issue-022-pointwise-advection-optimization":
+        synthesis = pointwise_advection_reference_synthesis(
+            issue22_pointwise_evidence, "../../",
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -6896,19 +6910,115 @@ def cross_mac_decision_section(
     """
 
 
+def pointwise_advection_reference_synthesis(
+    evidence: dict | None, root_prefix: str,
+) -> str:
+    if evidence is None:
+        return ""
+    if evidence.get("schema") != (
+        "spectral-kernel-pointwise-advection-reference-publication-v1"
+    ):
+        raise ValueError("issue #22 pointwise reference has the wrong schema")
+    if not evidence["gate"]["freezeSelectedM4PointwisePolicy"]:
+        raise ValueError("issue #22 pointwise reference did not freeze a policy")
+
+    selected = evidence["selectedCandidate"]
+    profiles = evidence["profiles"]
+    expected_profiles = [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    ]
+    if [profile["profile"] for profile in profiles] != expected_profiles:
+        raise ValueError("issue #22 pointwise reference profile matrix is incomplete")
+
+    def workload_label(profile: dict) -> str:
+        return (
+            f'{int(profile["Nx"])}²/N<sub>z</sub>={int(profile["Nz"])}'
+            f'/F{int(profile["fields"])}'
+        )
+
+    def component_cell(profile: dict, key: str) -> str:
+        seconds = float(profile["componentGroupsSeconds"][key])
+        total = float(profile["selectedTotalSeconds"])
+        return f'{format_ms(seconds)} ms <span class="muted">({100.0 * seconds / total:.1f}%)</span>'
+
+    overview_rows = []
+    for profile in profiles:
+        overview_rows.append(
+            "<tr>"
+            f'<th scope="row">{workload_label(profile)}</th>'
+            f'<td class="numeric">{format_ms(profile["selectedTotalSeconds"])} ms</td>'
+            f'<td class="numeric">{component_cell(profile, "horizontalFftWork")}</td>'
+            f'<td class="numeric">{component_cell(profile, "verticalMm")}</td>'
+            f'<td class="numeric">{component_cell(profile, "pointwise")}</td>'
+            "</tr>"
+        )
+
+    stage_definitions = [
+        ("Shared U/V/W inverse horizontal FFT", "sharedInverseHorizontal"),
+        ("Derivative inverse horizontal FFTs", "derivativeInverseHorizontal"),
+        ("Forward horizontal FFTs and retention", "forwardHorizontalRetention"),
+        ("Inverse vertical MM", "inverseVerticalMm"),
+        ("Forward vertical MM", "forwardVerticalMm"),
+        ("Pointwise advection", "pointwiseAdvection"),
+    ]
+    stage_rows = []
+    for label, key in stage_definitions:
+        cells = []
+        for profile in profiles:
+            seconds = float(profile["componentMediansSeconds"][key])
+            total = float(profile["selectedTotalSeconds"])
+            cells.append(f'<td class="numeric">{100.0 * seconds / total:.1f}%</td>')
+        stage_rows.append(
+            f'<tr><th scope="row">{escaped(label)}</th>{"".join(cells)}</tr>'
+        )
+
+    setup_text = ", ".join(
+        f'{workload_label(profile)}: {float(profile["setupSeconds"]):.2f} s'
+        for profile in profiles
+    )
+    interval = selected["empiricalStratifiedPairedRange"]
+    artifact_url = (
+        f"{root_prefix}artifacts/decisions/"
+        "issue-022-pointwise-advection-reference-lyra-v1.json"
+    )
+    return f"""
+    <section class="section" aria-labelledby="pointwise-profile-heading">
+      <p class="eyebrow">Issue #22 M4 reference profile</p><h2 id="pointwise-profile-heading">Where the selected pipeline spends its time</h2>
+      <p>The frozen <code>{escaped(selected["id"])}</code> policy reduces the isolated four-target pointwise calculation to <strong>{float(selected["geometricPointwiseToSerial"]):.3f}× serial</strong>. The complete production-lifetime spectral boundary falls to <strong>{float(selected["geometricTotalToSerial"]):.3f}× serial</strong>, with a stratified paired range of {float(interval["lower"]):.3f}×–{float(interval["upper"]):.3f}×. Twelve workers was only about 0.02% faster geometrically; the preregistered one-percent near-fastest rule therefore freezes the smaller uniform eight-worker policy.</p>
+      <div class="table-scroll"><table>
+        <caption>Three-round M4 Max component medians for the selected policy. Total is the independently sampled steady-state boundary. Horizontal combines shared inverse reconstruction, derivative inverse reconstruction, and forward transform plus retention; vertical combines inverse and forward matrix multiplication.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Total</th><th scope="col">Horizontal FFT work</th><th scope="col">Vertical MM</th><th scope="col">Pointwise</th></tr></thead>
+        <tbody>{''.join(overview_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table>
+        <caption>Each stage median as a percentage of the independently measured total. Component medians are diagnostic and are not required to sum to 100% because cache state and instrumentation differ from the uninstrumented total.</caption>
+        <thead><tr><th scope="col">Stage</th>{''.join(f'<th scope="col">{workload_label(profile)}</th>' for profile in profiles)}</tr></thead>
+        <tbody>{''.join(stage_rows)}</tbody>
+      </table></div>
+      <p>Horizontal transforms now account for roughly 51%–64% of the measured boundary, led by derivative reconstruction. Vertical projection contributes roughly 22%–39% and grows with vertical resolution. Pointwise advection has fallen from about one quarter of the serial boundary to roughly 9%–11%, so it is no longer the primary bottleneck.</p>
+      <p class="method-note">One-time fixture and operator preparation is outside the steady-state total ({setup_text}). The residual geometric pointwise share is {100.0 * float(selected["geometricResidualPointwiseFraction"]):.2f}%, just below the preregistered 10% fusion-continuation threshold, so bounded pointwise-to-FFT fusion is deferred. The complete nonlinear flux, MATLAB or MEX boundary, timestep, state, and I/O remain excluded.</p>
+      <p><a href="{artifact_url}">Download the issue #22 reference summary JSON</a>.</p>
+    </section>
+    """
+
+
 def build_summary_page(
     bundles: list[PublishedBundle],
     cross_mac_synthesis: dict | None,
     issue19_reference: dict | None,
     issue21_reference: dict | None,
+    issue22_reference: dict | None,
 ) -> str:
     if (
         cross_mac_synthesis is None
         or issue19_reference is None
         or issue21_reference is None
+        or issue22_reference is None
     ):
         raise ValueError(
-            "algorithm summary requires the cross-Mac, issue #19, and issue #21 references"
+            "algorithm summary requires the cross-Mac and issue #19/#21/#22 references"
         )
     machines = {
         item["machine"]["cpuBrand"]: item
@@ -6923,6 +7033,7 @@ def build_summary_page(
         and m1["decisionGate"]["portabilityCandidatePassedOnThisMachine"]
         and issue19_reference["gate"]["advanceToWvmIntegrationExperiment"]
         and issue21_reference["gate"]["advanceFusedViewsToWvmIntegration"]
+        and issue22_reference["gate"]["freezeSelectedM4PointwisePolicy"]
     ):
         raise ValueError("algorithm summary cannot describe an unpassed reference gate")
     if issue21_reference["gate"]["newGemmArithmeticMeasured"] is not False:
@@ -6955,6 +7066,7 @@ def build_summary_page(
           <tr><th scope="row">Persistent representation</th><td>Compact radial split complex keyed by logical <em>(k,l,j,field)</em></td><td>Layout is an algorithm choice, not a mathematical gather requirement. It reduces storage and lets downstream kernels remain in split form.</td></tr>
           <tr><th scope="row">Vertical projection</th><td>Two Accelerate real dgemm calls over exact WVM wave-f/wave-g K² matrix families; persistent outer-dynamic scheduling across total cores</td><td>Retains the strongest qualified split-real vertical arithmetic while exposing primitive GEMM separately.</td></tr>
           <tr><th scope="row">Representation boundary</th><td>Direct strided wave-f/wave-g family views</td><td>Eliminates full-volume compact extraction and target scatter; no new grouped-GEMM arithmetic is required for the measured gain.</td></tr>
+          <tr><th scope="row">Physical-space pointwise work</th><td>Persistent spatial-static scheduling with eight workers</td><td>Reduces the four-target advection expression to {float(issue22_reference["selectedCandidate"]["geometricPointwiseToSerial"]):.3f}× serial while retaining one policy at every tested size and negligible scheduler storage.</td></tr>
           <tr><th scope="row">Complete graph policy</th><td>Four-field production-lifetime streaming, allocation-free warmed execution, one policy at every size</td><td>Matches the nonhydrostatic field count and avoids size-dependent dispatch or benchmark-only physical-volume lifetimes.</td></tr>
         </tbody>
       </table></div>
@@ -6972,10 +7084,12 @@ def build_summary_page(
           <tr><th scope="row"><a href="../decisions/v1/index.html">Cross-Mac portability</a></th><td>Pre-direct-view streaming tile 16 versus WVM direct on independently calibrated M4 Max and M1 Max systems</td><td>M4 Max: <strong>{float(m4["geometricCandidateToBaseline"]):.3f}×</strong> time and {float(m4["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory. M1 Max: <strong>{float(m1["geometricCandidateToBaseline"]):.3f}×</strong> time and {float(m1["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory.</td><td>The streaming representation and topology policy transfer to the two named machines; this is not yet a general-Mac default.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-019-production-lifetime-spectral-flux-composition/index.html">Production-lifetime spectral boundary</a></th><td>Streaming tile 16 versus a matched WVM-order graph using the same four-target physical-buffer lifetime</td><td><strong>{float(issue19_reference["geometricCandidateToBaseline"]):.3f}×</strong> time ({float(issue19_interval["lower"]):.3f}×–{float(issue19_interval["upper"]):.3f}×) and {float(issue19_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory.</td><td>The streaming advantage survives production transform multiplicity and lifetime; the complete nonlinear flux remains excluded.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-021-fused-small-grouped-gemm/index.html">Direct vertical-family views</a></th><td>Direct strided family views versus the issue #19 streaming graph with materialized compact extraction/scatter</td><td><strong>{float(issue21_reference["geometricCandidateToControl"]):.3f}×</strong> time ({float(issue21_interval["lower"]):.3f}×–{float(issue21_interval["upper"]):.3f}×), {float(issue21_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory, and {float(issue21_reference["memoryOnlyGeometricRatios"]["scratchBytes"]):.3f}× scratch.</td><td>The remaining actionable bottleneck was serial data movement, not raw vertical GEMM. Carry direct family views into the functional core.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-022-pointwise-advection-optimization/index.html">Pointwise advection</a></th><td>Spatial-static-8 versus the issue #21 serial pointwise control inside the matched complete boundary</td><td><strong>{float(issue22_reference["selectedCandidate"]["geometricPointwiseToSerial"]):.3f}×</strong> isolated pointwise time and <strong>{float(issue22_reference["selectedCandidate"]["geometricTotalToSerial"]):.3f}×</strong> complete time.</td><td>Freeze one eight-worker M4 policy. Pointwise is now about 9%–11% of total; defer pointwise-to-FFT fusion and move the frozen tuple into the portable campaign.</td></tr>
         </tbody>
       </table></div>
       <p class="method-note">The M1 Max campaign predates the direct-family-view increment. Cross-Mac portability therefore applies to the underlying streaming tile-16 graph; the latest direct-view improvement is currently an M4 Max result and must be replicated after integration.</p>
     </section>
+    {pointwise_advection_reference_synthesis(issue22_reference, "../")}
     <section class="section" aria-labelledby="alternatives-heading">
       <p class="eyebrow">Qualified alternatives and negative evidence</p><h2 id="alternatives-heading">What we are not carrying forward</h2>
       <ul>
@@ -7146,6 +7260,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue19_calibration_evidence = None
     issue19_reference_evidence = None
     issue21_fused_views_evidence = None
+    issue22_pointwise_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -7214,13 +7329,26 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #21 fused-view reference has the wrong schema"
                 )
+        pointwise_path = (
+            decision_artifacts / "issue-022-pointwise-advection-reference-lyra-v1.json"
+        )
+        if pointwise_path.is_file():
+            issue22_pointwise_evidence = json.loads(
+                pointwise_path.read_text(encoding="utf-8")
+            )
+            if issue22_pointwise_evidence.get("schema") != (
+                "spectral-kernel-pointwise-advection-reference-publication-v1"
+            ):
+                raise ValueError(
+                    "issue #22 pointwise reference has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
     write_page(
         output_dir / "summary" / "index.html",
         build_summary_page(
             bundles, cross_mac_synthesis, issue19_reference_evidence,
-            issue21_fused_views_evidence,
+            issue21_fused_views_evidence, issue22_pointwise_evidence,
         ),
     )
 
@@ -7249,6 +7377,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 issue19_calibration_evidence,
                 issue19_reference_evidence,
                 issue21_fused_views_evidence,
+                issue22_pointwise_evidence,
             ),
         )
     write_page(

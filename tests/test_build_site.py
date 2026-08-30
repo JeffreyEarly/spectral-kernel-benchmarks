@@ -62,6 +62,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_18_page = output / "experiments" / "issue-018-vertically-batched-advection-pipeline" / "index.html"
             issue_19_page = output / "experiments" / "issue-019-production-lifetime-spectral-flux-composition" / "index.html"
             issue_21_page = output / "experiments" / "issue-021-fused-small-grouped-gemm" / "index.html"
+            issue_22_page = output / "experiments" / "issue-022-pointwise-advection-optimization" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
@@ -83,6 +84,10 @@ class BuildSiteTests(unittest.TestCase):
             issue_21_reference_artifact = (
                 output / "artifacts" / "decisions" /
                 "issue-021-fused-vertical-views-lyra-v1.json"
+            )
+            issue_22_reference_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-022-pointwise-advection-reference-lyra-v1.json"
             )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
@@ -109,6 +114,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_18_page.is_file())
             self.assertTrue(issue_19_page.is_file())
             self.assertTrue(issue_21_page.is_file())
+            self.assertTrue(issue_22_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
@@ -117,6 +123,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_19_calibration_artifact.is_file())
             self.assertTrue(issue_19_reference_artifact.is_file())
             self.assertTrue(issue_21_reference_artifact.is_file())
+            self.assertTrue(issue_22_reference_artifact.is_file())
             summary_html = summary_page.read_text(encoding="utf-8")
             self.assertIn("From FFT primitives to a functional-core candidate", summary_html)
             self.assertIn("Ready to implement does not mean ready to adopt", summary_html)
@@ -137,6 +144,24 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("What “functional-core candidate” means", summary_html)
             self.assertIn("Opt-in WVM core", summary_html)
             self.assertIn("No full nonlinear-flux", summary_html)
+            self.assertIn("Where the selected pipeline spends its time", summary_html)
+            self.assertIn("spatial-static-8", summary_html)
+            self.assertIn("0.332× serial", summary_html)
+            self.assertIn("0.837× serial", summary_html)
+            self.assertIn("Horizontal FFT work", summary_html)
+            self.assertIn("Vertical MM", summary_html)
+            self.assertIn("Derivative inverse horizontal FFTs", summary_html)
+            self.assertIn("55.5%", summary_html)
+            self.assertIn("50.9%", summary_html)
+            self.assertIn("64.5%", summary_html)
+            issue_22_html = issue_22_page.read_text(encoding="utf-8")
+            self.assertIn("Experiment · issue #22 · collecting", issue_22_html)
+            self.assertIn("One compact reference-campaign summary", issue_22_html)
+            self.assertIn("Where the selected pipeline spends its time", issue_22_html)
+            self.assertIn("58.969 ms", issue_22_html)
+            self.assertIn("568.9 ms", issue_22_html)
+            self.assertIn("1086.8 ms", issue_22_html)
+            self.assertIn("bounded pointwise-to-FFT fusion is deferred", issue_22_html)
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)

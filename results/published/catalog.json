@@ -30782,6 +30782,46 @@
         "fixture provenance and correctness",
         "setup, scheduling, placement, and allocation verification"
       ]
+    },
+    {
+      "id": "issue-022-pointwise-advection-optimization",
+      "issue": 22,
+      "phase": "collecting",
+      "title": "Optimize and fuse the four-field pointwise advection stage",
+      "question": "Can the four-field physical-space advection stage be parallelized, vectorized, or fused with the retained horizontal transform so that the authoritative production-lifetime spectral boundary improves materially without sacrificing the streaming graph's memory advantage?",
+      "baseline": "Use the issue #21 direct-family-view streaming graph with its serial pointwise loop. Hold the FFTW, compact split representation, vertical matrices, scheduling, fixtures, normalization, lifetime, oracle, and allocation contract fixed.",
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "downstreamIssues": [
+        23
+      ],
+      "definition": {
+        "unitOfWork": "For each of four targets, consume ready physical-space U, V, W and three target derivatives, evaluate -(U*qx+V*qy+W*qz), and immediately supply the identical real target field to the existing retained horizontal transform within the production-lifetime 15-input-to-4-output spectral boundary.",
+        "candidates": "The serial control and persistent spatial-static scheduling with 4, 8, 12, or 16 workers. Additional pointwise-to-FFT fusion proceeds only if the frozen policy leaves at least ten percent of the complete total in pointwise work.",
+        "workloads": "Authoritative Float64 four-field WVM fixtures at 256 squared/Nz=129, 512 squared/Nz=257, and 1024 squared/Nz=129, plus the explicit 512 squared/Nz=513 capacity result.",
+        "controlledVariables": "Authoritative fixtures and oracle, FFTW provider and planning, partial-column pruning, tile width 16, direct split F/G family views, exact WVM vertical matrices, outer-dynamic-16 vertical scheduling, normalization, target ordering, physical-buffer lifetime, and zero warmed allocations.",
+        "changedVariables": "Only the pointwise loop policy and its persistent spatial worker count.",
+        "timedBoundary": "Publish the isolated four-target pointwise boundary and the independently sampled uninstrumented production-lifetime spectral boundary. Keep component medians diagnostic and the complete total authoritative.",
+        "excludedWork": "Fixture generation, FFTW planning, immutable matrix preparation, worker-pool construction, correctness-only storage, the remaining nonlinear-flux terms, MATLAB or MEX dispatch, phase evolution, time integration, state, and I/O.",
+        "allocationPolicy": "Retain the seven-volume streamed lifetime and require zero warmed application allocations. Measure algorithm-resident, scratch, estimated-peak, observed high-water, and capacity effects separately."
+      },
+      "correctness": {
+        "oracle": "Use the exact issue #19 and #21 mode-keyed WVM oracle and compare the physical pointwise fields before any transform. Exercise arbitrary inputs, zeros, mixed signs, tails, alignment variation, and supported worker counts.",
+        "tolerance": "Float64 maximum scale-normalized and relative-L2 errors at most 1e-12.",
+        "capabilityHandling": "Allocation, correctness, memory, capacity, and unsupported results remain visible. No size-dependent dispatch or silent workload substitution is permitted.",
+        "canSupport": "Selection of one M4 pointwise policy for issue #23's portable tuner and a bounded decision about whether pointwise-to-FFT fusion remains justified.",
+        "cannotSupport": "A claim about WVM's complete nonlinear flux, MATLAB or MEX overhead, a full timestep, Float32, or a general-Mac policy."
+      },
+      "requiredTables": [
+        "serial and selected pointwise timing and effective bandwidth",
+        "complete-boundary totals and paired inference",
+        "horizontal FFT, vertical MM, and pointwise component attribution",
+        "worker topology and scheduling policy",
+        "algorithm-resident, scratch, peak, and capacity memory",
+        "correctness, allocation, and vectorization evidence"
+      ]
     }
   ]
 }

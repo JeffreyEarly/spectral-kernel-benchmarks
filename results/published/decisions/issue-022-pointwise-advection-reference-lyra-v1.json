@@ -1,0 +1,209 @@
+{
+  "schema": "spectral-kernel-pointwise-advection-reference-publication-v1",
+  "incrementId": "pointwise-advection-m4-worker-reference-v1",
+  "experimentId": "issue-022-pointwise-advection-optimization",
+  "classification": "reference",
+  "createdAtUtc": "2026-08-30T15:09:06.489016Z",
+  "benchmarkExecutableCommit": "106c89d27256edf9d09925723159a450d40070b2",
+  "runnerSourceTreeGitCommit": "bfcbbb9483c6d7d2584854bed236c00e644c9627",
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "machine": {
+    "hostname": "lyra.ad.nwra.com",
+    "cpuBrand": "Apple M4 Max",
+    "hardwareModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "totalPhysicalCores": 16,
+    "physicalMemoryBytes": 137438953472,
+    "macOS": "26.6.1",
+    "macOSBuild": "25G76",
+    "compiler": "Apple clang 21.0.0",
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "protocol": {
+    "timingRounds": 3,
+    "warmupsPerProcess": 3,
+    "samplesPerProcess": 21,
+    "timingCells": 45,
+    "isolatedMemoryCells": 15,
+    "candidates": [
+      "serial-1",
+      "spatial-static-4",
+      "spatial-static-8",
+      "spatial-static-12",
+      "spatial-static-16"
+    ],
+    "fixedGraph": "streaming-pruned-compact-split-fused-vertical-views",
+    "horizontalScheduling": "outer-12",
+    "verticalScheduling": "outer-dynamic-16",
+    "streamingTileWidth": 16,
+    "fftwInternalWorkers": 1,
+    "allocationPolicy": "zero warmed application allocations",
+    "ordering": "balanced profile and candidate rotation across isolated processes"
+  },
+  "selectionRule": {
+    "geometricTotalRatioAtMost": 0.95,
+    "maximumProfileTotalRatioAtMost": 1.03,
+    "empiricalIntervalExcludesTie": true,
+    "nearFastestFactor": 1.01,
+    "tieBreak": "smallest worker count",
+    "sizeDependentDispatchAllowed": false
+  },
+  "selectedCandidate": {
+    "id": "spatial-static-8",
+    "policy": "spatial-static",
+    "workers": 8,
+    "geometricPointwiseToSerial": 0.33211601973866367,
+    "geometricTotalToSerial": 0.8371064516361801,
+    "maximumProfileTotalToSerial": 0.8602902808994346,
+    "empiricalStratifiedPairedRange": {
+      "lower": 0.8205359866351365,
+      "upper": 0.8600270978116665
+    },
+    "geometricResidualPointwiseFraction": 0.09835436092085337,
+    "maximumProfileAlgorithmResidentToSerial": 1.0000000238855276
+  },
+  "fastestEligibleCandidate": {
+    "id": "spatial-static-12",
+    "workers": 12,
+    "geometricTotalToSerial": 0.8369299937690557,
+    "geometricPointwiseToSerial": 0.3275408520452707
+  },
+  "nearFastestCandidates": [
+    "spatial-static-8",
+    "spatial-static-12",
+    "spatial-static-16"
+  ],
+  "fusionContinuation": {
+    "residualPointwiseFractionThreshold": 0.1,
+    "selectedResidualPointwiseFraction": 0.09835436092085337,
+    "activateBoundedPointwiseFftFusion": false
+  },
+  "gate": {
+    "completeMatchedMatrix": true,
+    "correctnessPassed": true,
+    "allocationVerificationPassed": true,
+    "memoryDoesNotMateriallyRegress": true,
+    "capacityEvidenceComplete": true,
+    "uniformPolicyAcrossSizes": true,
+    "freezeSelectedM4PointwisePolicy": true
+  },
+  "correctness": {
+    "tolerance": 1e-12,
+    "maximumError": 1.4001103783646581e-15
+  },
+  "profiles": [
+    {
+      "profile": "wvm-current-256-nz129-f4",
+      "Nx": 256,
+      "Ny": 256,
+      "Nz": 129,
+      "fields": 4,
+      "setupSeconds": 0.284381584,
+      "serialTotalSeconds": 0.067453542,
+      "selectedTotalSeconds": 0.058968834,
+      "selectedTotalToSerial": 0.8602902808994346,
+      "serialPointwiseSeconds": 0.018985916,
+      "selectedPointwiseSeconds": 0.006538083,
+      "selectedPointwiseToSerial": 0.3447044299965782,
+      "effectivePointwiseGigabytesPerSecond": 289.6457961760351,
+      "componentMediansSeconds": {
+        "inverseVerticalMm": 0.010811375,
+        "sharedInverseHorizontal": 0.0053565,
+        "derivativeInverseHorizontal": 0.02104625,
+        "pointwiseAdvection": 0.006538083,
+        "forwardHorizontalRetention": 0.006312334,
+        "forwardVerticalMm": 0.004461209
+      },
+      "componentGroupsSeconds": {
+        "horizontalFftWork": 0.032715084,
+        "verticalMm": 0.015272584,
+        "pointwise": 0.006538083
+      },
+      "memoryOnly": {
+        "algorithmResidentBytes": 2344515992,
+        "observedProcessHighWaterBytes": 3811115008
+      }
+    },
+    {
+      "profile": "wvm-current-512-nz257-f4",
+      "Nx": 512,
+      "Ny": 512,
+      "Nz": 257,
+      "fields": 4,
+      "setupSeconds": 3.567825834,
+      "serialTotalSeconds": 0.680605458,
+      "selectedTotalSeconds": 0.568852833,
+      "selectedTotalToSerial": 0.8358041010596773,
+      "serialPointwiseSeconds": 0.165008834,
+      "selectedPointwiseSeconds": 0.051495417,
+      "selectedPointwiseToSerial": 0.31207672796475855,
+      "effectivePointwiseGigabytesPerSecond": 293.05725967807973,
+      "componentMediansSeconds": {
+        "inverseVerticalMm": 0.153752791,
+        "sharedInverseHorizontal": 0.046998875,
+        "derivativeInverseHorizontal": 0.190837542,
+        "pointwiseAdvection": 0.051495417,
+        "forwardHorizontalRetention": 0.051600042,
+        "forwardVerticalMm": 0.06771675
+      },
+      "componentGroupsSeconds": {
+        "horizontalFftWork": 0.289436459,
+        "verticalMm": 0.221469541,
+        "pointwise": 0.051495417
+      },
+      "memoryOnly": {
+        "algorithmResidentBytes": 27004207416,
+        "observedProcessHighWaterBytes": 44606930944
+      }
+    },
+    {
+      "profile": "wvm-large-1024-nz129-f4",
+      "Nx": 1024,
+      "Ny": 1024,
+      "Nz": 129,
+      "fields": 4,
+      "setupSeconds": 4.152765667,
+      "serialTotalSeconds": 1.324261958,
+      "selectedTotalSeconds": 1.086828,
+      "selectedTotalToSerial": 0.8158166281582773,
+      "serialPointwiseSeconds": 0.303197792,
+      "selectedPointwiseSeconds": 0.103249334,
+      "selectedPointwiseToSerial": 0.3405345841040953,
+      "effectivePointwiseGigabytesPerSecond": 293.4609931333795,
+      "componentMediansSeconds": {
+        "inverseVerticalMm": 0.170874833,
+        "sharedInverseHorizontal": 0.113353833,
+        "derivativeInverseHorizontal": 0.454966541,
+        "pointwiseAdvection": 0.103249334,
+        "forwardHorizontalRetention": 0.132227875,
+        "forwardVerticalMm": 0.069832417
+      },
+      "componentGroupsSeconds": {
+        "horizontalFftWork": 0.700548249,
+        "verticalMm": 0.24070725,
+        "pointwise": 0.103249334
+      },
+      "memoryOnly": {
+        "algorithmResidentBytes": 37805449848,
+        "observedProcessHighWaterBytes": 66133245952
+      }
+    }
+  ],
+  "capacityExclusion": {
+    "profile": "wvm-large-512-nz513-f4",
+    "status": "capacity-exclusion",
+    "requiredPhysicalMemoryBytes": 140096220924,
+    "physicalMemoryBytes": 137438953472,
+    "directFamilyViewSteadyStateSavingsBytes": 1502556480,
+    "reason": "The conservative vertical-operator construction peak dominates this workload. Direct family views reduce steady-state storage but do not reduce that setup peak."
+  },
+  "interpretation": {
+    "result": "Freeze spatial-static-8 as the single M4 pointwise policy. Twelve workers is only about 0.02 percent faster geometrically, so the predeclared one-percent near-fastest rule selects the smaller worker count.",
+    "bottleneck": "After pointwise parallelization, horizontal reconstruction and retention dominate the tested steady-state pipeline; vertical matrix multiplication remains material and grows with vertical resolution.",
+    "fusion": "Defer bounded pointwise-to-FFT fusion because the selected geometric residual pointwise fraction is below the predeclared ten-percent continuation threshold.",
+    "scope": "This is the production-shaped four-target spectral boundary, not WVM's complete nonlinear flux, MATLAB or MEX adapter, timestep, state management, or I/O."
+  }
+}
