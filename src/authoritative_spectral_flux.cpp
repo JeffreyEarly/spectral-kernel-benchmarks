@@ -319,6 +319,8 @@ ProviderRecord runStreaming(
         throw std::invalid_argument(
             "The frozen authoritative streaming graph requires tile width 16.");
     }
+    const auto inversePreparationPolicy =
+        streamingInversePreparationPolicyNamed(options.streamingInversePolicy);
 
     std::array<std::vector<Complex>, 2> inputModal;
     for (std::size_t family = 0; family < 2; ++family) {
@@ -348,11 +350,12 @@ ProviderRecord runStreaming(
     FFTWStreamingPrunedSplitProvider inverse(
         context.tripleWorkload, context.modes,
         fftwPlanningModeNamed(options.fftwPlanning), fftwInternalWorkers,
-        options.fftwOuterWorkers, tileWidth);
+        options.fftwOuterWorkers, tileWidth, inversePreparationPolicy);
     FFTWStreamingPrunedSplitProvider forward(
         context.targetWorkload, context.modes,
         fftwPlanningModeNamed(options.fftwPlanning), fftwInternalWorkers,
-        options.fftwOuterWorkers, tileWidth);
+        options.fftwOuterWorkers, tileWidth,
+        StreamingInversePreparationPolicy::fullZero);
     PointwiseAdvectionExecutor pointwiseExecutor(
         pointwisePolicy, pointwiseWorkers, context.realVolumeElements,
         context.pointwiseScale);
@@ -520,6 +523,26 @@ ProviderRecord runStreaming(
                 views.data(), views.size());
         }
     };
+    auto executeInverseTileLoad = [&] {
+        auto views = inverseFieldViews(0);
+        inverse.loadInverseSplitFieldsDiagnostic(
+            views.data(), views.size());
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            views = inverseFieldViews(3 + 3 * targetIndex);
+            inverse.loadInverseSplitFieldsDiagnostic(
+                views.data(), views.size());
+        }
+    };
+    auto executeInverseClear = [&] {
+        for (std::size_t iteration = 0; iteration < 5; ++iteration) {
+            inverse.clearInverseInputDiagnostic();
+        }
+    };
+    auto executeInverseScatter = [&] {
+        for (std::size_t iteration = 0; iteration < 5; ++iteration) {
+            inverse.scatterInverseInputDiagnostic();
+        }
+    };
     auto executeFusedForwardViewAdapter = [&] {
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
             auto view = forwardFieldView(targetIndex);
@@ -570,6 +593,13 @@ ProviderRecord runStreaming(
     record.algorithmId = fusedFamilyViews
         ? "partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3"
         : "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2";
+    if (inversePreparationPolicy !=
+        StreamingInversePreparationPolicy::fullZero) {
+        const auto policyName = std::string(
+            streamingInversePreparationPolicyName(inversePreparationPolicy));
+        record.id += "-inverse-" + policyName;
+        record.algorithmId += "+inverse-" + policyName + "-v1";
+    }
     if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
         record.id += "-pointwise-" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
@@ -611,6 +641,8 @@ ProviderRecord runStreaming(
         std::string(fusedFamilyViews
             ? "direct strided family views fuse horizontal/vertical representation movement"
             : "materialized canonical triples bridge horizontal/vertical representations");
+    record.planningConfiguration += "; inverse-preparation=" + std::string(
+        streamingInversePreparationPolicyName(inversePreparationPolicy));
     if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
         record.planningConfiguration += "; pointwise=" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
@@ -717,13 +749,53 @@ ProviderRecord runStreaming(
     }
 
     if (fusedFamilyViews) {
+        const auto inversePreparationExecutions = std::uint64_t{5};
+        const auto tileLoadBytes = inversePreparationExecutions *
+            inverse.inverseTileLoadBytesPerExecution();
+        const auto clearBytes = inversePreparationExecutions *
+            inverse.inverseClearBytesPerExecution();
+        const auto scatterBytes = inversePreparationExecutions *
+            inverse.inverseScatterBytesPerExecution();
         record.timings.push_back(timing(
             "adapter-diagnostic",
             "fused inverse family-view load and embedding",
             "inverse", StageState::executed,
-            byteCount(context.modeCount * context.outputWorkload.nz * 15,
-                      sizeof(Complex)),
+            tileLoadBytes + clearBytes + scatterBytes,
             sample(warmups, samples, executeFusedInverseViewAdapter)));
+        record.timings.push_back(timing(
+            "adapter-diagnostic",
+            "inverse compact tile load from split family views",
+            "inverse", StageState::executed, tileLoadBytes,
+            sample(warmups, samples, executeInverseTileLoad)));
+        record.timings.push_back(timing(
+            "adapter-diagnostic",
+            inversePreparationPolicy ==
+                    StreamingInversePreparationPolicy::fullZero
+                ? "inverse full half-spectrum zero fill"
+                : inversePreparationPolicy ==
+                        StreamingInversePreparationPolicy::activeReset
+                    ? "inverse active-column reset"
+                    : "inverse repeated clear elided by preserved input",
+            "inverse",
+            inversePreparationPolicy ==
+                    StreamingInversePreparationPolicy::compactPreserved ||
+                inversePreparationPolicy ==
+                    StreamingInversePreparationPolicy::fullPreserved
+                ? StageState::elided
+                : StageState::executed,
+            clearBytes,
+            inversePreparationPolicy ==
+                    StreamingInversePreparationPolicy::compactPreserved ||
+                inversePreparationPolicy ==
+                    StreamingInversePreparationPolicy::fullPreserved
+                ? std::vector<double>{}
+                : sample(warmups, samples, executeInverseClear)));
+        executeInverseTileLoad();
+        record.timings.push_back(timing(
+            "adapter-diagnostic",
+            "inverse retained and Hermitian-boundary scatter from compact tile",
+            "inverse", StageState::executed, scatterBytes,
+            sample(warmups, samples, executeInverseScatter)));
         record.timings.push_back(timing(
             "adapter-diagnostic",
             "fused forward retention and family-view write",
@@ -798,6 +870,24 @@ ProviderRecord runStreaming(
          fusedFamilyViews
              ? "pruned inverse reads split F/G physical outputs directly and pruned forward writes split F/G physical inputs directly"
              : "materialized canonical split triples and target spectra bridge the FFT and vertical providers"},
+        {"inverse retained-spectrum preparation", StageState::executed,
+         inversePreparationPolicy ==
+                 StreamingInversePreparationPolicy::fullZero
+             ? "tile-16 split family-view load, full half-spectrum zero fill, and retained/Hermitian scatter"
+             : inversePreparationPolicy ==
+                       StreamingInversePreparationPolicy::activeReset
+                   ? "tile-16 split family-view load, FFTW-preserved row input, active-column reset, and retained/Hermitian scatter"
+                   : inversePreparationPolicy ==
+                             StreamingInversePreparationPolicy::compactPreserved
+                         ? "tile-16 split family-view load and retained/Hermitian scatter into a preserved compact column-input buffer; repeated zero fill is elided"
+                         : "tile-16 split family-view load and retained/Hermitian scatter into a preserved full-stride column-input buffer; repeated zero fill is elided"},
+        {"FFTW inverse input preservation",
+         inverse.rowInversePreservesInput()
+             ? StageState::executed
+             : StageState::unsupported,
+         inverse.rowInversePreservesInput()
+             ? "rank-one batched c2r plan created with FFTW_PRESERVE_INPUT"
+             : "frozen full-zero control does not rely on FFTW input preservation"},
         {"vertical projection", StageState::executed,
          "grouped split-real dgemm uses exact WVM F/G matrices"},
         {"steady-state allocation", StageState::elided,
@@ -1204,6 +1294,11 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
             "streaming-pruned-compact-split, or "
             "streaming-pruned-compact-split-fused-vertical-views.");
     }
+    if (options.boundaryPolicy == "wvm-direct" &&
+        options.streamingInversePolicy != "full-zero") {
+        throw std::invalid_argument(
+            "Alternative streaming inverse preparation requires a streaming-pruned boundary policy.");
+    }
     if (options.verticalGemmFamily != "k2-grouped") {
         throw std::invalid_argument(
             "Authoritative production-lifetime benchmark requires k2-grouped vertical GEMM.");
@@ -1254,18 +1349,25 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
 
     BenchmarkReport report;
     report.environment = environmentRecord();
-    const auto issueTag = pointwisePolicy != PointwiseAdvectionPolicy::serial
-        ? "issue22-authoritative-"
-        : options.boundaryPolicy ==
-              "streaming-pruned-compact-split-fused-vertical-views"
-            ? "issue21-authoritative-"
-            : "issue19-authoritative-";
+    const auto inverseExperiment =
+        options.streamingInversePolicy != "full-zero";
+    const auto issueTag = inverseExperiment
+        ? "issue24-authoritative-"
+        : pointwisePolicy != PointwiseAdvectionPolicy::serial
+            ? "issue22-authoritative-"
+            : options.boundaryPolicy ==
+                  "streaming-pruned-compact-split-fused-vertical-views"
+                ? "issue21-authoritative-"
+                : "issue19-authoritative-";
     report.runId = runTimestamp(report.environment.timestampUtc) + '-' +
         issueTag + options.boundaryPolicy;
     if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
         report.runId += "-pointwise-" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + '-' +
             std::to_string(pointwiseWorkers);
+    }
+    if (inverseExperiment) {
+        report.runId += "-inverse-" + options.streamingInversePolicy;
     }
     report.runId += '-' + report.environment.hostname;
     report.profile = options.profile;

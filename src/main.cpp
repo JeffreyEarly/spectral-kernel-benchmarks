@@ -189,6 +189,7 @@ int main(int argc, char** argv) {
                 else if (key == "--vertical-gemm-outer-workers") options.verticalGemmOuterWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--boundary-policy") options.boundaryPolicy = requireValue(argc, argv, index);
                 else if (key == "--streaming-tile-width") options.streamingTileWidth = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--streaming-inverse-policy") options.streamingInversePolicy = requireValue(argc, argv, index);
                 else if (key == "--pointwise-policy") options.pointwisePolicy = requireValue(argc, argv, index);
                 else if (key == "--pointwise-workers") options.pointwiseWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--convolution-map") options.convolutionMap = requireValue(argc, argv, index);

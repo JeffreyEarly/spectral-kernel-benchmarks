@@ -475,6 +475,18 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+enum class StreamingInversePreparationPolicy {
+    fullZero,
+    activeReset,
+    compactPreserved,
+    fullPreserved
+};
+
+std::string_view streamingInversePreparationPolicyName(
+    StreamingInversePreparationPolicy policy) noexcept;
+StreamingInversePreparationPolicy streamingInversePreparationPolicyNamed(
+    std::string_view name);
+
 class FFTWStreamingPrunedSplitProvider {
 public:
     struct ConstFieldView {
@@ -492,7 +504,9 @@ public:
     FFTWStreamingPrunedSplitProvider(
         const Workload& workload, const std::vector<RetainedMode>& modes,
         FFTWPlanningMode planningMode, std::size_t internalWorkers,
-        std::size_t outerWorkers, std::size_t tileWidth = 1);
+        std::size_t outerWorkers, std::size_t tileWidth = 1,
+        StreamingInversePreparationPolicy inversePreparationPolicy =
+            StreamingInversePreparationPolicy::fullZero);
     ~FFTWStreamingPrunedSplitProvider();
     FFTWStreamingPrunedSplitProvider(FFTWStreamingPrunedSplitProvider&&) noexcept;
     FFTWStreamingPrunedSplitProvider& operator=(
@@ -523,6 +537,10 @@ public:
                                            double scale = 1.0);
     void embedInverseSplitFieldsDiagnostic(const ConstFieldView* fields,
                                            std::size_t fieldCount);
+    void loadInverseSplitFieldsDiagnostic(const ConstFieldView* fields,
+                                          std::size_t fieldCount);
+    void clearInverseInputDiagnostic();
+    void scatterInverseInputDiagnostic();
     void executeInverseColumnsDiagnostic();
     void executeInverseRowsDiagnostic(double* output);
     void executeSchedulerNoop();
@@ -535,6 +553,7 @@ public:
     std::size_t scratchBytes() const noexcept;
     std::size_t workerScratchBytes() const noexcept;
     std::size_t fftScratchBytes() const noexcept;
+    std::size_t inverseInputScratchBytes() const noexcept;
     std::size_t compactTileBytes() const noexcept;
     std::size_t tileWidth() const noexcept;
     std::size_t planningBytes() const noexcept;
@@ -546,6 +565,11 @@ public:
     double allocationSeconds() const noexcept;
     double planningSeconds() const noexcept;
     FFTWPlanningMode planningMode() const noexcept;
+    StreamingInversePreparationPolicy inversePreparationPolicy() const noexcept;
+    std::uint64_t inverseTileLoadBytesPerExecution() const noexcept;
+    std::uint64_t inverseClearBytesPerExecution() const noexcept;
+    std::uint64_t inverseScatterBytesPerExecution() const noexcept;
+    bool rowInversePreservesInput() const noexcept;
     bool completeHalfSpectrumMaterialized() const noexcept;
     std::string libraryIdentity() const;
     std::string version() const;
@@ -853,6 +877,7 @@ struct RunOptions {
     std::size_t verticalGemmOuterWorkers = 1;
     std::string boundaryPolicy = "wvm-packed-split";
     std::size_t streamingTileWidth = 1;
+    std::string streamingInversePolicy = "full-zero";
     std::string pointwisePolicy = "serial";
     std::size_t pointwiseWorkers = 0;
     std::string convolutionMap = "independent-products";

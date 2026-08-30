@@ -608,14 +608,50 @@ std::string FFTWPrunedProvider::libraryIdentity() const {
 }
 std::string FFTWPrunedProvider::version() const { return fftw_version; }
 
+std::string_view streamingInversePreparationPolicyName(
+    StreamingInversePreparationPolicy policy) noexcept {
+    switch (policy) {
+        case StreamingInversePreparationPolicy::fullZero:
+            return "full-zero";
+        case StreamingInversePreparationPolicy::activeReset:
+            return "active-reset";
+        case StreamingInversePreparationPolicy::compactPreserved:
+            return "compact-preserved";
+        case StreamingInversePreparationPolicy::fullPreserved:
+            return "full-preserved";
+    }
+    return "unknown";
+}
+
+StreamingInversePreparationPolicy streamingInversePreparationPolicyNamed(
+    std::string_view name) {
+    if (name == "full-zero") {
+        return StreamingInversePreparationPolicy::fullZero;
+    }
+    if (name == "active-reset") {
+        return StreamingInversePreparationPolicy::activeReset;
+    }
+    if (name == "compact-preserved") {
+        return StreamingInversePreparationPolicy::compactPreserved;
+    }
+    if (name == "full-preserved") {
+        return StreamingInversePreparationPolicy::fullPreserved;
+    }
+    throw std::invalid_argument(
+        "streaming inverse policy must be 'full-zero', 'active-reset', "
+        "'compact-preserved', or 'full-preserved'.");
+}
+
 class FFTWStreamingPrunedSplitProvider::Impl {
 public:
     Impl(const Workload& workload, const std::vector<RetainedMode>& modes,
          FFTWPlanningMode planningMode, std::size_t internalWorkers,
-         std::size_t outerWorkers, std::size_t tileWidth)
+         std::size_t outerWorkers, std::size_t tileWidth,
+         StreamingInversePreparationPolicy inversePreparationPolicy)
         : workload_(workload), modes_(modes), planningMode_(planningMode),
           internalWorkers_(internalWorkers), outerWorkers_(outerWorkers),
-          tileWidth_(tileWidth) {
+          tileWidth_(tileWidth),
+          inversePreparationPolicy_(inversePreparationPolicy) {
         static_assert(sizeof(Complex) == sizeof(fftw_complex));
         if (modes_.empty()) {
             throw std::invalid_argument(
@@ -633,6 +669,12 @@ public:
             throw std::invalid_argument(
                 "Streaming pruned FFTW tile width must lie in [1, 16].");
         }
+        if (tileWidth_ == 1 &&
+            inversePreparationPolicy_ !=
+                StreamingInversePreparationPolicy::fullZero) {
+            throw std::invalid_argument(
+                "Alternative streaming inverse preparation requires tile width greater than one.");
+        }
         for (const auto& mode : modes_) {
             if (mode.storedKx >= workload_.nxHalf() ||
                 mode.storedKy >= workload_.ny) {
@@ -640,6 +682,11 @@ public:
                     "A retained mode lies outside the FFTW half-spectrum.");
             }
             activeKxCount_ = std::max(activeKxCount_, mode.storedKx + 1);
+            ++embeddedValueCount_;
+            if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                2 * mode.storedKy != workload_.ny) {
+                ++embeddedValueCount_;
+            }
         }
 
         const auto setupStart = Clock::now();
@@ -655,17 +702,33 @@ public:
             workload_.realPlaneElements() * sizeof(double);
         const auto spectrumPlaneBytes =
             workload_.halfRows() * sizeof(Complex);
-        planningBytes_ = realPlaneBytes + spectrumPlaneBytes;
+        const auto inverseInputPlaneElements =
+            inversePreparationPolicy_ ==
+                    StreamingInversePreparationPolicy::compactPreserved
+                ? activeKxCount_ * workload_.ny
+                : inversePreparationPolicy_ ==
+                          StreamingInversePreparationPolicy::fullPreserved
+                      ? workload_.halfRows()
+                      : 0;
+        const auto inverseInputPlaneBytes =
+            inverseInputPlaneElements * sizeof(Complex);
+        planningBytes_ =
+            realPlaneBytes + spectrumPlaneBytes + inverseInputPlaneBytes;
         const auto allocationStart = Clock::now();
         realSurrogate_ = static_cast<double*>(fftw_malloc(realPlaneBytes));
         scratch_ = static_cast<Complex*>(fftw_malloc(
             outerWorkers_ * spectrumPlaneBytes));
+        if (inverseInputPlaneBytes != 0) {
+            inverseInput_ = static_cast<Complex*>(fftw_malloc(
+                outerWorkers_ * inverseInputPlaneBytes));
+        }
         if (tileWidth_ > 1) {
             compactTile_ = static_cast<Complex*>(fftw_malloc(
                 outerWorkers_ * tileWidth_ * modes_.size() *
                 sizeof(Complex)));
         }
         if (realSurrogate_ == nullptr || scratch_ == nullptr ||
+            (inverseInputPlaneBytes != 0 && inverseInput_ == nullptr) ||
             (tileWidth_ > 1 && compactTile_ == nullptr)) {
             releaseStorage();
             throw std::bad_alloc();
@@ -685,6 +748,13 @@ public:
         }
         fftw_free(realSurrogate_);
         realSurrogate_ = nullptr;
+        std::fill_n(
+            scratch_, outerWorkers_ * workload_.halfRows(), Complex{});
+        if (inverseInput_ != nullptr) {
+            std::fill_n(
+                inverseInput_,
+                outerWorkers_ * inverseInputPlaneElements, Complex{});
+        }
 
         const auto executorStart = Clock::now();
         executor_ = std::make_unique<PersistentIndexExecutor>(outerWorkers_);
@@ -779,6 +849,27 @@ public:
         executor_->run(&inverseEmbedDiagnosticShard, &context);
     }
 
+    void loadInverseSplitFieldsDiagnostic(const ConstFieldView* fields,
+                                          std::size_t fieldCount) {
+        validateConstFieldViews(fields, fieldCount);
+        Context context{this, nullptr, nullptr, nullptr, nullptr,
+                        nullptr, nullptr, 1.0};
+        context.retainedInputFields = fields;
+        executor_->run(&inverseLoadDiagnosticShard, &context);
+    }
+
+    void clearInverseInputDiagnostic() {
+        Context context{this, nullptr, nullptr, nullptr, nullptr,
+                        nullptr, nullptr, 1.0};
+        executor_->run(&inverseClearDiagnosticShard, &context);
+    }
+
+    void scatterInverseInputDiagnostic() {
+        Context context{this, nullptr, nullptr, nullptr, nullptr,
+                        nullptr, nullptr, 1.0};
+        executor_->run(&inverseScatterDiagnosticShard, &context);
+    }
+
     void executeInverseColumnsDiagnostic() {
         Context context{this, nullptr, nullptr, nullptr, nullptr,
                         nullptr, nullptr, 1.0};
@@ -800,8 +891,13 @@ public:
     std::size_t outerWorkers_ = 1;
     std::size_t tileWidth_ = 1;
     std::size_t activeKxCount_ = 0;
+    std::size_t embeddedValueCount_ = 0;
+    StreamingInversePreparationPolicy inversePreparationPolicy_ =
+        StreamingInversePreparationPolicy::fullZero;
+    bool rowInversePreservesInput_ = false;
     double* realSurrogate_ = nullptr;
     Complex* scratch_ = nullptr;
+    Complex* inverseInput_ = nullptr;
     Complex* compactTile_ = nullptr;
     fftw_plan rowForward_ = nullptr;
     fftw_plan columnForward_ = nullptr;
@@ -867,6 +963,8 @@ private:
         const auto ny = static_cast<ptrdiff_t>(workload_.ny);
         const auto nxHalf = static_cast<ptrdiff_t>(workload_.nxHalf());
         auto* scratch = reinterpret_cast<fftw_complex*>(scratch_);
+        auto* inverseInput = reinterpret_cast<fftw_complex*>(
+            inverseInput_ == nullptr ? scratch_ : inverseInput_);
 
         fftw_iodim64 rowForwardDimension[1] = {{nx, 1, 1}};
         fftw_iodim64 rowForwardBatches[1] = {{ny, nx, nxHalf}};
@@ -874,21 +972,35 @@ private:
             1, rowForwardDimension, 1, rowForwardBatches,
             realSurrogate_, scratch, flags);
 
+        const auto inverseInputStride =
+            inversePreparationPolicy_ ==
+                    StreamingInversePreparationPolicy::compactPreserved
+                ? static_cast<ptrdiff_t>(activeKxCount_)
+                : nxHalf;
         fftw_iodim64 columnDimension[1] = {{ny, nxHalf, nxHalf}};
         fftw_iodim64 columnBatches[1] = {
             {static_cast<ptrdiff_t>(activeKxCount_), 1, 1}};
         columnForward_ = fftw_plan_guru64_dft(
             1, columnDimension, 1, columnBatches,
             scratch, scratch, FFTW_FORWARD, flags);
+        fftw_iodim64 columnInverseDimension[1] = {
+            {ny, inverseInputStride, nxHalf}};
+        fftw_iodim64 columnInverseBatches[1] = {
+            {static_cast<ptrdiff_t>(activeKxCount_), 1, 1}};
         columnInverse_ = fftw_plan_guru64_dft(
-            1, columnDimension, 1, columnBatches,
-            scratch, scratch, FFTW_BACKWARD, flags);
+            1, columnInverseDimension, 1, columnInverseBatches,
+            inverseInput, scratch, FFTW_BACKWARD, flags);
 
         fftw_iodim64 rowInverseDimension[1] = {{nx, 1, 1}};
         fftw_iodim64 rowInverseBatches[1] = {{ny, nxHalf, nx}};
+        const auto rowInverseFlags =
+            inversePreparationPolicy_ ==
+                    StreamingInversePreparationPolicy::fullZero
+                ? flags
+                : flags | FFTW_PRESERVE_INPUT;
         rowInverse_ = fftw_plan_guru64_dft_c2r(
             1, rowInverseDimension, 1, rowInverseBatches,
-            scratch, realSurrogate_, flags);
+            scratch, realSurrogate_, rowInverseFlags);
 
         if (rowForward_ == nullptr || columnForward_ == nullptr ||
             columnInverse_ == nullptr || rowInverse_ == nullptr) {
@@ -896,6 +1008,9 @@ private:
             throw std::runtime_error(
                 "FFTW could not create the streaming pruned plan set.");
         }
+        rowInversePreservesInput_ =
+            inversePreparationPolicy_ !=
+            StreamingInversePreparationPolicy::fullZero;
     }
 
     void destroyPlans() {
@@ -915,6 +1030,16 @@ private:
 
     Complex* workerCompactTile(std::size_t worker) noexcept {
         return compactTile_ + worker * tileWidth_ * modes_.size();
+    }
+
+    Complex* workerInverseInput(std::size_t worker) noexcept {
+        if (inverseInput_ == nullptr) return workerScratch(worker);
+        const auto elements =
+            inversePreparationPolicy_ ==
+                    StreamingInversePreparationPolicy::compactPreserved
+                ? activeKxCount_ * workload_.ny
+                : workload_.halfRows();
+        return inverseInput_ + worker * elements;
     }
 
     std::size_t beginPlane(std::size_t worker) const noexcept {
@@ -1132,23 +1257,53 @@ private:
         }
     }
 
-    void embedStagedPlane(Complex* scratch,
-                          const Complex* staged) const noexcept {
-        const auto spectrumPlane = workload_.halfRows();
+    void clearActiveColumns(Complex* scratch) const noexcept {
         const auto nxHalf = workload_.nxHalf();
-        std::fill_n(scratch, spectrumPlane, Complex{});
+        for (std::size_t ky = 0; ky < workload_.ny; ++ky) {
+            std::fill_n(
+                scratch + nxHalf * ky, activeKxCount_, Complex{});
+        }
+    }
+
+    void clearInverseInput(Complex* destination) const noexcept {
+        switch (inversePreparationPolicy_) {
+            case StreamingInversePreparationPolicy::fullZero:
+                std::fill_n(destination, workload_.halfRows(), Complex{});
+                return;
+            case StreamingInversePreparationPolicy::activeReset:
+                clearActiveColumns(destination);
+                return;
+            case StreamingInversePreparationPolicy::compactPreserved:
+            case StreamingInversePreparationPolicy::fullPreserved:
+                return;
+        }
+    }
+
+    void scatterStagedPlane(Complex* destination,
+                            const Complex* staged) const noexcept {
+        const auto rowStride =
+            inversePreparationPolicy_ ==
+                    StreamingInversePreparationPolicy::compactPreserved
+                ? activeKxCount_
+                : workload_.nxHalf();
         for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
             const auto& mode = modes_[modeIndex];
             auto stored = staged[modeIndex];
             if (mode.conjugatesStoredValue) stored = conjugate(stored);
-            scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
+            destination[mode.storedKx + rowStride * mode.storedKy] = stored;
             if (mode.storedKx == 0 && mode.storedKy != 0 &&
                 2 * mode.storedKy != workload_.ny) {
                 const auto conjugateKy =
                     (workload_.ny - mode.storedKy) % workload_.ny;
-                scratch[nxHalf * conjugateKy] = conjugate(stored);
+                destination[rowStride * conjugateKy] = conjugate(stored);
             }
         }
+    }
+
+    void embedStagedPlane(Complex* destination,
+                          const Complex* staged) const noexcept {
+        clearInverseInput(destination);
+        scatterStagedPlane(destination, staged);
     }
 
     static void forwardSplitShard(void* rawContext, std::size_t worker) {
@@ -1232,6 +1387,9 @@ private:
             return;
         }
         auto* tile = provider.workerCompactTile(worker);
+        auto* inverseInput = provider.workerInverseInput(worker);
+        auto* nativeInverseInput =
+            reinterpret_cast<fftw_complex*>(inverseInput);
         for (std::size_t planeBegin = provider.beginPlane(worker);
              planeBegin < provider.endPlane(worker);
              planeBegin += provider.tileWidth_) {
@@ -1248,9 +1406,9 @@ private:
             }
             for (std::size_t lane = 0; lane < planeCount; ++lane) {
                 provider.embedStagedPlane(
-                    scratch, tile + lane * provider.modes_.size());
+                    inverseInput, tile + lane * provider.modes_.size());
                 fftw_execute_dft(
-                    provider.columnInverse_, nativeScratch, nativeScratch);
+                    provider.columnInverse_, nativeInverseInput, nativeScratch);
                 auto* output = context.realOutput +
                     (planeBegin + lane) *
                     provider.workload_.realPlaneElements();
@@ -1335,7 +1493,7 @@ private:
                                             std::size_t worker) {
         auto& context = *static_cast<Context*>(rawContext);
         auto& provider = *context.provider;
-        auto* scratch = provider.workerScratch(worker);
+        auto* inverseInput = provider.workerInverseInput(worker);
         if (provider.tileWidth_ > 1) {
             auto* tile = provider.workerCompactTile(worker);
             for (std::size_t planeBegin = provider.beginPlane(worker);
@@ -1356,7 +1514,7 @@ private:
                 }
                 for (std::size_t lane = 0; lane < planeCount; ++lane) {
                     provider.embedStagedPlane(
-                        scratch, tile + lane * provider.modes_.size());
+                        inverseInput, tile + lane * provider.modes_.size());
                 }
             }
             return;
@@ -1365,24 +1523,69 @@ private:
              plane < provider.endPlane(worker); ++plane) {
             if (context.retainedInputFields != nullptr) {
                 provider.embedRetainedPlaneFields(
-                    scratch, plane, context.retainedInputFields);
+                    inverseInput, plane, context.retainedInputFields);
             } else {
                 provider.embedRetainedPlane(
-                    scratch, plane, context.retainedRealInput,
+                    inverseInput, plane, context.retainedRealInput,
                     context.retainedImagInput);
             }
+        }
+    }
+
+    static void inverseLoadDiagnosticShard(void* rawContext,
+                                           std::size_t worker) {
+        auto& context = *static_cast<Context*>(rawContext);
+        auto& provider = *context.provider;
+        if (provider.tileWidth_ == 1) return;
+        auto* tile = provider.workerCompactTile(worker);
+        for (std::size_t planeBegin = provider.beginPlane(worker);
+             planeBegin < provider.endPlane(worker);
+             planeBegin += provider.tileWidth_) {
+            const auto planeCount = std::min(
+                provider.tileWidth_,
+                provider.endPlane(worker) - planeBegin);
+            provider.loadInverseTileFields(
+                tile, planeBegin, planeCount,
+                context.retainedInputFields);
+        }
+    }
+
+    static void inverseClearDiagnosticShard(void* rawContext,
+                                            std::size_t worker) {
+        auto& provider = *static_cast<Context*>(rawContext)->provider;
+        auto* inverseInput = provider.workerInverseInput(worker);
+        for (std::size_t plane = provider.beginPlane(worker);
+             plane < provider.endPlane(worker); ++plane) {
+            provider.clearInverseInput(inverseInput);
+        }
+    }
+
+    static void inverseScatterDiagnosticShard(void* rawContext,
+                                              std::size_t worker) {
+        auto& provider = *static_cast<Context*>(rawContext)->provider;
+        if (provider.tileWidth_ == 1) return;
+        auto* inverseInput = provider.workerInverseInput(worker);
+        const auto* tile = provider.workerCompactTile(worker);
+        for (std::size_t plane = provider.beginPlane(worker);
+             plane < provider.endPlane(worker); ++plane) {
+            const auto lane =
+                (plane - provider.beginPlane(worker)) % provider.tileWidth_;
+            provider.scatterStagedPlane(
+                inverseInput, tile + lane * provider.modes_.size());
         }
     }
 
     static void inverseColumnsDiagnosticShard(void* rawContext,
                                               std::size_t worker) {
         auto& provider = *static_cast<Context*>(rawContext)->provider;
+        auto* nativeInverseInput = reinterpret_cast<fftw_complex*>(
+            provider.workerInverseInput(worker));
         auto* nativeScratch = reinterpret_cast<fftw_complex*>(
             provider.workerScratch(worker));
         for (std::size_t plane = provider.beginPlane(worker);
              plane < provider.endPlane(worker); ++plane) {
             fftw_execute_dft(
-                provider.columnInverse_, nativeScratch, nativeScratch);
+                provider.columnInverse_, nativeInverseInput, nativeScratch);
         }
     }
 
@@ -1406,9 +1609,11 @@ private:
     void releaseStorage() {
         if (realSurrogate_ != nullptr) fftw_free(realSurrogate_);
         if (scratch_ != nullptr) fftw_free(scratch_);
+        if (inverseInput_ != nullptr) fftw_free(inverseInput_);
         if (compactTile_ != nullptr) fftw_free(compactTile_);
         realSurrogate_ = nullptr;
         scratch_ = nullptr;
+        inverseInput_ = nullptr;
         compactTile_ = nullptr;
     }
 };
@@ -1416,10 +1621,11 @@ private:
 FFTWStreamingPrunedSplitProvider::FFTWStreamingPrunedSplitProvider(
     const Workload& workload, const std::vector<RetainedMode>& modes,
     FFTWPlanningMode planningMode, std::size_t internalWorkers,
-    std::size_t outerWorkers, std::size_t tileWidth)
+    std::size_t outerWorkers, std::size_t tileWidth,
+    StreamingInversePreparationPolicy inversePreparationPolicy)
     : impl_(std::make_unique<Impl>(
           workload, modes, planningMode, internalWorkers, outerWorkers,
-          tileWidth)) {}
+          tileWidth, inversePreparationPolicy)) {}
 
 FFTWStreamingPrunedSplitProvider::~FFTWStreamingPrunedSplitProvider() = default;
 FFTWStreamingPrunedSplitProvider::FFTWStreamingPrunedSplitProvider(
@@ -1470,6 +1676,16 @@ void FFTWStreamingPrunedSplitProvider::embedInverseSplitFieldsDiagnostic(
     const ConstFieldView* fields, std::size_t fieldCount) {
     impl_->embedInverseSplitFieldsDiagnostic(fields, fieldCount);
 }
+void FFTWStreamingPrunedSplitProvider::loadInverseSplitFieldsDiagnostic(
+    const ConstFieldView* fields, std::size_t fieldCount) {
+    impl_->loadInverseSplitFieldsDiagnostic(fields, fieldCount);
+}
+void FFTWStreamingPrunedSplitProvider::clearInverseInputDiagnostic() {
+    impl_->clearInverseInputDiagnostic();
+}
+void FFTWStreamingPrunedSplitProvider::scatterInverseInputDiagnostic() {
+    impl_->scatterInverseInputDiagnostic();
+}
 void FFTWStreamingPrunedSplitProvider::executeInverseColumnsDiagnostic() {
     impl_->executeInverseColumnsDiagnostic();
 }
@@ -1504,11 +1720,22 @@ std::size_t FFTWStreamingPrunedSplitProvider::scratchBytes() const noexcept {
 }
 std::size_t
 FFTWStreamingPrunedSplitProvider::workerScratchBytes() const noexcept {
-    return fftScratchBytes() + compactTileBytes() / impl_->outerWorkers_;
+    return fftScratchBytes() + inverseInputScratchBytes() +
+        compactTileBytes() / impl_->outerWorkers_;
 }
 std::size_t
 FFTWStreamingPrunedSplitProvider::fftScratchBytes() const noexcept {
     return impl_->workload_.halfRows() * sizeof(Complex);
+}
+std::size_t
+FFTWStreamingPrunedSplitProvider::inverseInputScratchBytes() const noexcept {
+    if (impl_->inverseInput_ == nullptr) return 0;
+    const auto elements =
+        impl_->inversePreparationPolicy_ ==
+                StreamingInversePreparationPolicy::compactPreserved
+            ? impl_->activeKxCount_ * impl_->workload_.ny
+            : impl_->workload_.halfRows();
+    return elements * sizeof(Complex);
 }
 std::size_t
 FFTWStreamingPrunedSplitProvider::compactTileBytes() const noexcept {
@@ -1548,6 +1775,41 @@ double FFTWStreamingPrunedSplitProvider::planningSeconds() const noexcept {
 FFTWPlanningMode
 FFTWStreamingPrunedSplitProvider::planningMode() const noexcept {
     return impl_->planningMode_;
+}
+StreamingInversePreparationPolicy
+FFTWStreamingPrunedSplitProvider::inversePreparationPolicy() const noexcept {
+    return impl_->inversePreparationPolicy_;
+}
+std::uint64_t FFTWStreamingPrunedSplitProvider::
+inverseTileLoadBytesPerExecution() const noexcept {
+    return static_cast<std::uint64_t>(impl_->workload_.planes()) *
+        impl_->modes_.size() * 2 * sizeof(Complex);
+}
+std::uint64_t FFTWStreamingPrunedSplitProvider::
+inverseClearBytesPerExecution() const noexcept {
+    std::size_t elements = 0;
+    switch (impl_->inversePreparationPolicy_) {
+        case StreamingInversePreparationPolicy::fullZero:
+            elements = impl_->workload_.halfRows();
+            break;
+        case StreamingInversePreparationPolicy::activeReset:
+            elements = impl_->activeKxCount_ * impl_->workload_.ny;
+            break;
+        case StreamingInversePreparationPolicy::compactPreserved:
+        case StreamingInversePreparationPolicy::fullPreserved:
+            return 0;
+    }
+    return static_cast<std::uint64_t>(impl_->workload_.planes()) *
+        elements * sizeof(Complex);
+}
+std::uint64_t FFTWStreamingPrunedSplitProvider::
+inverseScatterBytesPerExecution() const noexcept {
+    return static_cast<std::uint64_t>(impl_->workload_.planes()) *
+        (impl_->modes_.size() + impl_->embeddedValueCount_) *
+        sizeof(Complex);
+}
+bool FFTWStreamingPrunedSplitProvider::rowInversePreservesInput() const noexcept {
+    return impl_->rowInversePreservesInput_;
 }
 bool FFTWStreamingPrunedSplitProvider::
 completeHalfSpectrumMaterialized() const noexcept {

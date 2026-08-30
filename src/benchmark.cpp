@@ -3958,6 +3958,10 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
     if (!options.spectralFluxFixture.empty()) {
         return runAuthoritativeProductionLifetimeFluxBenchmark(options);
     }
+    if (options.streamingInversePolicy != "full-zero") {
+        throw std::invalid_argument(
+            "Alternative streaming inverse preparation requires an authoritative prepared fixture.");
+    }
     if (options.boundaryPolicy != "wvm-direct" &&
         options.boundaryPolicy != "streaming-pruned-compact-split") {
         throw std::invalid_argument(
@@ -5379,6 +5383,11 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         throw std::invalid_argument(
             "--pointwise-policy and --pointwise-workers are valid only for "
             "production-lifetime-flux.");
+    }
+    if (options.kernel != "production-lifetime-flux" &&
+        options.streamingInversePolicy != "full-zero") {
+        throw std::invalid_argument(
+            "--streaming-inverse-policy is valid only for production-lifetime-flux.");
     }
     if (options.kernel == "production-lifetime-flux")
         return runProductionLifetimeFluxBenchmark(options);

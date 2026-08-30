@@ -198,7 +198,9 @@ void requireAllocationFreePrunedSplitExecution(
 void requireAllocationFreeStreamingPrunedSplitExecution(
     const skbench::Workload& workload,
     const std::vector<skbench::RetainedMode>& modes,
-    std::size_t outerWorkers, std::size_t tileWidth = 1) {
+    std::size_t outerWorkers, std::size_t tileWidth = 1,
+    skbench::StreamingInversePreparationPolicy inversePreparationPolicy =
+        skbench::StreamingInversePreparationPolicy::fullZero) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
     auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
@@ -209,7 +211,7 @@ void requireAllocationFreeStreamingPrunedSplitExecution(
 
     skbench::FFTWStreamingPrunedSplitProvider provider(
         workload, modes, skbench::FFTWPlanningMode::estimate, 1,
-        outerWorkers, tileWidth);
+        outerWorkers, tileWidth, inversePreparationPolicy);
     const auto execute = [&] {
         provider.forwardSplit(
             input.get(), retainedReal.get(), retainedImag.get());
@@ -228,7 +230,9 @@ void requireAllocationFreeStreamingPrunedSplitExecution(
 void requireAllocationFreeStreamingPrunedFieldViewExecution(
     const skbench::Workload& workload,
     const std::vector<skbench::RetainedMode>& modes,
-    std::size_t outerWorkers, std::size_t tileWidth) {
+    std::size_t outerWorkers, std::size_t tileWidth,
+    skbench::StreamingInversePreparationPolicy inversePreparationPolicy =
+        skbench::StreamingInversePreparationPolicy::fullZero) {
     auto input = alignedBuffer<double>(workload.realElements());
     auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
     auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
@@ -254,7 +258,7 @@ void requireAllocationFreeStreamingPrunedFieldViewExecution(
 
     skbench::FFTWStreamingPrunedSplitProvider provider(
         workload, modes, skbench::FFTWPlanningMode::estimate, 1,
-        outerWorkers, tileWidth);
+        outerWorkers, tileWidth, inversePreparationPolicy);
     const auto execute = [&] {
         provider.forwardSplitFields(
             input.get(), outputViews.data(), outputViews.size());
@@ -1120,6 +1124,15 @@ int main() {
             workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2);
         skbench::FFTWStreamingPrunedSplitProvider tiledStreamingPrunedProvider(
             workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2, 8);
+        skbench::FFTWStreamingPrunedSplitProvider activeResetProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2, 8,
+            skbench::StreamingInversePreparationPolicy::activeReset);
+        skbench::FFTWStreamingPrunedSplitProvider compactPreservedProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2, 8,
+            skbench::StreamingInversePreparationPolicy::compactPreserved);
+        skbench::FFTWStreamingPrunedSplitProvider fullPreservedProvider(
+            workload, prunedModes, skbench::FFTWPlanningMode::estimate, 1, 2, 8,
+            skbench::StreamingInversePreparationPolicy::fullPreserved);
         require(streamingPrunedProvider.activeKxCount() ==
                     prunedProvider.activeKxCount(),
                 "streaming pruned active-column count");
@@ -1148,6 +1161,22 @@ int main() {
                 "tiled streaming total scratch accounting");
         require(!tiledStreamingPrunedProvider.completeHalfSpectrumMaterialized(),
                 "tiled streaming unexpectedly materializes a full spectrum");
+        require(activeResetProvider.rowInversePreservesInput() &&
+                    compactPreservedProvider.rowInversePreservesInput() &&
+                    fullPreservedProvider.rowInversePreservesInput(),
+                "alternative inverse plans must preserve row-transform input");
+        require(activeResetProvider.inverseInputScratchBytes() == 0 &&
+                    compactPreservedProvider.inverseInputScratchBytes() ==
+                        compactPreservedProvider.activeKxCount() * workload.ny *
+                            sizeof(skbench::Complex) &&
+                    fullPreservedProvider.inverseInputScratchBytes() ==
+                        workload.halfRows() * sizeof(skbench::Complex),
+                "alternative inverse input scratch accounting");
+        require(activeResetProvider.inverseClearBytesPerExecution() <
+                    tiledStreamingPrunedProvider.inverseClearBytesPerExecution() &&
+                    compactPreservedProvider.inverseClearBytesPerExecution() == 0 &&
+                    fullPreservedProvider.inverseClearBytesPerExecution() == 0,
+                "alternative inverse clear-byte accounting");
 
         std::vector<skbench::Complex> prunedOracleSpectrum(workload.spectrumElements());
         std::vector<skbench::Complex> prunedEmbeddedSpectrum(workload.spectrumElements());
@@ -1343,6 +1372,27 @@ int main() {
                         prunedInverseActual.data(), prunedInverseOracle.data(),
                         prunedInverseActual.size()) < 1.0e-12,
                     "tiled streaming inverse versus mode-keyed oracle");
+            activeResetProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "active-reset inverse versus mode-keyed oracle");
+            compactPreservedProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "compact-preserved inverse versus mode-keyed oracle");
+            fullPreservedProvider.inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "full-preserved inverse versus mode-keyed oracle");
 
             tiledStreamingPrunedProvider.forwardSplitFields(
                 fixtureInput.data(), outputFieldViews.data(),
@@ -1378,6 +1428,41 @@ int main() {
                         prunedInverseActual.data(), prunedInverseOracle.data(),
                         prunedInverseActual.size()) < 1.0e-12,
                     "tiled streaming direct field-view inverse versus mode-keyed oracle");
+            activeResetProvider.inverseSplitFields(
+                inputFieldViews.data(), inputFieldViews.size(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "active-reset direct field-view inverse versus mode-keyed oracle");
+            compactPreservedProvider.inverseSplitFields(
+                inputFieldViews.data(), inputFieldViews.size(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "compact-preserved direct field-view inverse versus mode-keyed oracle");
+            fullPreservedProvider.inverseSplitFields(
+                inputFieldViews.data(), inputFieldViews.size(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "full-preserved direct field-view inverse versus mode-keyed oracle");
+        }
+
+        std::fill(retainedOracleReal.begin(), retainedOracleReal.end(), 0.0);
+        std::fill(retainedOracleImag.begin(), retainedOracleImag.end(), 0.0);
+        for (auto* provider : {
+                 &activeResetProvider, &compactPreservedProvider,
+                 &fullPreservedProvider}) {
+            provider->inverseSplit(
+                retainedOracleReal.data(), retainedOracleImag.data(),
+                prunedInverseActual.data());
+            require(std::all_of(
+                        prunedInverseActual.begin(), prunedInverseActual.end(),
+                        [](double value) { return std::abs(value) <= 1.0e-15; }),
+                    "alternative inverse leaked stale modes into an all-zero transform");
         }
 
         skbench::RunOptions prunedOptions;
@@ -1683,8 +1768,26 @@ int main() {
                 workload, prunedModes, 2, 8);
             requireAllocationFreeStreamingPrunedSplitExecution(
                 workload, prunedModes, 2, 16);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::activeReset);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::compactPreserved);
+            requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::fullPreserved);
             requireAllocationFreeStreamingPrunedFieldViewExecution(
                 workload, prunedModes, 2, 16);
+            requireAllocationFreeStreamingPrunedFieldViewExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::activeReset);
+            requireAllocationFreeStreamingPrunedFieldViewExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::compactPreserved);
+            requireAllocationFreeStreamingPrunedFieldViewExecution(
+                workload, prunedModes, 2, 16,
+                skbench::StreamingInversePreparationPolicy::fullPreserved);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(
                 workload, prunedModes, 2, skbench::FFTWSpectrumOrder::planeMajor);
