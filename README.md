@@ -352,6 +352,18 @@ python3 tools/run_fused_vertical_views_campaign.py --phase reference \
 
 The runner compares both graphs in isolated processes under the issue #19 performance-12/dynamic-total-16 topology, rotates process order at reference depth, keeps memory-only workers separate, and requires the same WVM fixture hashes and zero-allocation contract. A reference candidate advances only with at least 10% geometric complete-boundary improvement, no profile above 1.03× the control, an empirical paired interval excluding a tie, correctness within `1e-12`, and no algorithm-resident-memory regression. Diagnostic substage medians explain the result but cannot replace the independently sampled total.
 
+Issue #24 isolates the retained inverse preparation inside the frozen issue #21/#22 graph. It keeps the fifteen inverse transforms, tile width 16, worker topology, direct family views, pointwise policy, vertical kernels, fixtures, and oracle fixed while comparing the existing contiguous full half-spectrum clear with active-column reset and two FFTW preserved-input/out-of-place column alternatives:
+
+```sh
+python3 tools/run_retained_inverse_zero_fill_campaign.py \
+  --fixture wvm-current-256-nz129-f4=/path/to/prepared-256.bin \
+  --fixture wvm-current-512-nz257-f4=/path/to/prepared-512.bin \
+  --fixture wvm-large-1024-nz129-f4=/path/to/prepared-1024.bin \
+  --output results/local/<issue24-screen>
+```
+
+The clean rotated M4 Max screen separately records compact-tile load, zero/reset, retained and Hermitian-boundary scatter, complete horizontal inverse, uninstrumented total, bytes moved, persistent/scratch memory, correctness, and warmed allocations. All four policies were correct within `1e-12` and allocation-free, but no alternative advanced: active reset was 1.079× the inverse control geometrically, compact preserved input was 1.034×, and full-stride preserved input was 1.025×. The full-stride alternative was nearest on complete time at 1.004×, but still provided no gain. The frozen contiguous full-zero/in-place policy therefore remains the single uniform algorithm. This is a completed negative screen, not reference-depth adoption evidence; it does not support size-dependent dispatch or a custom sparse inverse.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

@@ -1,0 +1,253 @@
+{
+  "schema": "spectral-kernel-retained-inverse-zero-fill-screen-publication-v1",
+  "incrementId": "retained-inverse-zero-fill-screen-v1",
+  "experimentId": "issue-024-retained-inverse-zero-fill",
+  "classification": "preliminary",
+  "createdAtUtc": "2026-08-30T16:22:26.026227Z",
+  "benchmarkExecutableCommit": "d3fa028b9b616b2fb15df14a90195a4a24d924e8",
+  "machine": {
+    "hostname": "lyra",
+    "cpuBrand": "Apple M4 Max",
+    "machineModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "physicalMemoryBytes": 137438953472
+  },
+  "protocol": {
+    "profiles": [
+      "wvm-current-256-nz129-f4",
+      "wvm-current-512-nz257-f4",
+      "wvm-large-1024-nz129-f4"
+    ],
+    "candidates": [
+      "full-zero-control",
+      "active-column-reset",
+      "compact-preserved-input",
+      "full-stride-preserved-input"
+    ],
+    "warmupsPerProcess": 2,
+    "samplesPerProcess": 7,
+    "ordering": "one rotated isolated process per profile-candidate cell",
+    "horizontalScheduling": "outer-12",
+    "verticalScheduling": "outer-dynamic-16",
+    "pointwiseScheduling": "spatial-static-8",
+    "streamingTileWidth": 16,
+    "fftwInternalWorkers": 1,
+    "allocationPolicy": "zero warmed application allocations"
+  },
+  "screenGate": {
+    "geometricInverseBoundaryRatioAtMost": 0.95,
+    "geometricTotalRatioAtMost": 0.97,
+    "maximumProfileTotalRatioAtMost": 1.03,
+    "maximumProfileAlgorithmResidentRatioAtMost": 1.01,
+    "candidatePassed": false
+  },
+  "verification": {
+    "completeMatchedMatrix": true,
+    "allCorrectWithin1e12": true,
+    "maximumCorrectnessError": 1.3403546055078305e-15,
+    "allocationVerificationPassed": true
+  },
+  "selectedPolicy": {
+    "id": "full-zero-control",
+    "policy": "full-zero",
+    "disposition": "Retain the frozen contiguous full-zero policy; no candidate improved the complete inverse boundary enough to justify reference depth."
+  },
+  "candidates": [
+    {
+      "id": "full-zero-control",
+      "policy": "full-zero",
+      "role": "Frozen issue #21 and #22 control using one contiguous full half-spectrum clear and in-place column inverse.",
+      "geometricTotalToControl": 1.0,
+      "geometricInverseBoundaryToControl": 1.0,
+      "maximumProfileTotalToControl": 1.0,
+      "maximumProfileInverseBoundaryToControl": 1.0,
+      "maximumProfileAlgorithmResidentToControl": 1.0,
+      "maximumAdditionalAlgorithmResidentBytes": 0,
+      "passesReferenceAdvanceGate": false,
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "totalToControl": 1.0,
+          "inverseBoundaryToControl": 1.0,
+          "inversePreparationSeconds": 0.013918542,
+          "tileLoadSeconds": 0.01158175,
+          "clearSeconds": 0.002115833,
+          "clearState": "executed",
+          "scatterSeconds": 0.002176333,
+          "algorithmResidentBytes": 2344515992
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "totalToControl": 1.0,
+          "inverseBoundaryToControl": 1.0,
+          "inversePreparationSeconds": 0.12364625,
+          "tileLoadSeconds": 0.096576292,
+          "clearSeconds": 0.016074833,
+          "clearState": "executed",
+          "scatterSeconds": 0.017341958,
+          "algorithmResidentBytes": 27004207416
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "totalToControl": 1.0,
+          "inverseBoundaryToControl": 1.0,
+          "inversePreparationSeconds": 0.28607325,
+          "tileLoadSeconds": 0.22534725,
+          "clearSeconds": 0.079767625,
+          "clearState": "executed",
+          "scatterSeconds": 0.055544042,
+          "algorithmResidentBytes": 37805449848
+        }
+      ]
+    },
+    {
+      "id": "active-column-reset",
+      "policy": "active-reset",
+      "role": "Preserved row input with repeated strided clears of active columns and an in-place column inverse.",
+      "geometricTotalToControl": 1.032788680877843,
+      "geometricInverseBoundaryToControl": 1.0792773174391137,
+      "maximumProfileTotalToControl": 1.0801976417536994,
+      "maximumProfileInverseBoundaryToControl": 1.0899038573045976,
+      "maximumProfileAlgorithmResidentToControl": 1.0,
+      "maximumAdditionalAlgorithmResidentBytes": 0,
+      "passesReferenceAdvanceGate": false,
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "totalToControl": 1.0801976417536994,
+          "inverseBoundaryToControl": 1.0899038573045976,
+          "inversePreparationSeconds": 0.0153295,
+          "tileLoadSeconds": 0.011511042,
+          "clearSeconds": 0.001055458,
+          "clearState": "executed",
+          "scatterSeconds": 0.002167292,
+          "algorithmResidentBytes": 2344515992
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "totalToControl": 0.9914291259570618,
+          "inverseBoundaryToControl": 1.0687372061758467,
+          "inversePreparationSeconds": 0.126636291,
+          "tileLoadSeconds": 0.095054875,
+          "clearSeconds": 0.00806525,
+          "clearState": "executed",
+          "scatterSeconds": 0.019053834,
+          "algorithmResidentBytes": 27004207416
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "totalToControl": 1.0286544528217223,
+          "inverseBoundaryToControl": 1.0792946668110206,
+          "inversePreparationSeconds": 0.286005291,
+          "tileLoadSeconds": 0.192483459,
+          "clearSeconds": 0.119056333,
+          "clearState": "executed",
+          "scatterSeconds": 0.055367708,
+          "algorithmResidentBytes": 37805449848
+        }
+      ]
+    },
+    {
+      "id": "compact-preserved-input",
+      "policy": "compact-preserved",
+      "role": "Preserved compact active-column input with an out-of-place column inverse into full row scratch.",
+      "geometricTotalToControl": 1.016838452623337,
+      "geometricInverseBoundaryToControl": 1.0337524367668387,
+      "maximumProfileTotalToControl": 1.0698155655254271,
+      "maximumProfileInverseBoundaryToControl": 1.0503071073525592,
+      "maximumProfileAlgorithmResidentToControl": 1.0018029614702666,
+      "maximumAdditionalAlgorithmResidentBytes": 67239936,
+      "passesReferenceAdvanceGate": false,
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "totalToControl": 1.0698155655254271,
+          "inverseBoundaryToControl": 1.0503071073525592,
+          "inversePreparationSeconds": 0.013299542,
+          "tileLoadSeconds": 0.011077458,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.002596667,
+          "algorithmResidentBytes": 2348743064
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "totalToControl": 0.9761056844559596,
+          "inverseBoundaryToControl": 1.0327343956723372,
+          "inversePreparationSeconds": 0.115129792,
+          "tileLoadSeconds": 0.097607375,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.019374583,
+          "algorithmResidentBytes": 27021017400
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "totalToControl": 1.0068160468707177,
+          "inverseBoundaryToControl": 1.0184616793741363,
+          "inversePreparationSeconds": 0.241283792,
+          "tileLoadSeconds": 0.188335458,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.050048416,
+          "algorithmResidentBytes": 37872689784
+        }
+      ]
+    },
+    {
+      "id": "full-stride-preserved-input",
+      "policy": "full-preserved",
+      "role": "Preserved full-stride input with an out-of-place column inverse into full row scratch.",
+      "geometricTotalToControl": 1.004122535126134,
+      "geometricInverseBoundaryToControl": 1.024867296498295,
+      "maximumProfileTotalToControl": 1.0211971789031817,
+      "maximumProfileInverseBoundaryToControl": 1.0547742104268398,
+      "maximumProfileAlgorithmResidentToControl": 1.0027044422054,
+      "maximumAdditionalAlgorithmResidentBytes": 100859904,
+      "passesReferenceAdvanceGate": false,
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "totalToControl": 1.0211971789031817,
+          "inverseBoundaryToControl": 1.0076175879093645,
+          "inversePreparationSeconds": 0.014063375,
+          "tileLoadSeconds": 0.011282041,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.002152625,
+          "algorithmResidentBytes": 2350856600
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "totalToControl": 0.9901190869803437,
+          "inverseBoundaryToControl": 1.0547742104268398,
+          "inversePreparationSeconds": 0.115658458,
+          "tileLoadSeconds": 0.0970965,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.020319125,
+          "algorithmResidentBytes": 27029471544
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "totalToControl": 1.001297432579138,
+          "inverseBoundaryToControl": 1.0128559016839793,
+          "inversePreparationSeconds": 0.243159334,
+          "tileLoadSeconds": 0.189393209,
+          "clearSeconds": 0.0,
+          "clearState": "elided",
+          "scatterSeconds": 0.055309791,
+          "algorithmResidentBytes": 37906309752
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "result": "Removing the contiguous full clear does not improve the complete fifteen-transform inverse. The full-stride preserved-input candidate is nearest to the control but remains 1.025x on the inverse boundary and 1.004x on the complete total geometrically.",
+    "activeReset": "The smaller logical clear moves fewer bytes, but millions of short row clears become especially expensive at 1024 squared and make the inverse boundary 1.079x the control geometrically.",
+    "preservedInput": "The compact and full-stride preserved inputs elide repeated zero-fill, but require out-of-place column transforms; their FFT and placement costs offset the removed clear.",
+    "customSparseInverse": "No implemented candidate came close to the predeclared 0.90 inverse and 0.95 complete-total justification threshold for custom sparse inverse arithmetic, so that branch is not activated.",
+    "scope": "This is a one-round M4 Max screening disposition for the authoritative spectral boundary, not a reference campaign, complete nonlinear-flux result, Float32 result, or general-Mac recommendation."
+  }
+}

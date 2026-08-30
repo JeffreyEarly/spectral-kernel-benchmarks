@@ -6583,6 +6583,7 @@ def build_experiment_page(
     issue19_reference_evidence: dict | None = None,
     issue21_fused_views_evidence: dict | None = None,
     issue22_pointwise_evidence: dict | None = None,
+    issue24_inverse_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -6608,6 +6609,15 @@ def build_experiment_page(
             "One compact reference-campaign summary currently contributes to the "
             "M4 decision. Permanent raw run pages remain a separate append-only "
             "publication increment."
+        )
+    if (
+        experiment_id == "issue-024-retained-inverse-zero-fill"
+        and issue24_inverse_evidence is not None
+    ):
+        evidence_statement = (
+            "One compact screening summary records the completed negative "
+            "disposition. The twelve preliminary run pages remain permanent; "
+            "no candidate advanced to reference depth."
         )
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-003-fftw-production-baseline":
@@ -6635,6 +6645,10 @@ def build_experiment_page(
     elif experiment_id == "issue-022-pointwise-advection-optimization":
         synthesis = pointwise_advection_reference_synthesis(
             issue22_pointwise_evidence, "../../",
+        )
+    elif experiment_id == "issue-024-retained-inverse-zero-fill":
+        synthesis = retained_inverse_zero_fill_synthesis(
+            issue24_inverse_evidence, "../../",
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -7004,21 +7018,125 @@ def pointwise_advection_reference_synthesis(
     """
 
 
+def retained_inverse_zero_fill_synthesis(
+    evidence: dict | None, root_prefix: str,
+) -> str:
+    if evidence is None:
+        return ""
+    if evidence.get("schema") != (
+        "spectral-kernel-retained-inverse-zero-fill-screen-publication-v1"
+    ):
+        raise ValueError("issue #24 inverse zero-fill screen has the wrong schema")
+    if evidence["selectedPolicy"]["id"] != "full-zero-control":
+        raise ValueError("issue #24 inverse zero-fill screen changed the frozen control")
+    if evidence["screenGate"]["candidatePassed"]:
+        raise ValueError("issue #24 negative synthesis cannot publish a passing candidate")
+
+    expected_profiles = [
+        "wvm-current-256-nz129-f4",
+        "wvm-current-512-nz257-f4",
+        "wvm-large-1024-nz129-f4",
+    ]
+    profile_labels = {
+        "wvm-current-256-nz129-f4": "256²/N<sub>z</sub>=129/F4",
+        "wvm-current-512-nz257-f4": "512²/N<sub>z</sub>=257/F4",
+        "wvm-large-1024-nz129-f4": "1024²/N<sub>z</sub>=129/F4",
+    }
+    candidates = evidence["candidates"]
+    if [candidate["id"] for candidate in candidates] != [
+        "full-zero-control",
+        "active-column-reset",
+        "compact-preserved-input",
+        "full-stride-preserved-input",
+    ]:
+        raise ValueError("issue #24 inverse zero-fill candidate matrix is incomplete")
+    if any(
+        [profile["profile"] for profile in candidate["profiles"]]
+        != expected_profiles
+        for candidate in candidates
+    ):
+        raise ValueError("issue #24 inverse zero-fill profile matrix is incomplete")
+
+    candidate_rows = []
+    for candidate in candidates:
+        extra_memory = int(candidate["maximumAdditionalAlgorithmResidentBytes"])
+        candidate_rows.append(
+            "<tr>"
+            f'<th scope="row"><code>{escaped(candidate["id"])}</code></th>'
+            f'<td>{escaped(candidate["role"])}</td>'
+            f'<td class="numeric">{float(candidate["geometricInverseBoundaryToControl"]):.3f}×</td>'
+            f'<td class="numeric">{float(candidate["geometricTotalToControl"]):.3f}×</td>'
+            f'<td class="numeric">{float(candidate["maximumProfileTotalToControl"]):.3f}×</td>'
+            f'<td class="numeric">{format_bytes(extra_memory)}</td>'
+            f'<td>{"control" if candidate["id"] == "full-zero-control" else "stopped after screen"}</td>'
+            "</tr>"
+        )
+
+    stage_rows = []
+    for candidate in candidates:
+        for profile in candidate["profiles"]:
+            clear = (
+                "elided"
+                if profile["clearState"] == "elided"
+                else f'{format_ms(profile["clearSeconds"])} ms'
+            )
+            stage_rows.append(
+                "<tr>"
+                f'<th scope="row"><code>{escaped(candidate["id"])}</code></th>'
+                f'<td>{profile_labels[profile["profile"]]}</td>'
+                f'<td class="numeric">{format_ms(profile["tileLoadSeconds"])} ms</td>'
+                f'<td class="numeric">{clear}</td>'
+                f'<td class="numeric">{format_ms(profile["scatterSeconds"])} ms</td>'
+                f'<td class="numeric">{format_ms(profile["inversePreparationSeconds"])} ms</td>'
+                f'<td class="numeric">{float(profile["inverseBoundaryToControl"]):.3f}×</td>'
+                f'<td class="numeric">{float(profile["totalToControl"]):.3f}×</td>'
+                "</tr>"
+            )
+
+    gate = evidence["screenGate"]
+    verification = evidence["verification"]
+    artifact_url = (
+        f"{root_prefix}artifacts/decisions/"
+        "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
+    )
+    return f"""
+    <section class="section" aria-labelledby="inverse-zero-fill-heading">
+      <p class="eyebrow">Issue #24 M4 screening disposition</p><h2 id="inverse-zero-fill-heading">Keep the contiguous full-zero inverse preparation</h2>
+      <p>The inverse really does contain avoidable-looking movement: each of fifteen transforms loads a compact tile, establishes omitted-mode zeros, and scatters retained and Hermitian-boundary values before FFTW runs. The screen nevertheless found no faster replacement. All twelve cells passed the authoritative oracle with a maximum error of {float(verification["maximumCorrectnessError"]):.3e} and zero warmed application allocations, but every alternative missed the preregistered reference-advance gate.</p>
+      <div class="table-scroll"><table>
+        <caption>Uniform three-profile screen. Ratios are candidate divided by the frozen contiguous full-zero control; lower is better. This one-round screen rejects noncompetitive candidates but does not produce adoption statistics.</caption>
+        <thead><tr><th scope="col">Policy</th><th scope="col">Changed inverse strategy</th><th scope="col">Geometric inverse</th><th scope="col">Geometric total</th><th scope="col">Worst total</th><th scope="col">Maximum added resident memory</th><th scope="col">Disposition</th></tr></thead>
+        <tbody>{''.join(candidate_rows)}</tbody>
+      </table></div>
+      <div class="table-scroll"><table>
+        <caption>Diagnostic component medians from the same isolated runs. Load, clear, scatter, and combined preparation are instrumented separately; inverse and total ratios use their independently sampled authoritative boundaries.</caption>
+        <thead><tr><th scope="col">Policy</th><th scope="col">Workload</th><th scope="col">Tile load</th><th scope="col">Clear</th><th scope="col">Scatter</th><th scope="col">Combined preparation</th><th scope="col">Inverse ratio</th><th scope="col">Total ratio</th></tr></thead>
+        <tbody>{''.join(stage_rows)}</tbody>
+      </table></div>
+      <p>The active-column policy moves fewer logical bytes, but replaces one contiguous clear with many short strided clears; at 1024² its clear alone rises from 79.768 ms to 119.1 ms. The compact and full-stride preserved-input policies remove the repeated clear, but they require out-of-place column transforms. That change offsets the saved movement: the nearest candidate, full-stride preserved input, is still 1.025× the inverse boundary and 1.004× the complete total geometrically.</p>
+      <p class="method-note">The continuation thresholds were {float(gate["geometricInverseBoundaryRatioAtMost"]):.2f}× inverse and {float(gate["geometricTotalRatioAtMost"]):.2f}× total, with no profile above {float(gate["maximumProfileTotalRatioAtMost"]):.2f}× and resident memory at most {float(gate["maximumProfileAlgorithmResidentRatioAtMost"]):.2f}×. No candidate approached the stronger 0.90× inverse and 0.95× total justification for custom sparse inverse arithmetic. The frozen implementation therefore remains one uniform policy rather than adding size-dependent dispatch.</p>
+      <p><a href="{artifact_url}">Download the issue #24 screening summary JSON</a>.</p>
+    </section>
+    """
+
+
 def build_summary_page(
     bundles: list[PublishedBundle],
     cross_mac_synthesis: dict | None,
     issue19_reference: dict | None,
     issue21_reference: dict | None,
     issue22_reference: dict | None,
+    issue24_inverse: dict | None,
 ) -> str:
     if (
         cross_mac_synthesis is None
         or issue19_reference is None
         or issue21_reference is None
         or issue22_reference is None
+        or issue24_inverse is None
     ):
         raise ValueError(
-            "algorithm summary requires the cross-Mac and issue #19/#21/#22 references"
+            "algorithm summary requires the cross-Mac and issue #19/#21/#22/#24 evidence"
         )
     machines = {
         item["machine"]["cpuBrand"]: item
@@ -7063,6 +7181,7 @@ def build_summary_page(
         <thead><tr><th scope="col">Layer</th><th scope="col">Selected algorithm</th><th scope="col">Why it remains</th></tr></thead>
         <tbody>
           <tr><th scope="row">Horizontal transform</th><td>FFTW 3.3.11 Float64; all real-row transforms plus only retained-band complex columns; persistent outer sharding across performance cores; fixed tile width 16</td><td>Preserves the successful partial-column pruning and radial two-thirds antialiasing without requiring a complete half-spectrum.</td></tr>
+          <tr><th scope="row">Inverse preparation</th><td>One contiguous full half-spectrum clear per tile, followed by retained/Hermitian scatter and the in-place column inverse</td><td>Issue #24 removed or narrowed the zero-fill three different ways, but fragmented clears and preserved-input out-of-place FFTs all regressed the complete inverse boundary.</td></tr>
           <tr><th scope="row">Persistent representation</th><td>Compact radial split complex keyed by logical <em>(k,l,j,field)</em></td><td>Layout is an algorithm choice, not a mathematical gather requirement. It reduces storage and lets downstream kernels remain in split form.</td></tr>
           <tr><th scope="row">Vertical projection</th><td>Two Accelerate real dgemm calls over exact WVM wave-f/wave-g K² matrix families; persistent outer-dynamic scheduling across total cores</td><td>Retains the strongest qualified split-real vertical arithmetic while exposing primitive GEMM separately.</td></tr>
           <tr><th scope="row">Representation boundary</th><td>Direct strided wave-f/wave-g family views</td><td>Eliminates full-volume compact extraction and target scatter; no new grouped-GEMM arithmetic is required for the measured gain.</td></tr>
@@ -7085,16 +7204,19 @@ def build_summary_page(
           <tr><th scope="row"><a href="../experiments/issue-019-production-lifetime-spectral-flux-composition/index.html">Production-lifetime spectral boundary</a></th><td>Streaming tile 16 versus a matched WVM-order graph using the same four-target physical-buffer lifetime</td><td><strong>{float(issue19_reference["geometricCandidateToBaseline"]):.3f}×</strong> time ({float(issue19_interval["lower"]):.3f}×–{float(issue19_interval["upper"]):.3f}×) and {float(issue19_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory.</td><td>The streaming advantage survives production transform multiplicity and lifetime; the complete nonlinear flux remains excluded.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-021-fused-small-grouped-gemm/index.html">Direct vertical-family views</a></th><td>Direct strided family views versus the issue #19 streaming graph with materialized compact extraction/scatter</td><td><strong>{float(issue21_reference["geometricCandidateToControl"]):.3f}×</strong> time ({float(issue21_interval["lower"]):.3f}×–{float(issue21_interval["upper"]):.3f}×), {float(issue21_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory, and {float(issue21_reference["memoryOnlyGeometricRatios"]["scratchBytes"]):.3f}× scratch.</td><td>The remaining actionable bottleneck was serial data movement, not raw vertical GEMM. Carry direct family views into the functional core.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-022-pointwise-advection-optimization/index.html">Pointwise advection</a></th><td>Spatial-static-8 versus the issue #21 serial pointwise control inside the matched complete boundary</td><td><strong>{float(issue22_reference["selectedCandidate"]["geometricPointwiseToSerial"]):.3f}×</strong> isolated pointwise time and <strong>{float(issue22_reference["selectedCandidate"]["geometricTotalToSerial"]):.3f}×</strong> complete time.</td><td>Freeze one eight-worker M4 policy. Pointwise is now about 9%–11% of total; defer pointwise-to-FFT fusion and move the frozen tuple into the portable campaign.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-024-retained-inverse-zero-fill/index.html">Inverse zero-fill and embedding</a></th><td>Active-column reset, compact preserved input, and full-stride preserved input versus the frozen contiguous full-zero control</td><td>The nearest candidate is <strong>{float(issue24_inverse["candidates"][3]["geometricInverseBoundaryToControl"]):.3f}×</strong> inverse and <strong>{float(issue24_inverse["candidates"][3]["geometricTotalToControl"]):.3f}×</strong> total; no alternative advances.</td><td>Keep the existing contiguous clear and in-place column inverse. The zero-fill is documented movement, but removing it does not speed the complete boundary.</td></tr>
         </tbody>
       </table></div>
       <p class="method-note">The M1 Max campaign predates the direct-family-view increment. Cross-Mac portability therefore applies to the underlying streaming tile-16 graph; the latest direct-view improvement is currently an M4 Max result and must be replicated after integration.</p>
     </section>
     {pointwise_advection_reference_synthesis(issue22_reference, "../")}
+    {retained_inverse_zero_fill_synthesis(issue24_inverse, "../")}
     <section class="section" aria-labelledby="alternatives-heading">
       <p class="eyebrow">Qualified alternatives and negative evidence</p><h2 id="alternatives-heading">What we are not carrying forward</h2>
       <ul>
         <li><strong>Float64 vDSP:</strong> native and scheduled vDSP paths did not displace FFTW. The archived result says nothing decisive about a future Float32 model.</li>
         <li><strong><a href="../experiments/issue-017-implicit-hybrid-dealiased-convolution/index.html">FFTW++ implicit/hybrid convolution</a>:</strong> the reference candidate reached 0.902× explicit FFTW with a 0.900×–0.917× interval, but missed the preregistered 10% adoption threshold.</li>
+        <li><strong>Inverse zero-fill alternatives:</strong> active-column reset and preserved-input column transforms moved fewer bytes, but each made the complete inverse slower. The simple contiguous clear remains the uniform policy.</li>
         <li><strong>Custom grouped GEMM:</strong> deferred. Issue #21 left raw vertical GEMM effectively unchanged while removing most of the apparent vertical-plus-movement cost through direct views.</li>
         <li><strong>Size-dependent dispatch:</strong> rejected. The selected candidate is one algorithm and scheduling policy across the workload matrix.</li>
       </ul>
@@ -7112,7 +7234,7 @@ def build_summary_page(
         <li>Run the four-field 256², 512², 1024², and feasible deep-vertical cases on the M4 Max; then repeat the integrated finalist on the M1 Max.</li>
         <li>Change no production default until the real integrated boundary clears the correctness, 10% improvement, regression, confidence, memory, and cross-Mac gates.</li>
       </ol>
-      <p><a href="../artifacts/decisions/issue-011-cross-mac-portability.json">Cross-Mac synthesis JSON</a> · <a href="../artifacts/decisions/issue-019-authoritative-reference-lyra-v1.json">Production-lifetime reference JSON</a> · <a href="../artifacts/decisions/issue-021-fused-vertical-views-lyra-v1.json">Direct-view reference JSON</a></p>
+      <p><a href="../artifacts/decisions/issue-011-cross-mac-portability.json">Cross-Mac synthesis JSON</a> · <a href="../artifacts/decisions/issue-019-authoritative-reference-lyra-v1.json">Production-lifetime reference JSON</a> · <a href="../artifacts/decisions/issue-021-fused-vertical-views-lyra-v1.json">Direct-view reference JSON</a> · <a href="../artifacts/decisions/issue-024-retained-inverse-zero-fill-screen-lyra-v1.json">Inverse zero-fill screen JSON</a></p>
     </section>
     """
     return shell("Algorithms and results", content, "../")
@@ -7261,6 +7383,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue19_reference_evidence = None
     issue21_fused_views_evidence = None
     issue22_pointwise_evidence = None
+    issue24_inverse_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -7342,6 +7465,21 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #22 pointwise reference has the wrong schema"
                 )
+        inverse_path = (
+            decision_artifacts /
+            "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
+        )
+        if inverse_path.is_file():
+            issue24_inverse_evidence = json.loads(
+                inverse_path.read_text(encoding="utf-8")
+            )
+            if issue24_inverse_evidence.get("schema") != (
+                "spectral-kernel-retained-inverse-zero-fill-screen-"
+                "publication-v1"
+            ):
+                raise ValueError(
+                    "issue #24 inverse zero-fill screen has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
     write_page(
@@ -7349,6 +7487,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         build_summary_page(
             bundles, cross_mac_synthesis, issue19_reference_evidence,
             issue21_fused_views_evidence, issue22_pointwise_evidence,
+            issue24_inverse_evidence,
         ),
     )
 
@@ -7378,6 +7517,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 issue19_reference_evidence,
                 issue21_fused_views_evidence,
                 issue22_pointwise_evidence,
+                issue24_inverse_evidence,
             ),
         )
     write_page(
