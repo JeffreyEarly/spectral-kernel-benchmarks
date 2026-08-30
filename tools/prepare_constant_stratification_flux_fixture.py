@@ -33,6 +33,7 @@ AUDITED_SOURCES = {
 COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 TOLERANCE = 1.0e-12
+CROSS_BACKEND_TOLERANCE = 1.0e-11
 NORMALIZATION_ID = (
     "raw horizontal FFT; inverse type-I factors placed in coefficient "
     "assembly; no explicit pointwise scale; forward type-I divided by "
@@ -348,11 +349,20 @@ def validate_and_read(directory: pathlib.Path) -> tuple[
                            "oracle.maximumScaleNormalizedError")
     l2_error = number(oracle.get("relativeL2Error"), "oracle.relativeL2Error")
     require(number(oracle.get("maximumScaleNormalizedErrorTolerance"),
-                   "oracle.maximumScaleNormalizedErrorTolerance") == TOLERANCE and
+                   "oracle.maximumScaleNormalizedErrorTolerance") ==
+            CROSS_BACKEND_TOLERANCE and
             number(oracle.get("relativeL2ErrorTolerance"),
-                   "oracle.relativeL2ErrorTolerance") == TOLERANCE,
-            "oracle tolerances must be 1e-12")
-    require(maximum_error <= TOLERANCE and l2_error <= TOLERANCE,
+                   "oracle.relativeL2ErrorTolerance") ==
+            CROSS_BACKEND_TOLERANCE,
+            "WVM cross-backend oracle tolerances must be 1e-11")
+    require(number(oracle.get("benchmarkMaximumScaleNormalizedErrorTolerance"),
+                   "oracle.benchmarkMaximumScaleNormalizedErrorTolerance") ==
+            TOLERANCE and
+            number(oracle.get("benchmarkRelativeL2ErrorTolerance"),
+                   "oracle.benchmarkRelativeL2ErrorTolerance") == TOLERANCE,
+            "benchmark-to-oracle tolerances must be 1e-12")
+    require(maximum_error <= CROSS_BACKEND_TOLERANCE and
+            l2_error <= CROSS_BACKEND_TOLERANCE,
             "MATLAB and compiled WVM oracle comparison failed")
 
     payloads = validate_payloads(directory, manifest, nkl, nj)

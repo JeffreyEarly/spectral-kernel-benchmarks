@@ -54,9 +54,19 @@ def provider(provider_id: str, seconds: float, order: str) -> dict:
             "state": "elided",
         }],
         "correctness": [{
+            "name": (
+                "complete compact composition versus authoritative WVM oracle"
+                if provider_id == campaign.CANDIDATE_PROVIDER
+                else "complete full-half composition versus authoritative WVM oracle"
+            ),
             "passed": True,
             "maximumRelativeError": 1.0e-14,
             "relativeL2Error": 2.0e-14,
+        }, {
+            "name": "fixture MATLAB versus compiled WVM nonlinear-flux cross-check",
+            "passed": True,
+            "maximumRelativeError": 5.0e-12,
+            "relativeL2Error": 2.0e-12,
         }],
     }
 

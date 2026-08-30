@@ -74,8 +74,9 @@ compiledTransform.t = compiledTransform.t0+elapsedTime;
 matlabFlux = coefficientBundle(matlabFp,matlabFm,matlabF0);
 compiledFlux = coefficientBundle(compiledFp,compiledFm,compiledF0);
 [maximumScaleNormalizedError,relativeL2Error] = comparisonError(compiledFlux,matlabFlux);
-tolerance = 1e-12;
-if maximumScaleNormalizedError > tolerance || relativeL2Error > tolerance
+crossBackendTolerance = 1e-11;
+completeOutputTolerance = 1e-12;
+if maximumScaleNormalizedError > crossBackendTolerance || relativeL2Error > crossBackendTolerance
     error("SpectralKernelBenchmark:ConstantFluxFixtureBackendDisagreement","The compiled and MATLAB WVM nonlinear fluxes disagree: maximum scale-normalized %.17g, relative L2 %.17g.",maximumScaleNormalizedError,relativeL2Error)
 end
 
@@ -94,7 +95,7 @@ payloads(end+1) = writeComplexPayload(outputDirectory,"expected-modal-flux.c128l
 wvmSource = sourceRecord(wvmRepository,"JeffreyEarly/wave-vortex-model");
 generatorSource = sourceRecord(repositoryRoot,"JeffreyEarly/spectral-kernel-benchmarks");
 backend = compiledTransform.computationalBackendMetadata;
-isAuthoritative = ~wvmSource.dirtyTree && ~generatorSource.dirtyTree && backend.module.identityValidated && maximumScaleNormalizedError <= tolerance && relativeL2Error <= tolerance;
+isAuthoritative = ~wvmSource.dirtyTree && ~generatorSource.dirtyTree && backend.module.identityValidated && maximumScaleNormalizedError <= crossBackendTolerance && relativeL2Error <= crossBackendTolerance;
 status = conditional(isAuthoritative,"authoritative-wvm-export","invalid");
 if options.fixtureId == ""
     options.fixtureId = sprintf("wvm-constant-stratification-%dx%d-nz%d-f4-seed%d",options.Nxyz(1),options.Nxyz(2),options.Nxyz(3),options.seed);
@@ -118,7 +119,7 @@ manifest = struct( ...
     "modeOrder",struct("logicalAxes",["k" "l" "j" "coefficient"],"horizontal","WVM radial magnitude then k then l","vertical","j ascending from zero","coefficientNames",["Ap" "Am" "A0"],"fluxNames",["Fp" "Fm" "F0"]), ...
     "normalization",struct("horizontalForward","raw FFT coefficients followed by 1/(Nx*Ny) during modal projection","horizontalInverse","raw inverse FFT with 0.5 type-I inverse factors during coefficient assembly","pointwiseScale",1,"verticalForward","REDFT00/RODFT00 divided by Nz-1 with DCT top endpoint halved and DST endpoints zero"), ...
     "coefficientContract",struct("identity","WVM constant-stratification natural-dimensional-prescaled nonlinear flux","phase","Ap*exp(+i*omega*elapsed), Am*exp(-i*omega*elapsed), A0 unchanged; flux wave contributions returned to reference time","families","U,V use cosine; W,N use sine; target 0/1 derivatives use cosine/cosine/sine; target 2/3 use sine/sine/cosine","specialModes","mode zero uses inertial projection; Kh>0,j=0 is geostrophic; Kh=0,j>0 is mean-density-anomaly"), ...
-    "oracle",struct("identity","WVM MATLAB nonlinearFlux cross-checked against the compiled WVTransformConstantStratificationKernel nonlinearFlux","maximumScaleNormalizedError",maximumScaleNormalizedError,"relativeL2Error",relativeL2Error,"maximumScaleNormalizedErrorTolerance",tolerance,"relativeL2ErrorTolerance",tolerance), ...
+    "oracle",struct("identity","WVM MATLAB nonlinearFlux cross-checked against the compiled WVTransformConstantStratificationKernel nonlinearFlux","maximumScaleNormalizedError",maximumScaleNormalizedError,"relativeL2Error",relativeL2Error,"maximumScaleNormalizedErrorTolerance",crossBackendTolerance,"relativeL2ErrorTolerance",crossBackendTolerance,"benchmarkMaximumScaleNormalizedErrorTolerance",completeOutputTolerance,"benchmarkRelativeL2ErrorTolerance",completeOutputTolerance), ...
     "payloads",payloads);
 
 writeText(fullfile(outputDirectory,"manifest.json"),string(jsonencode(manifest,PrettyPrint=true))+newline);

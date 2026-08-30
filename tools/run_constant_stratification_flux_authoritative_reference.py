@@ -21,7 +21,6 @@ from prepare_constant_stratification_flux_fixture import (
 from run_cross_mac_spectral_reference import percentile_bootstrap
 from run_spectral_pipeline_sweep import (
     geometric_mean,
-    maximum_correctness_error,
     stratified_geometric_bootstrap,
 )
 from run_vertical_gemm_sweep import git_source_state
@@ -231,13 +230,43 @@ def provider_record(record: dict) -> dict:
     )
     if any(int(memory.get(key, 0)) <= 0 for key in memory_keys):
         raise ValueError(f"provider {record.get('id')} lacks complete memory evidence")
-    maximum_error = maximum_correctness_error(record)
+    correctness = record.get("correctness", [])
+    complete_matches = [
+        item for item in correctness
+        if str(item.get("name", "")).startswith("complete ")
+        and "authoritative WVM oracle" in str(item.get("name", ""))
+    ]
+    if len(complete_matches) != 1:
+        raise ValueError(
+            f"provider {record.get('id')} lacks one complete WVM oracle metric"
+        )
+    complete_error = float(complete_matches[0]["maximumRelativeError"])
+    complete_l2_error = float(complete_matches[0]["relativeL2Error"])
+    cross_matches = [
+        item for item in correctness
+        if item.get("name") ==
+        "fixture MATLAB versus compiled WVM nonlinear-flux cross-check"
+    ]
+    if len(cross_matches) != 1:
+        raise ValueError(
+            f"provider {record.get('id')} lacks one WVM cross-backend metric"
+        )
     return {
         "totalSeconds": float(total["medianSeconds"]),
         "totalSamplesSeconds": [float(value) for value in total["samplesSeconds"]],
         "components": components,
         "memory": {key: int(memory[key]) for key in memory_keys},
-        "maximumCorrectnessError": maximum_error,
+        "maximumCorrectnessError": complete_error,
+        "relativeL2Error": complete_l2_error,
+        "allCorrectnessMetricsPassed": bool(
+            correctness and all(item.get("passed") is True for item in correctness)
+        ),
+        "crossBackendMaximumScaleNormalizedError": float(
+            cross_matches[0]["maximumRelativeError"]
+        ),
+        "crossBackendRelativeL2Error": float(
+            cross_matches[0]["relativeL2Error"]
+        ),
         "placementValid": placement_valid(record),
         "allocationLedgerValid": allocation_ledger_valid(record),
         "schedulingId": record.get("schedulingId"),
@@ -279,6 +308,12 @@ def result_record(
         and all(len(item["totalSamplesSeconds"]) == samples
                 for item in (control, candidate))
         and all(math.isfinite(error) and error <= TOLERANCE for error in errors)
+        and all(
+            item["allCorrectnessMetricsPassed"]
+            and math.isfinite(item["relativeL2Error"])
+            and item["relativeL2Error"] <= TOLERANCE
+            for item in (control, candidate)
+        )
         and all(item["placementValid"] and item["allocationLedgerValid"]
                 for item in (control, candidate))
         and control["schedulingId"] == expected_schedule

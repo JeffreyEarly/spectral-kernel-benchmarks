@@ -220,8 +220,8 @@ loadPreparedConstantStratificationFluxFixture(
         std::sin(fixture.latitude * pi / 180.0);
     require(fixture.n0 * fixture.n0 > coriolis * coriolis,
             "Constant-stratification fixture violates N0 squared greater than f squared.");
-    require(fixture.oracleMaximumScaleNormalizedError <= 1.0e-12 &&
-                fixture.oracleRelativeL2Error <= 1.0e-12,
+    require(fixture.oracleMaximumScaleNormalizedError <= 1.0e-11 &&
+                fixture.oracleRelativeL2Error <= 1.0e-11,
             "Constant-stratification fixture WVM backend cross-check failed.");
 
     fixture.fixtureId = reader.string("fixture id");

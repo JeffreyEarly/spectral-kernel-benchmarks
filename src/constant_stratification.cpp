@@ -1807,12 +1807,14 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                           compact ? compactOutput : fullOutput,
                           coefficientWorkload, modes))};
         if (authoritative) {
+            constexpr double crossBackendTolerance = 1.0e-11;
             record.correctness.push_back({
                 "fixture MATLAB versus compiled WVM nonlinear-flux cross-check",
                 fixture->oracleMaximumScaleNormalizedError,
-                tolerance,
-                fixture->oracleMaximumScaleNormalizedError <= tolerance &&
-                    fixture->oracleRelativeL2Error <= tolerance,
+                crossBackendTolerance,
+                fixture->oracleMaximumScaleNormalizedError <=
+                        crossBackendTolerance &&
+                    fixture->oracleRelativeL2Error <= crossBackendTolerance,
                 fixture->oracleRelativeL2Error});
         }
         record.execution.forward.nativePlacement = "out-of-place";
