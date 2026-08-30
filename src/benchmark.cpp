@@ -1,4 +1,5 @@
 #include "skbench/skbench.hpp"
+#include "pointwise_advection.hpp"
 
 #include <fftw3.h>
 
@@ -3997,6 +3998,22 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
     const auto sampleCount = options.samples == 0 ? 3 : options.samples;
     const auto fftwInternalWorkers = options.fftwInternalWorkers == 0
         ? std::size_t{1} : options.fftwInternalWorkers;
+    const auto pointwisePolicy =
+        pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
+    const auto pointwiseWorkers = options.pointwiseWorkers == 0
+        ? (pointwisePolicy == PointwiseAdvectionPolicy::spatialStatic
+               ? options.fftwOuterWorkers
+               : std::size_t{1})
+        : options.pointwiseWorkers;
+    if (pointwiseWorkers == 0) {
+        throw std::invalid_argument(
+            "production-lifetime-flux pointwise worker count must be positive.");
+    }
+    if (pointwisePolicy != PointwiseAdvectionPolicy::spatialStatic &&
+        pointwiseWorkers != 1) {
+        throw std::invalid_argument(
+            "Serial pointwise policies require exactly one worker.");
+    }
     const auto n = selected.workload.nx;
     const auto nz = selected.workload.nz;
     Workload outputWorkload = selected.workload;
@@ -4143,8 +4160,8 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
             }
         }
     };
-    auto pointwise = [&](const double* shared, const double* derivative,
-                         double* target) {
+    auto pointwiseOracle = [&](const double* shared, const double* derivative,
+                               double* target) {
         const auto* u = shared;
         const auto* v = shared + realVolumeElements;
         const auto* w = shared + 2 * realVolumeElements;
@@ -4206,7 +4223,7 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                 tripleWorkload, modes, compactTriple.data(),
                 tripleSpectrum.data());
             inverse.inverse(tripleSpectrum.data(), derivative.data());
-            pointwise(shared.data(), derivative.data(), target.data());
+            pointwiseOracle(shared.data(), derivative.data(), target.data());
             forward.forward(target.data(), targetSpectrum.data());
             gatherRetained(
                 targetWorkload, modes, targetSpectrum.data(),
@@ -4277,11 +4294,16 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
     record.internalWorkers = fftwInternalWorkers;
     record.outerWorkers = options.fftwOuterWorkers;
     record.workers = fftwInternalWorkers * options.fftwOuterWorkers +
-        configuredThreads * verticalStrategy.outerWorkers;
+        configuredThreads * verticalStrategy.outerWorkers +
+        (pointwisePolicy == PointwiseAdvectionPolicy::serial
+             ? 0 : pointwiseWorkers);
     record.planningConfiguration = vertical.id +
         "; preliminary synthetic-development fixture; Float64; radial two-thirds; "
         "Nj=floor(2*(Nz-1)/3); shared U,V,W once per composition; four streamed "
-        "three-derivative targets; no nonlinear-flux adoption claim";
+        "three-derivative targets; pointwise=" +
+        std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+        "; pointwise-workers=" + std::to_string(pointwiseWorkers) +
+        "; no nonlinear-flux adoption claim";
     record.execution.forward = {
         "out-of-place", "out-of-place", false, true, false, false, false,
         "15 ready retained truncated modal inputs in provider-native storage",
@@ -4315,6 +4337,9 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
             targetWorkload, modes,
             fftwPlanningModeNamed(options.fftwPlanning),
             fftwInternalWorkers, options.fftwOuterWorkers, tileWidth);
+        PointwiseAdvectionExecutor pointwiseExecutor(
+            pointwisePolicy, pointwiseWorkers, realVolumeElements,
+            inverseScale);
         reconstruction.loadModalInput(inputModal.data());
         std::vector<double> inverseReal(modeCount * nz * 3);
         std::vector<double> inverseImaginary(modeCount * nz * 3);
@@ -4384,7 +4409,8 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                 inverse.inverseSplit(
                     inverseReal.data(), inverseImaginary.data(),
                     derivative.data());
-                pointwise(shared.data(), derivative.data(), target.data());
+                pointwiseExecutor.execute(
+                    shared.data(), derivative.data(), target.data());
                 forward.forwardSplit(
                     target.data(), forwardReal.data(),
                     forwardImaginary.data());
@@ -4405,13 +4431,23 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
         record.id = "pipeline-production-lifetime-streaming-pruned-tile16";
         record.algorithmId =
             "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-k2-15to4-v1";
+        if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+            record.id += "-pointwise-" +
+                std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
+            record.algorithmId += "+pointwise-" +
+                std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                "-v1";
+        }
         record.nativeRepresentationId =
             "persistent-radial-compact-split-modal-and-retained-spectra";
         record.schedulingId =
             "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
             ";vertical-" + std::string(verticalGemmScheduleName(
                 verticalStrategy.schedule)) + "-" +
-            std::to_string(verticalStrategy.outerWorkers);
+            std::to_string(verticalStrategy.outerWorkers) +
+            ";pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + "-" +
+            std::to_string(pointwiseWorkers);
         record.gemmCallsPerExecution =
             reconstruction.gemmCallsPerExecution() +
             projection.gemmCallsPerExecution();
@@ -4424,7 +4460,7 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
         record.opaquePlanningBytes =
             inverse.planningBytes() + forward.planningBytes();
         record.explicitPersistentBytes = reconstruction.persistentBytes() +
-            projection.persistentBytes();
+            projection.persistentBytes() + pointwiseExecutor.persistentBytes();
         record.scratchBytes = inverse.scratchBytes() + forward.scratchBytes() +
             bytes(inverseReal.size() + inverseImaginary.size() +
                       forwardReal.size() + forwardImaginary.size(),
@@ -4474,8 +4510,8 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                    measure(warmups, sampleCount, [&] {
                        for (std::size_t repetition = 0; repetition < 4;
                             ++repetition)
-                           pointwise(shared.data(), derivative.data(),
-                                     target.data());
+                           pointwiseExecutor.execute(
+                               shared.data(), derivative.data(), target.data());
                    })),
             series("retained-operator-total",
                    "four streamed horizontal forward transforms and retention",
@@ -4499,6 +4535,13 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                    "forward", StageState::executed, verticalForwardBytes,
                    measure(warmups, sampleCount,
                            [&] { projection.executeForward(); }))};
+        if (pointwisePolicy == PointwiseAdvectionPolicy::spatialStatic) {
+            record.timings.push_back(series(
+                "scheduler-diagnostic", "pointwise empty persistent dispatch",
+                "pointwise", StageState::executed, 0,
+                measure(warmups, sampleCount,
+                        [&] { pointwiseExecutor.executeSchedulerNoop(); })));
+        }
         auto release = [](auto& values) {
             using Values = std::remove_reference_t<decltype(values)>;
             Values{}.swap(values);
@@ -4538,7 +4581,9 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
             {"derivative reconstruction", StageState::executed,
              "one three-field derivative buffer is reused for each of four targets"},
             {"pointwise advection", StageState::executed,
-             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization fused into the product"},
+             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization; policy=" +
+                 std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                 "; workers=" + std::to_string(pointwiseWorkers)},
             {"horizontal forward and retention", StageState::fused,
              "partial-column-pruned FFTW writes fixed tile-16 radial compact split output"},
             {"vertical projection", StageState::executed,
@@ -4571,6 +4616,9 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                 options.fftwPlanningTimeLimitSeconds,
                 FFTWDataLayout::interleaved,
                 FFTWSpectrumOrder::wvmFrequencyMajor});
+        PointwiseAdvectionExecutor pointwiseExecutor(
+            pointwisePolicy, pointwiseWorkers, realVolumeElements,
+            inverseScale);
         std::vector<Complex> fullModalInput(
             inputWorkload.halfRows() * nj * inputWorkload.fields);
         std::vector<Complex> fullPhysicalInput(inputWorkload.spectrumElements());
@@ -4638,7 +4686,8 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                 extractTriple(3 + 3 * targetIndex);
                 inverse.inverse(
                     tripleSpectrum.data(), derivative.data());
-                pointwise(shared.data(), derivative.data(), target.data());
+                pointwiseExecutor.execute(
+                    shared.data(), derivative.data(), target.data());
                 forward.forward(target.data(), targetSpectrum.data());
                 scatterTarget(targetIndex);
             }
@@ -4656,13 +4705,23 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
         record.id = "pipeline-production-lifetime-wvm-direct";
         record.algorithmId =
             "full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-15to4-v1";
+        if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+            record.id += "-pointwise-" +
+                std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
+            record.algorithmId += "+pointwise-" +
+                std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                "-v1";
+        }
         record.nativeRepresentationId =
             "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal";
         record.schedulingId =
             "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
             ";vertical-" + std::string(verticalGemmScheduleName(
                 verticalStrategy.schedule)) + "-" +
-            std::to_string(verticalStrategy.outerWorkers);
+            std::to_string(verticalStrategy.outerWorkers) +
+            ";pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + "-" +
+            std::to_string(pointwiseWorkers);
         record.gemmCallsPerExecution =
             reconstruction.gemmCallsPerExecution() +
             projection.gemmCallsPerExecution();
@@ -4676,6 +4735,7 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
             inverse.planningBytes() + forward.planningBytes();
         record.explicitPersistentBytes = reconstruction.persistentBytes() +
             projection.persistentBytes() +
+            pointwiseExecutor.persistentBytes() +
             bytes(fullModalInput.size() + fullPhysicalInput.size() +
                       fullPhysicalOutput.size() + fullModalOutput.size(),
                   sizeof(Complex));
@@ -4731,8 +4791,8 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                    measure(warmups, sampleCount, [&] {
                        for (std::size_t repetition = 0; repetition < 4;
                             ++repetition)
-                           pointwise(shared.data(), derivative.data(),
-                                     target.data());
+                           pointwiseExecutor.execute(
+                               shared.data(), derivative.data(), target.data());
                    })),
             series("primitive", "four streamed full horizontal forward FFTs",
                    "forward", StageState::executed,
@@ -4758,6 +4818,13 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
                        projection.executeForward(
                            fullPhysicalOutput.data(), fullModalOutput.data());
                    }))};
+        if (pointwisePolicy == PointwiseAdvectionPolicy::spatialStatic) {
+            record.timings.push_back(series(
+                "scheduler-diagnostic", "pointwise empty persistent dispatch",
+                "pointwise", StageState::executed, 0,
+                measure(warmups, sampleCount,
+                        [&] { pointwiseExecutor.executeSchedulerNoop(); })));
+        }
         auto release = [](auto& values) {
             using Values = std::remove_reference_t<decltype(values)>;
             Values{}.swap(values);
@@ -4797,7 +4864,9 @@ BenchmarkReport runProductionLifetimeFluxBenchmark(const RunOptions& options) {
             {"derivative reconstruction", StageState::executed,
              "one three-field derivative buffer is reused for each of four targets"},
             {"pointwise advection", StageState::executed,
-             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization fused into the product"},
+             "-(U*qx+V*qy+W*qz) with inverse-FFT normalization; policy=" +
+                 std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                 "; workers=" + std::to_string(pointwiseWorkers)},
             {"horizontal forward and retention", StageState::executed,
              "full WVM-order FFTW output feeds direct per-mode complex zgemm"},
             {"vertical projection", StageState::executed,
@@ -5304,6 +5373,12 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         options.kernel != "production-lifetime-flux") {
         throw std::invalid_argument(
             "--spectral-flux-fixture is valid only for production-lifetime-flux.");
+    }
+    if (options.kernel != "production-lifetime-flux" &&
+        (options.pointwisePolicy != "serial" || options.pointwiseWorkers != 0)) {
+        throw std::invalid_argument(
+            "--pointwise-policy and --pointwise-workers are valid only for "
+            "production-lifetime-flux.");
     }
     if (options.kernel == "production-lifetime-flux")
         return runProductionLifetimeFluxBenchmark(options);

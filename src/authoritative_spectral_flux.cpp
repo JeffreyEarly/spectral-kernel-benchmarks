@@ -1,4 +1,5 @@
 #include "skbench/skbench.hpp"
+#include "pointwise_advection.hpp"
 
 #include <fftw3.h>
 
@@ -202,20 +203,12 @@ SharedContext sharedContext(const SpectralFluxFixture& fixture) {
     return result;
 }
 
-void applyPointwise(const SharedContext& context, const double* shared,
-                    const double* derivative, double* target) {
-    const auto volume = context.realVolumeElements;
-    const auto* u = shared;
-    const auto* v = shared + volume;
-    const auto* w = shared + 2 * volume;
-    const auto* qx = derivative;
-    const auto* qy = derivative + volume;
-    const auto* qz = derivative + 2 * volume;
-    for (std::size_t point = 0; point < volume; ++point) {
-        target[point] = -context.pointwiseScale *
-            (u[point] * qx[point] + v[point] * qy[point] +
-             w[point] * qz[point]);
-    }
+std::size_t resolvedPointwiseWorkers(
+    const RunOptions& options, PointwiseAdvectionPolicy policy) {
+    if (options.pointwiseWorkers != 0) return options.pointwiseWorkers;
+    return policy == PointwiseAdvectionPolicy::spatialStatic
+        ? options.fftwOuterWorkers
+        : std::size_t{1};
 }
 
 double dcImaginaryError(const SharedContext& context,
@@ -316,6 +309,10 @@ ProviderRecord runStreaming(
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
     double fixtureSeconds, bool fusedFamilyViews) {
     const auto setupStart = Clock::now();
+    const auto pointwisePolicy =
+        pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
+    const auto pointwiseWorkers =
+        resolvedPointwiseWorkers(options, pointwisePolicy);
     const auto tileWidth = options.streamingTileWidth == 1
         ? std::size_t{16} : options.streamingTileWidth;
     if (tileWidth != 16) {
@@ -356,6 +353,9 @@ ProviderRecord runStreaming(
         context.targetWorkload, context.modes,
         fftwPlanningModeNamed(options.fftwPlanning), fftwInternalWorkers,
         options.fftwOuterWorkers, tileWidth);
+    PointwiseAdvectionExecutor pointwiseExecutor(
+        pointwisePolicy, pointwiseWorkers, context.realVolumeElements,
+        context.pointwiseScale);
     const auto tripleElements = context.modeCount * context.outputWorkload.nz * 3;
     const auto targetElements = context.modeCount * context.outputWorkload.nz;
     std::vector<double> inverseReal(fusedFamilyViews ? 0 : tripleElements);
@@ -486,7 +486,8 @@ ProviderRecord runStreaming(
                     inverseReal.data(), inverseImaginary.data(),
                     derivative.data());
             }
-            applyPointwise(context, shared.data(), derivative.data(), target.data());
+            pointwiseExecutor.execute(
+                shared.data(), derivative.data(), target.data());
             if (fusedFamilyViews) {
                 auto view = forwardFieldView(targetIndex);
                 forward.forwardSplitFields(target.data(), &view, 1);
@@ -569,6 +570,13 @@ ProviderRecord runStreaming(
     record.algorithmId = fusedFamilyViews
         ? "partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3"
         : "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2";
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.id += "-pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
+        record.algorithmId += "+pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+            "-v1";
+    }
     record.nativeRepresentationId =
         fusedFamilyViews
         ? "persistent radial compact split modal arrays; pruned FFT reads/writes wave-f/wave-g vertical buffers through direct strided field views"
@@ -579,6 +587,11 @@ ProviderRecord runStreaming(
         ";vertical-" + std::string(verticalGemmScheduleName(
             verticalStrategy.schedule)) + '-' +
         std::to_string(verticalStrategy.outerWorkers) + "-per-operator-family";
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.schedulingId += ";pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + '-' +
+            std::to_string(pointwiseWorkers);
+    }
     record.sourceIdentity =
         "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz + Apple Accelerate system framework";
     record.sourceSha256 =
@@ -588,7 +601,9 @@ ProviderRecord runStreaming(
     record.internalWorkers = fftwInternalWorkers;
     record.outerWorkers = options.fftwOuterWorkers;
     record.workers = fftwInternalWorkers * options.fftwOuterWorkers +
-        verticalStrategy.outerWorkers;
+        verticalStrategy.outerWorkers +
+        (pointwisePolicy == PointwiseAdvectionPolicy::serial
+             ? 0 : pointwiseWorkers);
     record.planningConfiguration =
         "authoritative spectral-flux-fixture-v1; Float64; radial two-thirds; "
         "Nj=floor(2*(Nz-1)/3); exact WVM wave-f/wave-g K2 operators; "
@@ -596,6 +611,11 @@ ProviderRecord runStreaming(
         std::string(fusedFamilyViews
             ? "direct strided family views fuse horizontal/vertical representation movement"
             : "materialized canonical triples bridge horizontal/vertical representations");
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.planningConfiguration += "; pointwise=" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+            "; pointwise-workers=" + std::to_string(pointwiseWorkers);
+    }
     record.execution.forward = executionContract(context);
     record.execution.inverse = record.execution.forward;
     record.execution.inverse.nativePlacement = "unsupported";
@@ -612,7 +632,7 @@ ProviderRecord runStreaming(
             reconstruction[family]->allocationSeconds() +
             projection[family]->allocationSeconds();
     }
-    record.explicitPersistentBytes += 0;
+    record.explicitPersistentBytes += pointwiseExecutor.persistentBytes();
     record.scratchBytes = inverse.scratchBytes() + forward.scratchBytes() +
         static_cast<std::size_t>(byteCount(
             inverseReal.size() + inverseImaginary.size() + forwardReal.size() +
@@ -662,7 +682,8 @@ ProviderRecord runStreaming(
                byteCount(28 * context.realVolumeElements, sizeof(double)),
                sample(warmups, samples, [&] {
                    for (std::size_t repeat = 0; repeat < 4; ++repeat)
-                       applyPointwise(context, shared.data(), derivative.data(), target.data());
+                       pointwiseExecutor.execute(
+                           shared.data(), derivative.data(), target.data());
                })),
         timing("retained-operator-total", "four streamed horizontal forward transforms and retention",
                "forward", StageState::executed,
@@ -686,6 +707,14 @@ ProviderRecord runStreaming(
         timing("primitive", "raw forward vertical MM (4 modal targets; exact WVM F/G families)",
                "forward", StageState::executed, verticalForwardBytes,
                sample(warmups, samples, executeVerticalForward))};
+
+    if (pointwisePolicy == PointwiseAdvectionPolicy::spatialStatic) {
+        record.timings.push_back(timing(
+            "scheduler-diagnostic", "pointwise empty persistent dispatch",
+            "pointwise", StageState::executed, 0,
+            sample(warmups, samples,
+                   [&] { pointwiseExecutor.executeSchedulerNoop(); })));
+    }
 
     if (fusedFamilyViews) {
         record.timings.push_back(timing(
@@ -757,7 +786,11 @@ ProviderRecord runStreaming(
         {"derivative reconstruction", StageState::executed,
          "one reusable three-field derivative buffer per target"},
         {"pointwise advection", StageState::executed,
-         "direct -(U*qx+V*qy+W*qz) with fixture normalization"},
+         pointwisePolicy == PointwiseAdvectionPolicy::serial
+             ? "direct -(U*qx+V*qy+W*qz) with fixture normalization"
+             : "direct -(U*qx+V*qy+W*qz) with fixture normalization; policy=" +
+                   std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                   "; workers=" + std::to_string(pointwiseWorkers)},
         {"horizontal forward and retention", StageState::fused,
          "partial-column-pruned FFTW writes fixed tile-16 compact split output"},
         {"horizontal/vertical representation movement",
@@ -785,6 +818,10 @@ ProviderRecord runWvmDirect(
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
     double fixtureSeconds) {
     const auto setupStart = Clock::now();
+    const auto pointwisePolicy =
+        pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
+    const auto pointwiseWorkers =
+        resolvedPointwiseWorkers(options, pointwisePolicy);
     std::array<std::vector<Complex>, 2> compactInput;
     std::array<std::vector<Complex>, 2> fullModalInput;
     std::array<std::vector<Complex>, 2> fullPhysicalInput;
@@ -839,6 +876,9 @@ ProviderRecord runWvmDirect(
             options.fftwOuterWorkers, options.fftwPlanningTimeLimitSeconds,
             FFTWDataLayout::interleaved,
             FFTWSpectrumOrder::wvmFrequencyMajor});
+    PointwiseAdvectionExecutor pointwiseExecutor(
+        pointwisePolicy, pointwiseWorkers, context.realVolumeElements,
+        context.pointwiseScale);
     std::vector<Complex> tripleSpectrum(context.tripleWorkload.spectrumElements());
     std::vector<Complex> targetSpectrum(context.targetWorkload.spectrumElements());
     std::vector<double> shared(context.tripleWorkload.realElements());
@@ -913,7 +953,8 @@ ProviderRecord runWvmDirect(
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
             extractTriple(3 + 3 * targetIndex);
             inverse.inverse(tripleSpectrum.data(), derivative.data());
-            applyPointwise(context, shared.data(), derivative.data(), target.data());
+            pointwiseExecutor.execute(
+                shared.data(), derivative.data(), target.data());
             forward.forward(target.data(), targetSpectrum.data());
             scatterTarget(targetIndex);
         }
@@ -950,6 +991,13 @@ ProviderRecord runWvmDirect(
     record.libraryIdentity = "pinned FFTW 3.3.11 and Apple Accelerate";
     record.algorithmId =
         "full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2";
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.id += "-pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
+        record.algorithmId += "+pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+            "-v1";
+    }
     record.nativeRepresentationId =
         "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal; setup-only wave-f/wave-g field partition";
     record.modeOrderId = "logical-radial-(k,l,j,target); exact WVM F/G mapping";
@@ -958,6 +1006,11 @@ ProviderRecord runWvmDirect(
         ";vertical-" + std::string(verticalGemmScheduleName(
             verticalStrategy.schedule)) + '-' +
         std::to_string(verticalStrategy.outerWorkers) + "-per-operator-family";
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.schedulingId += ";pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + '-' +
+            std::to_string(pointwiseWorkers);
+    }
     record.sourceIdentity =
         "https://fftw.org/pub/fftw/fftw-3.3.11.tar.gz + Apple Accelerate system framework";
     record.sourceSha256 =
@@ -967,10 +1020,17 @@ ProviderRecord runWvmDirect(
     record.internalWorkers = fftwInternalWorkers;
     record.outerWorkers = options.fftwOuterWorkers;
     record.workers = fftwInternalWorkers * options.fftwOuterWorkers +
-        verticalStrategy.outerWorkers;
+        verticalStrategy.outerWorkers +
+        (pointwisePolicy == PointwiseAdvectionPolicy::serial
+             ? 0 : pointwiseWorkers);
     record.planningConfiguration =
         "authoritative spectral-flux-fixture-v1; Float64; full WVM-order spectra; "
         "exact WVM wave-f/wave-g K2 operators; field-family permutation is setup-only";
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        record.planningConfiguration += "; pointwise=" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+            "; pointwise-workers=" + std::to_string(pointwiseWorkers);
+    }
     record.execution.forward = executionContract(context);
     record.execution.inverse = record.execution.forward;
     record.execution.inverse.nativePlacement = "unsupported";
@@ -990,6 +1050,7 @@ ProviderRecord runWvmDirect(
             reconstruction[family]->allocationSeconds() +
             projection[family]->allocationSeconds();
     }
+    record.explicitPersistentBytes += pointwiseExecutor.persistentBytes();
     record.scratchBytes = static_cast<std::size_t>(
         byteCount(tripleSpectrum.size() + targetSpectrum.size(), sizeof(Complex)) +
         byteCount(shared.size() + derivative.size() + target.size(), sizeof(double)));
@@ -1042,7 +1103,8 @@ ProviderRecord runWvmDirect(
                byteCount(28 * context.realVolumeElements, sizeof(double)),
                sample(warmups, samples, [&] {
                    for (std::size_t repeat = 0; repeat < 4; ++repeat)
-                       applyPointwise(context, shared.data(), derivative.data(), target.data());
+                       pointwiseExecutor.execute(
+                           shared.data(), derivative.data(), target.data());
                })),
         timing("primitive", "four streamed full horizontal forward FFTs", "forward",
                StageState::executed,
@@ -1062,6 +1124,14 @@ ProviderRecord runWvmDirect(
         timing("primitive", "raw forward vertical MM (4 modal targets; exact WVM F/G families)",
                "forward", StageState::executed, verticalForwardBytes,
                sample(warmups, samples, executeVerticalForward))};
+
+    if (pointwisePolicy == PointwiseAdvectionPolicy::spatialStatic) {
+        record.timings.push_back(timing(
+            "scheduler-diagnostic", "pointwise empty persistent dispatch",
+            "pointwise", StageState::executed, 0,
+            sample(warmups, samples,
+                   [&] { pointwiseExecutor.executeSchedulerNoop(); })));
+    }
 
     const auto correctnessBytes = byteCount(
         fixture.modalInputs.size() + fixture.expectedModalTargets.size() +
@@ -1097,7 +1167,11 @@ ProviderRecord runWvmDirect(
         {"derivative reconstruction", StageState::executed,
          "one reusable three-field derivative buffer per target"},
         {"pointwise advection", StageState::executed,
-         "direct -(U*qx+V*qy+W*qz) with fixture normalization"},
+         pointwisePolicy == PointwiseAdvectionPolicy::serial
+             ? "direct -(U*qx+V*qy+W*qz) with fixture normalization"
+             : "direct -(U*qx+V*qy+W*qz) with fixture normalization; policy=" +
+                   std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
+                   "; workers=" + std::to_string(pointwiseWorkers)},
         {"horizontal forward and retention", StageState::executed,
          "full WVM-order FFTW output feeds direct vertical zgemm"},
         {"vertical projection", StageState::executed,
@@ -1138,6 +1212,19 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
         throw std::invalid_argument(
             "Authoritative production-lifetime benchmark uses independent worker controls.");
     }
+    const auto pointwisePolicy =
+        pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
+    const auto pointwiseWorkers =
+        resolvedPointwiseWorkers(options, pointwisePolicy);
+    if (pointwiseWorkers == 0) {
+        throw std::invalid_argument(
+            "Authoritative pointwise worker count must be positive.");
+    }
+    if (pointwisePolicy != PointwiseAdvectionPolicy::spatialStatic &&
+        pointwiseWorkers != 1) {
+        throw std::invalid_argument(
+            "Serial pointwise policies require exactly one worker.");
+    }
     const VerticalGemmStrategy verticalStrategy{
         verticalGemmScheduleNamed(options.verticalGemmSchedule),
         options.verticalGemmOuterWorkers};
@@ -1167,11 +1254,20 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
 
     BenchmarkReport report;
     report.environment = environmentRecord();
-    const auto issueTag = options.boundaryPolicy ==
-        "streaming-pruned-compact-split-fused-vertical-views"
-        ? "issue21-authoritative-" : "issue19-authoritative-";
+    const auto issueTag = pointwisePolicy != PointwiseAdvectionPolicy::serial
+        ? "issue22-authoritative-"
+        : options.boundaryPolicy ==
+              "streaming-pruned-compact-split-fused-vertical-views"
+            ? "issue21-authoritative-"
+            : "issue19-authoritative-";
     report.runId = runTimestamp(report.environment.timestampUtc) + '-' +
-        issueTag + options.boundaryPolicy + '-' + report.environment.hostname;
+        issueTag + options.boundaryPolicy;
+    if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
+        report.runId += "-pointwise-" +
+            std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) + '-' +
+            std::to_string(pointwiseWorkers);
+    }
+    report.runId += '-' + report.environment.hostname;
     report.profile = options.profile;
     report.seed = 0;
     report.warmups = warmups;

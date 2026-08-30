@@ -28,6 +28,8 @@ void usage(std::ostream& output) {
            << "              [--vertical-gemm-outer-workers N]\n"
            << "              [--boundary-policy NAME]\n"
            << "              [--streaming-tile-width N]\n"
+           << "              [--pointwise-policy serial|vector-serial|spatial-static]\n"
+           << "              [--pointwise-workers N]\n"
            << "              [--convolution-map independent-products|wvm-advection]\n"
            << "              [--convolution-candidate all|explicit-parallel|fftwpp-parallel]\n"
            << "              [--convolution-products 4|12]\n"
@@ -69,6 +71,10 @@ void list() {
               << "  plane-major-fused-split\n"
               << "  streaming-pruned-compact-split\n"
               << "  plane-major-view\n"
+              << "pointwise policies:\n"
+              << "  serial\n"
+              << "  vector-serial\n"
+              << "  spatial-static\n"
               << "vertical GEMM matrix families:\n"
               << "  common\n"
               << "  k2-grouped\n"
@@ -183,6 +189,8 @@ int main(int argc, char** argv) {
                 else if (key == "--vertical-gemm-outer-workers") options.verticalGemmOuterWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--boundary-policy") options.boundaryPolicy = requireValue(argc, argv, index);
                 else if (key == "--streaming-tile-width") options.streamingTileWidth = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--pointwise-policy") options.pointwisePolicy = requireValue(argc, argv, index);
+                else if (key == "--pointwise-workers") options.pointwiseWorkers = std::stoull(requireValue(argc, argv, index));
                 else if (key == "--convolution-map") options.convolutionMap = requireValue(argc, argv, index);
                 else if (key == "--convolution-candidate") options.convolutionCandidate = requireValue(argc, argv, index);
                 else if (key == "--convolution-products") options.convolutionProducts = std::stoull(requireValue(argc, argv, index));

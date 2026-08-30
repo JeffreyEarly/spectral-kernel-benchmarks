@@ -1,5 +1,6 @@
 #include "skbench/skbench.hpp"
 #include "allocation_tracker.hpp"
+#include "pointwise_advection.hpp"
 
 #include <fftw3.h>
 
@@ -10,6 +11,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifndef SKBENCH_TEST_HAVE_FFTWPP
@@ -1014,6 +1016,65 @@ int main() {
         for (const auto layout : {skbench::VerticalGemmLayout::complexInterleaved,
                                   skbench::VerticalGemmLayout::split}) {
             require(!skbench::verticalGemmLayoutName(layout).empty(), "vertical GEMM layout name");
+        }
+        for (const auto policy : {
+                 skbench::PointwiseAdvectionPolicy::serial,
+                 skbench::PointwiseAdvectionPolicy::vectorSerial,
+                 skbench::PointwiseAdvectionPolicy::spatialStatic}) {
+            const auto name = skbench::pointwiseAdvectionPolicyName(policy);
+            require(skbench::pointwiseAdvectionPolicyNamed(name) == policy,
+                    "pointwise policy name round trip");
+        }
+
+        {
+            constexpr std::size_t volume = 37;
+            constexpr double scale = 0.03125;
+            std::vector<double> shared(3 * volume);
+            std::vector<double> derivative(3 * volume);
+            std::vector<double> expected(volume);
+            std::vector<double> actual(volume);
+            for (std::size_t index = 0; index < 3 * volume; ++index) {
+                shared[index] = static_cast<double>(index % 17) - 8.0;
+                derivative[index] =
+                    static_cast<double>((3 * index + 5) % 23) - 11.0;
+            }
+            for (std::size_t point = 0; point < volume; ++point) {
+                expected[point] = -scale *
+                    (shared[point] * derivative[point] +
+                     shared[volume + point] * derivative[volume + point] +
+                     shared[2 * volume + point] *
+                         derivative[2 * volume + point]);
+            }
+            for (const auto specification : {
+                     std::pair{skbench::PointwiseAdvectionPolicy::serial,
+                               std::size_t{1}},
+                     std::pair{skbench::PointwiseAdvectionPolicy::vectorSerial,
+                               std::size_t{1}},
+                     std::pair{skbench::PointwiseAdvectionPolicy::spatialStatic,
+                               std::size_t{4}}}) {
+                skbench::PointwiseAdvectionExecutor executor(
+                    specification.first, specification.second, volume, scale);
+                executor.execute(shared.data(), derivative.data(), actual.data());
+                require(skbench::maximumRelativeError(
+                            actual.data(), expected.data(), volume) <= 1.0e-15,
+                        "pointwise policy tail correctness");
+                if (specification.first ==
+                    skbench::PointwiseAdvectionPolicy::spatialStatic) {
+                    executor.executeSchedulerNoop();
+                    require(executor.persistentBytes() > 0,
+                            "parallel pointwise persistent worker accounting");
+                }
+                if (skbench::test::allocationTrackingSupported()) {
+                    skbench::test::beginAllocationTracking();
+                    for (std::size_t repetition = 0; repetition < 16;
+                         ++repetition) {
+                        executor.execute(
+                            shared.data(), derivative.data(), actual.data());
+                    }
+                    require(skbench::test::endAllocationTracking() == 0,
+                            "pointwise steady-state execution allocated memory");
+                }
+            }
         }
 
         const auto profileList = skbench::profiles();

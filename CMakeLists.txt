@@ -43,6 +43,7 @@ add_library(skbench_core
     src/pruned_fftw_provider.cpp
     src/json.cpp
     src/model.cpp
+    src/pointwise_advection.cpp
     src/spectral_flux_fixture.cpp
     src/vertical_gemm.cpp
     src/vdsp_provider.cpp)
@@ -112,6 +113,7 @@ if(SKBENCH_BUILD_TESTS)
 
     add_executable(skbench_tests tests/skbench_tests.cpp)
     target_compile_features(skbench_tests PRIVATE cxx_std_20)
+    target_include_directories(skbench_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(skbench_tests PRIVATE skbench_core skbench_allocation_tracker skbench_fftw)
     add_test(NAME skbench-unit COMMAND skbench_tests)
     add_test(NAME skbench-cli-list COMMAND skbench list)
@@ -131,6 +133,7 @@ if(SKBENCH_BUILD_TESTS)
     add_test(NAME skbench-cli-streaming-pruned-tiled-pipeline COMMAND skbench run --kernel spectral-pipeline --boundary-policy streaming-pruned-compact-split --streaming-tile-width 8 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-production-lifetime-wvm COMMAND skbench run --kernel production-lifetime-flux --boundary-policy wvm-direct --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-production-lifetime-streaming COMMAND skbench run --kernel production-lifetime-flux --boundary-policy streaming-pruned-compact-split --streaming-tile-width 16 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
+    add_test(NAME skbench-cli-production-lifetime-pointwise-spatial COMMAND skbench run --kernel production-lifetime-flux --boundary-policy streaming-pruned-compact-split --streaming-tile-width 16 --pointwise-policy spatial-static --pointwise-workers 2 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     if(SKBENCH_ENABLE_FFTWPP)
         target_compile_definitions(skbench_tests PRIVATE SKBENCH_TEST_HAVE_FFTWPP=1)
         add_test(NAME skbench-cli-dealiased-convolution-p4 COMMAND skbench run --kernel dealiased-convolution --profile smoke --convolution-products 4 --warmups 1 --samples 2)
@@ -160,4 +163,5 @@ if(SKBENCH_BUILD_TESTS)
     set_tests_properties(skbench-cli-streaming-pruned-tiled-pipeline PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     set_tests_properties(skbench-cli-production-lifetime-wvm PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     set_tests_properties(skbench-cli-production-lifetime-streaming PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
+    set_tests_properties(skbench-cli-production-lifetime-pointwise-spatial PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
 endif()
