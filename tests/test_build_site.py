@@ -68,6 +68,7 @@ class BuildSiteTests(unittest.TestCase):
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             constant_type1_methods_page = output / "methods" / "wvm-constant-stratification-type1" / "index.html"
+            constant_flux_methods_page = output / "methods" / "wvm-constant-stratification-flux" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             summary_page = output / "summary" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
@@ -128,6 +129,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(constant_type1_methods_page.is_file())
+            self.assertTrue(constant_flux_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertTrue(summary_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
@@ -190,7 +192,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("no candidate advanced to reference depth", issue_24_html)
             issue_20_html = issue_20_page.read_text(encoding="utf-8")
             self.assertIn("Experiment · issue #20 · collecting", issue_20_html)
-            self.assertIn("15 inverse and 4 forward complex type-I channels", issue_20_html)
+            self.assertIn("15 inverse type-I channels", issue_20_html)
             self.assertIn("<strong>0.366×</strong>", issue_20_html)
             self.assertIn("0.348× the control", issue_20_html)
             self.assertIn("not an end-to-end adoption result", issue_20_html)
@@ -198,10 +200,20 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("worst workload is 0.719×", issue_20_html)
             self.assertIn("Algorithm-resident memory is 0.838×", issue_20_html)
             self.assertIn("synthetic coefficient map", issue_20_html)
-            self.assertIn("Exact WVM coefficient-oracle validation", issue_20_html)
+            self.assertIn("12 reference run pages", issue_20_html)
+            self.assertIn("M4 Max authoritative nonlinear-flux reference", issue_20_html)
+            self.assertIn("<strong>0.654×</strong>", issue_20_html)
+            self.assertIn("worst workload of 0.684×", issue_20_html)
+            self.assertIn("Algorithm-resident memory is 0.867×", issue_20_html)
+            self.assertIn("maximum candidate/control error is 1.023e-12", issue_20_html)
+            self.assertIn("passes the preregistered M4 constant-stratification advancement gate", issue_20_html)
             constant_type1_html = constant_type1_methods_page.read_text(encoding="utf-8")
             self.assertIn("Exact type-I definitions", constant_type1_html)
             self.assertIn("15 inverse and 4 forward complex vertical channels", constant_type1_html)
+            constant_flux_html = constant_flux_methods_page.read_text(encoding="utf-8")
+            self.assertIn("Authoritative WVM constant-stratification flux", constant_flux_html)
+            self.assertIn("Exact mathematical graph", constant_flux_html)
+            self.assertIn("maximum scale-normalized error at most", constant_flux_html)
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)

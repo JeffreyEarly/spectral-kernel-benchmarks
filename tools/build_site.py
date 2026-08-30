@@ -102,6 +102,10 @@ def provider_name(provider: dict) -> str:
             "Constant-stratification WVM full-half control",
         "pipeline-constant-stratification-streaming-pruned-tile16":
             "Constant-stratification compact tile-16 candidate",
+        "pipeline-constant-stratification-wvm-full-half-authoritative":
+            "Authoritative constant-stratification WVM full-half control",
+        "pipeline-constant-stratification-streaming-pruned-tile16-authoritative":
+            "Authoritative constant-stratification compact tile-16 candidate",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -190,7 +194,26 @@ def summary_timing_table(result: dict) -> str:
         provider["id"].startswith("pipeline-constant-stratification-")
         for provider in providers
     ):
+        authoritative = any(
+            provider["id"].endswith("-authoritative")
+            for provider in providers
+        )
+        accumulation_stage = (
+            "four authoritative flux-target accumulations"
+            if authoritative
+            else "coefficient reset and four target accumulations"
+        )
+        total_stage = (
+            "authoritative WVM constant-stratification nonlinear-flux composition"
+            if authoritative
+            else "production-shaped constant-stratification spectral-flux composition"
+        )
         measurements = [
+            (
+                "Phase and flux reset", "component",
+                ("phase evaluation and flux reset",),
+                ("phase",),
+            ),
             (
                 "Coefficient assembly", "component",
                 ("mode-keyed coefficient assembly and retained/full clearing",),
@@ -221,12 +244,12 @@ def summary_timing_table(result: dict) -> str:
             ),
             (
                 "Coefficient accumulation", "component",
-                ("coefficient reset and four target accumulations",),
+                (accumulation_stage,),
                 ("forward",),
             ),
             (
                 "Composed total", "uninstrumented-total",
-                ("production-shaped constant-stratification spectral-flux composition",),
+                (total_stage,),
                 ("complete",),
             ),
         ]
@@ -6934,6 +6957,291 @@ def constant_stratification_composed_synthesis(
     """
 
 
+def constant_stratification_authoritative_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    selected = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+            "constant-stratification-flux-authoritative-reference-v1"
+        and bundle.publication.get("status") == "reference"
+    ]
+    if not selected:
+        return ""
+
+    control_id = "pipeline-constant-stratification-wvm-full-half-authoritative"
+    candidate_id = (
+        "pipeline-constant-stratification-streaming-pruned-tile16-authoritative"
+    )
+    total_stage = (
+        "authoritative WVM constant-stratification nonlinear-flux composition"
+    )
+    component_definitions = [
+        ("Phase and flux reset", "component", "phase evaluation and flux reset", "phase"),
+        (
+            "Coefficient assembly", "component",
+            "mode-keyed coefficient assembly and retained/full clearing", "inverse",
+        ),
+        ("Inverse type-I", "component", "15 inverse complex type-I channels", "inverse"),
+        (
+            "Horizontal inverse", "retained-operator-total",
+            "five horizontal inverse transforms", "inverse",
+        ),
+        (
+            "Pointwise advection", "component",
+            "four streamed pointwise advection expressions", "pointwise",
+        ),
+        (
+            "Horizontal forward", "retained-operator-total",
+            "four horizontal forward transforms and radial retention", "forward",
+        ),
+        (
+            "Forward type-I", "component",
+            "four forward complex type-I channels and normalization", "forward",
+        ),
+        (
+            "Flux projection", "component",
+            "four authoritative flux-target accumulations", "forward",
+        ),
+    ]
+
+    def required(
+        provider: dict, scope: str, stage: str, direction: str,
+    ) -> float:
+        matches = [
+            item for item in provider["timings"]
+            if item["scope"] == scope and item["stage"] == stage
+            and item["direction"] == direction
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"issue #20 authoritative provider {provider['id']} lacks one "
+                f"{scope}/{stage}/{direction} timing"
+            )
+        return float(matches[0]["medianSeconds"])
+
+    def metric(provider: dict, name: str) -> dict:
+        matches = [
+            item for item in provider["correctness"]
+            if item.get("name") == name
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"issue #20 authoritative provider {provider['id']} lacks "
+                f"correctness metric {name}"
+            )
+        return matches[0]
+
+    grouped: dict[tuple[int, int], list[PublishedBundle]] = {}
+    for bundle in selected:
+        result = bundle.result
+        workload = result["workload"]
+        key = (int(workload["Nx"]), int(workload["Nz"]))
+        grouped.setdefault(key, []).append(bundle)
+    expected_shapes = {(256, 129), (512, 257), (1024, 129), (512, 513)}
+    if set(grouped) != expected_shapes:
+        raise ValueError("issue #20 authoritative reference has the wrong workload set")
+
+    rows: list[dict] = []
+    maximum_oracle_error = 0.0
+    maximum_oracle_l2 = 0.0
+    maximum_equivalence_error = 0.0
+    maximum_equivalence_l2 = 0.0
+    all_correct = True
+    profile_round_ratios: dict[str, list[float]] = {}
+    for key, workload_bundles in grouped.items():
+        workload_bundles.sort(
+            key=lambda bundle: int(bundle.publication.get("campaignRound", 0))
+        )
+        rounds = [
+            int(bundle.publication.get("campaignRound", 0))
+            for bundle in workload_bundles
+        ]
+        if rounds != [1, 2, 3]:
+            raise ValueError(
+                f"issue #20 authoritative workload {key} lacks rounds 1, 2, and 3"
+            )
+        control_totals: list[float] = []
+        candidate_totals: list[float] = []
+        control_memory: list[int] = []
+        candidate_memory: list[int] = []
+        providers_by_run: list[tuple[dict, dict]] = []
+        links: list[str] = []
+        profile = str(workload_bundles[0].result["run"]["profile"])
+        for bundle in workload_bundles:
+            providers = {
+                provider["id"]: provider
+                for provider in bundle.result["providers"]
+            }
+            if set(providers) != {control_id, candidate_id}:
+                raise ValueError(
+                    "issue #20 authoritative run has the wrong provider pair"
+                )
+            control = providers[control_id]
+            candidate = providers[candidate_id]
+            providers_by_run.append((control, candidate))
+            control_totals.append(required(
+                control, "uninstrumented-total", total_stage, "complete"
+            ))
+            candidate_totals.append(required(
+                candidate, "uninstrumented-total", total_stage, "complete"
+            ))
+            control_memory.append(int(control["memory"]["algorithmResidentBytes"]))
+            candidate_memory.append(int(candidate["memory"]["algorithmResidentBytes"]))
+            run_id = bundle.result["run"]["id"]
+            round_number = int(bundle.publication["campaignRound"])
+            links.append(
+                f'<a href="../../runs/{quote(run_id)}/index.html">r{round_number}</a>'
+            )
+
+            for provider, oracle_name in (
+                (
+                    control,
+                    "complete full-half composition versus authoritative WVM oracle",
+                ),
+                (
+                    candidate,
+                    "complete compact composition versus authoritative WVM oracle",
+                ),
+            ):
+                oracle = metric(provider, oracle_name)
+                maximum_oracle_error = max(
+                    maximum_oracle_error,
+                    float(oracle["maximumRelativeError"]),
+                )
+                maximum_oracle_l2 = max(
+                    maximum_oracle_l2,
+                    float(oracle["relativeL2Error"]),
+                )
+                all_correct = all_correct and bool(oracle["passed"])
+            equivalence = metric(
+                candidate,
+                "complete compact composition versus full-half control",
+            )
+            maximum_equivalence_error = max(
+                maximum_equivalence_error,
+                float(equivalence["maximumRelativeError"]),
+            )
+            maximum_equivalence_l2 = max(
+                maximum_equivalence_l2,
+                float(equivalence["relativeL2Error"]),
+            )
+            all_correct = all_correct and bool(equivalence["passed"])
+
+        round_ratios = [
+            candidate / control
+            for control, candidate in zip(control_totals, candidate_totals)
+        ]
+        profile_round_ratios[profile] = round_ratios
+        control_total = statistics.median(control_totals)
+        candidate_total = statistics.median(candidate_totals)
+        control_resident = int(statistics.median(control_memory))
+        candidate_resident = int(statistics.median(candidate_memory))
+        rows.append({
+            "nx": key[0],
+            "nz": key[1],
+            "links": " / ".join(links),
+            "control": control_total,
+            "candidate": candidate_total,
+            "ratio": statistics.median(round_ratios),
+            "roundRatios": round_ratios,
+            "controlResident": control_resident,
+            "candidateResident": candidate_resident,
+            "memoryRatio": candidate_resident / control_resident,
+            "providers": providers_by_run,
+        })
+    rows.sort(key=lambda row: (row["nx"], row["nz"]))
+
+    geometric_time = statistics.geometric_mean(row["ratio"] for row in rows)
+    worst_time = max(row["ratio"] for row in rows)
+    geometric_memory = statistics.geometric_mean(
+        row["memoryRatio"] for row in rows
+    )
+    generator = random.Random(129)
+    bootstrap = sorted(
+        statistics.geometric_mean([
+            generator.choice(profile_round_ratios[profile])
+            for profile in sorted(profile_round_ratios)
+        ])
+        for _ in range(20000)
+    )
+    lower = bootstrap[int(0.025 * (len(bootstrap) - 1))]
+    upper = bootstrap[int(0.975 * (len(bootstrap) - 1))]
+    gate_passed = (
+        geometric_time <= 0.90 and worst_time <= 1.03 and upper < 1.0
+        and all_correct and maximum_oracle_error <= 2.0e-12
+        and maximum_oracle_l2 <= 1.0e-12
+        and maximum_equivalence_error <= 2.0e-12
+        and maximum_equivalence_l2 <= 1.0e-12
+    )
+
+    workload_rows: list[str] = []
+    for row in rows:
+        workload_rows.append(
+            "<tr>"
+            f'<th scope="row">{row["nx"]}² / N<sub>z</sub>={row["nz"]}<br>'
+            f'<span class="muted">{row["links"]}</span></th>'
+            f'<td class="numeric">{format_ms(row["control"])}</td>'
+            f'<td class="numeric">{format_ms(row["candidate"])}</td>'
+            f'<td class="numeric"><strong>{row["ratio"]:.3f}×</strong><br>'
+            f'<span class="muted">{min(row["roundRatios"]):.3f}×–{max(row["roundRatios"]):.3f}×</span></td>'
+            f'<td class="numeric">{format_bytes(row["controlResident"])}</td>'
+            f'<td class="numeric">{format_bytes(row["candidateResident"])}</td>'
+            f'<td class="numeric">{row["memoryRatio"]:.3f}×</td>'
+            "</tr>"
+        )
+
+    component_rows: list[str] = []
+    for label, scope, stage, direction in component_definitions:
+        ratios: list[float] = []
+        for row in rows:
+            control_values = [
+                required(control, scope, stage, direction)
+                for control, _ in row["providers"]
+            ]
+            candidate_values = [
+                required(candidate, scope, stage, direction)
+                for _, candidate in row["providers"]
+            ]
+            ratios.append(
+                statistics.median(candidate_values) /
+                statistics.median(control_values)
+            )
+        component_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(label)}</th>'
+            f'<td class="numeric">{statistics.geometric_mean(ratios):.3f}×</td>'
+            f'<td class="numeric">{min(ratios):.3f}×–{max(ratios):.3f}×</td>'
+            "</tr>"
+        )
+
+    conclusion = (
+        "The compact tile-16 tuple passes the preregistered M4 constant-stratification advancement gate."
+        if gate_passed
+        else "The compact tuple does not pass every preregistered advancement gate."
+    )
+    return f"""
+    <section class="section" aria-labelledby="constant-authoritative-heading">
+      <p class="eyebrow">M4 Max authoritative nonlinear-flux reference</p>
+      <h2 id="constant-authoritative-heading">The compact tile-16 graph preserves the exact WVM flux and cuts complete-call time by about one third</h2>
+      <p>This final increment replaces the earlier synthetic coefficient map with WVM's audited constant-stratification phase evolution, physical coefficient formulas, analytic type-I transforms, pointwise products, projection, and phase removal. Across all four F4 workloads, the compact graph is <strong>{geometric_time:.3f}×</strong> the full-half WVM-layout control, with a stratified paired-bootstrap interval of <strong>{lower:.3f}×–{upper:.3f}×</strong> and a worst workload of {worst_time:.3f}×. Algorithm-resident memory is {geometric_memory:.3f}× the control geometrically.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three paired 21-sample rounds per workload, alternating provider order. Times are medians of round medians in milliseconds; the ratio is the median paired round ratio and therefore need not equal the quotient of the separately displayed times. The range contains all three paired ratios. Both graphs coexist for comparison, so process high water is not used as an algorithm-specific ratio.</caption>
+        <thead><tr><th scope="col">Workload and runs</th><th scope="col">Full-half control</th><th scope="col">Compact tile 16</th><th scope="col">Time ratio / round range</th><th scope="col">Control resident</th><th scope="col">Candidate resident</th><th scope="col">Memory ratio</th></tr></thead>
+        <tbody>{''.join(workload_rows)}</tbody>
+      </table></div>
+      <h3>Separately sampled component evidence</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Geometric compact/control ratios across the four workloads. Component timings are diagnostic and do not sum to the independently sampled complete total.</caption>
+        <thead><tr><th scope="col">Component</th><th scope="col">Geometric ratio</th><th scope="col">Workload range</th></tr></thead>
+        <tbody>{''.join(component_rows)}</tbody>
+      </table></div>
+      <p>{escaped(conclusion)} The maximum candidate/control error is {maximum_equivalence_error:.3e} (relative L2 {maximum_equivalence_l2:.3e}); the maximum benchmark/compiled-WVM-oracle error is {maximum_oracle_error:.3e} (relative L2 {maximum_oracle_l2:.3e}). Both satisfy the finalized dual norm: maximum scale-normalized error at most 2e-12 and relative L2 error at most 1e-12.</p>
+      <p class="method-note"><strong>Scope:</strong> this is an exact constant-stratification nonlinear-flux result on the tested M4 Max, not a general-stratification, full-timestep, Float32, or general-Mac result. One out-of-place, input-preserving tuple is used at every size; no size-dependent dispatch is recommended. <a href="../../methods/wvm-constant-stratification-flux/index.html">Read the authoritative fixture, formula, placement, and correctness contract</a>.</p>
+    </section>
+    """
+
+
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
@@ -6988,10 +7296,17 @@ def build_experiment_page(
             "no candidate advanced to reference depth."
         )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
+        authoritative_count = sum(
+            bundle.publication.get("incrementId") ==
+                "constant-stratification-flux-authoritative-reference-v1"
+            and bundle.publication.get("status") == "reference"
+            for bundle in related
+        )
         evidence_statement = (
             "Four clean preliminary M4 Max run pages record the isolated vertical "
-            "component screen and four more record the composed development screen. "
-            "Exact WVM coefficient-oracle validation remains outstanding."
+            "component screen and four more preserve the composed development screen. "
+            f"{authoritative_count} reference run pages now record the exact WVM "
+            "constant-stratification nonlinear-flux campaign."
         )
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-003-fftw-production-baseline":
@@ -7016,6 +7331,7 @@ def build_experiment_page(
         synthesis = (
             constant_stratification_type1_synthesis(related)
             + constant_stratification_composed_synthesis(related)
+            + constant_stratification_authoritative_synthesis(related)
         )
     elif experiment_id == "issue-021-fused-small-grouped-gemm":
         synthesis = fused_vertical_views_reference_synthesis(
@@ -7204,6 +7520,19 @@ def build_constant_stratification_type1_page(contract_source: Path) -> str:
     <article class="section prose">{rendered}</article>
     """
     return shell("WVM constant-stratification type-I transforms", content, "../../")
+
+
+def build_constant_stratification_flux_page(contract_source: Path) -> str:
+    rendered = render_markdown(contract_source.read_text(encoding="utf-8"))
+    content = f"""
+    <section class="hero compact">
+      <p class="eyebrow">Versioned nonlinear-flux methodology</p>
+      <h1>Authoritative WVM constant-stratification flux</h1>
+      <p class="lede">The audited fixture, exact coefficient formulas, logical mode contract, placement, timing boundary, memory ledger, and dual-norm correctness gate for issue #20.</p>
+    </section>
+    <article class="section prose">{rendered}</article>
+    """
+    return shell("Authoritative WVM constant-stratification flux", content, "../../")
 
 
 def capacity_outcome(machine_result: dict) -> str:
@@ -7927,6 +8256,13 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         build_constant_stratification_type1_page(
             repository_root /
             "docs" / "wvm-constant-stratification-vertical-contract.md"
+        ),
+    )
+    write_page(
+        output_dir / "methods" / "wvm-constant-stratification-flux" / "index.html",
+        build_constant_stratification_flux_page(
+            repository_root /
+            "docs" / "wvm-constant-stratification-flux-fixture-contract.md"
         ),
     )
     write_page(
