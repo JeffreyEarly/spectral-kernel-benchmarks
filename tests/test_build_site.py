@@ -65,6 +65,7 @@ class BuildSiteTests(unittest.TestCase):
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
+            summary_page = output / "summary" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
             samples_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "samples.csv"
             cross_mac_artifact = (
@@ -88,6 +89,8 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("preliminary", index)
             self.assertIn("Raw FFT", index)
             self.assertIn("dealiased four-field convolution", index)
+            self.assertIn("functional-core candidate", index)
+            self.assertIn("Read the algorithm and results summary", index)
             self.assertTrue(legacy_page.is_file())
             self.assertTrue(canonical_page.is_file())
             self.assertTrue(split_run_page.is_file())
@@ -109,10 +112,31 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
+            self.assertTrue(summary_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
             self.assertTrue(issue_19_calibration_artifact.is_file())
             self.assertTrue(issue_19_reference_artifact.is_file())
             self.assertTrue(issue_21_reference_artifact.is_file())
+            summary_html = summary_page.read_text(encoding="utf-8")
+            self.assertIn("From FFT primitives to a functional-core candidate", summary_html)
+            self.assertIn("Ready to implement does not mean ready to adopt", summary_html)
+            self.assertIn("The algorithm to carry into a functional core", summary_html)
+            self.assertIn("Direct strided wave-f/wave-g family views", summary_html)
+            self.assertIn("must not be multiplied", summary_html)
+            self.assertIn("0.694×", summary_html)
+            self.assertIn("0.577×", summary_html)
+            self.assertIn("0.858×", summary_html)
+            self.assertIn("0.620×", summary_html)
+            self.assertIn("0.691×", summary_html)
+            self.assertIn("M4 Max: <strong>0.593×</strong>", summary_html)
+            self.assertIn("M1 Max: <strong>0.538×</strong>", summary_html)
+            self.assertIn("<strong>0.403×</strong> time", summary_html)
+            self.assertIn("<strong>0.366×</strong> time", summary_html)
+            self.assertIn("0.902× explicit FFTW", summary_html)
+            self.assertIn("Custom grouped GEMM", summary_html)
+            self.assertIn("What “functional-core candidate” means", summary_html)
+            self.assertIn("Opt-in WVM core", summary_html)
+            self.assertIn("No full nonlinear-flux", summary_html)
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)

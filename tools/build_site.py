@@ -291,6 +291,7 @@ def shell(title: str, content: str, root_prefix: str = "") -> str:
   <header class="site-header">
     <a class="wordmark" href="{root_prefix}index.html"><span class="mark" aria-hidden="true">∿</span> Spectral Kernel Benchmarks</a>
     <nav aria-label="Primary">
+      <a href="{root_prefix}summary/index.html">Summary</a>
       <a href="{root_prefix}index.html#runs">Runs</a>
       <a href="{root_prefix}experiments/index.html">Experiments</a>
       <a href="{root_prefix}methods/operators-and-representations/index.html">Methods</a>
@@ -355,7 +356,8 @@ def build_index(catalog: dict, bundles: list[PublishedBundle]) -> str:
       <p class="eyebrow">Apple Silicon · antialiased spectral operators</p>
       <h1>Which spectral kernels are actually fastest?</h1>
       <p class="lede">An append-only evidence archive comparing FFT providers, memory representations, data movement, and composed spectral operations for the Wave–Vortex Model workload.</p>
-      <p class="notice"><strong>Current phase:</strong> the first FFTW–vDSP vertical slice is preliminary evidence, not a provider recommendation. Later experiments add new immutable runs without replacing this record.</p>
+      <p class="notice"><strong>Current result:</strong> the evidence now supports an experimental FFTW streaming, pruned, compact-split algorithm with direct vertical-family views as the functional-core candidate. It is not yet a complete WVM nonlinear-flux or default-provider recommendation. Early preliminary runs remain permanently accessible.</p>
+      <a class="button secondary" href="summary/index.html">Read the algorithm and results summary</a>
     </section>
     <section class="section" aria-labelledby="latest-heading">
       <div class="section-heading">
@@ -6894,6 +6896,114 @@ def cross_mac_decision_section(
     """
 
 
+def build_summary_page(
+    bundles: list[PublishedBundle],
+    cross_mac_synthesis: dict | None,
+    issue19_reference: dict | None,
+    issue21_reference: dict | None,
+) -> str:
+    if (
+        cross_mac_synthesis is None
+        or issue19_reference is None
+        or issue21_reference is None
+    ):
+        raise ValueError(
+            "algorithm summary requires the cross-Mac, issue #19, and issue #21 references"
+        )
+    machines = {
+        item["machine"]["cpuBrand"]: item
+        for item in cross_mac_synthesis.get("machines", [])
+    }
+    if set(machines) != {"Apple M4 Max", "Apple M1 Max"}:
+        raise ValueError("algorithm summary requires the frozen M4 Max and M1 Max results")
+    m4 = machines["Apple M4 Max"]
+    m1 = machines["Apple M1 Max"]
+    if not (
+        m4["decisionGate"]["portabilityCandidatePassedOnThisMachine"]
+        and m1["decisionGate"]["portabilityCandidatePassedOnThisMachine"]
+        and issue19_reference["gate"]["advanceToWvmIntegrationExperiment"]
+        and issue21_reference["gate"]["advanceFusedViewsToWvmIntegration"]
+    ):
+        raise ValueError("algorithm summary cannot describe an unpassed reference gate")
+    if issue21_reference["gate"]["newGemmArithmeticMeasured"] is not False:
+        raise ValueError("algorithm summary must not attribute issue #21 to new GEMM")
+
+    bridge_cells = native_bridge_cells(bundles)
+    if len(bridge_cells) != 3 * 3 * 3:
+        raise ValueError("algorithm summary requires the complete issue #9 finalist matrix")
+    tile_to_wvm = native_bridge_pair_summary(
+        bridge_cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[0],
+    )
+    tile_to_fused = native_bridge_pair_summary(
+        bridge_cells, NATIVE_BRIDGE_CANDIDATES[2], NATIVE_BRIDGE_CANDIDATES[1],
+    )
+    issue19_interval = issue19_reference["empiricalStratifiedPairedRange"]
+    issue21_interval = issue21_reference["empiricalStratifiedPairedRange"]
+    content = f"""
+    <section class="hero compact">
+      <p class="eyebrow">Current synthesis · Float64 Apple Silicon</p>
+      <h1>From FFT primitives to a functional-core candidate</h1>
+      <p class="lede">The benchmark campaign has converged on one experimental compiled-engine algorithm: FFTW partial-column pruning, a persistent compact radial split representation, split-real vertical projection, and direct vertical-family views inside a streamed four-field graph.</p>
+      <p class="notice"><strong>Ready to implement does not mean ready to adopt.</strong> The candidate is correct and fast at the declared spectral boundary. It has not yet executed WVM’s complete nonlinear flux, MATLAB-to-core call, model timestep, or state-management path.</p>
+    </section>
+    <section class="section" aria-labelledby="candidate-heading">
+      <p class="eyebrow">Frozen experimental tuple</p><h2 id="candidate-heading">The algorithm to carry into a functional core</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Layer</th><th scope="col">Selected algorithm</th><th scope="col">Why it remains</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Horizontal transform</th><td>FFTW 3.3.11 Float64; all real-row transforms plus only retained-band complex columns; persistent outer sharding across performance cores; fixed tile width 16</td><td>Preserves the successful partial-column pruning and radial two-thirds antialiasing without requiring a complete half-spectrum.</td></tr>
+          <tr><th scope="row">Persistent representation</th><td>Compact radial split complex keyed by logical <em>(k,l,j,field)</em></td><td>Layout is an algorithm choice, not a mathematical gather requirement. It reduces storage and lets downstream kernels remain in split form.</td></tr>
+          <tr><th scope="row">Vertical projection</th><td>Two Accelerate real dgemm calls over exact WVM wave-f/wave-g K² matrix families; persistent outer-dynamic scheduling across total cores</td><td>Retains the strongest qualified split-real vertical arithmetic while exposing primitive GEMM separately.</td></tr>
+          <tr><th scope="row">Representation boundary</th><td>Direct strided wave-f/wave-g family views</td><td>Eliminates full-volume compact extraction and target scatter; no new grouped-GEMM arithmetic is required for the measured gain.</td></tr>
+          <tr><th scope="row">Complete graph policy</th><td>Four-field production-lifetime streaming, allocation-free warmed execution, one policy at every size</td><td>Matches the nonhydrostatic field count and avoids size-dependent dispatch or benchmark-only physical-volume lifetimes.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="section" aria-labelledby="results-heading">
+      <p class="eyebrow">Evidence chain</p><h2 id="results-heading">What each experiment changed</h2>
+      <p>Every ratio below is candidate divided by the baseline named in the same row. Smaller is faster or smaller. Ratios from different rows have different timed boundaries and <strong>must not be multiplied</strong>.</p>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Candidate and baseline</th><th scope="col">Reference result</th><th scope="col">Conclusion</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><a href="../experiments/issue-003-fftw-production-baseline/index.html">Primitive full FFT</a></th><td>Production-configured FFTW versus the subsequently implemented <a href="../experiments/issue-005-vdsp-native-baseline/index.html">native vDSP baseline</a></td><td>FFTW remains the Float64 provider baseline; vDSP did not advance from the raw/adapter and scheduling screens.</td><td>Keep primitive FFT results independent and do not generalize the Float64 result to future Float32 work.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-007-retained-horizontal-algorithms/index.html">Retained horizontal operator</a></th><td>FFTW partial-column-pruned outer-12 versus matched full retained transform</td><td><strong>0.694×</strong> geometrically across 12 workload-direction cells, with 12/12 wins.</td><td>Compute the retained operator directly rather than materializing a complete horizontal spectrum.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-008-vertical-projection-gemm/index.html">Primitive vertical projection</a></th><td>Two split-real dgemms versus complex zgemm; outer-dynamic-16 versus outer-static-12</td><td>Split-real is <strong>0.577×</strong> complex zgemm; dynamic scheduling is <strong>0.858×</strong> static.</td><td>Use split-real arithmetic and schedule exact WVM matrix families persistently; exclude packing from primitive GEMM time.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-009-combined-spectral-pipeline/index.html">Complete synthetic spectral pipeline</a></th><td>Streaming tile 16 versus WVM-direct and plane-major fused-split finalists</td><td><strong>{tile_to_wvm["geometricTime"]:.3f}×</strong> WVM direct and <strong>{tile_to_fused["geometricTime"]:.3f}×</strong> fused split; algorithm-resident memory is {tile_to_wvm["geometricResident"]:.3f}× WVM direct.</td><td>Select the streaming compact graph for a persistent compiled engine; retain WVM direct as the MATLAB-owned native-array answer.</td></tr>
+          <tr><th scope="row"><a href="../decisions/v1/index.html">Cross-Mac portability</a></th><td>Pre-direct-view streaming tile 16 versus WVM direct on independently calibrated M4 Max and M1 Max systems</td><td>M4 Max: <strong>{float(m4["geometricCandidateToBaseline"]):.3f}×</strong> time and {float(m4["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory. M1 Max: <strong>{float(m1["geometricCandidateToBaseline"]):.3f}×</strong> time and {float(m1["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory.</td><td>The streaming representation and topology policy transfer to the two named machines; this is not yet a general-Mac default.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-019-production-lifetime-spectral-flux-composition/index.html">Production-lifetime spectral boundary</a></th><td>Streaming tile 16 versus a matched WVM-order graph using the same four-target physical-buffer lifetime</td><td><strong>{float(issue19_reference["geometricCandidateToBaseline"]):.3f}×</strong> time ({float(issue19_interval["lower"]):.3f}×–{float(issue19_interval["upper"]):.3f}×) and {float(issue19_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory.</td><td>The streaming advantage survives production transform multiplicity and lifetime; the complete nonlinear flux remains excluded.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-021-fused-small-grouped-gemm/index.html">Direct vertical-family views</a></th><td>Direct strided family views versus the issue #19 streaming graph with materialized compact extraction/scatter</td><td><strong>{float(issue21_reference["geometricCandidateToControl"]):.3f}×</strong> time ({float(issue21_interval["lower"]):.3f}×–{float(issue21_interval["upper"]):.3f}×), {float(issue21_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory, and {float(issue21_reference["memoryOnlyGeometricRatios"]["scratchBytes"]):.3f}× scratch.</td><td>The remaining actionable bottleneck was serial data movement, not raw vertical GEMM. Carry direct family views into the functional core.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="method-note">The M1 Max campaign predates the direct-family-view increment. Cross-Mac portability therefore applies to the underlying streaming tile-16 graph; the latest direct-view improvement is currently an M4 Max result and must be replicated after integration.</p>
+    </section>
+    <section class="section" aria-labelledby="alternatives-heading">
+      <p class="eyebrow">Qualified alternatives and negative evidence</p><h2 id="alternatives-heading">What we are not carrying forward</h2>
+      <ul>
+        <li><strong>Float64 vDSP:</strong> native and scheduled vDSP paths did not displace FFTW. The archived result says nothing decisive about a future Float32 model.</li>
+        <li><strong><a href="../experiments/issue-017-implicit-hybrid-dealiased-convolution/index.html">FFTW++ implicit/hybrid convolution</a>:</strong> the reference candidate reached 0.902× explicit FFTW with a 0.900×–0.917× interval, but missed the preregistered 10% adoption threshold.</li>
+        <li><strong>Custom grouped GEMM:</strong> deferred. Issue #21 left raw vertical GEMM effectively unchanged while removing most of the apparent vertical-plus-movement cost through direct views.</li>
+        <li><strong>Size-dependent dispatch:</strong> rejected. The selected candidate is one algorithm and scheduling policy across the workload matrix.</li>
+      </ul>
+    </section>
+    <section class="section" aria-labelledby="readiness-heading">
+      <p class="eyebrow">Engineering handoff</p><h2 id="readiness-heading">What “functional-core candidate” means</h2>
+      <div class="summary-grid">
+        <section class="summary-card"><p class="eyebrow">Established</p><p class="summary-value">Correct spectral operator</p><p>Authoritative WVM fixtures, four fields, mode-keyed outputs, errors near 10<sup>−15</sup>, fixed placement, and zero warmed application allocations.</p></section>
+        <section class="summary-card"><p class="eyebrow">Not yet established</p><p class="summary-value">Complete WVM execution</p><p>No full nonlinear-flux, MATLAB/MEX boundary, phase assembly, tendency accumulation, timestep, state management, or I/O claim has been made.</p></section>
+        <section class="summary-card"><p class="eyebrow">Next decision</p><p class="summary-value">Opt-in WVM core</p><p>Implement both the WVM-native reference and fused streaming candidate behind one production-shaped interface before considering a default change.</p></section>
+      </div>
+      <ol>
+        <li>Build an opt-in C++ nonlinear spectral-flux core in the WVM authoring repository, retaining the existing WVM-native path as the reference implementation.</li>
+        <li>Compare complete modal tendencies with MATLAB within 10<sup>−12</sup> and report the compiled kernel, MATLAB-to-core adapter, complete nonlinear-flux call, memory, and capacity separately.</li>
+        <li>Run the four-field 256², 512², 1024², and feasible deep-vertical cases on the M4 Max; then repeat the integrated finalist on the M1 Max.</li>
+        <li>Change no production default until the real integrated boundary clears the correctness, 10% improvement, regression, confidence, memory, and cross-Mac gates.</li>
+      </ol>
+      <p><a href="../artifacts/decisions/issue-011-cross-mac-portability.json">Cross-Mac synthesis JSON</a> · <a href="../artifacts/decisions/issue-019-authoritative-reference-lyra-v1.json">Production-lifetime reference JSON</a> · <a href="../artifacts/decisions/issue-021-fused-vertical-views-lyra-v1.json">Direct-view reference JSON</a></p>
+    </section>
+    """
+    return shell("Algorithms and results", content, "../")
+
+
 def build_decision_page(
     catalog: dict, bundles: list[PublishedBundle], cross_mac_synthesis: dict | None,
 ) -> str:
@@ -6978,6 +7088,7 @@ def build_decision_page(
       <h1>{escaped(heading)}</h1>
       <p class="lede">{escaped(readiness)}</p>
       <a class="button secondary" href="{REPOSITORY_URL}/issues/11">Open decision issue #11</a>
+      <a class="button secondary" href="../../summary/index.html">Read the current synthesis</a>
     </section>
     {decision_sections}
     <section class="section" aria-labelledby="policy-heading">
@@ -7105,6 +7216,13 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
+    write_page(
+        output_dir / "summary" / "index.html",
+        build_summary_page(
+            bundles, cross_mac_synthesis, issue19_reference_evidence,
+            issue21_fused_views_evidence,
+        ),
+    )
 
     for bundle in bundles:
         run_id = bundle.publication["id"]
