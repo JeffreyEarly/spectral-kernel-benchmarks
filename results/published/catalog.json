@@ -30468,6 +30468,1746 @@
         "samplesSha256": "d79fb9ca86038b068a6601816607df9cb1a4fb9e6f9816837c4df7a1f35eb98e"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260830T143350Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143350Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T143350Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "004546e365ac8eb0ee3b5f6bcc90d7b530fe8bee45899d481005584d80778833",
+        "samplesSha256": "3ddf55f62b9399eb984c94de25fea1cc327cdbbddae5d8f3db27eb627caf07c5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143355Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143355Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T143355Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "d9589959b7d2fb18e3fe7b78bbf8a19e789b061f911ffae680c83699af20f45d",
+        "samplesSha256": "0c16986a9ee7eaab77e3f1b7b8e8a3b06d3f81d1e39036e908ee243aca32baf3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143359Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143359Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T143359Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "3f97fc890951a7c1d3723d9265730fa1c0320502caf580558c86b782522552e0",
+        "samplesSha256": "1586be5352949b74e74bf5c0f7758ea74f2cf1b8e7fb5309a8a1fe5dda04af80"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143403Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143403Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T143403Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "846df3cc2bcc6297ce39ea9ec853be4d65be733fc116990141a7817ebd0d5072",
+        "samplesSha256": "6d3e324bf06aa69bfc047058a80ec24afaad1e07f80355f17f6efd87bcc50a7a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143407Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143407Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T143407Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "01c41d3978f7cef0d544698ffd7ebdd4c04d4498258b305633559cbd051d0f2a",
+        "samplesSha256": "739babbf201c26c9a01c88b110bfe8da47dec65ef580b1ce21007d5692d58d00"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143415Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143415Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T143415Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "52ed41a300e31c54915e35beea951f0475fda2b220e5aab9af6380971be42800",
+        "samplesSha256": "47dd588993f82cd6447ff7e92e9f27a4edbf60c068d2f07953505c23e5ef16be"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143457Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143457Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T143457Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "ebeba499339c8eaf9697f09d47b39af2f302060b5750683efd32620ce836f3a9",
+        "samplesSha256": "39f327fb398df857af288417414b5c0c40f3ae3ee667df0a2abb8bf280f86e15"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143539Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143539Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T143539Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "b083ebd2d65422fb526f9c12108b17ba9bbfc5532e915349d42a7ac2da6bcace",
+        "samplesSha256": "8b6d4345026ff60d628923a171f979fea96948c695cbfc239c32a8ac2a690929"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143621Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143621Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T143621Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "f687eca2d90c8e51377c18622ab2ab5bf9e84fed4432622de4727797cf42de36",
+        "samplesSha256": "72a43f62a73004f44adf02bdf136bec86992d44cf8f18343c24ed23761625886"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143703Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143703Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T143703Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "959cbd972ea086468ca4b0ede78201cc96218d56cee42cc63a66ef1f46152b78",
+        "samplesSha256": "87c0287219a4c9558510e9836b777ec1ff1b90dd5a10b1e36aadf3e81cf65d58"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143750Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143750Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T143750Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "d0de249efb419c78ae18597029eba3b59cecf9d38fa9e29b2f5668176b5e51eb",
+        "samplesSha256": "a6949123b903d0544e21256322afb6ca9d12e1466be8e15598d7e3f793f39997"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T143909Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T143909Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T143909Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "c4e75a8dd419084d93c38ecc2ed65fa1cb5839fa60dab5eea68760545bd29e6c",
+        "samplesSha256": "985ea87a6fca439ff7c5fdc663af12466c9c435ffc2e400f56f8c8ad372d7516"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144025Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144025Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T144025Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "da51bc3fa86cf3d43deed413edd7015a9048db344318c53a55be1675e57b2781",
+        "samplesSha256": "5a753a3ec43aafee4cab10242a624766dfc902541570acf6c8cae065cb0a7e38"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144142Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144142Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T144142Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "cab4c8d1a6346bfd09c855c3f7e466d34e2af0c6e1988d8dd5b1aa43142decf1",
+        "samplesSha256": "9d2cc82cae36090f9733136578b508b11d4dd666d729c538cdb8ca82b22268b2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144310Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144310Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T144310Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "0ebe08fbf2b9034985eda6c7f5fafd684c796c0baa1978d559ecb6d2916c3f47",
+        "samplesSha256": "754e20e8e74d5d50610946c5ed24b29a4de18d2e94a4d46c46ca02e4b6ac041b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144429Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144429Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T144429Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "16eb14043abd1bfa72895df12d679a8e6cc56f4a8ecdfe5fab2b653f0f71a9c2",
+        "samplesSha256": "a79faf14fddf3d3418aa7480cc7c61aaafedd4f47945ae70c359a62edb7bdc73"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144512Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144512Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T144512Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "e8f1d0359859b3d753b32ca757f591e7693a7e5184f08adb994c53748265f94d",
+        "samplesSha256": "d8164e8ea763656ad68ee42dcd40fa5b8a31bd395d264f3d9227c0b16f963552"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T144554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "dc591e2624cd1002c41f469630abefdecaaa42c40021bb057a66ff8438c07cef",
+        "samplesSha256": "325ae2a0c63e3edcb2ca5bed3cc55bd50c5774555c42c0d115537f4a089790bb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144636Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144636Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T144636Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "0743ef84a55d377efc32f41256c8dd3c3107c7c14f9e53b4dea43e157e6642bd",
+        "samplesSha256": "3575f2e1a1337e5a096a2e1bf70df9259b37ff057e15e34b653b21c82799c0f8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144718Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144718Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T144718Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "5af4fb9d74dc7299f2b2fafa9c5aaae967bc4914717d5def6d819470441bcff8",
+        "samplesSha256": "10e53e0f9aeb7af3ba786e6d7e588c67f68034b5c0d54b158df0a061ae25f4c1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144806Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144806Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T144806Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "630558d635ad96946ed504bc101c0269f0bc3c4217970a19fdeb6be062918b30",
+        "samplesSha256": "d45d686a2d9ba805e26e2cfe185d2a52dbde7526553c05286e84b0ca37e7e859"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T144924Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T144924Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T144924Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "4af1c174bccfe7337d162b71a670847505b396d3d10e3a35042cbe3f45625548",
+        "samplesSha256": "3349f496921250cf02ad0dd1110651e08030133c72d143bc1f9a52ed16d80958"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T145041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "56aa893a7ed0dc246fc1b456563098f03d62dc54afe3b336a823ff30294027cc",
+        "samplesSha256": "39e3ef828d65bac38020756548014cc91dacc627a7651266efe00dd768b7b7eb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145159Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145159Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T145159Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "96e0aa6bac004fcc3102ceb86f00ea71d265f06778c315e0ef315684b4a37a93",
+        "samplesSha256": "d44da885ce55e092b962e4930e3cbcc632cf52749aafaae5517ed4dc058510f3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145328Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145328Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T145328Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "aef14a3686ba373a71007979398011e36ba1212addc23f861356cdb9e828802f",
+        "samplesSha256": "1b679554439e15faee9d27bd3519ac41656cc96534e70fc66900c53bb382cea9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145442Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145442Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T145442Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "8f576bc80380aa2f3c656c919f24267956b47b6256e7e9b3cfd93526a00dadf6",
+        "samplesSha256": "bbaca928883dcc6932b2a99178f8d07ebc9505ad4932a6853c18798614723f47"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145446Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145446Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T145446Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "3b70e4b63f09e6f476866c6d68a40c92ed7dfabe2960bc57e3f05516da65b4b1",
+        "samplesSha256": "16d807556942d3b20d7818e1625fe916dccd91a98b3c37d04252eef18f928784"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145451Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145451Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T145451Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "5e8ee6a00b8d751a065b9101f1a25ffa3f7b17e09cd84d73864c726fb04788c2",
+        "samplesSha256": "e2d657d7ab98719e535bd46a4db650d7b7e7b4acc8bfcf18e77d854a88b76783"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T145456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "62706937a656a4946483d083901c91da04c7e4bd2a0428a146f9d86acf4cfcbb",
+        "samplesSha256": "6a9849b16440e9e4b7ff561d8c3d71618e565cf14267d5805449a4461bdcad0c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145500Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145500Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T145500Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "38d26fe20a6e71d2ee962293d07ecea1622fa541a0046a999615e8443cd1c2a5",
+        "samplesSha256": "36fcaabd7ccabf5efbd007e422f50b22a1e5fc981c9f66087b6e01daf0291108"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145509Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145509Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T145509Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "1447e421c422674121bdded329eae746b935b60a9d1a68262545c551a9d339fb",
+        "samplesSha256": "995f781b59728abf7d14eea45f94e09085df5c618f4250f4c44425d57eed0900"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145627Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145627Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T145627Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "d0e275742c28c9fd85c944fe4fefd9d17bc611363cb67e81d4ae6f46adf306a0",
+        "samplesSha256": "3e432d86e47f3b5de317729a0a186b85ff9ab72743c8ef0eca2234dbe95fb60f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145745Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145745Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T145745Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "b9835b6a49ea7d7602c87d8964cdce2292fe141bb5479ae5536090a3dc2bb5de",
+        "samplesSha256": "c8cb35e070f4bd29da6456515f9d320f14d69c0ab4f5f4bd88599ef5ebc31d3b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T145904Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T145904Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T145904Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "1e9f88f7644723b7a2ebfc927f3bd0c9d56c5ec8e6f875cd1434a53de0805930",
+        "samplesSha256": "0b3591322b8cbd0fef52912735eba8ecae8622521cced2023e89b95e00d92b7c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150034Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150034Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150034Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "c4b89f7be01c58db456e54ddbff7f8183cf3831770dda0cb4666a2b5a6a2feaf",
+        "samplesSha256": "97de43515d2e3fe5eeb17b93dc220267f3debebe11418f44df72d299cb142fc9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150149Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150149Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T150149Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "a4c339c156a1b82724020b57b78f44be341ddd9b446eff7d9a627dc9778ed187",
+        "samplesSha256": "f8e062ed877db9e2dfdd5a039eb5fa79aab813a9c2e562d047fda7524b55d99c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150153Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150153Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T150153Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "e81b2eed5a5f228814d03a2608280ad1d6b3e96039472ffadefc606d77bce3c6",
+        "samplesSha256": "6125b7a517b130e9814f6031e06ba7ad87272f05b657aa2432e6716151459889"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150157Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150157Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T150157Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "a156edb7fb522146fb5e82f1f377aa33d3a5318c227ee9234129e3821ea09c97",
+        "samplesSha256": "b496d037fdb1a08e221c9e4d8fd1b6b1ac9b3e7a8112d4a7747fdfdae756cb51"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150202Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150202Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150202Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "8b953fda1310ef6761f9a9a481ee96baee44db9c0f7aec205fb83cbae56c3dce",
+        "samplesSha256": "194b2fda2e1793f176d78de3d4b8a5187f9d7849875d3c8034c6ba2dcc5c3135"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150207Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150207Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T150207Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "2dc16573a393b159a228154a162735b73f4a38fc581fd3a06c08fb040a4018c3",
+        "samplesSha256": "017f89dcdde188bb3264700c78a298db732fc752bb43c79cc7883a9d57716fec"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T150215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "2460c6453ce0a30262c930bb0918b642107a4b7f10f81dba7b376dcdc2c374aa",
+        "samplesSha256": "09714f217d0b07c2fccbe20b7bc71d3bb6bbd1a3b3a2ad5aa48d6423f0c21e4f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150257Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150257Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T150257Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "3ef55c790867b39d8b2bba15a59e45efd4f135ebc2a196014e92042d030cd4c0",
+        "samplesSha256": "eadce82af4139d7cf07205c568407f40dbf3ec3674d1c433c2decb6090bcbf08"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150345Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150345Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150345Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "76d14d09523d55169ed2153986f2ad842fa065fc9b2226c5c3bbbff80b0ff6d1",
+        "samplesSha256": "2addd3da8863883e215ed4a46f0bc5b39af5d06649679343b07dd4405dc59434"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150428Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150428Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T150428Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "82aa1aed8058ad049b24ae6c329c15ff48f636e12bdf1f2c94962cf105b4312f",
+        "samplesSha256": "e61c562e27951a5dab116cbec56cb1f5bab29d3f9c5219d20c9ffa1545ba6174"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150510Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean three-round M4 Max pointwise worker-topology reference timing campaign at executable commit 106c89d; balanced isolated processes cover the serial control and spatial-static workers 4, 8, 12, and 16 on all three authoritative workloads.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150510Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T150510Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "0eb20777dcd2a58d0fc2d806a39f2da7a09fea942c69555f272b059d589da36b",
+        "samplesSha256": "87dedaf1fc0580438278c8da4e93ca76c440ab259f17c3225c211fbfc0271d19"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150549Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150549Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T150549Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "804a6f40891bd7312c825d04fa04dd9dd0969f74790fc1e51e2e79f7f86ec1bf",
+        "samplesSha256": "e3cd8d764a9c6fe960d7779b91c782ed61cb348386b1b13ddf065e55ff371fd6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150551Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150551Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150551Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "3a0d59a605e01520b39d5a6500aabd5cf8a12667ab2ee4f7f21cc40230edc2f2",
+        "samplesSha256": "864400cd540a9502a935851c5bb3326631dab229dbcbbf7604918534da0a5241"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150552Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150552Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T150552Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "b26d16420cec2ec994051808cdc01df9bde7eb8c511b811aa388ca544f5b0814",
+        "samplesSha256": "268aa1c3d8222314bff05d461764b3705f0ed16cb7897f54bd25ce84c1962eaf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T150554Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "108be7ece3b42c3d3b2d317739ecfe4d40163240dc308e5a9e3aaabceef1c356",
+        "samplesSha256": "b90ab46ef1bfea955007eabbc0be2c36143d65ea03f99d21bc6ba934118c61a7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150555Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150555Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T150555Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "1ebdabe2a186a4446b42f16083a39bfaebfdacec30bf694677d64b53e78e34ab",
+        "samplesSha256": "70ff209ae972f23f1355ab0b568fc704c444e50def03998fa746db8c05313275"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150600Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150600Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150600Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "112db299e2d147d4498f5a27109d81c1b644f03c93fb1f4faef9135fc8fcebda",
+        "samplesSha256": "89cb10185381a4dfa41796132c4e2a44e7111b1670f923b2f033a29498c5624c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150614Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150614Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T150614Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "0926c76188ff037d424a5d5e0ac375224ba7d73ff284f32294dd836e8fcce3f8",
+        "samplesSha256": "f7f3cab93e7bd0f91e5d95f2ba8f355d5e98615da60fee8502e433ddb897ef16"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150628Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150628Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T150628Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "98659a32a6d7c457ee964c0b8999766b881ee50105b120dba3b519a4c4d69f4e",
+        "samplesSha256": "aeaa6f4107de417f7d6bdd12b6a7c25546ca9c56075a095b937dbed4da4d1d80"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150642Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150642Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T150642Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "c9407db78b33600c11d794452c9df53a4622781b43159d934c668947cb65250b",
+        "samplesSha256": "d0c5dcd1ea7a15fc7c908515a53e63ee0b6a51a4b6fa03decfc051e82aca13d3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150656Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150656Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T150656Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "814841cd345ca03392cbbaea1c3466d4b31ff291d44ed4d17689eed40c72dbbd",
+        "samplesSha256": "3e744d93d68af52bd34d67032358d0ba54684e8307eed5d1886e912107e27019"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150711Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-8",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150711Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260830T150711Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "c38c5732e9fde2410f38396635e77caffe9e7798dc4d63d3d49312661f5e0cd8",
+        "samplesSha256": "c661707428e5749ae3478294c1bf38fe59306477157e8136a33b942698072d6c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150735Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-12",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150735Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260830T150735Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "a6967e63273f0065d91effd9494c6113a9ed2291535eb41f81cd5f726a8e6221",
+        "samplesSha256": "9e75faf47558904100a18764f076259a23029c4c16111da54ddda8359f6770dd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150758Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-16",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150758Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260830T150758Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "eeee7b92d5bb98fe1fa29d1e088f5c4f310a5b65db3e692262473b7e19896d53",
+        "samplesSha256": "5bcd1c2bd7b2225c03b92abca2078061dc8df9fdb1a3f6d7b41873cccc7a7624"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150822Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "serial-1",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150822Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/result.json",
+        "samples": "runs/20260830T150822Z-issue21-authoritative-streaming-pruned-compact-split-fused-vertical-views-lyra/samples.csv",
+        "resultSha256": "9606366e4494f55657d3c191068ff4dadb9ff5bf069d52e4033ef060fc5ad6ad",
+        "samplesSha256": "e461006fad6fd2bd8b35708f2976a8b1215a641541910112719dac00c3af3ff2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260830T150846Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "pointwise-advection-m4-worker-reference-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "spatial-static-4",
+      "status": "reference",
+      "statusReason": "Clean isolated M4 Max memory evidence for the pointwise worker-topology reference campaign at executable commit 106c89d; one process per profile-candidate cell records algorithm-resident, scratch, estimated-peak, and observed high-water memory separately from timing inference.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        22
+      ],
+      "experiments": [
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260830T150846Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260830T150846Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "a58cc8b777658ae366fe251b0e448d82ea9846b42ff7ae06e971cd0f1c8f8bca",
+        "samplesSha256": "60df5df0ef9478e8c5391bf3e678d5d9124987e3ba5f6a56601ab1d4c7cf9a77"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -31146,7 +32886,7 @@
     {
       "id": "issue-022-pointwise-advection-optimization",
       "issue": 22,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "Optimize and fuse the four-field pointwise advection stage",
       "question": "Can the four-field physical-space advection stage be parallelized, vectorized, or fused with the retained horizontal transform so that the authoritative production-lifetime spectral boundary improves materially without sacrificing the streaming graph's memory advantage?",
       "baseline": "Use the issue #21 direct-family-view streaming graph with its serial pointwise loop. Hold the FFTW, compact split representation, vertical matrices, scheduling, fixtures, normalization, lifetime, oracle, and allocation contract fixed.",

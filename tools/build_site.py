@@ -6605,10 +6605,20 @@ def build_experiment_page(
         experiment_id == "issue-022-pointwise-advection-optimization"
         and issue22_pointwise_evidence is not None
     ):
+        timing_reference_count = sum(
+            bundle.publication["status"] == "reference"
+            and bundle.publication.get("campaignPhase") == "reference"
+            for bundle in related
+        )
+        memory_reference_count = sum(
+            bundle.publication["status"] == "reference"
+            and bundle.publication.get("campaignPhase") == "memory"
+            for bundle in related
+        )
         evidence_statement = (
-            "One compact reference-campaign summary currently contributes to the "
-            "M4 decision. Permanent raw run pages remain a separate append-only "
-            "publication increment."
+            "The completed M4 reference publication contains one compact campaign "
+            f"summary, {timing_reference_count} permanent timing run pages, and "
+            f"{memory_reference_count} permanent isolated-memory run pages."
         )
     if (
         experiment_id == "issue-024-retained-inverse-zero-fill"
