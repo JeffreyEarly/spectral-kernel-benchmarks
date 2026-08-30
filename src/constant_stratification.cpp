@@ -1521,7 +1521,7 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             record.explicitPersistentBytes + record.scratchBytes;
         record.estimatedProcessPeakBytes = record.algorithmResidentBytes +
             2 * coefficientBytes;
-        record.benchmarkHarnessBytes = coefficientBytes;
+        record.benchmarkHarnessBytes = 2 * coefficientBytes;
         record.otherSetupSeconds = setupSeconds / 2.0;
         record.opaqueProviderMemory = true;
         record.ledger = {
@@ -1562,9 +1562,10 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     const auto observedHighWater = processHighWaterBytes();
     for (auto& provider : report.providers)
         provider.observedProcessHighWaterBytes = observedHighWater;
-    report.spectralPipelineEstimatedExplicitPeakBytes =
-        std::max(report.providers[0].estimatedProcessPeakBytes,
-                 report.providers[1].estimatedProcessPeakBytes);
+    // Each provider reports its own complete explicit peak. The top-level
+    // single-peak field remains unset because the matched providers have
+    // different algorithm-resident storage.
+    report.spectralPipelineEstimatedExplicitPeakBytes = 0;
     report.status = std::all_of(
         report.providers.begin(), report.providers.end(), passed)
         ? "passed" : "failed";

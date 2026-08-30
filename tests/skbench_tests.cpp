@@ -2581,6 +2581,10 @@ int main() {
                             provider.execution.forward.adapterPlacement ==
                             "out-of-place",
                         "constant-stratification composed placement schema");
+                require(provider.algorithmResidentBytes +
+                            provider.benchmarkHarnessBytes ==
+                            provider.estimatedProcessPeakBytes,
+                        "constant-stratification composed memory partition");
                 require(provider.correctness.size() == 5 && std::all_of(
                             provider.correctness.begin(),
                             provider.correctness.end(),
@@ -2611,6 +2615,8 @@ int main() {
             require(report.providers[1].explicitPersistentBytes <
                         report.providers[0].explicitPersistentBytes,
                     "compact constant-stratification type-I arena");
+            require(report.spectralPipelineEstimatedExplicitPeakBytes == 0,
+                    "matched composed providers keep distinct peak estimates");
         }
 
         {
