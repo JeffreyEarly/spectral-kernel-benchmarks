@@ -364,6 +364,18 @@ python3 tools/run_retained_inverse_zero_fill_campaign.py \
 
 The clean rotated M4 Max screen separately records compact-tile load, zero/reset, retained and Hermitian-boundary scatter, complete horizontal inverse, uninstrumented total, bytes moved, persistent/scratch memory, correctness, and warmed allocations. All four policies were correct within `1e-12` and allocation-free, but no alternative advanced: active reset was 1.079× the inverse control geometrically, compact preserved input was 1.034×, and full-stride preserved input was 1.025×. The full-stride alternative was nearest on complete time at 1.004×, but still provided no gain. The frozen contiguous full-zero/in-place policy therefore remains the single uniform algorithm. This is a completed negative screen, not reference-depth adoption evidence; it does not support size-dependent dispatch or a custom sparse inverse.
 
+Issue #20 begins with an attributable constant-stratification vertical component. The `constant-stratification-vertical` kernel reproduces the exact production FFTW `REDFT00`/`RODFT00` plan shapes, interleaved-complex strides, type-I endpoints, normalization, and 15-inverse-plus-4-forward complex-channel schedule. It compares the current full half-spectrum row batch with the same schedule executed only on the compact radial retained rows:
+
+```sh
+build/release/skbench run \
+  --kernel constant-stratification-vertical \
+  --profile wvm-current-256-nz129-f4 \
+  --fftw-planning measure \
+  --fftw-internal-workers 16
+```
+
+The experiment publishes primitive DCT-I/DST-I, normalization, complete vertical-schedule, and explicit arena-memory measurements separately. It deliberately excludes horizontal FFTs, coefficient construction, pointwise products, and the complete nonlinear flux. See [the constant-stratification vertical contract](docs/wvm-constant-stratification-vertical-contract.md) for the exact mathematics, production-source provenance, timed boundary, and interpretation limits.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

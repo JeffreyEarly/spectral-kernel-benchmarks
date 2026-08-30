@@ -5391,6 +5391,8 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
     }
     if (options.kernel == "production-lifetime-flux")
         return runProductionLifetimeFluxBenchmark(options);
+    if (options.kernel == "constant-stratification-vertical")
+        return runConstantStratificationVerticalBenchmark(options);
     if (options.kernel == "vertically-batched-advection")
         return runVerticallyBatchedAdvectionBenchmark(options);
     if (options.kernel == "dealiased-convolution") return runDealiasedConvolutionBenchmark(options);
@@ -5403,7 +5405,7 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         throw std::invalid_argument(
             "kernel must be 'fft', 'pruned-horizontal', 'vertical-gemm', "
             "'ordering-packing', 'spectral-boundary', 'spectral-pipeline', "
-            "'production-lifetime-flux', or "
+            "'production-lifetime-flux', 'constant-stratification-vertical', or "
             "'dealiased-convolution', or 'vertically-batched-advection'.");
     }
     auto selected = profileNamed(options.profile);

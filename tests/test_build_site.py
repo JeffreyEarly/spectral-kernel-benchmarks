@@ -61,6 +61,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_17_page = output / "experiments" / "issue-017-implicit-hybrid-dealiased-convolution" / "index.html"
             issue_18_page = output / "experiments" / "issue-018-vertically-batched-advection-pipeline" / "index.html"
             issue_19_page = output / "experiments" / "issue-019-production-lifetime-spectral-flux-composition" / "index.html"
+            issue_20_page = output / "experiments" / "issue-020-constant-stratification-type1" / "index.html"
             issue_21_page = output / "experiments" / "issue-021-fused-small-grouped-gemm" / "index.html"
             issue_22_page = output / "experiments" / "issue-022-pointwise-advection-optimization" / "index.html"
             issue_24_page = output / "experiments" / "issue-024-retained-inverse-zero-fill" / "index.html"
@@ -118,6 +119,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_17_page.is_file())
             self.assertTrue(issue_18_page.is_file())
             self.assertTrue(issue_19_page.is_file())
+            self.assertTrue(issue_20_page.is_file())
             self.assertTrue(issue_21_page.is_file())
             self.assertTrue(issue_22_page.is_file())
             self.assertTrue(issue_24_page.is_file())
@@ -183,6 +185,9 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("full-stride-preserved-input", issue_24_html)
             self.assertIn("79.768 ms to 119.1 ms", issue_24_html)
             self.assertIn("no candidate advanced to reference depth", issue_24_html)
+            issue_20_html = issue_20_page.read_text(encoding="utf-8")
+            self.assertIn("Experiment · issue #20 · collecting", issue_20_html)
+            self.assertIn("15 inverse and 4 forward complex type-I channels", issue_20_html)
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)

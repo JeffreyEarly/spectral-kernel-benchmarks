@@ -96,6 +96,8 @@ def provider_name(provider: dict) -> str:
         "fftwpp-streamed-target-wvm-advection": "FFTW++ streamed-target WVM advection",
         "fftwpp-all-target-wvm-advection": "FFTW++ all-target WVM advection",
         "fftwpp-parallel-target-wvm-advection": "FFTW++ parallel-target WVM advection",
+        "fftw-wvm-type1-full-half": "FFTW type-I full half-spectrum",
+        "fftw-wvm-type1-retained-compact": "FFTW type-I retained compact rows",
     }
     return names.get(provider["id"], provider["id"])
 

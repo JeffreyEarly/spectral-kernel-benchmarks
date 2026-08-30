@@ -32845,6 +32845,47 @@
       ]
     },
     {
+      "id": "issue-020-constant-stratification-type1",
+      "issue": 20,
+      "phase": "collecting",
+      "title": "Constant-stratification retained-row type-I transforms",
+      "question": "Can the exact production FFTW DCT-I/DST-I vertical-transform schedule execute only on radially retained horizontal rows, preserving WVM's analytic constant-stratification mathematics while reducing time and explicit arena memory?",
+      "baseline": "Use the audited WVM full-half-spectrum, complex-interleaved FFTW REDFT00/RODFT00 schedule at commit 6ad254fb9756ac918bb72e036020d004879df1f2, with the same type-I endpoints, normalization, placement, strides, channel batches, and internal worker count.",
+      "priorExperiments": [
+        "issue-016-streaming-pruned-compact-split",
+        "issue-019-production-lifetime-spectral-flux-composition"
+      ],
+      "downstreamIssues": [
+        23
+      ],
+      "definition": {
+        "unitOfWork": "Execute the constant-stratification vertical-transform portion of one nonhydrostatic four-field nonlinear-flux call: 15 inverse and 4 forward complex type-I channels, including the exact forward normalization and endpoint handling.",
+        "candidates": "The production full half-spectrum row batch and one compact interleaved-complex candidate containing only the radial two-thirds retained logical horizontal modes. Later split, fused-normalization, and explicit-extension candidates are excluded from this increment.",
+        "workloads": "Float64 four-field cases at 256 squared/Nz=129, 512 squared/Nz=257, 1024 squared/Nz=129, and 512 squared/Nz=513, with one FFTW internal-worker policy across sizes.",
+        "controlledVariables": "FFTW 3.3.11 provider and planning, REDFT00/RODFT00 algorithms, vertical lengths, complex-interleaved scalar strides, in-place placement, channel-family call counts, normalization, fixtures, precision, worker count, and correctness oracle.",
+        "changedVariables": "Only the horizontal row set and its physical order: every stored half-spectrum row versus contiguous logical radial retained rows.",
+        "timedBoundary": "Publish raw one-channel DCT-I and DST-I, forward normalization, and an independently sampled execution of the production 15-inverse-plus-4-forward vertical-transform schedule. Component medians remain separate from the schedule total.",
+        "excludedWork": "Horizontal FFTs and retained-row production, coefficient assembly, phase evaluation, spatial pointwise products, flux projection arithmetic, coefficient accumulation, complete nonlinear-flux execution, MATLAB dispatch, time integration, I/O, setup, and correctness evaluation.",
+        "allocationPolicy": "All complex arenas and FFTW plans are allocated before timing. Warming and sampling execute with reusable storage and no benchmark-owned application allocation; FFTW-owned execution allocation remains opaque. Explicit four-channel arena, opaque provider memory, estimated peak, and observed process high-water remain separately identified."
+      },
+      "correctness": {
+        "oracle": "Independent direct REDFT00 and RODFT00 sums with WVM normalization and endpoints, plus comparison of every retained logical (k,l) row against the corresponding full-half-spectrum result after required conjugate reorientation.",
+        "tolerance": "Float64 maximum scale-normalized and relative-L2 errors at most 1e-12.",
+        "capabilityHandling": "Unsupported shapes, FFTW planning failure, memory-capacity exclusion, dirty-source evidence, correctness failure, and negative performance remain visible. No fallback, omitted workload, or complete-flux claim is permitted.",
+        "canSupport": "A decision to integrate retained-row type-I transforms with the already selected compact horizontal algorithm for a later complete WVM constant-stratification nonlinear-flux experiment.",
+        "cannotSupport": "Complete nonlinear-flux adoption, a faster DCT/DST provider, split-complex superiority, Float32 performance, a full timestep, or a general-Mac default."
+      },
+      "requiredTables": [
+        "primitive forward and inverse DCT-I and DST-I",
+        "type-I normalization and endpoint handling",
+        "production vertical-transform schedule totals and compact-to-full ratios",
+        "retained-row fractions and explicit four-channel arena memory",
+        "planning, placement, strides, workers, and opaque provider memory",
+        "direct-oracle and retained-row correctness",
+        "integration recommendation and complete-flux limitation"
+      ]
+    },
+    {
       "id": "issue-021-fused-small-grouped-gemm",
       "issue": 21,
       "phase": "collecting",

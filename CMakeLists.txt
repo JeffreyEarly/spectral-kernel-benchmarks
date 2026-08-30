@@ -38,6 +38,7 @@ endif()
 add_library(skbench_core
     src/authoritative_spectral_flux.cpp
     src/benchmark.cpp
+    src/constant_stratification.cpp
     src/dealiased_convolution.cpp
     src/fftw_provider.cpp
     src/pruned_fftw_provider.cpp
@@ -134,6 +135,7 @@ if(SKBENCH_BUILD_TESTS)
     add_test(NAME skbench-cli-production-lifetime-wvm COMMAND skbench run --kernel production-lifetime-flux --boundary-policy wvm-direct --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-production-lifetime-streaming COMMAND skbench run --kernel production-lifetime-flux --boundary-policy streaming-pruned-compact-split --streaming-tile-width 16 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
     add_test(NAME skbench-cli-production-lifetime-pointwise-spatial COMMAND skbench run --kernel production-lifetime-flux --boundary-policy streaming-pruned-compact-split --streaming-tile-width 16 --pointwise-policy spatial-static --pointwise-workers 2 --vertical-gemm-family k2-grouped --vertical-gemm-schedule outer-dynamic --vertical-gemm-outer-workers 2 --fftw-planning estimate --fftw-alignment unaligned --fftw-internal-workers 1 --fftw-outer-workers 2 --profile smoke --warmups 1 --samples 2)
+    add_test(NAME skbench-cli-constant-stratification-vertical COMMAND skbench run --kernel constant-stratification-vertical --fftw-planning estimate --fftw-internal-workers 1 --profile smoke --warmups 1 --samples 2)
     if(SKBENCH_ENABLE_FFTWPP)
         target_compile_definitions(skbench_tests PRIVATE SKBENCH_TEST_HAVE_FFTWPP=1)
         add_test(NAME skbench-cli-dealiased-convolution-p4 COMMAND skbench run --kernel dealiased-convolution --profile smoke --convolution-products 4 --warmups 1 --samples 2)
@@ -164,4 +166,5 @@ if(SKBENCH_BUILD_TESTS)
     set_tests_properties(skbench-cli-production-lifetime-wvm PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     set_tests_properties(skbench-cli-production-lifetime-streaming PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
     set_tests_properties(skbench-cli-production-lifetime-pointwise-spatial PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
+    set_tests_properties(skbench-cli-constant-stratification-vertical PROPERTIES TIMEOUT 120 ENVIRONMENT "VECLIB_MAXIMUM_THREADS=1")
 endif()
