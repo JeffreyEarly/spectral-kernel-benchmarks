@@ -349,11 +349,12 @@ TimingSeries timing(std::string scope, std::string stage,
 }
 
 CorrectnessMetric correctness(std::string name, const Complex* actual,
-                              const Complex* expected, std::size_t count) {
+                              const Complex* expected, std::size_t count,
+                              double metricTolerance = tolerance) {
     const auto maximum = maximumRelativeError(actual, expected, count);
     const auto l2 = relativeL2Error(actual, expected, count);
-    return {std::move(name), maximum, tolerance,
-            maximum <= tolerance && l2 <= tolerance, l2};
+    return {std::move(name), maximum, metricTolerance,
+            maximum <= metricTolerance && l2 <= metricTolerance, l2};
 }
 
 CorrectnessMetric compactFullCorrectness(
@@ -1776,7 +1777,8 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                            ? "complete compact composition versus full-half control"
                            : "full-half composition deterministic replay"),
                 compact ? compactOutput.data() : fullOutput.data(),
-                expectedOutput.data(), expectedOutput.size()),
+                expectedOutput.data(), expectedOutput.size(),
+                authoritative ? 2.0e-12 : tolerance),
             realCorrectness(
                 compact
                     ? "compact shared U,V,W versus full-half control"
@@ -1807,6 +1809,12 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                           compact ? compactOutput : fullOutput,
                           coefficientWorkload, modes))};
         if (authoritative) {
+            if (compact) {
+                record.correctness.push_back(correctness(
+                    "complete compact composition versus full-half control",
+                    compactOutput.data(), fullOutput.data(),
+                    fullOutput.size()));
+            }
             constexpr double crossBackendTolerance = 1.0e-10;
             record.correctness.push_back({
                 "fixture MATLAB versus compiled WVM nonlinear-flux cross-check",

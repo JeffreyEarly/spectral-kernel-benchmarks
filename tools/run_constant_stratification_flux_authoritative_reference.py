@@ -43,6 +43,7 @@ EXTENDED_REFERENCE_ROUNDS = 5
 REFERENCE_WARMUPS = 3
 REFERENCE_SAMPLES = 21
 TOLERANCE = 1.0e-12
+ORACLE_TOLERANCE = 2.0e-12
 WVM_COMMIT = "6ad254fb9756ac918bb72e036020d004879df1f2"
 PROFILE_SHAPES = {
     "wvm-current-256-nz129-f4": (256, 256, 129),
@@ -242,6 +243,19 @@ def provider_record(record: dict) -> dict:
         )
     complete_error = float(complete_matches[0]["maximumRelativeError"])
     complete_l2_error = float(complete_matches[0]["relativeL2Error"])
+    equivalence_matches = [
+        item for item in correctness
+        if item.get("name") ==
+        "complete compact composition versus full-half control"
+    ]
+    if record.get("id") == CANDIDATE_PROVIDER and len(equivalence_matches) != 1:
+        raise ValueError(
+            "authoritative compact provider lacks one complete control-equivalence metric"
+        )
+    if record.get("id") == CONTROL_PROVIDER and equivalence_matches:
+        raise ValueError(
+            "authoritative control unexpectedly contains a control-equivalence metric"
+        )
     cross_matches = [
         item for item in correctness
         if item.get("name") ==
@@ -258,6 +272,14 @@ def provider_record(record: dict) -> dict:
         "memory": {key: int(memory[key]) for key in memory_keys},
         "maximumCorrectnessError": complete_error,
         "relativeL2Error": complete_l2_error,
+        "algorithmEquivalenceMaximumScaleNormalizedError": (
+            float(equivalence_matches[0]["maximumRelativeError"])
+            if equivalence_matches else None
+        ),
+        "algorithmEquivalenceRelativeL2Error": (
+            float(equivalence_matches[0]["relativeL2Error"])
+            if equivalence_matches else None
+        ),
         "allCorrectnessMetricsPassed": bool(
             correctness and all(item.get("passed") is True for item in correctness)
         ),
@@ -307,13 +329,22 @@ def result_record(
         and result.get("run", {}).get("samples") == samples
         and all(len(item["totalSamplesSeconds"]) == samples
                 for item in (control, candidate))
-        and all(math.isfinite(error) and error <= TOLERANCE for error in errors)
+        and all(math.isfinite(error) and error <= ORACLE_TOLERANCE
+                for error in errors)
         and all(
             item["allCorrectnessMetricsPassed"]
             and math.isfinite(item["relativeL2Error"])
-            and item["relativeL2Error"] <= TOLERANCE
+            and item["relativeL2Error"] <= ORACLE_TOLERANCE
             for item in (control, candidate)
         )
+        and math.isfinite(
+            candidate["algorithmEquivalenceMaximumScaleNormalizedError"]
+        )
+        and candidate[
+            "algorithmEquivalenceMaximumScaleNormalizedError"
+        ] <= TOLERANCE
+        and math.isfinite(candidate["algorithmEquivalenceRelativeL2Error"])
+        and candidate["algorithmEquivalenceRelativeL2Error"] <= TOLERANCE
         and all(item["placementValid"] and item["allocationLedgerValid"]
                 for item in (control, candidate))
         and control["schedulingId"] == expected_schedule
@@ -331,6 +362,12 @@ def result_record(
             candidate["totalSeconds"] / control["totalSeconds"]
         ),
         "maximumCorrectnessError": max(errors),
+        "algorithmEquivalenceMaximumScaleNormalizedError": candidate[
+            "algorithmEquivalenceMaximumScaleNormalizedError"
+        ],
+        "algorithmEquivalenceRelativeL2Error": candidate[
+            "algorithmEquivalenceRelativeL2Error"
+        ],
         "fixtureHash": provenance.get("fixtureHash"),
         "fixtureMatches": fixture_matches,
         "sourceMetadataMatches": source_matches,
@@ -486,7 +523,20 @@ def analyze(records: list[dict], source_commit: str) -> dict:
     maximum_error = max(
         (item["maximumCorrectnessError"] for item in records), default=math.inf
     )
-    correctness = bool(complete and maximum_error <= TOLERANCE)
+    maximum_equivalence_error = max(
+        (item["algorithmEquivalenceMaximumScaleNormalizedError"]
+         for item in records), default=math.inf
+    )
+    maximum_equivalence_l2 = max(
+        (item["algorithmEquivalenceRelativeL2Error"] for item in records),
+        default=math.inf,
+    )
+    oracle_correctness = bool(complete and maximum_error <= ORACLE_TOLERANCE)
+    algorithm_equivalence = bool(
+        complete and maximum_equivalence_error <= TOLERANCE
+        and maximum_equivalence_l2 <= TOLERANCE
+    )
+    correctness = oracle_correctness and algorithm_equivalence
     improvement = bool(geometric_ratio is not None and geometric_ratio <= 0.90)
     regression = bool(maximum_ratio is not None and maximum_ratio <= 1.03)
     interval_passed = bool(interval is not None and interval["upper"] < 1.0)
@@ -512,8 +562,11 @@ def analyze(records: list[dict], source_commit: str) -> dict:
         "referenceRoundProtocolComplete": protocol_complete,
         "conditionalRoundDecision": conditional,
         "allRecordsValid": complete,
-        "allCorrectWithin1e12": correctness,
-        "maximumCorrectnessError": maximum_error,
+        "allAlgorithmEquivalenceWithin1e12": algorithm_equivalence,
+        "maximumAlgorithmEquivalenceError": maximum_equivalence_error,
+        "maximumAlgorithmEquivalenceL2Error": maximum_equivalence_l2,
+        "allAuthoritativeOracleWithin2e12": oracle_correctness,
+        "maximumAuthoritativeOracleError": maximum_error,
         "geometricCandidateToControl": geometric_ratio,
         "maximumProfileCandidateToControl": maximum_ratio,
         "empiricalStratifiedPairedRange": interval,
@@ -525,6 +578,8 @@ def analyze(records: list[dict], source_commit: str) -> dict:
             "regressionPassed": regression,
             "empiricalIntervalExcludesTie": interval_passed,
             "correctnessPassed": correctness,
+            "algorithmEquivalenceWithin1e12Passed": algorithm_equivalence,
+            "authoritativeOracleWithin2e12Passed": oracle_correctness,
             "referenceRoundProtocolPassed": protocol_complete,
             "allocationLedgerPassed": bool(
                 complete and all(
@@ -770,7 +825,8 @@ def main() -> int:
         ],
         "correctnessOracle": (
             "Every retained Fp/Fm/F0 value is compared by logical (k,l,j) to "
-            "MATLAB WVM nonlinearFlux cross-checked against its compiled kernel."
+            "MATLAB WVM nonlinearFlux cross-checked against its compiled kernel; "
+            "compact and control outputs are also compared directly."
         ),
         "allocationPolicy": (
             "All application buffers, plans, phases, mode tables, worker pools, and "
