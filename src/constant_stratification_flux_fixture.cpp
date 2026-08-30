@@ -25,7 +25,7 @@ constexpr std::string_view auditedWvmCommit =
     "6ad254fb9756ac918bb72e036020d004879df1f2";
 constexpr std::string_view normalizationId =
     "raw horizontal FFT; inverse type-I factors placed in coefficient "
-    "assembly; pointwise scale=1/(Nx*Ny)^2; forward type-I divided by "
+    "assembly; no explicit pointwise scale; forward type-I divided by "
     "Nz-1; modal projection includes 1/(Nx*Ny)";
 constexpr std::string_view modeMappingId =
     "logical (k,l,j,coefficient); WVM radial magnitude then k then l; "
@@ -214,12 +214,7 @@ loadPreparedConstantStratificationFluxFixture(
                 std::isfinite(fixture.pointwiseScale) &&
                 fixture.pointwiseScale > 0.0,
             "Constant-stratification fixture has invalid physical metadata.");
-    const auto horizontalElements = checkedProduct(
-        fixture.workload.nx, fixture.workload.ny, "horizontal grid");
-    const auto expectedPointwiseScale = 1.0 / static_cast<double>(
-        checkedProduct(horizontalElements, horizontalElements,
-                       "pointwise scale"));
-    require(fixture.pointwiseScale == expectedPointwiseScale,
+    require(fixture.pointwiseScale == 1.0,
             "Constant-stratification fixture pointwise scale is inconsistent.");
     const auto coriolis = 2.0 * fixture.rotationRate *
         std::sin(fixture.latitude * pi / 180.0);

@@ -144,7 +144,7 @@ class ConstantStratificationFixturePreparationTests(unittest.TestCase):
                 "fluxNames": ["Fp", "Fm", "F0"],
             },
             "normalization": {
-                "pointwiseScale": 1.0 / float((nx * ny) ** 2),
+                "pointwiseScale": 1.0,
             },
             "coefficientContract": {
                 "identity": (

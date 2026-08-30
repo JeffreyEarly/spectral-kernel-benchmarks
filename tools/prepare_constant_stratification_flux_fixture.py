@@ -35,7 +35,7 @@ SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 TOLERANCE = 1.0e-12
 NORMALIZATION_ID = (
     "raw horizontal FFT; inverse type-I factors placed in coefficient "
-    "assembly; pointwise scale=1/(Nx*Ny)^2; forward type-I divided by "
+    "assembly; no explicit pointwise scale; forward type-I divided by "
     "Nz-1; modal projection includes 1/(Nx*Ny)"
 )
 MODE_MAPPING_ID = (
@@ -332,8 +332,8 @@ def validate_and_read(directory: pathlib.Path) -> tuple[
     normalization = mapping(manifest.get("normalization"), "normalization")
     pointwise = number(normalization.get("pointwiseScale"),
                        "normalization.pointwiseScale", positive=True)
-    require(pointwise == 1.0 / float((nx * ny) ** 2),
-            "pointwise scale must be 1/(Nx*Ny)^2")
+    require(pointwise == 1.0,
+            "the exact WVM constant-stratification pointwise scale must be one")
     coefficient = mapping(manifest.get("coefficientContract"),
                           "coefficientContract")
     require(coefficient.get("identity") ==
