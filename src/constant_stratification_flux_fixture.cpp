@@ -8,9 +8,11 @@
 #include <cstdint>
 #include <fstream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace skbench {
@@ -257,10 +259,24 @@ loadPreparedConstantStratificationFluxFixture(
     fixture.modes = retainedHorizontalModes(fixture.workload);
     require(fixture.modes.size() == nkl,
             "Constant-stratification fixture retained mode count is inconsistent.");
+    std::map<std::pair<std::int64_t, std::int64_t>, std::size_t>
+        sourceModeIndices;
     for (std::size_t mode = 0; mode < nkl; ++mode) {
-        require(rawKeys[2 * mode] == fixture.modes[mode].k &&
-                    rawKeys[2 * mode + 1] == fixture.modes[mode].l,
-                "Constant-stratification fixture mode keys are not canonical.");
+        const auto [_, inserted] = sourceModeIndices.emplace(
+            std::pair{
+                static_cast<std::int64_t>(rawKeys[2 * mode]),
+                static_cast<std::int64_t>(rawKeys[2 * mode + 1])},
+            mode);
+        require(inserted,
+                "Constant-stratification fixture contains duplicate mode keys.");
+    }
+    std::vector<std::size_t> sourceForCanonical;
+    sourceForCanonical.reserve(nkl);
+    for (const auto& mode : fixture.modes) {
+        const auto found = sourceModeIndices.find({mode.k, mode.l});
+        require(found != sourceModeIndices.end(),
+                "Constant-stratification fixture mode-key set is incomplete.");
+        sourceForCanonical.push_back(found->second);
     }
 
     const auto coefficientElements = checkedProduct(
@@ -271,6 +287,23 @@ loadPreparedConstantStratificationFluxFixture(
     fixture.expectedModalFlux = reader.values<Complex>(
         coefficientElements, "expected modal flux");
     reader.requireFinished();
+    const auto blockElements = checkedProduct(
+        nj, coefficientCount, "mode coefficient block");
+    auto reorderByModeKey = [&](std::vector<Complex>& values) {
+        std::vector<Complex> reordered(values.size());
+        for (std::size_t canonical = 0; canonical < nkl; ++canonical) {
+            const auto source = sourceForCanonical[canonical];
+            std::copy_n(
+                values.data() + source * blockElements, blockElements,
+                reordered.data() + canonical * blockElements);
+        }
+        values = std::move(reordered);
+    };
+    if (!std::is_sorted(
+            sourceForCanonical.begin(), sourceForCanonical.end())) {
+        reorderByModeKey(fixture.modalState);
+        reorderByModeKey(fixture.expectedModalFlux);
+    }
     requireFinite(fixture.modalState, "Constant-stratification modal state");
     requireFinite(fixture.expectedModalFlux,
                   "Constant-stratification expected modal flux");

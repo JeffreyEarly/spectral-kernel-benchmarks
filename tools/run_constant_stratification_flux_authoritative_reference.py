@@ -411,6 +411,9 @@ def analyze(records: list[dict], source_commit: str) -> dict:
             [item for item in records if item["profile"] == profile],
             key=lambda item: item["round"],
         )
+        if not profile_records:
+            all_valid = False
+            continue
         if [item["round"] for item in profile_records] != expected_rounds:
             all_valid = False
             continue
