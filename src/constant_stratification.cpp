@@ -1,4 +1,5 @@
 #include "skbench/skbench.hpp"
+#include "constant_stratification_coefficients.hpp"
 #include "pointwise_advection.hpp"
 
 #include <fftw3.h>
@@ -12,8 +13,10 @@
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -1034,7 +1037,155 @@ void projectCompactTarget(
     }
 }
 
+template <typename Operation>
+void forEachCoefficientModeBlock(std::size_t modeCount,
+                                 Operation&& operation) {
+    constexpr std::size_t requestedWorkers = 2;
+    const auto workerCount = std::min(requestedWorkers, modeCount);
+    if (workerCount <= 1) {
+        operation(0, modeCount);
+        return;
+    }
+    std::vector<std::thread> workers;
+    workers.reserve(workerCount - 1);
+    const auto blockSize = (modeCount + workerCount - 1) / workerCount;
+    for (std::size_t worker = 1; worker < workerCount; ++worker) {
+        const auto begin = std::min(worker * blockSize, modeCount);
+        const auto end = std::min(begin + blockSize, modeCount);
+        workers.emplace_back([begin, end, &operation] {
+            operation(begin, end);
+        });
+    }
+    operation(0, std::min(blockSize, modeCount));
+    for (auto& worker : workers) worker.join();
+}
+
+std::array<Complex, 3> authoritativeGroupValues(
+    const ConstantStratificationModeTable& table,
+    const std::vector<Complex>& state, const std::vector<Complex>& phases,
+    std::size_t mode, std::size_t j, std::size_t group,
+    std::size_t nz) {
+    if (group == 0)
+        return constantStratificationVelocitySpectrum(
+            table, state, phases, mode, j);
+    return constantStratificationDerivativeSpectrum(
+        table, state, phases, mode, j, group - 1, nz);
+}
+
+void assembleAuthoritativeCompactGroup(
+    double* real, double* imaginary, const Workload& threeWorkload,
+    const ConstantStratificationModeTable& table,
+    const std::vector<Complex>& state, const std::vector<Complex>& phases,
+    std::size_t group) {
+    const auto activeElements = table.horizontal.size() *
+        threeWorkload.planes();
+    std::fill_n(real, activeElements, 0.0);
+    std::fill_n(imaginary, activeElements, 0.0);
+    forEachCoefficientModeBlock(
+        table.horizontal.size(), [&](std::size_t begin, std::size_t end) {
+            for (std::size_t mode = begin; mode < end; ++mode) {
+                for (std::size_t j = 0; j < table.nj; ++j) {
+                    const auto values = authoritativeGroupValues(
+                        table, state, phases, mode, j, group,
+                        threeWorkload.nz);
+                    for (std::size_t channel = 0; channel < 3; ++channel) {
+                        const auto destination = retainedSpectrumIndex(
+                            threeWorkload, mode, j, channel);
+                        real[destination] = values[channel].real;
+                        imaginary[destination] = values[channel].imag;
+                    }
+                }
+            }
+        });
+}
+
+void assembleAuthoritativeFullGroup(
+    Complex* full, const Workload& threeWorkload,
+    const std::vector<RetainedMode>& modes,
+    const ConstantStratificationModeTable& table,
+    const std::vector<Complex>& state, const std::vector<Complex>& phases,
+    std::size_t group) {
+    std::fill_n(full, threeWorkload.spectrumElements(), Complex{});
+    forEachCoefficientModeBlock(
+        modes.size(), [&](std::size_t begin, std::size_t end) {
+            for (std::size_t mode = begin; mode < end; ++mode) {
+                const auto& retained = modes[mode];
+                for (std::size_t j = 0; j < table.nj; ++j) {
+                    const auto values = authoritativeGroupValues(
+                        table, state, phases, mode, j, group,
+                        threeWorkload.nz);
+                    for (std::size_t channel = 0; channel < 3; ++channel) {
+                        const auto stored = retained.conjugatesStoredValue
+                            ? conjugated(values[channel]) : values[channel];
+                        full[wvmSpectrumIndex(
+                            threeWorkload, retained.storedKx,
+                            retained.storedKy, j, channel)] = stored;
+                        if (retained.storedKx == 0 &&
+                            retained.storedKy != 0 &&
+                            2 * retained.storedKy != threeWorkload.ny) {
+                            const auto conjugateKy =
+                                (threeWorkload.ny - retained.storedKy) %
+                                threeWorkload.ny;
+                            full[wvmSpectrumIndex(
+                                threeWorkload, 0, conjugateKy, j,
+                                channel)] = conjugated(stored);
+                        }
+                    }
+                }
+            }
+        });
+}
+
+void projectAuthoritativeFullTarget(
+    const Complex* full, const Workload& scalarWorkload,
+    const std::vector<RetainedMode>& modes,
+    const ConstantStratificationModeTable& table,
+    const std::vector<Complex>& phases, std::size_t target,
+    std::vector<Complex>& output) {
+    const auto horizontalScale = 1.0 / static_cast<double>(
+        scalarWorkload.nx * scalarWorkload.ny);
+    forEachCoefficientModeBlock(
+        modes.size(), [&](std::size_t begin, std::size_t end) {
+            for (std::size_t mode = begin; mode < end; ++mode) {
+                const auto& retained = modes[mode];
+                for (std::size_t j = 0; j < table.nj; ++j) {
+                    auto value = full[wvmSpectrumIndex(
+                        scalarWorkload, retained.storedKx,
+                        retained.storedKy, j, 0)];
+                    if (retained.conjugatesStoredValue)
+                        value = conjugated(value);
+                    accumulateConstantStratificationFluxTarget(
+                        table, phases, output, mode, j, target, value,
+                        horizontalScale);
+                }
+            }
+        });
+}
+
+void projectAuthoritativeCompactTarget(
+    const double* real, const double* imaginary,
+    const Workload& scalarWorkload,
+    const ConstantStratificationModeTable& table,
+    const std::vector<Complex>& phases, std::size_t target,
+    std::vector<Complex>& output) {
+    const auto horizontalScale = 1.0 / static_cast<double>(
+        scalarWorkload.nx * scalarWorkload.ny);
+    forEachCoefficientModeBlock(
+        table.horizontal.size(), [&](std::size_t begin, std::size_t end) {
+            for (std::size_t mode = begin; mode < end; ++mode) {
+                for (std::size_t j = 0; j < table.nj; ++j) {
+                    const auto source = retainedSpectrumIndex(
+                        scalarWorkload, mode, j, 0);
+                    accumulateConstantStratificationFluxTarget(
+                        table, phases, output, mode, j, target,
+                        {real[source], imaginary[source]}, horizontalScale);
+                }
+            }
+        });
+}
+
 struct ComposedStageDurations {
+    double phaseEvaluation = 0.0;
     double coefficientAssembly = 0.0;
     double verticalInverse = 0.0;
     double horizontalInverse = 0.0;
@@ -1045,6 +1196,7 @@ struct ComposedStageDurations {
 };
 
 struct ComposedStageSamples {
+    std::vector<double> phaseEvaluation;
     std::vector<double> coefficientAssembly;
     std::vector<double> verticalInverse;
     std::vector<double> horizontalInverse;
@@ -1054,6 +1206,7 @@ struct ComposedStageSamples {
     std::vector<double> coefficientProjection;
 
     void append(const ComposedStageDurations& values) {
+        phaseEvaluation.push_back(values.phaseEvaluation);
         coefficientAssembly.push_back(values.coefficientAssembly);
         verticalInverse.push_back(values.verticalInverse);
         horizontalInverse.push_back(values.horizontalInverse);
@@ -1134,6 +1287,29 @@ double dcImaginaryError(const std::vector<Complex>& output,
     return maximum;
 }
 
+double dcWaveVortexConstraintError(
+    const std::vector<Complex>& output,
+    const Workload& coefficientWorkload,
+    const std::vector<RetainedMode>& modes) {
+    double maximum = 0.0;
+    for (std::size_t mode = 0; mode < modes.size(); ++mode) {
+        if (modes[mode].k != 0 || modes[mode].l != 0) continue;
+        for (std::size_t j = 0;
+             j < coefficientWorkload.retainedVerticalModes(); ++j) {
+            const auto fp = output[modalSpectrumIndex(
+                coefficientWorkload, mode, j, 0)];
+            const auto fm = output[modalSpectrumIndex(
+                coefficientWorkload, mode, j, 1)];
+            const auto f0 = output[modalSpectrumIndex(
+                coefficientWorkload, mode, j, 2)];
+            maximum = std::max(maximum, std::hypot(
+                fm.real - fp.real, fm.imag + fp.imag));
+            maximum = std::max(maximum, std::abs(f0.imag));
+        }
+    }
+    return maximum;
+}
+
 } // namespace
 
 BenchmarkReport runConstantStratificationFluxBenchmark(
@@ -1141,6 +1317,19 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     auto selected = profileNamed(options.profile);
     auto coefficientWorkload = selected.workload;
     coefficientWorkload.fields = 3;
+    std::optional<ConstantStratificationFluxFixture> fixture;
+    if (!options.constantStratificationFluxFixture.empty()) {
+        fixture = loadPreparedConstantStratificationFluxFixture(
+            options.constantStratificationFluxFixture);
+        if (fixture->workload.nx != coefficientWorkload.nx ||
+            fixture->workload.ny != coefficientWorkload.ny ||
+            fixture->workload.nz != coefficientWorkload.nz)
+            throw std::invalid_argument(
+                "The constant-stratification fixture dimensions do not match the selected profile.");
+        coefficientWorkload = fixture->workload;
+        coefficientWorkload.fields = 3;
+    }
+    const bool authoritative = fixture.has_value();
     if (coefficientWorkload.nx != coefficientWorkload.ny ||
         coefficientWorkload.nx % 2 != 0 || coefficientWorkload.nz < 3)
         throw std::invalid_argument(
@@ -1167,7 +1356,8 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
         throw std::invalid_argument(
             "Serial pointwise policies require one worker.");
     const auto planningMode = fftwPlanningModeNamed(options.fftwPlanning);
-    const auto modes = retainedHorizontalModes(coefficientWorkload);
+    const auto modes = authoritative
+        ? fixture->modes : retainedHorizontalModes(coefficientWorkload);
     const auto fullRows = coefficientWorkload.halfRows();
     const auto compactRows = modes.size();
     const auto nz = coefficientWorkload.nz;
@@ -1181,7 +1371,18 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     const auto compactCapacity = elementCount(compactRows, 4, nz);
 
     const auto setupStarted = Clock::now();
-    const auto coefficients = makeCoefficientFixture(coefficientWorkload, modes);
+    std::optional<ConstantStratificationModeTable> modeTable;
+    std::vector<Complex> authoritativeExpected;
+    std::vector<Complex> phases;
+    std::vector<Complex> coefficients;
+    if (authoritative) {
+        modeTable = makeConstantStratificationModeTable(*fixture);
+        coefficients = std::move(fixture->modalState);
+        authoritativeExpected = std::move(fixture->expectedModalFlux);
+        phases.resize(modeTable->omega.size());
+    } else {
+        coefficients = makeCoefficientFixture(coefficientWorkload, modes);
+    }
     std::vector<Complex> fullOutput(coefficients.size());
     std::vector<Complex> compactOutput(coefficients.size());
     FFTWArray<Complex> fullArena(fullCapacity);
@@ -1215,9 +1416,12 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     FFTWStreamingPrunedSplitProvider compactForward(
         scalarWorkload, modes, planningMode, 1, horizontalWorkers, 16,
         StreamingInversePreparationPolicy::fullZero);
-    const auto pointwiseScale = 1.0 / static_cast<double>(
-        coefficientWorkload.nx * coefficientWorkload.ny) /
-        static_cast<double>(coefficientWorkload.nx * coefficientWorkload.ny);
+    const auto pointwiseScale = authoritative
+        ? fixture->pointwiseScale
+        : 1.0 / static_cast<double>(
+              coefficientWorkload.nx * coefficientWorkload.ny) /
+              static_cast<double>(
+                  coefficientWorkload.nx * coefficientWorkload.ny);
     PointwiseAdvectionExecutor fullPointwise(
         pointwisePolicy, pointwiseWorkers, volume, pointwiseScale);
     PointwiseAdvectionExecutor compactPointwise(
@@ -1226,16 +1430,34 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
         std::chrono::duration<double>(Clock::now() - setupStarted).count();
 
     auto executeFull = [&](ComposedStageDurations* durations) {
-        measuredStage(
-            durations ? &durations->coefficientProjection : nullptr,
-            [&] { std::fill(fullOutput.begin(), fullOutput.end(), Complex{}); });
+        if (authoritative) {
+            measuredStage(
+                durations ? &durations->phaseEvaluation : nullptr,
+                [&] {
+                    evaluateConstantStratificationPhases(
+                        *modeTable, fixture->elapsedTime, phases);
+                    std::fill(fullOutput.begin(), fullOutput.end(), Complex{});
+                });
+        } else {
+            measuredStage(
+                durations ? &durations->coefficientProjection : nullptr,
+                [&] {
+                    std::fill(
+                        fullOutput.begin(), fullOutput.end(), Complex{});
+                });
+        }
         for (std::size_t group = 0; group < 5; ++group) {
             measuredStage(
                 durations ? &durations->coefficientAssembly : nullptr,
                 [&] {
-                    assembleFullGroup(
-                        fullArena.data(), coefficientWorkload, threeWorkload,
-                        modes, coefficients, group);
+                    if (authoritative)
+                        assembleAuthoritativeFullGroup(
+                            fullArena.data(), threeWorkload, modes,
+                            *modeTable, coefficients, phases, group);
+                    else
+                        assembleFullGroup(
+                            fullArena.data(), coefficientWorkload,
+                            threeWorkload, modes, coefficients, group);
                 });
             measuredStage(
                 durations ? &durations->verticalInverse : nullptr,
@@ -1265,24 +1487,49 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             measuredStage(
                 durations ? &durations->coefficientProjection : nullptr,
                 [&] {
-                    projectFullTarget(
-                        fullArena.data(), scalarWorkload,
-                        coefficientWorkload, modes, target, fullOutput);
+                    if (authoritative)
+                        projectAuthoritativeFullTarget(
+                            fullArena.data(), scalarWorkload, modes,
+                            *modeTable, phases, target, fullOutput);
+                    else
+                        projectFullTarget(
+                            fullArena.data(), scalarWorkload,
+                            coefficientWorkload, modes, target, fullOutput);
                 });
         }
     };
 
     auto executeCompact = [&](ComposedStageDurations* durations) {
-        measuredStage(
-            durations ? &durations->coefficientProjection : nullptr,
-            [&] { std::fill(compactOutput.begin(), compactOutput.end(), Complex{}); });
+        if (authoritative) {
+            measuredStage(
+                durations ? &durations->phaseEvaluation : nullptr,
+                [&] {
+                    evaluateConstantStratificationPhases(
+                        *modeTable, fixture->elapsedTime, phases);
+                    std::fill(
+                        compactOutput.begin(), compactOutput.end(), Complex{});
+                });
+        } else {
+            measuredStage(
+                durations ? &durations->coefficientProjection : nullptr,
+                [&] {
+                    std::fill(
+                        compactOutput.begin(), compactOutput.end(), Complex{});
+                });
+        }
         for (std::size_t group = 0; group < 5; ++group) {
             measuredStage(
                 durations ? &durations->coefficientAssembly : nullptr,
                 [&] {
-                    assembleCompactGroup(
-                        compactReal, compactImaginary, coefficientWorkload,
-                        threeWorkload, modes, coefficients, group);
+                    if (authoritative)
+                        assembleAuthoritativeCompactGroup(
+                            compactReal, compactImaginary, threeWorkload,
+                            *modeTable, coefficients, phases, group);
+                    else
+                        assembleCompactGroup(
+                            compactReal, compactImaginary,
+                            coefficientWorkload, threeWorkload, modes,
+                            coefficients, group);
                 });
             measuredStage(
                 durations ? &durations->verticalInverse : nullptr,
@@ -1322,15 +1569,22 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             measuredStage(
                 durations ? &durations->coefficientProjection : nullptr,
                 [&] {
-                    projectCompactTarget(
-                        compactReal, compactImaginary, scalarWorkload,
-                        coefficientWorkload, modes, target, compactOutput);
+                    if (authoritative)
+                        projectAuthoritativeCompactTarget(
+                            compactReal, compactImaginary, scalarWorkload,
+                            *modeTable, phases, target, compactOutput);
+                    else
+                        projectCompactTarget(
+                            compactReal, compactImaginary, scalarWorkload,
+                            coefficientWorkload, modes, target,
+                            compactOutput);
                 });
         }
     };
 
     executeFull(nullptr);
-    const auto expectedOutput = fullOutput;
+    auto expectedOutput = authoritative
+        ? std::move(authoritativeExpected) : fullOutput;
     const auto expectedShared = fullShared;
     const auto expectedDerivative = fullDerivative;
     const auto expectedTarget = fullTarget;
@@ -1348,7 +1602,9 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     BenchmarkReport report;
     report.environment = environmentRecord();
     report.runId = timestampId(report.environment.timestampUtc) +
-        "-issue20-constant-stratification-composed-" +
+        (authoritative
+             ? "-issue20-constant-stratification-authoritative-"
+             : "-issue20-constant-stratification-composed-") +
         report.environment.hostname;
     report.profile = options.profile;
     report.seed = options.seed;
@@ -1366,37 +1622,69 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
         elementCount(compactRows, 4, nz), sizeof(Complex));
     report.modalSpectrumBytes = byteCount(
         compactRows * nj * 3, sizeof(Complex));
-    report.verticalMatrixFamilyId =
-        "wvm-constant-stratification-fftw-type1-composed-synthetic-map-v1";
-    report.fixtureProvenance = {
-        "provider-independent-synthetic-development",
-        "constant-stratification-composed-fixture-v1",
-        "JeffreyEarly/wave-vortex-model",
-        std::string(auditedWvmCommit),
-        "skbench deterministic symmetry-preserving mode-keyed coefficient map",
-        modeOrderHash(modes),
-        "FFTW inverse horizontal scale represented by pointwise 1/(Nx*Ny)^2; "
-        "forward horizontal 1/(Nx*Ny); exact WVM type-I vertical normalization",
-        "logical radial (k,l,j); full WVM mapping versus compact split mapping",
-        "cosine targets 0/1, sine targets 2/3; x/y imaginary multipliers and vertical family swap",
-        false};
+    report.verticalMatrixFamilyId = authoritative
+        ? "wvm-constant-stratification-natural-dimensional-prescaled-v1"
+        : "wvm-constant-stratification-fftw-type1-composed-synthetic-map-v1";
+    if (authoritative) {
+        report.fixtureProvenance = {
+            "authoritative-wvm-export",
+            "constant-stratification-flux-fixture-v1",
+            fixture->waveVortexModelRepository,
+            fixture->waveVortexModelCommit,
+            fixture->generatorIdentity,
+            fixture->fixtureHash,
+            fixture->normalization,
+            fixture->modeMapping,
+            fixture->coefficientContract,
+            true};
+    } else {
+        report.fixtureProvenance = {
+            "provider-independent-synthetic-development",
+            "constant-stratification-composed-fixture-v1",
+            "JeffreyEarly/wave-vortex-model",
+            std::string(auditedWvmCommit),
+            "skbench deterministic symmetry-preserving mode-keyed coefficient map",
+            modeOrderHash(modes),
+            "FFTW inverse horizontal scale represented by pointwise 1/(Nx*Ny)^2; "
+            "forward horizontal 1/(Nx*Ny); exact WVM type-I vertical normalization",
+            "logical radial (k,l,j); full WVM mapping versus compact split mapping",
+            "cosine targets 0/1, sine targets 2/3; x/y imaginary multipliers and vertical family swap",
+            false};
+    }
 
     const auto realBufferBytes = byteCount(7 * volume, sizeof(double));
     const auto fullArenaBytes = byteCount(fullCapacity, sizeof(Complex));
     const auto compactArenaBytes = byteCount(2 * compactCapacity, sizeof(double));
     const auto coefficientBytes = byteCount(coefficients.size(), sizeof(Complex));
-    const auto totalStage =
-        "production-shaped constant-stratification spectral-flux composition";
+    const auto phaseBytes = authoritative
+        ? byteCount(phases.size(), sizeof(Complex)) : std::uint64_t{0};
+    const auto modeTableBytes = authoritative
+        ? constantStratificationModeTableBytes(*modeTable) : std::uint64_t{0};
+    const auto totalStage = authoritative
+        ? "authoritative WVM constant-stratification nonlinear-flux composition"
+        : "production-shaped constant-stratification spectral-flux composition";
 
     auto makeRecord = [&](bool compact) {
         auto record = providerRecord(
             compact
-                ? "pipeline-constant-stratification-streaming-pruned-tile16"
-                : "pipeline-constant-stratification-wvm-full-half",
+                ? (authoritative
+                       ? "pipeline-constant-stratification-streaming-pruned-tile16-authoritative"
+                       : "pipeline-constant-stratification-streaming-pruned-tile16")
+                : (authoritative
+                       ? "pipeline-constant-stratification-wvm-full-half-authoritative"
+                       : "pipeline-constant-stratification-wvm-full-half"),
             compact
-                ? "compact-split-type1+partial-column-pruned-tile16+streamed-3-"
-                  "shared-3-derivative+pointwise-4-target-v1"
-                : "wvm-full-half-type1+full-horizontal+streamed-3-shared-3-derivative+pointwise-4-target-v1",
+                ? (authoritative
+                       ? "compact-split-type1+partial-column-pruned-tile16+"
+                         "streamed-3-shared-3-derivative+pointwise-4-target+"
+                         "wvm-coefficients-v1"
+                       : "compact-split-type1+partial-column-pruned-tile16+"
+                         "streamed-3-shared-3-derivative+pointwise-4-target-v1")
+                : (authoritative
+                       ? "wvm-full-half-type1+full-horizontal+streamed-3-shared-3-"
+                         "derivative+pointwise-4-target+wvm-coefficients-v1"
+                       : "wvm-full-half-type1+full-horizontal+streamed-3-shared-3-"
+                         "derivative+pointwise-4-target-v1"),
             compact
                 ? "persistent radial compact split type-I rows and tile-16 horizontal scratch"
                 : "reusable WVM-order full-half interleaved type-I arena",
@@ -1417,9 +1705,13 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             {verticalWorkers, horizontalWorkers, pointwiseWorkers});
         record.internalWorkers = verticalWorkers;
         record.outerWorkers = horizontalWorkers;
-        record.planningConfiguration =
-            "synthetic development coefficient map; exact production type-I family schedule; "
-            "FFTW MEASURE/UNALIGNED when selected; horizontal tile 16; no timed application allocation";
+        record.planningConfiguration = authoritative
+            ? "authoritative WVM coefficient formulas and phase; exact production "
+              "type-I family schedule; coefficient workers 2; FFTW MEASURE/UNALIGNED "
+              "when selected; horizontal tile 16; no timed application allocation"
+            : "synthetic development coefficient map; exact production type-I "
+              "family schedule; FFTW MEASURE/UNALIGNED when selected; horizontal "
+              "tile 16; no timed application allocation";
         const auto& stages = compact ? compactStages : fullStages;
         record.timings = {
             timing("component", "mode-keyed coefficient assembly and retained/full clearing",
@@ -1440,16 +1732,29 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
             timing("component", "four forward complex type-I channels and normalization",
                    "forward", 2 * (compact ? compactArenaBytes : fullArenaBytes),
                    stages.verticalForward),
-            timing("component", "coefficient reset and four target accumulations",
+            timing("component", authoritative
+                       ? "four authoritative flux-target accumulations"
+                       : "coefficient reset and four target accumulations",
                    "forward", 2 * coefficientBytes,
                    stages.coefficientProjection),
             timing("uninstrumented-total", totalStage, "complete",
                    0, compact ? compactTotals : fullTotals)};
+        if (authoritative) {
+            record.timings.insert(
+                record.timings.begin(),
+                timing("component", "phase evaluation and flux reset",
+                       "phase", phaseBytes + coefficientBytes,
+                       stages.phaseEvaluation));
+        }
         record.correctness = {
             correctness(
-                compact
-                    ? "complete compact composition versus full-half control"
-                    : "full-half composition deterministic replay",
+                authoritative
+                    ? (compact
+                           ? "complete compact composition versus authoritative WVM oracle"
+                           : "complete full-half composition versus authoritative WVM oracle")
+                    : (compact
+                           ? "complete compact composition versus full-half control"
+                           : "full-half composition deterministic replay"),
                 compact ? compactOutput.data() : fullOutput.data(),
                 expectedOutput.data(), expectedOutput.size()),
             realCorrectness(
@@ -1471,10 +1776,25 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                 compact ? compactTarget.data() : fullTarget.data(),
                 expectedTarget.data(), expectedTarget.size()),
             scalarCorrectness(
-                "DC coefficient output remains real",
-                dcImaginaryError(
-                    compact ? compactOutput : fullOutput,
-                    coefficientWorkload, modes))};
+                authoritative
+                    ? "DC Fm=conjugate(Fp) and F0 remains real"
+                    : "DC coefficient output remains real",
+                authoritative
+                    ? dcWaveVortexConstraintError(
+                          compact ? compactOutput : fullOutput,
+                          coefficientWorkload, modes)
+                    : dcImaginaryError(
+                          compact ? compactOutput : fullOutput,
+                          coefficientWorkload, modes))};
+        if (authoritative) {
+            record.correctness.push_back({
+                "fixture MATLAB versus compiled WVM nonlinear-flux cross-check",
+                fixture->oracleMaximumScaleNormalizedError,
+                tolerance,
+                fixture->oracleMaximumScaleNormalizedError <= tolerance &&
+                    fixture->oracleRelativeL2Error <= tolerance,
+                fixture->oracleRelativeL2Error});
+        }
         record.execution.forward.nativePlacement = "out-of-place";
         record.execution.forward.adapterPlacement = "out-of-place";
         record.execution.forward.destroysNativeInput = false;
@@ -1517,16 +1837,21 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
         record.explicitPersistentBytes += compact
             ? compactPointwise.persistentBytes()
             : fullPointwise.persistentBytes();
+        record.explicitPersistentBytes += modeTableBytes;
+        record.scratchBytes += phaseBytes;
         record.algorithmResidentBytes =
             record.explicitPersistentBytes + record.scratchBytes;
         record.estimatedProcessPeakBytes = record.algorithmResidentBytes +
-            2 * coefficientBytes;
-        record.benchmarkHarnessBytes = 2 * coefficientBytes;
+            (authoritative ? 3 : 2) * coefficientBytes;
+        record.benchmarkHarnessBytes =
+            (authoritative ? 3 : 2) * coefficientBytes;
         record.otherSetupSeconds = setupSeconds / 2.0;
         record.opaqueProviderMemory = true;
         record.ledger = {
             {"coefficient fixture", StageState::setupOnly,
-             "deterministic symmetry-preserving development map; not the WVM coefficient-formula oracle"},
+             authoritative
+                 ? "authoritative WVM state and nonlinear-flux oracle; loaded and validated before timing"
+                 : "deterministic symmetry-preserving development map; not the WVM coefficient-formula oracle"},
             {"coefficient assembly", StageState::executed,
              compact
                  ? "writes only retained compact split rows"
@@ -1549,11 +1874,24 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
              "four target spectra accumulated into three mode-keyed outputs"},
             {"steady-state application allocation", StageState::elided,
              "all benchmark-owned storage and worker pools are persistent; "
-             "FFTW-owned execution behavior remains opaque"},
-            {"exact WVM coefficient formulas and complete nonlinear flux",
-             StageState::unsupported,
-             "requires a later WVM-exported or in-repository oracle; this "
-             "composed screen is performance-shape evidence only"}};
+             "FFTW-owned execution behavior remains opaque"}};
+        if (authoritative) {
+            record.ledger.insert(
+                record.ledger.begin() + 1,
+                {"phase evaluation and flux reset", StageState::executed,
+                 "scalar sincos for every retained (k,l,j), plus zeroing Fp/Fm/F0"});
+            record.ledger.push_back(
+                {"exact WVM coefficient formulas and complete nonlinear flux",
+                 StageState::executed,
+                 "natural-dimensional-prescaled reconstruction, derivatives, "
+                 "inertial/MDA exceptions, phase removal, and four-target accumulation"});
+        } else {
+            record.ledger.push_back(
+                {"exact WVM coefficient formulas and complete nonlinear flux",
+                 StageState::unsupported,
+                 "requires a later WVM-exported or in-repository oracle; this "
+                 "composed screen is performance-shape evidence only"});
+        }
         return record;
     };
 

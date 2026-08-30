@@ -5378,6 +5378,12 @@ BenchmarkReport runBenchmark(const RunOptions& options) {
         throw std::invalid_argument(
             "--spectral-flux-fixture is valid only for production-lifetime-flux.");
     }
+    if (!options.constantStratificationFluxFixture.empty() &&
+        options.kernel != "constant-stratification-flux") {
+        throw std::invalid_argument(
+            "--constant-stratification-flux-fixture is valid only for "
+            "constant-stratification-flux.");
+    }
     if (options.kernel != "production-lifetime-flux" &&
         options.kernel != "constant-stratification-flux" &&
         (options.pointwisePolicy != "serial" || options.pointwiseWorkers != 0)) {

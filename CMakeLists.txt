@@ -39,6 +39,8 @@ add_library(skbench_core
     src/authoritative_spectral_flux.cpp
     src/benchmark.cpp
     src/constant_stratification.cpp
+    src/constant_stratification_coefficients.cpp
+    src/constant_stratification_flux_fixture.cpp
     src/dealiased_convolution.cpp
     src/fftw_provider.cpp
     src/pruned_fftw_provider.cpp

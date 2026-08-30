@@ -809,6 +809,35 @@ struct SpectralFluxFixture {
 SpectralFluxFixture loadPreparedSpectralFluxFixture(
     const std::filesystem::path& path);
 
+struct ConstantStratificationFluxFixture {
+    std::string fixtureId;
+    std::string waveVortexModelRepository;
+    std::string waveVortexModelCommit;
+    std::string generatorIdentity;
+    std::string fixtureHash;
+    std::string normalization;
+    std::string modeMapping;
+    std::string coefficientContract;
+    std::string compiledModuleSha256;
+    Workload workload;
+    double lz = 0.0;
+    double n0 = 0.0;
+    double rotationRate = 0.0;
+    double latitude = 0.0;
+    double gravity = 0.0;
+    double elapsedTime = 0.0;
+    double pointwiseScale = 0.0;
+    double oracleMaximumScaleNormalizedError = 0.0;
+    double oracleRelativeL2Error = 0.0;
+    std::vector<RetainedMode> modes;
+    std::vector<Complex> modalState;
+    std::vector<Complex> expectedModalFlux;
+};
+
+ConstantStratificationFluxFixture
+loadPreparedConstantStratificationFluxFixture(
+    const std::filesystem::path& path);
+
 struct BenchmarkReport {
     std::string schema = "spectral-kernel-benchmark-v1";
     std::string status;
@@ -889,6 +918,7 @@ struct RunOptions {
     std::size_t samples = 0;
     std::uint64_t seed = 129;
     std::filesystem::path spectralFluxFixture;
+    std::filesystem::path constantStratificationFluxFixture;
     std::filesystem::path outputJson;
 };
 
