@@ -1475,8 +1475,8 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                 dcImaginaryError(
                     compact ? compactOutput : fullOutput,
                     coefficientWorkload, modes))};
-        record.execution.forward.nativePlacement = "out-of-place-composed";
-        record.execution.forward.adapterPlacement = "out-of-place-composed";
+        record.execution.forward.nativePlacement = "out-of-place";
+        record.execution.forward.adapterPlacement = "out-of-place";
         record.execution.forward.destroysNativeInput = false;
         record.execution.forward.adapterPreservesCallerInput = true;
         record.execution.forward.nativeInputRepresentationId =

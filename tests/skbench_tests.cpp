@@ -2576,6 +2576,11 @@ int main() {
                         "pipeline-constant-stratification-streaming-pruned-tile16",
                     "constant-stratification composed provider identities");
             for (const auto& provider : report.providers) {
+                require(provider.execution.forward.nativePlacement ==
+                            "out-of-place" &&
+                            provider.execution.forward.adapterPlacement ==
+                            "out-of-place",
+                        "constant-stratification composed placement schema");
                 require(provider.correctness.size() == 5 && std::all_of(
                             provider.correctness.begin(),
                             provider.correctness.end(),
