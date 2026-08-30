@@ -98,6 +98,10 @@ def provider_name(provider: dict) -> str:
         "fftwpp-parallel-target-wvm-advection": "FFTW++ parallel-target WVM advection",
         "fftw-wvm-type1-full-half": "FFTW type-I full half-spectrum",
         "fftw-wvm-type1-retained-compact": "FFTW type-I retained compact rows",
+        "pipeline-constant-stratification-wvm-full-half":
+            "Constant-stratification WVM full-half control",
+        "pipeline-constant-stratification-streaming-pruned-tile16":
+            "Constant-stratification compact tile-16 candidate",
     }
     return names.get(provider["id"], provider["id"])
 
@@ -182,7 +186,51 @@ def summary_timing_table(result: dict) -> str:
     measurements: list[tuple[str, str, tuple[str, ...], tuple[str, ...]]] = [
         (label, scope, (), ("forward", "inverse")) for label, scope in SUMMARY_SCOPES
     ]
-    if any(provider["id"].startswith("pipeline-") for provider in providers):
+    if any(
+        provider["id"].startswith("pipeline-constant-stratification-")
+        for provider in providers
+    ):
+        measurements = [
+            (
+                "Coefficient assembly", "component",
+                ("mode-keyed coefficient assembly and retained/full clearing",),
+                ("inverse",),
+            ),
+            (
+                "Inverse type-I", "component",
+                ("15 inverse complex type-I channels",), ("inverse",),
+            ),
+            (
+                "Horizontal inverse", "retained-operator-total",
+                ("five horizontal inverse transforms",), ("inverse",),
+            ),
+            (
+                "Pointwise advection", "component",
+                ("four streamed pointwise advection expressions",),
+                ("pointwise",),
+            ),
+            (
+                "Horizontal forward", "retained-operator-total",
+                ("four horizontal forward transforms and radial retention",),
+                ("forward",),
+            ),
+            (
+                "Forward type-I", "component",
+                ("four forward complex type-I channels and normalization",),
+                ("forward",),
+            ),
+            (
+                "Coefficient accumulation", "component",
+                ("coefficient reset and four target accumulations",),
+                ("forward",),
+            ),
+            (
+                "Composed total", "uninstrumented-total",
+                ("production-shaped constant-stratification spectral-flux composition",),
+                ("complete",),
+            ),
+        ]
+    elif any(provider["id"].startswith("pipeline-") for provider in providers):
         measurements = [
             ("Raw FFT", "primitive", ("raw FFT",), ("forward", "inverse")),
             ("Raw vertical MM", "primitive", ("raw vertical MM",), ("forward", "inverse")),
@@ -6728,6 +6776,164 @@ def constant_stratification_type1_synthesis(
     """
 
 
+def constant_stratification_composed_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    selected = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+            "production-shaped-type1-composed-screen-v1"
+    ]
+    if not selected:
+        return ""
+
+    def required(provider: dict, scope: str, stage: str, direction: str) -> float:
+        matches = [
+            item for item in provider["timings"]
+            if item["scope"] == scope and item["stage"] == stage
+            and item["direction"] == direction
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"issue #20 composed provider {provider['id']} lacks one "
+                f"{scope}/{stage}/{direction} timing"
+            )
+        return float(matches[0]["medianSeconds"])
+
+    component_definitions = [
+        (
+            "Coefficient assembly", "component",
+            "mode-keyed coefficient assembly and retained/full clearing", "inverse",
+        ),
+        (
+            "Inverse type-I", "component",
+            "15 inverse complex type-I channels", "inverse",
+        ),
+        (
+            "Horizontal inverse", "retained-operator-total",
+            "five horizontal inverse transforms", "inverse",
+        ),
+        (
+            "Pointwise advection", "component",
+            "four streamed pointwise advection expressions", "pointwise",
+        ),
+        (
+            "Horizontal forward", "retained-operator-total",
+            "four horizontal forward transforms and radial retention", "forward",
+        ),
+        (
+            "Forward type-I", "component",
+            "four forward complex type-I channels and normalization", "forward",
+        ),
+        (
+            "Coefficient accumulation", "component",
+            "coefficient reset and four target accumulations", "forward",
+        ),
+    ]
+    total_stage = (
+        "production-shaped constant-stratification spectral-flux composition"
+    )
+    control_id = "pipeline-constant-stratification-wvm-full-half"
+    candidate_id = "pipeline-constant-stratification-streaming-pruned-tile16"
+    rows: list[dict] = []
+    for bundle in selected:
+        result = bundle.result
+        providers = {provider["id"]: provider for provider in result["providers"]}
+        if set(providers) != {control_id, candidate_id}:
+            raise ValueError("issue #20 composed run has the wrong provider pair")
+        control = providers[control_id]
+        candidate = providers[candidate_id]
+        control_total = required(
+            control, "uninstrumented-total", total_stage, "complete"
+        )
+        candidate_total = required(
+            candidate, "uninstrumented-total", total_stage, "complete"
+        )
+        control_error = maximum_correctness_error(control)
+        candidate_error = maximum_correctness_error(candidate)
+        if control_error is None or candidate_error is None:
+            raise ValueError("issue #20 composed provider lacks correctness evidence")
+        workload = result["workload"]
+        control_memory = int(control["memory"]["algorithmResidentBytes"])
+        candidate_memory = int(candidate["memory"]["algorithmResidentBytes"])
+        rows.append({
+            "bundle": bundle,
+            "nx": int(workload["Nx"]),
+            "nz": int(workload["Nz"]),
+            "control": control,
+            "candidate": candidate,
+            "controlTotal": control_total,
+            "candidateTotal": candidate_total,
+            "timeRatio": candidate_total / control_total,
+            "controlMemory": control_memory,
+            "candidateMemory": candidate_memory,
+            "memoryRatio": candidate_memory / control_memory,
+            "maximumError": max(control_error, candidate_error),
+        })
+    rows.sort(key=lambda row: (row["nx"], row["nz"]))
+    if len(rows) != 4:
+        raise ValueError("issue #20 composed screen must contain four workload runs")
+
+    geometric_time = statistics.geometric_mean(row["timeRatio"] for row in rows)
+    worst_time = max(row["timeRatio"] for row in rows)
+    geometric_memory = statistics.geometric_mean(
+        row["memoryRatio"] for row in rows
+    )
+    maximum_error = max(row["maximumError"] for row in rows)
+    component_rows = []
+    for label, scope, stage, direction in component_definitions:
+        ratios = [
+            required(row["candidate"], scope, stage, direction) /
+            required(row["control"], scope, stage, direction)
+            for row in rows
+        ]
+        component_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(label)}</th>'
+            f'<td class="numeric">{statistics.geometric_mean(ratios):.3f}×</td>'
+            f'<td class="numeric">{min(ratios):.3f}×–{max(ratios):.3f}×</td>'
+            "</tr>"
+        )
+
+    workload_rows = []
+    for row in rows:
+        run_id = row["bundle"].result["run"]["id"]
+        workload_rows.append(
+            "<tr>"
+            f'<th scope="row"><a href="../../runs/{quote(run_id)}/index.html">'
+            f'{row["nx"]}² / N<sub>z</sub>={row["nz"]}</a></th>'
+            f'<td class="numeric">{format_ms(row["controlTotal"])}</td>'
+            f'<td class="numeric">{format_ms(row["candidateTotal"])}</td>'
+            f'<td class="numeric"><strong>{row["timeRatio"]:.3f}×</strong></td>'
+            f'<td class="numeric">{format_bytes(row["controlMemory"])}</td>'
+            f'<td class="numeric">{format_bytes(row["candidateMemory"])}</td>'
+            f'<td class="numeric">{row["memoryRatio"]:.3f}×</td>'
+            f'<td class="numeric">{row["maximumError"]:.3e}</td>'
+            "</tr>"
+        )
+
+    return f"""
+    <section class="section" aria-labelledby="constant-composed-heading">
+      <p class="eyebrow">M4 Max preliminary composed screen</p>
+      <h2 id="constant-composed-heading">Compact retained rows remain faster after the horizontal, pointwise, and coefficient stages are composed</h2>
+      <p>The candidate joins the exact retained-row type-I transforms to the fixed tile-16 streaming-pruned horizontal path and four streamed pointwise advection expressions. Across the four F4 workloads, its independently sampled uninstrumented total is <strong>{geometric_time:.3f}×</strong> the full-half WVM-layout control; the worst workload is {worst_time:.3f}×. Algorithm-resident memory is {geometric_memory:.3f}× the control geometrically.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Clean seven-sample M4 Max runs. Times are full-half control and compact tile-16 candidate medians. Memory is algorithm-resident application storage plus explicit provider scratch; FFTW-owned allocations remain opaque.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Control total</th><th scope="col">Candidate total</th><th scope="col">Time ratio</th><th scope="col">Control memory</th><th scope="col">Candidate memory</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{''.join(workload_rows)}</tbody>
+      </table></div>
+      <h3>Where the composed time changes</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Geometric candidate/control component ratios across the same four workloads. Components are sampled separately and are not expected to sum to the authoritative uninstrumented total.</caption>
+        <thead><tr><th scope="col">Component</th><th scope="col">Geometric ratio</th><th scope="col">Observed range</th></tr></thead>
+        <tbody>{''.join(component_rows)}</tbody>
+      </table></div>
+      <p>The maximum scale-normalized comparison error is {maximum_error:.3e}. The retained vertical work falls to roughly one third of the full-half cost, the retained horizontal stages also improve, and the common pointwise calculation remains near parity. Coefficient assembly is now the largest common component, which makes authoritative coefficient integration the next useful test.</p>
+      <p class="method-note"><strong>Interpretation limit:</strong> this synthetic coefficient map is deterministic, symmetry-preserving, family-aware, and production-shaped, but it is not WVM's authoritative physical coefficient-formula oracle. These preliminary runs support exact WVM validation of the composed candidate; they do not by themselves establish nonlinear-flux adoption.</p>
+    </section>
+    """
+
+
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
@@ -6783,9 +6989,9 @@ def build_experiment_page(
         )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
         evidence_statement = (
-            "Four clean preliminary M4 Max run pages record the complete "
-            "production-shaped vertical component screen. End-to-end integration "
-            "evidence remains outstanding."
+            "Four clean preliminary M4 Max run pages record the isolated vertical "
+            "component screen and four more record the composed development screen. "
+            "Exact WVM coefficient-oracle validation remains outstanding."
         )
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-003-fftw-production-baseline":
@@ -6807,7 +7013,10 @@ def build_experiment_page(
             issue19_reference_evidence,
         )
     elif experiment_id == "issue-020-constant-stratification-type1":
-        synthesis = constant_stratification_type1_synthesis(related)
+        synthesis = (
+            constant_stratification_type1_synthesis(related)
+            + constant_stratification_composed_synthesis(related)
+        )
     elif experiment_id == "issue-021-fused-small-grouped-gemm":
         synthesis = fused_vertical_views_reference_synthesis(
             related, issue21_fused_views_evidence,
