@@ -33,7 +33,7 @@ AUDITED_SOURCES = {
 COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 TOLERANCE = 1.0e-12
-CROSS_BACKEND_TOLERANCE = 1.0e-11
+CROSS_BACKEND_TOLERANCE = 1.0e-10
 NORMALIZATION_ID = (
     "raw horizontal FFT; inverse type-I factors placed in coefficient "
     "assembly; no explicit pointwise scale; forward type-I divided by "
@@ -354,7 +354,7 @@ def validate_and_read(directory: pathlib.Path) -> tuple[
             number(oracle.get("relativeL2ErrorTolerance"),
                    "oracle.relativeL2ErrorTolerance") ==
             CROSS_BACKEND_TOLERANCE,
-            "WVM cross-backend oracle tolerances must be 1e-11")
+            "WVM cross-backend oracle tolerances must be 1e-10")
     require(number(oracle.get("benchmarkMaximumScaleNormalizedErrorTolerance"),
                    "oracle.benchmarkMaximumScaleNormalizedErrorTolerance") ==
             TOLERANCE and

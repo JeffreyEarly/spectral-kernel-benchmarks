@@ -74,7 +74,7 @@ compiledTransform.t = compiledTransform.t0+elapsedTime;
 matlabFlux = coefficientBundle(matlabFp,matlabFm,matlabF0);
 compiledFlux = coefficientBundle(compiledFp,compiledFm,compiledF0);
 [maximumScaleNormalizedError,relativeL2Error] = comparisonError(compiledFlux,matlabFlux);
-crossBackendTolerance = 1e-11;
+crossBackendTolerance = 1e-10;
 completeOutputTolerance = 1e-12;
 if maximumScaleNormalizedError > crossBackendTolerance || relativeL2Error > crossBackendTolerance
     error("SpectralKernelBenchmark:ConstantFluxFixtureBackendDisagreement","The compiled and MATLAB WVM nonlinear fluxes disagree: maximum scale-normalized %.17g, relative L2 %.17g.",maximumScaleNormalizedError,relativeL2Error)

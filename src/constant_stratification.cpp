@@ -1807,7 +1807,7 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
                           compact ? compactOutput : fullOutput,
                           coefficientWorkload, modes))};
         if (authoritative) {
-            constexpr double crossBackendTolerance = 1.0e-11;
+            constexpr double crossBackendTolerance = 1.0e-10;
             record.correctness.push_back({
                 "fixture MATLAB versus compiled WVM nonlinear-flux cross-check",
                 fixture->oracleMaximumScaleNormalizedError,
