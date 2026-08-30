@@ -67,6 +67,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_24_page = output / "experiments" / "issue-024-retained-inverse-zero-fill" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
+            constant_type1_methods_page = output / "methods" / "wvm-constant-stratification-type1" / "index.html"
             decision_page = output / "decisions" / "v1" / "index.html"
             summary_page = output / "summary" / "index.html"
             result_artifact = output / "artifacts" / "20260827T185428Z-lyra" / "result.json"
@@ -98,7 +99,8 @@ class BuildSiteTests(unittest.TestCase):
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
-            self.assertIn("Raw FFT", index)
+            self.assertIn("Raw DCT-I", index)
+            self.assertIn("Production vertical schedule", index)
             self.assertIn("dealiased four-field convolution", index)
             self.assertIn("functional-core candidate", index)
             self.assertIn("Read the algorithm and results summary", index)
@@ -125,6 +127,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_24_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
+            self.assertTrue(constant_type1_methods_page.is_file())
             self.assertTrue(decision_page.is_file())
             self.assertTrue(summary_page.is_file())
             self.assertTrue(cross_mac_artifact.is_file())
@@ -188,6 +191,12 @@ class BuildSiteTests(unittest.TestCase):
             issue_20_html = issue_20_page.read_text(encoding="utf-8")
             self.assertIn("Experiment · issue #20 · collecting", issue_20_html)
             self.assertIn("15 inverse and 4 forward complex type-I channels", issue_20_html)
+            self.assertIn("<strong>0.366×</strong>", issue_20_html)
+            self.assertIn("0.348× the control", issue_20_html)
+            self.assertIn("not an end-to-end adoption result", issue_20_html)
+            constant_type1_html = constant_type1_methods_page.read_text(encoding="utf-8")
+            self.assertIn("Exact type-I definitions", constant_type1_html)
+            self.assertIn("15 inverse and 4 forward complex vertical channels", constant_type1_html)
             issue_3_html = issue_3_page.read_text(encoding="utf-8")
             self.assertIn("What this experiment measures", issue_3_html)
             self.assertIn("Experiment · issue #3 · complete", issue_3_html)

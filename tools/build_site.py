@@ -203,6 +203,33 @@ def summary_timing_table(result: dict) -> str:
             ("Composed boundary", "uninstrumented-total", (), ("forward", "inverse")),
         ]
     elif any(
+        provider["id"].startswith("fftw-wvm-type1-")
+        for provider in providers
+    ):
+        measurements = [
+            (
+                "Raw DCT-I",
+                "primitive",
+                ("raw DCT-I one complex channel",),
+                ("forward", "inverse"),
+            ),
+            (
+                "Raw DST-I",
+                "primitive",
+                ("raw DST-I one complex interior channel",),
+                ("forward", "inverse"),
+            ),
+            (
+                "Production vertical schedule",
+                "uninstrumented-total",
+                (
+                    "production nonlinear-flux vertical transform schedule "
+                    "(15 inverse + 4 forward complex channels)",
+                ),
+                ("complete",),
+            ),
+        ]
+    elif any(
         item["scope"] == "primitive" and item["stage"] == "raw vertical GEMM"
         for provider in providers
         for item in provider["timings"]
@@ -6578,6 +6605,129 @@ def experiment_evidence_table(experiment: dict, bundles: list[PublishedBundle]) 
     )
 
 
+def constant_stratification_type1_synthesis(
+    bundles: list[PublishedBundle],
+) -> str:
+    selected = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") ==
+            "production-type1-retained-row-screen-v1"
+    ]
+    if not selected:
+        return ""
+
+    def required(provider: dict, scope: str, stage: str, direction: str) -> float:
+        matches = [
+            item for item in provider["timings"]
+            if item["scope"] == scope and item["stage"] == stage
+            and item["direction"] == direction
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"issue #20 provider {provider['id']} lacks one "
+                f"{scope}/{stage}/{direction} timing"
+            )
+        return float(matches[0]["medianSeconds"])
+
+    total_stage = (
+        "production nonlinear-flux vertical transform schedule "
+        "(15 inverse + 4 forward complex channels)"
+    )
+    rows: list[dict] = []
+    for bundle in selected:
+        result = bundle.result
+        providers = {provider["id"]: provider for provider in result["providers"]}
+        if set(providers) != {
+            "fftw-wvm-type1-full-half",
+            "fftw-wvm-type1-retained-compact",
+        }:
+            raise ValueError("issue #20 run has the wrong provider pair")
+        full = providers["fftw-wvm-type1-full-half"]
+        compact = providers["fftw-wvm-type1-retained-compact"]
+        full_total = required(
+            full, "uninstrumented-total", total_stage, "complete"
+        )
+        compact_total = required(
+            compact, "uninstrumented-total", total_stage, "complete"
+        )
+        workload = result["workload"]
+        full_arena = int(full["memory"]["algorithmResidentBytes"])
+        compact_arena = int(compact["memory"]["algorithmResidentBytes"])
+        full_error = maximum_correctness_error(full)
+        compact_error = maximum_correctness_error(compact)
+        if full_error is None or compact_error is None:
+            raise ValueError("issue #20 provider lacks correctness evidence")
+        rows.append({
+            "bundle": bundle,
+            "nx": int(workload["Nx"]),
+            "nz": int(workload["Nz"]),
+            "fullRows": int(workload["H"]),
+            "retainedRows": int(workload["Nkl"]),
+            "fullTotal": full_total,
+            "compactTotal": compact_total,
+            "timeRatio": compact_total / full_total,
+            "fullArena": full_arena,
+            "compactArena": compact_arena,
+            "memoryRatio": compact_arena / full_arena,
+            "fullDct": required(
+                full, "primitive", "raw DCT-I one complex channel", "forward"
+            ),
+            "compactDct": required(
+                compact, "primitive", "raw DCT-I one complex channel", "forward"
+            ),
+            "fullDst": required(
+                full, "primitive",
+                "raw DST-I one complex interior channel", "forward"
+            ),
+            "compactDst": required(
+                compact, "primitive",
+                "raw DST-I one complex interior channel", "forward"
+            ),
+            "maximumError": max(full_error, compact_error),
+        })
+    rows.sort(key=lambda row: (row["nx"], row["nz"]))
+    if len(rows) != 4:
+        raise ValueError("issue #20 screen must contain four workload runs")
+    geometric_time = statistics.geometric_mean(row["timeRatio"] for row in rows)
+    worst_time = max(row["timeRatio"] for row in rows)
+    geometric_memory = statistics.geometric_mean(
+        row["memoryRatio"] for row in rows
+    )
+    maximum_error = max(row["maximumError"] for row in rows)
+    table_rows = []
+    for row in rows:
+        run_id = row["bundle"].result["run"]["id"]
+        table_rows.append(
+            "<tr>"
+            f'<th scope="row"><a href="../../runs/{quote(run_id)}/index.html">'
+            f'{row["nx"]}² / N<sub>z</sub>={row["nz"]}</a></th>'
+            f'<td class="numeric">{row["retainedRows"]:,} / {row["fullRows"]:,}</td>'
+            f'<td class="numeric">{format_ms(row["fullDct"])} / {format_ms(row["compactDct"])}</td>'
+            f'<td class="numeric">{format_ms(row["fullDst"])} / {format_ms(row["compactDst"])}</td>'
+            f'<td class="numeric">{format_ms(row["fullTotal"])} / {format_ms(row["compactTotal"])}</td>'
+            f'<td class="numeric"><strong>{row["timeRatio"]:.3f}×</strong></td>'
+            f'<td class="numeric">{format_bytes(row["fullArena"])} / {format_bytes(row["compactArena"])}</td>'
+            f'<td class="numeric">{row["memoryRatio"]:.3f}×</td>'
+            f'<td class="numeric">{row["maximumError"]:.3e}</td>'
+            "</tr>"
+        )
+    return f"""
+    <section class="section" aria-labelledby="constant-type1-heading">
+      <p class="eyebrow">M4 Max preliminary component screen</p>
+      <h2 id="constant-type1-heading">Retained rows remove nearly two thirds of the analytic vertical work and arena</h2>
+      <p>The compact candidate executes the exact production FFTW DCT-I/DST-I schedule only for radial retained horizontal modes. Across all four F4 workloads it takes <strong>{geometric_time:.3f}×</strong> the full-half-spectrum vertical-schedule time; the worst case is {worst_time:.3f}×. Its explicit reusable four-channel arena is {geometric_memory:.3f}× the control.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Clean M4 Max runs with FFTW MEASURE, 16 internal workers, three warmups, and 15 samples. DCT-I, DST-I, and schedule entries are full / compact medians in milliseconds. The schedule contains 15 inverse and 4 forward complex vertical channels.</caption>
+        <thead><tr><th scope="col">Workload</th><th scope="col">Retained / full rows</th><th scope="col">DCT-I</th><th scope="col">DST-I</th><th scope="col">Vertical schedule</th><th scope="col">Time ratio</th><th scope="col">Explicit arena</th><th scope="col">Memory ratio</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{''.join(table_rows)}</tbody>
+      </table></div>
+      <p>Every direct type-I oracle and retained-row comparison passes; the maximum scale-normalized error is {maximum_error:.3e}. This is strong evidence to integrate retained-row type-I transforms with the compact horizontal algorithm.</p>
+      <p class="method-note"><strong>Interpretation limit:</strong> this benchmark deliberately excludes horizontal retained-row production, coefficient assembly, pointwise products, and the complete nonlinear flux. It recommends the next integration experiment; it is not an end-to-end adoption result. FFTW-owned execution allocations remain opaque even though the timed benchmark action allocates no application storage.</p>
+      <p><a href="../../methods/wvm-constant-stratification-type1/index.html">Read the audited type-I mathematics and timing contract</a>.</p>
+    </section>
+    """
+
+
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
@@ -6631,6 +6781,12 @@ def build_experiment_page(
             "disposition. The twelve preliminary run pages remain permanent; "
             "no candidate advanced to reference depth."
         )
+    if experiment_id == "issue-020-constant-stratification-type1" and related:
+        evidence_statement = (
+            "Four clean preliminary M4 Max run pages record the complete "
+            "production-shaped vertical component screen. End-to-end integration "
+            "evidence remains outstanding."
+        )
     evidence_table = experiment_evidence_table(experiment, related)
     if experiment_id == "issue-003-fftw-production-baseline":
         synthesis = fftw_production_closeout_synthesis(related)
@@ -6650,6 +6806,8 @@ def build_experiment_page(
             related, issue19_scaleout_evidence, issue19_calibration_evidence,
             issue19_reference_evidence,
         )
+    elif experiment_id == "issue-020-constant-stratification-type1":
+        synthesis = constant_stratification_type1_synthesis(related)
     elif experiment_id == "issue-021-fused-small-grouped-gemm":
         synthesis = fused_vertical_views_reference_synthesis(
             related, issue21_fused_views_evidence,
@@ -6824,6 +6982,19 @@ def build_flux_fixture_page(fixture_source: Path) -> str:
     <article class="section prose">{rendered}</article>
     """
     return shell("WVM spectral-flux fixtures", content, "../../")
+
+
+def build_constant_stratification_type1_page(contract_source: Path) -> str:
+    rendered = render_markdown(contract_source.read_text(encoding="utf-8"))
+    content = f"""
+    <section class="hero compact">
+      <p class="eyebrow">Versioned operator methodology</p>
+      <h1>WVM constant-stratification type-I transforms</h1>
+      <p class="lede">The exact DCT-I/DST-I mathematics, production call schedule, physical layouts, timing boundary, memory accounting, and interpretation limits for issue #20.</p>
+    </section>
+    <article class="section prose">{rendered}</article>
+    """
+    return shell("WVM constant-stratification type-I transforms", content, "../../")
 
 
 def capacity_outcome(machine_result: dict) -> str:
@@ -7540,6 +7711,13 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         output_dir / "methods" / "wvm-spectral-flux-fixture" / "index.html",
         build_flux_fixture_page(
             repository_root / "docs" / "wvm-spectral-flux-fixture-contract.md"
+        ),
+    )
+    write_page(
+        output_dir / "methods" / "wvm-constant-stratification-type1" / "index.html",
+        build_constant_stratification_type1_page(
+            repository_root /
+            "docs" / "wvm-constant-stratification-vertical-contract.md"
         ),
     )
     write_page(

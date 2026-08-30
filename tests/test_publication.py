@@ -35,7 +35,7 @@ class PublicationValidationTests(unittest.TestCase):
         grandfathered = next(bundle for bundle in bundles if bundle.publication["grandfathered"])
         self.assertEqual("20260827T185428Z-lyra", grandfathered.publication["id"])
         self.assertEqual("preliminary", grandfathered.publication["status"])
-        self.assertEqual(18, len(catalog["experiments"]))
+        self.assertEqual(19, len(catalog["experiments"]))
         experiment_phases = {
             experiment["id"]: experiment["phase"]
             for experiment in catalog["experiments"]
@@ -56,6 +56,10 @@ class PublicationValidationTests(unittest.TestCase):
         self.assertEqual(
             "collecting",
             experiment_phases["issue-021-fused-small-grouped-gemm"],
+        )
+        self.assertEqual(
+            "collecting",
+            experiment_phases["issue-020-constant-stratification-type1"],
         )
         production_lifetime_flux = [
             bundle for bundle in bundles
