@@ -331,6 +331,27 @@ python3 tools/run_authoritative_spectral_flux_reference.py \
 
 The runner reuses the exact clean executable calibrated on that machine, rotates candidate and profile order, and collects three warmups plus 21 samples in each isolated timing process. It runs memory-only workers separately, verifies the authoritative fixture and WVM commit on every observation, and never reuses calibration or preliminary samples. After three balanced rounds it adds rounds four and five only when the preregistered stability or decision-boundary triggers fire. The analysis reports raw component medians and setup independently from the authoritative uninstrumented total, applies the 0.90 geometric adoption gate and 1.03 worst-profile guardrail, and keeps deep-workload capacity exclusions visible. Passing this benchmark gate advances the graph only to a later WVM integration experiment; it does not implement the complete nonlinear flux or authorize a WVM source change.
 
+Issue #21 first tests whether the dominant issue #19 representation charge can be removed before writing a new GEMM microkernel. The frozen control materializes five three-field compact split arrays between the vertical inverse providers and the pruned inverse FFT, then materializes four compact targets before vertical projection. The direct-family-view candidate instead lets the pruned inverse read the exact wave-f/wave-g split outputs through per-field mode strides and lets the pruned forward write the wave-f/wave-g projection inputs directly. The transpose remains inside the provider's existing persistent horizontal worker pool; the intermediate 3+1 split buffers and their serial extraction/scatter are elided. FFT arithmetic, vertical dgemm arithmetic, matrices, scheduling, workloads, streamed lifetime, and oracle remain fixed.
+
+Collect the bounded screen and, only if it clears the complete-boundary continuation gate, the three-round reference campaign with:
+
+```sh
+python3 tools/run_fused_vertical_views_campaign.py --phase screen \
+  --fixture wvm-current-256-nz129-f4=/path/to/prepared-256.bin \
+  --fixture wvm-current-512-nz257-f4=/path/to/prepared-512.bin \
+  --fixture wvm-large-1024-nz129-f4=/path/to/prepared-1024.bin \
+  --output results/local/<issue21-screen>
+
+python3 tools/run_fused_vertical_views_campaign.py --phase reference \
+  --screen-analysis results/local/<issue21-screen>/analysis.json \
+  --fixture wvm-current-256-nz129-f4=/path/to/prepared-256.bin \
+  --fixture wvm-current-512-nz257-f4=/path/to/prepared-512.bin \
+  --fixture wvm-large-1024-nz129-f4=/path/to/prepared-1024.bin \
+  --output results/local/<issue21-reference>
+```
+
+The runner compares both graphs in isolated processes under the issue #19 performance-12/dynamic-total-16 topology, rotates process order at reference depth, keeps memory-only workers separate, and requires the same WVM fixture hashes and zero-allocation contract. A reference candidate advances only with at least 10% geometric complete-boundary improvement, no profile above 1.03× the control, an empirical paired interval excluding a tie, correctness within `1e-12`, and no algorithm-resident-memory regression. Diagnostic substage medians explain the result but cannot replace the independently sampled total.
+
 ## Results dashboard
 
 GitHub Pages presents the compact bundles under `results/published/` as a static dashboard. It shows headline and component timings, correctness and setup details, environment metadata, a run archive, and direct JSON/CSV downloads. The dashboard is generated from committed results; deployment does not execute benchmarks.

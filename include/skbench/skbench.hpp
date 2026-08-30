@@ -477,6 +477,18 @@ private:
 
 class FFTWStreamingPrunedSplitProvider {
 public:
+    struct ConstFieldView {
+        const double* real = nullptr;
+        const double* imaginary = nullptr;
+        std::size_t modeStride = 0;
+    };
+
+    struct FieldView {
+        double* real = nullptr;
+        double* imaginary = nullptr;
+        std::size_t modeStride = 0;
+    };
+
     FFTWStreamingPrunedSplitProvider(
         const Workload& workload, const std::vector<RetainedMode>& modes,
         FFTWPlanningMode planningMode, std::size_t internalWorkers,
@@ -494,6 +506,10 @@ public:
                       double* retainedImag, double scale = 1.0);
     void inverseSplit(const double* retainedReal, const double* retainedImag,
                       double* output);
+    void forwardSplitFields(const double* input, const FieldView* fields,
+                            std::size_t fieldCount, double scale = 1.0);
+    void inverseSplitFields(const ConstFieldView* fields,
+                            std::size_t fieldCount, double* output);
 
     void executeForwardRowsDiagnostic(const double* input);
     void executeForwardColumnsDiagnostic();
@@ -502,6 +518,11 @@ public:
                                      double scale = 1.0);
     void embedInverseSplitDiagnostic(const double* retainedReal,
                                      const double* retainedImag);
+    void writeForwardSplitFieldsDiagnostic(const FieldView* fields,
+                                           std::size_t fieldCount,
+                                           double scale = 1.0);
+    void embedInverseSplitFieldsDiagnostic(const ConstFieldView* fields,
+                                           std::size_t fieldCount);
     void executeInverseColumnsDiagnostic();
     void executeInverseRowsDiagnostic(double* output);
     void executeSchedulerNoop();

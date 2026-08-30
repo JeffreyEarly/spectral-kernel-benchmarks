@@ -223,6 +223,51 @@ void requireAllocationFreeStreamingPrunedSplitExecution(
             "streaming pruned split FFTW execution allocated memory");
 }
 
+void requireAllocationFreeStreamingPrunedFieldViewExecution(
+    const skbench::Workload& workload,
+    const std::vector<skbench::RetainedMode>& modes,
+    std::size_t outerWorkers, std::size_t tileWidth) {
+    auto input = alignedBuffer<double>(workload.realElements());
+    auto retainedReal = alignedBuffer<double>(modes.size() * workload.planes());
+    auto retainedImag = alignedBuffer<double>(modes.size() * workload.planes());
+    auto output = alignedBuffer<double>(workload.realElements());
+    for (std::size_t index = 0; index < workload.realElements(); ++index) {
+        input.get()[index] = static_cast<double>(index % 59) / 59.0;
+    }
+    std::vector<skbench::FFTWStreamingPrunedSplitProvider::FieldView>
+        outputViews(workload.fields);
+    std::vector<skbench::FFTWStreamingPrunedSplitProvider::ConstFieldView>
+        inputViews(workload.fields);
+    for (std::size_t field = 0; field < workload.fields; ++field) {
+        const auto offset = workload.nz * field;
+        outputViews[field] = {
+            retainedReal.get() + offset,
+            retainedImag.get() + offset,
+            workload.planes()};
+        inputViews[field] = {
+            retainedReal.get() + offset,
+            retainedImag.get() + offset,
+            workload.planes()};
+    }
+
+    skbench::FFTWStreamingPrunedSplitProvider provider(
+        workload, modes, skbench::FFTWPlanningMode::estimate, 1,
+        outerWorkers, tileWidth);
+    const auto execute = [&] {
+        provider.forwardSplitFields(
+            input.get(), outputViews.data(), outputViews.size());
+        provider.inverseSplitFields(
+            inputViews.data(), inputViews.size(), output.get());
+        if (outerWorkers > 1) provider.executeSchedulerNoop();
+    };
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) execute();
+
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 32; ++repetition) execute();
+    require(skbench::test::endAllocationTracking() == 0,
+            "streaming pruned direct field-view execution allocated memory");
+}
+
 void requireAllocationFreeRetainedOuterExecution(
     const skbench::Workload& workload, const std::vector<skbench::RetainedMode>& modes,
     std::size_t outerWorkers,
@@ -1102,6 +1147,26 @@ int main() {
         std::vector<double> retainedSplitImag(prunedRetainedOracle.size());
         std::vector<double> retainedNormalizedReal(prunedRetainedOracle.size());
         std::vector<double> retainedNormalizedImag(prunedRetainedOracle.size());
+        const auto fieldViewModeStride = workload.nz + 3;
+        const auto fieldViewElements =
+            workload.fields * prunedModes.size() * fieldViewModeStride;
+        std::vector<double> fieldViewReal(fieldViewElements);
+        std::vector<double> fieldViewImag(fieldViewElements);
+        std::vector<skbench::FFTWStreamingPrunedSplitProvider::FieldView>
+            outputFieldViews(workload.fields);
+        std::vector<skbench::FFTWStreamingPrunedSplitProvider::ConstFieldView>
+            inputFieldViews(workload.fields);
+        for (std::size_t field = 0; field < workload.fields; ++field) {
+            const auto offset = field * prunedModes.size() * fieldViewModeStride;
+            outputFieldViews[field] = {
+                fieldViewReal.data() + offset,
+                fieldViewImag.data() + offset,
+                fieldViewModeStride};
+            inputFieldViews[field] = {
+                fieldViewReal.data() + offset,
+                fieldViewImag.data() + offset,
+                fieldViewModeStride};
+        }
         for (std::size_t fixtureIndex = 0; fixtureIndex < 5; ++fixtureIndex) {
             const auto fixture = static_cast<skbench::FixtureKind>(fixtureIndex);
             const auto fixtureInput = skbench::makeFixture(
@@ -1217,6 +1282,41 @@ int main() {
                         prunedInverseActual.data(), prunedInverseOracle.data(),
                         prunedInverseActual.size()) < 1.0e-12,
                     "tiled streaming inverse versus mode-keyed oracle");
+
+            tiledStreamingPrunedProvider.forwardSplitFields(
+                fixtureInput.data(), outputFieldViews.data(),
+                outputFieldViews.size());
+            for (std::size_t mode = 0; mode < prunedModes.size(); ++mode) {
+                for (std::size_t field = 0; field < workload.fields; ++field) {
+                    const auto offset =
+                        field * prunedModes.size() * fieldViewModeStride;
+                    for (std::size_t z = 0; z < workload.nz; ++z) {
+                        const auto viewIndex =
+                            offset + z + fieldViewModeStride * mode;
+                        const auto retainedIndex = skbench::retainedSpectrumIndex(
+                            workload, mode, z, field);
+                        retainedSplitReal[retainedIndex] =
+                            fieldViewReal[viewIndex];
+                        retainedSplitImag[retainedIndex] =
+                            fieldViewImag[viewIndex];
+                    }
+                }
+            }
+            require(std::max(
+                        skbench::maximumRelativeError(
+                            retainedSplitReal.data(), retainedOracleReal.data(),
+                            retainedSplitReal.size()),
+                        skbench::maximumRelativeError(
+                            retainedSplitImag.data(), retainedOracleImag.data(),
+                            retainedSplitImag.size())) < 1.0e-12,
+                    "tiled streaming direct field-view forward versus mode-keyed oracle");
+            tiledStreamingPrunedProvider.inverseSplitFields(
+                inputFieldViews.data(), inputFieldViews.size(),
+                prunedInverseActual.data());
+            require(skbench::maximumRelativeError(
+                        prunedInverseActual.data(), prunedInverseOracle.data(),
+                        prunedInverseActual.size()) < 1.0e-12,
+                    "tiled streaming direct field-view inverse versus mode-keyed oracle");
         }
 
         skbench::RunOptions prunedOptions;
@@ -1521,6 +1621,8 @@ int main() {
             requireAllocationFreeStreamingPrunedSplitExecution(
                 workload, prunedModes, 2, 8);
             requireAllocationFreeStreamingPrunedSplitExecution(
+                workload, prunedModes, 2, 16);
+            requireAllocationFreeStreamingPrunedFieldViewExecution(
                 workload, prunedModes, 2, 16);
             requireAllocationFreeRetainedOuterExecution(workload, prunedModes, 2);
             requireAllocationFreeRetainedOuterExecution(

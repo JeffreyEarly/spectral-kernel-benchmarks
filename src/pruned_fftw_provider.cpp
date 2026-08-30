@@ -714,6 +714,26 @@ public:
         executor_->run(&inverseSplitShard, &context);
     }
 
+    void forwardSplitFields(const double* input, const FieldView* fields,
+                            std::size_t fieldCount, double scale) {
+        validateFieldViews(fields, fieldCount);
+        Context context{
+            this, input, nullptr, nullptr, nullptr,
+            nullptr, nullptr, scale};
+        context.retainedOutputFields = fields;
+        executor_->run(&forwardSplitShard, &context);
+    }
+
+    void inverseSplitFields(const ConstFieldView* fields,
+                            std::size_t fieldCount, double* output) {
+        validateConstFieldViews(fields, fieldCount);
+        Context context{
+            this, nullptr, output, nullptr, nullptr,
+            nullptr, nullptr, 1.0};
+        context.retainedInputFields = fields;
+        executor_->run(&inverseSplitShard, &context);
+    }
+
     void executeForwardRowsDiagnostic(const double* input) {
         Context context{this, input, nullptr, nullptr, nullptr,
                         nullptr, nullptr, 1.0};
@@ -737,6 +757,25 @@ public:
                                      const double* retainedImag) {
         Context context{this, nullptr, nullptr, nullptr, nullptr,
                         retainedReal, retainedImag, 1.0};
+        executor_->run(&inverseEmbedDiagnosticShard, &context);
+    }
+
+    void writeForwardSplitFieldsDiagnostic(const FieldView* fields,
+                                           std::size_t fieldCount,
+                                           double scale) {
+        validateFieldViews(fields, fieldCount);
+        Context context{this, nullptr, nullptr, nullptr, nullptr,
+                        nullptr, nullptr, scale};
+        context.retainedOutputFields = fields;
+        executor_->run(&forwardWriteDiagnosticShard, &context);
+    }
+
+    void embedInverseSplitFieldsDiagnostic(const ConstFieldView* fields,
+                                           std::size_t fieldCount) {
+        validateConstFieldViews(fields, fieldCount);
+        Context context{this, nullptr, nullptr, nullptr, nullptr,
+                        nullptr, nullptr, 1.0};
+        context.retainedInputFields = fields;
         executor_->run(&inverseEmbedDiagnosticShard, &context);
     }
 
@@ -787,7 +826,41 @@ private:
         const double* retainedRealInput;
         const double* retainedImagInput;
         double scale;
+        const FieldView* retainedOutputFields = nullptr;
+        const ConstFieldView* retainedInputFields = nullptr;
     };
+
+    void validateFieldViews(const FieldView* fields,
+                            std::size_t fieldCount) const {
+        if (fields == nullptr || fieldCount != workload_.fields) {
+            throw std::invalid_argument(
+                "Streaming pruned output field views must match the workload field count.");
+        }
+        for (std::size_t field = 0; field < fieldCount; ++field) {
+            if (fields[field].real == nullptr ||
+                fields[field].imaginary == nullptr ||
+                fields[field].modeStride < workload_.nz) {
+                throw std::invalid_argument(
+                    "Streaming pruned output field view is invalid.");
+            }
+        }
+    }
+
+    void validateConstFieldViews(const ConstFieldView* fields,
+                                 std::size_t fieldCount) const {
+        if (fields == nullptr || fieldCount != workload_.fields) {
+            throw std::invalid_argument(
+                "Streaming pruned input field views must match the workload field count.");
+        }
+        for (std::size_t field = 0; field < fieldCount; ++field) {
+            if (fields[field].real == nullptr ||
+                fields[field].imaginary == nullptr ||
+                fields[field].modeStride < workload_.nz) {
+                throw std::invalid_argument(
+                    "Streaming pruned input field view is invalid.");
+            }
+        }
+    }
 
     void createPlans(unsigned flags) {
         const auto nx = static_cast<ptrdiff_t>(workload_.nx);
@@ -867,6 +940,23 @@ private:
         }
     }
 
+    void writeRetainedPlaneFields(const Complex* scratch, std::size_t plane,
+                                  const FieldView* fields,
+                                  double scale) const noexcept {
+        const auto field = plane / workload_.nz;
+        const auto z = plane % workload_.nz;
+        const auto& view = fields[field];
+        const auto nxHalf = workload_.nxHalf();
+        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
+            const auto& mode = modes_[modeIndex];
+            auto value = scratch[mode.storedKx + nxHalf * mode.storedKy];
+            if (mode.conjugatesStoredValue) value = conjugate(value);
+            const auto destination = z + view.modeStride * modeIndex;
+            view.real[destination] = scale * value.real;
+            view.imaginary[destination] = scale * value.imag;
+        }
+    }
+
     void stageRetainedPlane(const Complex* scratch, Complex* staged,
                             double scale) const noexcept {
         const auto nxHalf = workload_.nxHalf();
@@ -905,6 +995,37 @@ private:
         }
     }
 
+    void flushForwardTileFields(const Complex* tile,
+                                std::size_t planeBegin,
+                                std::size_t planeCount,
+                                const FieldView* fields) const noexcept {
+        std::array<Complex, maximumTileWidth_ * transposeBlockModes_> block{};
+        for (std::size_t modeBegin = 0; modeBegin < modes_.size();
+             modeBegin += transposeBlockModes_) {
+            const auto modeCount = std::min(
+                transposeBlockModes_, modes_.size() - modeBegin);
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                const auto* source = tile + lane * modes_.size() + modeBegin;
+                for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                    block[offset * tileWidth_ + lane] = source[offset];
+                }
+            }
+            for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                const auto mode = modeBegin + offset;
+                const auto* source = block.data() + offset * tileWidth_;
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    const auto plane = planeBegin + lane;
+                    const auto field = plane / workload_.nz;
+                    const auto z = plane % workload_.nz;
+                    const auto& view = fields[field];
+                    const auto destination = z + view.modeStride * mode;
+                    view.real[destination] = source[lane].real;
+                    view.imaginary[destination] = source[lane].imag;
+                }
+            }
+        }
+    }
+
     void embedRetainedPlane(Complex* scratch, std::size_t plane,
                             const double* retainedReal,
                             const double* retainedImag) const noexcept {
@@ -916,6 +1037,29 @@ private:
             const auto& mode = modes_[modeIndex];
             const auto retained = plane + planes * modeIndex;
             Complex stored{retainedReal[retained], retainedImag[retained]};
+            if (mode.conjugatesStoredValue) stored = conjugate(stored);
+            scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
+            if (mode.storedKx == 0 && mode.storedKy != 0 &&
+                2 * mode.storedKy != workload_.ny) {
+                const auto conjugateKy =
+                    (workload_.ny - mode.storedKy) % workload_.ny;
+                scratch[nxHalf * conjugateKy] = conjugate(stored);
+            }
+        }
+    }
+
+    void embedRetainedPlaneFields(Complex* scratch, std::size_t plane,
+                                  const ConstFieldView* fields) const noexcept {
+        const auto spectrumPlane = workload_.halfRows();
+        const auto field = plane / workload_.nz;
+        const auto z = plane % workload_.nz;
+        const auto& view = fields[field];
+        const auto nxHalf = workload_.nxHalf();
+        std::fill_n(scratch, spectrumPlane, Complex{});
+        for (std::size_t modeIndex = 0; modeIndex < modes_.size(); ++modeIndex) {
+            const auto& mode = modes_[modeIndex];
+            const auto source = z + view.modeStride * modeIndex;
+            Complex stored{view.real[source], view.imaginary[source]};
             if (mode.conjugatesStoredValue) stored = conjugate(stored);
             scratch[mode.storedKx + nxHalf * mode.storedKy] = stored;
             if (mode.storedKx == 0 && mode.storedKy != 0 &&
@@ -945,6 +1089,37 @@ private:
                     destination[lane] = {
                         retainedReal[retained + lane],
                         retainedImag[retained + lane]};
+                }
+            }
+            for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                auto* destination = tile + lane * modes_.size() + modeBegin;
+                for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                    destination[offset] =
+                        block[offset * tileWidth_ + lane];
+                }
+            }
+        }
+    }
+
+    void loadInverseTileFields(Complex* tile, std::size_t planeBegin,
+                               std::size_t planeCount,
+                               const ConstFieldView* fields) const noexcept {
+        std::array<Complex, maximumTileWidth_ * transposeBlockModes_> block{};
+        for (std::size_t modeBegin = 0; modeBegin < modes_.size();
+             modeBegin += transposeBlockModes_) {
+            const auto modeCount = std::min(
+                transposeBlockModes_, modes_.size() - modeBegin);
+            for (std::size_t offset = 0; offset < modeCount; ++offset) {
+                const auto mode = modeBegin + offset;
+                auto* destination = block.data() + offset * tileWidth_;
+                for (std::size_t lane = 0; lane < planeCount; ++lane) {
+                    const auto plane = planeBegin + lane;
+                    const auto field = plane / workload_.nz;
+                    const auto z = plane % workload_.nz;
+                    const auto& view = fields[field];
+                    const auto source = z + view.modeStride * mode;
+                    destination[lane] = {
+                        view.real[source], view.imaginary[source]};
                 }
             }
             for (std::size_t lane = 0; lane < planeCount; ++lane) {
@@ -989,9 +1164,15 @@ private:
                 fftw_execute_dft_r2c(provider.rowForward_, input, nativeScratch);
                 fftw_execute_dft(
                     provider.columnForward_, nativeScratch, nativeScratch);
-                provider.writeRetainedPlane(
-                    scratch, plane, context.retainedRealOutput,
-                    context.retainedImagOutput, context.scale);
+                if (context.retainedOutputFields != nullptr) {
+                    provider.writeRetainedPlaneFields(
+                        scratch, plane, context.retainedOutputFields,
+                        context.scale);
+                } else {
+                    provider.writeRetainedPlane(
+                        scratch, plane, context.retainedRealOutput,
+                        context.retainedImagOutput, context.scale);
+                }
             }
             return;
         }
@@ -1012,9 +1193,16 @@ private:
                     scratch, tile + lane * provider.modes_.size(),
                     context.scale);
             }
-            provider.flushForwardTile(
-                tile, planeBegin, planeCount, context.retainedRealOutput,
-                context.retainedImagOutput);
+            if (context.retainedOutputFields != nullptr) {
+                provider.flushForwardTileFields(
+                    tile, planeBegin, planeCount,
+                    context.retainedOutputFields);
+            } else {
+                provider.flushForwardTile(
+                    tile, planeBegin, planeCount,
+                    context.retainedRealOutput,
+                    context.retainedImagOutput);
+            }
         }
     }
 
@@ -1026,9 +1214,14 @@ private:
         if (provider.tileWidth_ == 1) {
             for (std::size_t plane = provider.beginPlane(worker);
                  plane < provider.endPlane(worker); ++plane) {
-                provider.embedRetainedPlane(
-                    scratch, plane, context.retainedRealInput,
-                    context.retainedImagInput);
+                if (context.retainedInputFields != nullptr) {
+                    provider.embedRetainedPlaneFields(
+                        scratch, plane, context.retainedInputFields);
+                } else {
+                    provider.embedRetainedPlane(
+                        scratch, plane, context.retainedRealInput,
+                        context.retainedImagInput);
+                }
                 fftw_execute_dft(
                     provider.columnInverse_, nativeScratch, nativeScratch);
                 auto* output = context.realOutput +
@@ -1044,9 +1237,15 @@ private:
              planeBegin += provider.tileWidth_) {
             const auto planeCount = std::min(
                 provider.tileWidth_, provider.endPlane(worker) - planeBegin);
-            provider.loadInverseTile(
-                tile, planeBegin, planeCount, context.retainedRealInput,
-                context.retainedImagInput);
+            if (context.retainedInputFields != nullptr) {
+                provider.loadInverseTileFields(
+                    tile, planeBegin, planeCount,
+                    context.retainedInputFields);
+            } else {
+                provider.loadInverseTile(
+                    tile, planeBegin, planeCount, context.retainedRealInput,
+                    context.retainedImagInput);
+            }
             for (std::size_t lane = 0; lane < planeCount; ++lane) {
                 provider.embedStagedPlane(
                     scratch, tile + lane * provider.modes_.size());
@@ -1105,18 +1304,30 @@ private:
                         scratch, tile + lane * provider.modes_.size(),
                         context.scale);
                 }
-                provider.flushForwardTile(
-                    tile, planeBegin, planeCount,
-                    context.retainedRealOutput,
-                    context.retainedImagOutput);
+                if (context.retainedOutputFields != nullptr) {
+                    provider.flushForwardTileFields(
+                        tile, planeBegin, planeCount,
+                        context.retainedOutputFields);
+                } else {
+                    provider.flushForwardTile(
+                        tile, planeBegin, planeCount,
+                        context.retainedRealOutput,
+                        context.retainedImagOutput);
+                }
             }
             return;
         }
         for (std::size_t plane = provider.beginPlane(worker);
              plane < provider.endPlane(worker); ++plane) {
-            provider.writeRetainedPlane(
-                scratch, plane, context.retainedRealOutput,
-                context.retainedImagOutput, context.scale);
+            if (context.retainedOutputFields != nullptr) {
+                provider.writeRetainedPlaneFields(
+                    scratch, plane, context.retainedOutputFields,
+                    context.scale);
+            } else {
+                provider.writeRetainedPlane(
+                    scratch, plane, context.retainedRealOutput,
+                    context.retainedImagOutput, context.scale);
+            }
         }
     }
 
@@ -1133,10 +1344,16 @@ private:
                 const auto planeCount = std::min(
                     provider.tileWidth_,
                     provider.endPlane(worker) - planeBegin);
-                provider.loadInverseTile(
-                    tile, planeBegin, planeCount,
-                    context.retainedRealInput,
-                    context.retainedImagInput);
+                if (context.retainedInputFields != nullptr) {
+                    provider.loadInverseTileFields(
+                        tile, planeBegin, planeCount,
+                        context.retainedInputFields);
+                } else {
+                    provider.loadInverseTile(
+                        tile, planeBegin, planeCount,
+                        context.retainedRealInput,
+                        context.retainedImagInput);
+                }
                 for (std::size_t lane = 0; lane < planeCount; ++lane) {
                     provider.embedStagedPlane(
                         scratch, tile + lane * provider.modes_.size());
@@ -1146,9 +1363,14 @@ private:
         }
         for (std::size_t plane = provider.beginPlane(worker);
              plane < provider.endPlane(worker); ++plane) {
-            provider.embedRetainedPlane(
-                scratch, plane, context.retainedRealInput,
-                context.retainedImagInput);
+            if (context.retainedInputFields != nullptr) {
+                provider.embedRetainedPlaneFields(
+                    scratch, plane, context.retainedInputFields);
+            } else {
+                provider.embedRetainedPlane(
+                    scratch, plane, context.retainedRealInput,
+                    context.retainedImagInput);
+            }
         }
     }
 
@@ -1215,6 +1437,15 @@ void FFTWStreamingPrunedSplitProvider::inverseSplit(
     const double* retainedReal, const double* retainedImag, double* output) {
     impl_->inverseSplit(retainedReal, retainedImag, output);
 }
+void FFTWStreamingPrunedSplitProvider::forwardSplitFields(
+    const double* input, const FieldView* fields,
+    std::size_t fieldCount, double scale) {
+    impl_->forwardSplitFields(input, fields, fieldCount, scale);
+}
+void FFTWStreamingPrunedSplitProvider::inverseSplitFields(
+    const ConstFieldView* fields, std::size_t fieldCount, double* output) {
+    impl_->inverseSplitFields(fields, fieldCount, output);
+}
 void FFTWStreamingPrunedSplitProvider::executeForwardRowsDiagnostic(
     const double* input) {
     impl_->executeForwardRowsDiagnostic(input);
@@ -1229,6 +1460,15 @@ void FFTWStreamingPrunedSplitProvider::writeForwardSplitDiagnostic(
 void FFTWStreamingPrunedSplitProvider::embedInverseSplitDiagnostic(
     const double* retainedReal, const double* retainedImag) {
     impl_->embedInverseSplitDiagnostic(retainedReal, retainedImag);
+}
+void FFTWStreamingPrunedSplitProvider::writeForwardSplitFieldsDiagnostic(
+    const FieldView* fields, std::size_t fieldCount, double scale) {
+    impl_->writeForwardSplitFieldsDiagnostic(
+        fields, fieldCount, scale);
+}
+void FFTWStreamingPrunedSplitProvider::embedInverseSplitFieldsDiagnostic(
+    const ConstFieldView* fields, std::size_t fieldCount) {
+    impl_->embedInverseSplitFieldsDiagnostic(fields, fieldCount);
 }
 void FFTWStreamingPrunedSplitProvider::executeInverseColumnsDiagnostic() {
     impl_->executeInverseColumnsDiagnostic();

@@ -314,7 +314,7 @@ ProviderRecord runStreaming(
     SpectralFluxFixture& fixture, FamilyOperators& operators,
     const VerticalGemmStrategy& verticalStrategy,
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
-    double fixtureSeconds) {
+    double fixtureSeconds, bool fusedFamilyViews) {
     const auto setupStart = Clock::now();
     const auto tileWidth = options.streamingTileWidth == 1
         ? std::size_t{16} : options.streamingTileWidth;
@@ -358,10 +358,10 @@ ProviderRecord runStreaming(
         options.fftwOuterWorkers, tileWidth);
     const auto tripleElements = context.modeCount * context.outputWorkload.nz * 3;
     const auto targetElements = context.modeCount * context.outputWorkload.nz;
-    std::vector<double> inverseReal(tripleElements);
-    std::vector<double> inverseImaginary(tripleElements);
-    std::vector<double> forwardReal(targetElements);
-    std::vector<double> forwardImaginary(targetElements);
+    std::vector<double> inverseReal(fusedFamilyViews ? 0 : tripleElements);
+    std::vector<double> inverseImaginary(fusedFamilyViews ? 0 : tripleElements);
+    std::vector<double> forwardReal(fusedFamilyViews ? 0 : targetElements);
+    std::vector<double> forwardImaginary(fusedFamilyViews ? 0 : targetElements);
     std::vector<double> shared(context.tripleWorkload.realElements());
     std::vector<double> derivative(context.tripleWorkload.realElements());
     std::vector<double> target(context.targetWorkload.realElements());
@@ -403,6 +403,31 @@ ProviderRecord runStreaming(
             }
         }
     };
+    auto inverseFieldViews = [&](std::size_t firstOriginalField) {
+        std::array<FFTWStreamingPrunedSplitProvider::ConstFieldView, 3> views;
+        for (std::size_t field = 0; field < views.size(); ++field) {
+            const auto original = firstOriginalField + field;
+            const auto family = context.inputMap.family[original];
+            const auto local = context.inputMap.local[original];
+            const auto& provider = *reconstruction[family];
+            const auto offset = context.outputWorkload.nz * local;
+            views[field] = {
+                provider.splitPhysicalOutputRealData() + offset,
+                provider.splitPhysicalOutputImaginaryData() + offset,
+                context.inputFamilyWorkloads[family].planes()};
+        }
+        return views;
+    };
+    auto forwardFieldView = [&](std::size_t originalTarget) {
+        const auto family = context.targetMap.family[originalTarget];
+        const auto local = context.targetMap.local[originalTarget];
+        auto& provider = *projection[family];
+        const auto offset = context.outputWorkload.nz * local;
+        return FFTWStreamingPrunedSplitProvider::FieldView{
+            provider.splitPhysicalInputRealData() + offset,
+            provider.splitPhysicalInputImaginaryData() + offset,
+            context.targetFamilyWorkloads[family].planes()};
+    };
     auto executeVerticalInverse = [&] {
         reconstruction[0]->executeInverse();
         reconstruction[1]->executeInverse();
@@ -412,38 +437,101 @@ ProviderRecord runStreaming(
         projection[1]->executeForward();
     };
     auto executeShared = [&] {
-        extractTriple(0);
-        inverse.inverseSplit(inverseReal.data(), inverseImaginary.data(),
-                             shared.data());
+        if (fusedFamilyViews) {
+            const auto views = inverseFieldViews(0);
+            inverse.inverseSplitFields(
+                views.data(), views.size(), shared.data());
+        } else {
+            extractTriple(0);
+            inverse.inverseSplit(inverseReal.data(), inverseImaginary.data(),
+                                 shared.data());
+        }
     };
     auto executeDerivatives = [&] {
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-            extractTriple(3 + 3 * targetIndex);
-            inverse.inverseSplit(inverseReal.data(), inverseImaginary.data(),
-                                 derivative.data());
+            if (fusedFamilyViews) {
+                const auto views = inverseFieldViews(3 + 3 * targetIndex);
+                inverse.inverseSplitFields(
+                    views.data(), views.size(), derivative.data());
+            } else {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverseSplit(
+                    inverseReal.data(), inverseImaginary.data(),
+                    derivative.data());
+            }
         }
     };
     auto executeForwardTargets = [&] {
-        for (std::size_t repetition = 0; repetition < 4; ++repetition) {
-            forward.forwardSplit(target.data(), forwardReal.data(),
-                                 forwardImaginary.data());
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            if (fusedFamilyViews) {
+                auto view = forwardFieldView(targetIndex);
+                forward.forwardSplitFields(target.data(), &view, 1);
+            } else {
+                forward.forwardSplit(target.data(), forwardReal.data(),
+                                     forwardImaginary.data());
+            }
         }
     };
     auto executeAll = [&] {
         executeVerticalInverse();
-        extractTriple(0);
-        inverse.inverseSplit(inverseReal.data(), inverseImaginary.data(),
-                             shared.data());
+        executeShared();
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-            extractTriple(3 + 3 * targetIndex);
-            inverse.inverseSplit(inverseReal.data(), inverseImaginary.data(),
-                                 derivative.data());
+            if (fusedFamilyViews) {
+                const auto views = inverseFieldViews(3 + 3 * targetIndex);
+                inverse.inverseSplitFields(
+                    views.data(), views.size(), derivative.data());
+            } else {
+                extractTriple(3 + 3 * targetIndex);
+                inverse.inverseSplit(
+                    inverseReal.data(), inverseImaginary.data(),
+                    derivative.data());
+            }
             applyPointwise(context, shared.data(), derivative.data(), target.data());
-            forward.forwardSplit(target.data(), forwardReal.data(),
-                                 forwardImaginary.data());
-            scatterTarget(targetIndex);
+            if (fusedFamilyViews) {
+                auto view = forwardFieldView(targetIndex);
+                forward.forwardSplitFields(target.data(), &view, 1);
+            } else {
+                forward.forwardSplit(target.data(), forwardReal.data(),
+                                     forwardImaginary.data());
+                scatterTarget(targetIndex);
+            }
         }
         executeVerticalForward();
+    };
+    auto executeExtractAll = [&] {
+        extractTriple(0);
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            extractTriple(3 + 3 * targetIndex);
+        }
+    };
+    auto executeScatterAll = [&] {
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            scatterTarget(targetIndex);
+        }
+    };
+    auto executeFusedInverseViewAdapter = [&] {
+        auto views = inverseFieldViews(0);
+        inverse.embedInverseSplitFieldsDiagnostic(
+            views.data(), views.size());
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            views = inverseFieldViews(3 + 3 * targetIndex);
+            inverse.embedInverseSplitFieldsDiagnostic(
+                views.data(), views.size());
+        }
+    };
+    auto executeFusedForwardViewAdapter = [&] {
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            auto view = forwardFieldView(targetIndex);
+            forward.writeForwardSplitFieldsDiagnostic(&view, 1);
+        }
+    };
+    auto executeAdapterSchedulerLowerBound = [&] {
+        for (std::size_t iteration = 0; iteration < 5; ++iteration) {
+            inverse.executeSchedulerNoop();
+        }
+        for (std::size_t iteration = 0; iteration < 4; ++iteration) {
+            forward.executeSchedulerNoop();
+        }
     };
     const auto setupSeconds =
         std::chrono::duration<double>(Clock::now() - setupStart).count();
@@ -473,13 +561,18 @@ ProviderRecord runStreaming(
                         preservedFamily, preserved);
 
     ProviderRecord record;
-    record.id = "pipeline-production-lifetime-streaming-pruned-tile16-authoritative";
+    record.id = fusedFamilyViews
+        ? "pipeline-production-lifetime-streaming-pruned-tile16-fused-vertical-views-authoritative"
+        : "pipeline-production-lifetime-streaming-pruned-tile16-authoritative";
     record.version = "FFTW 3.3.11 + Apple Accelerate";
     record.libraryIdentity = "pinned FFTW 3.3.11 and Apple Accelerate";
-    record.algorithmId =
-        "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2";
+    record.algorithmId = fusedFamilyViews
+        ? "partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3"
+        : "partial-column-pruned-tile16+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v2";
     record.nativeRepresentationId =
-        "persistent-radial-compact-split-modal-and-retained-spectra; setup-only wave-f/wave-g field partition";
+        fusedFamilyViews
+        ? "persistent radial compact split modal arrays; pruned FFT reads/writes wave-f/wave-g vertical buffers through direct strided field views"
+        : "persistent-radial-compact-split-modal-and-retained-spectra; setup-only wave-f/wave-g field partition";
     record.modeOrderId = "logical-radial-(k,l,j,target); exact WVM F/G mapping";
     record.schedulingId =
         "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
@@ -499,7 +592,10 @@ ProviderRecord runStreaming(
     record.planningConfiguration =
         "authoritative spectral-flux-fixture-v1; Float64; radial two-thirds; "
         "Nj=floor(2*(Nz-1)/3); exact WVM wave-f/wave-g K2 operators; "
-        "field-family permutation is setup-only";
+        "field-family permutation is setup-only; " +
+        std::string(fusedFamilyViews
+            ? "direct strided family views fuse horizontal/vertical representation movement"
+            : "materialized canonical triples bridge horizontal/vertical representations");
     record.execution.forward = executionContract(context);
     record.execution.inverse = record.execution.forward;
     record.execution.inverse.nativePlacement = "unsupported";
@@ -574,18 +670,57 @@ ProviderRecord runStreaming(
                                   context.modeCount * context.outputWorkload.nz),
                          sizeof(Complex)),
                sample(warmups, samples, executeForwardTargets)),
-        timing("adapter-component", "native split triple extraction and target scatter",
-               "movement", StageState::executed, movementBytes,
-               sample(warmups, samples, [&] {
-                   extractTriple(0);
-                   for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-                       extractTriple(3 + 3 * targetIndex);
-                       scatterTarget(targetIndex);
-                   }
-               })),
+        timing("adapter-component",
+               fusedFamilyViews
+                   ? "native split family-view movement"
+                   : "native split triple extraction and target scatter",
+               "movement",
+               fusedFamilyViews ? StageState::fused : StageState::executed,
+               fusedFamilyViews ? 0 : movementBytes,
+               fusedFamilyViews
+                   ? std::vector<double>{}
+                   : sample(warmups, samples, [&] {
+                         executeExtractAll();
+                         executeScatterAll();
+                     })),
         timing("primitive", "raw forward vertical MM (4 modal targets; exact WVM F/G families)",
                "forward", StageState::executed, verticalForwardBytes,
                sample(warmups, samples, executeVerticalForward))};
+
+    if (fusedFamilyViews) {
+        record.timings.push_back(timing(
+            "adapter-diagnostic",
+            "fused inverse family-view load and embedding",
+            "inverse", StageState::executed,
+            byteCount(context.modeCount * context.outputWorkload.nz * 15,
+                      sizeof(Complex)),
+            sample(warmups, samples, executeFusedInverseViewAdapter)));
+        record.timings.push_back(timing(
+            "adapter-diagnostic",
+            "fused forward retention and family-view write",
+            "forward", StageState::executed,
+            byteCount(context.modeCount * context.outputWorkload.nz * 4,
+                      sizeof(Complex)),
+            sample(warmups, samples, executeFusedForwardViewAdapter)));
+        record.timings.push_back(timing(
+            "scheduler-diagnostic",
+            "nine direct family-view executor dispatches",
+            "movement", StageState::executed, 0,
+            sample(warmups, samples, executeAdapterSchedulerLowerBound)));
+    } else {
+        record.timings.push_back(timing(
+            "adapter-diagnostic", "native split triple extraction",
+            "inverse", StageState::executed,
+            byteCount(context.modeCount * context.outputWorkload.nz * 15,
+                      sizeof(Complex)),
+            sample(warmups, samples, executeExtractAll)));
+        record.timings.push_back(timing(
+            "adapter-diagnostic", "native split target scatter",
+            "forward", StageState::executed,
+            byteCount(context.modeCount * context.outputWorkload.nz * 4,
+                      sizeof(Complex)),
+            sample(warmups, samples, executeScatterAll)));
+    }
 
     const auto correctnessBytes = byteCount(
         fixture.modalInputs.size() + fixture.expectedModalTargets.size() +
@@ -625,6 +760,11 @@ ProviderRecord runStreaming(
          "direct -(U*qx+V*qy+W*qz) with fixture normalization"},
         {"horizontal forward and retention", StageState::fused,
          "partial-column-pruned FFTW writes fixed tile-16 compact split output"},
+        {"horizontal/vertical representation movement",
+         fusedFamilyViews ? StageState::fused : StageState::executed,
+         fusedFamilyViews
+             ? "pruned inverse reads split F/G physical outputs directly and pruned forward writes split F/G physical inputs directly"
+             : "materialized canonical split triples and target spectra bridge the FFT and vertical providers"},
         {"vertical projection", StageState::executed,
          "grouped split-real dgemm uses exact WVM F/G matrices"},
         {"steady-state allocation", StageState::elided,
@@ -982,10 +1122,13 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
             "Authoritative production-lifetime benchmark requires a prepared fixture.");
     }
     if (options.boundaryPolicy != "wvm-direct" &&
-        options.boundaryPolicy != "streaming-pruned-compact-split") {
+        options.boundaryPolicy != "streaming-pruned-compact-split" &&
+        options.boundaryPolicy !=
+            "streaming-pruned-compact-split-fused-vertical-views") {
         throw std::invalid_argument(
             "Authoritative production-lifetime boundary policy must be wvm-direct "
-            "or streaming-pruned-compact-split.");
+            "streaming-pruned-compact-split, or "
+            "streaming-pruned-compact-split-fused-vertical-views.");
     }
     if (options.verticalGemmFamily != "k2-grouped") {
         throw std::invalid_argument(
@@ -1024,9 +1167,11 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
 
     BenchmarkReport report;
     report.environment = environmentRecord();
-    report.runId = runTimestamp(report.environment.timestampUtc) +
-        "-issue19-authoritative-" + options.boundaryPolicy + '-' +
-        report.environment.hostname;
+    const auto issueTag = options.boundaryPolicy ==
+        "streaming-pruned-compact-split-fused-vertical-views"
+        ? "issue21-authoritative-" : "issue19-authoritative-";
+    report.runId = runTimestamp(report.environment.timestampUtc) + '-' +
+        issueTag + options.boundaryPolicy + '-' + report.environment.hostname;
     report.profile = options.profile;
     report.seed = 0;
     report.warmups = warmups;
@@ -1072,9 +1217,13 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
         fixture.generatorIdentity, fixture.fixtureHash, fixture.normalization,
         fixture.modeMapping, fixture.derivativeConvention, true};
 
-    auto record = options.boundaryPolicy == "streaming-pruned-compact-split"
+    const auto streaming = options.boundaryPolicy != "wvm-direct";
+    const auto fusedFamilyViews = options.boundaryPolicy ==
+        "streaming-pruned-compact-split-fused-vertical-views";
+    auto record = streaming
         ? runStreaming(options, context, fixture, operators, verticalStrategy,
-                       warmups, samples, fftwInternalWorkers, fixtureSeconds)
+                       warmups, samples, fftwInternalWorkers, fixtureSeconds,
+                       fusedFamilyViews)
         : runWvmDirect(options, context, fixture, operators, verticalStrategy,
                        warmups, samples, fftwInternalWorkers, fixtureSeconds);
     record.compilerFlags = report.environment.compilerFlags;
