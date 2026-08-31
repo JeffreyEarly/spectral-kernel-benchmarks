@@ -1,0 +1,1470 @@
+{
+  "schema": "spectral-kernel-machine-tuning-publication-v1",
+  "experimentId": "issue-023-portable-tuning-reference-campaign",
+  "incrementId": "portable-machine-tuning-calibration-v1",
+  "publicationStatus": "preliminary",
+  "statusReason": "Clean Apple M1 Max calibration evidence from matilda-2.local; provisional benchmark-local evidence pending cross-machine synthesis.",
+  "intendedUse": "benchmark-local-provisional-default",
+  "productionValidated": false,
+  "createdAtUtc": "2026-08-31T16:22:31.596459Z",
+  "machine": {
+    "hostname": "matilda-2.local",
+    "cpuBrand": "Apple M1 Max",
+    "hardwareModel": "MacBookPro18,2",
+    "performanceCores": 8,
+    "efficiencyCores": 2,
+    "totalPhysicalCores": 10,
+    "physicalMemoryBytes": 68719476736,
+    "macOS": "26.5.2",
+    "macOSBuild": "25F84",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+    "cmake": "cmake version 4.4.2\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "power": "Battery Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n disksleep            10",
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "identity": {
+    "sourceTreeGitCommit": "3bb0959fc82fe2811ba1ccaedc1c49b1e4fd10a7",
+    "sourceTreeDirty": false,
+    "executableSha256": "sha256:395c3ed45cce356ddde5e25fbb257ec1a689a028704a10fbc6827c27e9859a4a",
+    "implementationContractHashes": {
+      "wvm-native-optimized-v1": "sha256:c45b7a5049f8ed8b43ebb4fd89b9ca9f5ea77b0625d497873331f26f22873906",
+      "compact-general-fused-views-v1": "sha256:8277b05d8dba2a7b38a9ba60952180ac995d206248a9344d22485d0345d2a201",
+      "compact-constant-type1-v1": "sha256:ed9a2976f5b598a2e717bfd165278394ba8c7e1e3ce529566e055c732416a47f"
+    },
+    "fixtureHashes": {
+      "general:wvm-current-256-nz129-f4": "sha256:6b5a324a3a843a5f19268cbc732b82faf6fffffaa1c8b5580a3a6c48b42f700b",
+      "general:wvm-current-512-nz257-f4": "sha256:0d0d54e60fea07024c19943a3c3ded6c082349b7173cc29336729e60ae5929b4",
+      "constant:wvm-current-256-nz129-f4": "sha256:e8063ba45236a2dc37ee3424b3f7dd25ec1095203a94a795d1f5fdda06988e6a",
+      "constant:wvm-current-512-nz257-f4": "sha256:755b7423f630af4123d395501a32b6f6b635682b52dec3e98221edefb03d46b7"
+    },
+    "compatibilityHash": "sha256:8b0e24393b615b53e0c9a48160eed0ae64ce53315206ff4dc594b696b75e81c2"
+  },
+  "campaign": {
+    "profiles": [
+      "wvm-current-256-nz129-f4",
+      "wvm-current-512-nz257-f4"
+    ],
+    "warmups": 2,
+    "samples": 7,
+    "runCount": 88,
+    "validRunCount": 88,
+    "candidatePolicy": {
+      "counts": "one, powers of two, performance cores, and total physical cores",
+      "search": "portable seed plus deterministic one-factor sweeps, followed by the combined one-factor winners and seed-reversion neighbors",
+      "nestedWorkerPools": false,
+      "oneTupleForAllWorkloads": true
+    },
+    "selectionRule": {
+      "score": "geometric mean complete-call time across both calibration profiles",
+      "nearFastestFactor": 1.01,
+      "tieBreak": [
+        "fewest total workers",
+        "least resident memory",
+        "candidate order"
+      ]
+    },
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "implementations": [
+    {
+      "id": "wvm-native-optimized-v1",
+      "mathematicalBoundary": "15 WVM-native modal inputs to four WVM-native modal targets",
+      "representation": "WVM-native persistent complex-interleaved modal state",
+      "knobs": [
+        "horizontal",
+        "general_vertical",
+        "pointwise"
+      ],
+      "portableSeed": {
+        "candidateId": "h8--gv10--p8",
+        "candidateOrder": 0,
+        "workers": {
+          "horizontal": 8,
+          "general_vertical": 10,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 2.3895273774022305,
+        "maximumAlgorithmResidentBytes": 54781237624,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.23039075,
+            "maximumCorrectnessError": 9.826338481815893e-16,
+            "runId": "20260831T162232Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 24.783291375,
+            "maximumCorrectnessError": 1.2332263086749762e-15,
+            "runId": "20260831T162247Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+          }
+        ]
+      },
+      "selected": {
+        "candidateId": "h8--gv1--p8",
+        "candidateOrder": 5,
+        "workers": {
+          "horizontal": 8,
+          "general_vertical": 1,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 0.33297517907352187,
+        "maximumAlgorithmResidentBytes": 54781237336,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.115240917,
+            "maximumCorrectnessError": 9.78006552412832e-16,
+            "runId": "20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 0.962092916,
+            "maximumCorrectnessError": 1.2332263086749762e-15,
+            "runId": "20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+          }
+        ]
+      },
+      "seedToSelectedSpeedup": 7.176292791705703,
+      "candidateTrace": [
+        {
+          "candidateId": "h8--gv10--p8",
+          "candidateOrder": 0,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 2.3895273774022305,
+          "maximumAlgorithmResidentBytes": 54781237624,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.23039075,
+              "maximumCorrectnessError": 9.826338481815893e-16,
+              "runId": "20260831T162232Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 24.783291375,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T162247Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h1--gv10--p8",
+          "candidateOrder": 1,
+          "workers": {
+            "horizontal": 1,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 4.236128667052359,
+          "maximumAlgorithmResidentBytes": 54781237624,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.616977666,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T163508Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 29.084984875,
+              "maximumCorrectnessError": 1.0090206444677404e-15,
+              "runId": "20260831T163529Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h2--gv10--p8",
+          "candidateOrder": 2,
+          "workers": {
+            "horizontal": 2,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 3.177022050812751,
+          "maximumAlgorithmResidentBytes": 54781237624,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.3884295,
+              "maximumCorrectnessError": 1.0238318821953261e-15,
+              "runId": "20260831T164756Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 25.985330958,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T164814Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h4--gv10--p8",
+          "candidateOrder": 3,
+          "workers": {
+            "horizontal": 4,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 1.7487899182929636,
+          "maximumAlgorithmResidentBytes": 54781237624,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.28089025,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T165915Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 10.887761958,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T165931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--gv10--p8",
+          "candidateOrder": 4,
+          "workers": {
+            "horizontal": 10,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8459612616206547,
+          "maximumAlgorithmResidentBytes": 54781237624,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.255731292,
+              "maximumCorrectnessError": 9.826338481815893e-16,
+              "runId": "20260831T170854Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.798446958,
+              "maximumCorrectnessError": 1.1351191496006937e-15,
+              "runId": "20260831T170909Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv1--p8",
+          "candidateOrder": 5,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.33297517907352187,
+          "maximumAlgorithmResidentBytes": 54781237336,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.115240917,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.962092916,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv2--p8",
+          "candidateOrder": 6,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 2,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 1.0554349907015013,
+          "maximumAlgorithmResidentBytes": 54781237368,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.316161125,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T171720Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 3.523339625,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T171738Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv4--p8",
+          "candidateOrder": 7,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 4,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.9546898567212795,
+          "maximumAlgorithmResidentBytes": 54781237432,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.290349583,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T172441Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 3.139087417,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T172457Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv8--p8",
+          "candidateOrder": 8,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 8,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8565588299196099,
+          "maximumAlgorithmResidentBytes": 54781237560,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.247431375,
+              "maximumCorrectnessError": 9.826338481815893e-16,
+              "runId": "20260831T173142Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.965238459,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T173157Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p1",
+          "candidateOrder": 9,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 1
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 2.5254160214487547,
+          "maximumAlgorithmResidentBytes": 54781237568,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.255419833,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T173917Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 24.9695805,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T173931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p2",
+          "candidateOrder": 10,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8320857957162922,
+          "maximumAlgorithmResidentBytes": 54781237576,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.237358791,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T175009Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.916962833,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T175023Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p4",
+          "candidateOrder": 11,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 4
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 2.543777752457259,
+          "maximumAlgorithmResidentBytes": 54781237592,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.250372834,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T175943Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 25.844677917,
+              "maximumCorrectnessError": 1.050054364352569e-15,
+              "runId": "20260831T175958Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p10",
+          "candidateOrder": 12,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 10
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.9913316275725303,
+          "maximumAlgorithmResidentBytes": 54781237640,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.257107833,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T181035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 3.822281042,
+              "maximumCorrectnessError": 1.050054364352569e-15,
+              "runId": "20260831T181050Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--gv1--p2",
+          "candidateOrder": 13,
+          "workers": {
+            "horizontal": 10,
+            "general_vertical": 1,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.40221821477851655,
+          "maximumAlgorithmResidentBytes": 54781237288,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.147558583,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T190217Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.096374667,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T190228Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv1--p2",
+          "candidateOrder": 14,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.35452019399402107,
+          "maximumAlgorithmResidentBytes": 54781237288,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.120611541,
+              "maximumCorrectnessError": 8.645696472568221e-16,
+              "runId": "20260831T190337Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.042060875,
+              "maximumCorrectnessError": 1.0651060839186164e-15,
+              "runId": "20260831T190349Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--gv10--p2",
+          "candidateOrder": 15,
+          "workers": {
+            "horizontal": 10,
+            "general_vertical": 10,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8722313955784485,
+          "maximumAlgorithmResidentBytes": 54781237576,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.262996125,
+              "maximumCorrectnessError": 1.0238318821953261e-15,
+              "runId": "20260831T190455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.892771167,
+              "maximumCorrectnessError": 1.059597522661364e-15,
+              "runId": "20260831T190510Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--gv1--p8",
+          "candidateOrder": 16,
+          "workers": {
+            "horizontal": 10,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.36937211096539546,
+          "maximumAlgorithmResidentBytes": 54781237336,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.130102833,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T190747Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.048676291,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T190758Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        }
+      ],
+      "intendedUse": "benchmark-local-provisional-default",
+      "productionValidated": false
+    },
+    {
+      "id": "compact-general-fused-views-v1",
+      "mathematicalBoundary": "15 compact modal inputs to four compact modal targets",
+      "representation": "compact radial split modal state",
+      "knobs": [
+        "horizontal",
+        "general_vertical",
+        "pointwise"
+      ],
+      "portableSeed": {
+        "candidateId": "h8--gv10--p8",
+        "candidateOrder": 0,
+        "workers": {
+          "horizontal": 8,
+          "general_vertical": 10,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 0.4466387755383121,
+        "maximumAlgorithmResidentBytes": 26893637752,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.142757666,
+            "maximumCorrectnessError": 9.78006552412832e-16,
+            "runId": "20260831T181547Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 1.397376417,
+            "maximumCorrectnessError": 1.0343383861075223e-15,
+            "runId": "20260831T181559Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+          }
+        ]
+      },
+      "selected": {
+        "candidateId": "h8--gv1--p8",
+        "candidateOrder": 5,
+        "workers": {
+          "horizontal": 8,
+          "general_vertical": 1,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 0.2328232875114861,
+        "maximumAlgorithmResidentBytes": 26893637464,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.077469125,
+            "maximumCorrectnessError": 9.78006552412832e-16,
+            "runId": "20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 0.699719833,
+            "maximumCorrectnessError": 1.018606086994892e-15,
+            "runId": "20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+          }
+        ]
+      },
+      "seedToSelectedSpeedup": 1.918359543463957,
+      "candidateTrace": [
+        {
+          "candidateId": "h8--gv10--p8",
+          "candidateOrder": 0,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.4466387755383121,
+          "maximumAlgorithmResidentBytes": 26893637752,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.142757666,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T181547Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.397376417,
+              "maximumCorrectnessError": 1.0343383861075223e-15,
+              "runId": "20260831T181559Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h1--gv10--p8",
+          "candidateOrder": 1,
+          "workers": {
+            "horizontal": 1,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 1.4241166423098741,
+          "maximumAlgorithmResidentBytes": 26700141176,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.450658166,
+              "maximumCorrectnessError": 1.0609514397857656e-15,
+              "runId": "20260831T181644Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 4.500325,
+              "maximumCorrectnessError": 1.0562457427949866e-15,
+              "runId": "20260831T181704Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h2--gv10--p8",
+          "candidateOrder": 2,
+          "workers": {
+            "horizontal": 2,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8804732019721074,
+          "maximumAlgorithmResidentBytes": 26727783544,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.276035708,
+              "maximumCorrectnessError": 8.564099085106148e-16,
+              "runId": "20260831T181914Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.808452084,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T181929Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h4--gv10--p8",
+          "candidateOrder": 3,
+          "workers": {
+            "horizontal": 4,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5709562972163383,
+          "maximumAlgorithmResidentBytes": 26783068280,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.17637825,
+              "maximumCorrectnessError": 1.0741314661265055e-15,
+              "runId": "20260831T182056Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.848249959,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182108Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--gv10--p8",
+          "candidateOrder": 4,
+          "workers": {
+            "horizontal": 10,
+            "general_vertical": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.4460797208094154,
+          "maximumAlgorithmResidentBytes": 26948922488,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.14649925,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182204Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.358280792,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv1--p8",
+          "candidateOrder": 5,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.2328232875114861,
+          "maximumAlgorithmResidentBytes": 26893637464,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.077469125,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.699719833,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv2--p8",
+          "candidateOrder": 6,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 2,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5515767787716538,
+          "maximumAlgorithmResidentBytes": 26893637496,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.160286167,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182343Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.898086083,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182354Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv4--p8",
+          "candidateOrder": 7,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 4,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.4905996758265911,
+          "maximumAlgorithmResidentBytes": 26893637560,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.151734875,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182445Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.58624075,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv8--p8",
+          "candidateOrder": 8,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 8,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.4339429066870024,
+          "maximumAlgorithmResidentBytes": 26893637688,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.128464458,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.46582525,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182553Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p1",
+          "candidateOrder": 9,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 1
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.46293242994049094,
+          "maximumAlgorithmResidentBytes": 26893637696,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.136149833,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182639Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.574048458,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182649Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p2",
+          "candidateOrder": 10,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.4403415220949621,
+          "maximumAlgorithmResidentBytes": 26893637704,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.132968542,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182737Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.458244583,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182748Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p4",
+          "candidateOrder": 11,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 4
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.44725804289925963,
+          "maximumAlgorithmResidentBytes": 26893637720,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.140020333,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182833Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.428647916,
+              "maximumCorrectnessError": 1.2142391854509255e-15,
+              "runId": "20260831T182844Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv10--p10",
+          "candidateOrder": 12,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 10,
+            "pointwise": 10
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.41782788196629783,
+          "maximumAlgorithmResidentBytes": 26893637768,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.128234792,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182928Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.361410084,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182939Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--gv1--p10",
+          "candidateOrder": 13,
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 10
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.23495016631502733,
+          "maximumAlgorithmResidentBytes": 26893637480,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.079042667,
+              "maximumCorrectnessError": 9.910021086997211e-16,
+              "runId": "20260831T190900Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.698377,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T190911Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2"
+            }
+          ]
+        }
+      ],
+      "intendedUse": "benchmark-local-provisional-default",
+      "productionValidated": false
+    },
+    {
+      "id": "compact-constant-type1-v1",
+      "mathematicalBoundary": "constant-stratification modal state to exact nonlinear-flux targets",
+      "representation": "compact radial split constant-stratification modal state",
+      "knobs": [
+        "horizontal",
+        "constant_type1",
+        "pointwise"
+      ],
+      "portableSeed": {
+        "candidateId": "h8--ct10--p8",
+        "candidateOrder": 0,
+        "workers": {
+          "horizontal": 8,
+          "constant_type1": 10,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 0.5066718458929502,
+        "maximumAlgorithmResidentBytes": 6055541248,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.176760708,
+            "maximumCorrectnessError": 3.6094655087182057e-13,
+            "runId": "20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 1.452338375,
+            "maximumCorrectnessError": 5.513571344856733e-13,
+            "runId": "20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2"
+          }
+        ]
+      },
+      "selected": {
+        "candidateId": "h8--ct10--p8",
+        "candidateOrder": 0,
+        "workers": {
+          "horizontal": 8,
+          "constant_type1": 10,
+          "pointwise": 8
+        },
+        "complete": true,
+        "valid": true,
+        "geometricSeconds": 0.5066718458929502,
+        "maximumAlgorithmResidentBytes": 6055541248,
+        "profiles": [
+          {
+            "profile": "wvm-current-256-nz129-f4",
+            "seconds": 0.176760708,
+            "maximumCorrectnessError": 3.6094655087182057e-13,
+            "runId": "20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2"
+          },
+          {
+            "profile": "wvm-current-512-nz257-f4",
+            "seconds": 1.452338375,
+            "maximumCorrectnessError": 5.513571344856733e-13,
+            "runId": "20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2"
+          }
+        ]
+      },
+      "seedToSelectedSpeedup": 1.0,
+      "candidateTrace": [
+        {
+          "candidateId": "h8--ct10--p8",
+          "candidateOrder": 0,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5066718458929502,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.176760708,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.452338375,
+              "maximumCorrectnessError": 5.513571344856733e-13,
+              "runId": "20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h1--ct10--p8",
+          "candidateOrder": 1,
+          "workers": {
+            "horizontal": 1,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 1.3839087689384233,
+          "maximumAlgorithmResidentBytes": 5862044672,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.467915708,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T183259Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 4.093052334,
+              "maximumCorrectnessError": 6.002061016027874e-13,
+              "runId": "20260831T183646Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h2--ct10--p8",
+          "candidateOrder": 2,
+          "workers": {
+            "horizontal": 2,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.8899977038311561,
+          "maximumAlgorithmResidentBytes": 5889687040,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.299987791,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T183719Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.640427166,
+              "maximumCorrectnessError": 6.032256712381339e-13,
+              "runId": "20260831T183943Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h4--ct10--p8",
+          "candidateOrder": 3,
+          "workers": {
+            "horizontal": 4,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.6478805247759445,
+          "maximumAlgorithmResidentBytes": 5944971776,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.224414041,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T184012Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.870422958,
+              "maximumCorrectnessError": 6.000649091604568e-13,
+              "runId": "20260831T184205Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h10--ct10--p8",
+          "candidateOrder": 4,
+          "workers": {
+            "horizontal": 10,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.522066741727146,
+          "maximumAlgorithmResidentBytes": 6110825984,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.191426916,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T184234Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.423800208,
+              "maximumCorrectnessError": 6.818618653629071e-13,
+              "runId": "20260831T184408Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct1--p8",
+          "candidateOrder": 5,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 1,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.843879265225594,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.301101709,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T184435Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 2.365088583,
+              "maximumCorrectnessError": 4.876476199399479e-13,
+              "runId": "20260831T184706Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct2--p8",
+          "candidateOrder": 6,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 2,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.7461379410271574,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.285840875,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T184732Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.947663458,
+              "maximumCorrectnessError": 6.032030253784454e-13,
+              "runId": "20260831T184932Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct4--p8",
+          "candidateOrder": 7,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 4,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5609808920117136,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.197861083,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T184952Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.590507625,
+              "maximumCorrectnessError": 6.032030253784454e-13,
+              "runId": "20260831T185132Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct8--p8",
+          "candidateOrder": 8,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 8,
+            "pointwise": 8
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.534537864385261,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.188414333,
+              "maximumCorrectnessError": 2.552826220971073e-13,
+              "runId": "20260831T185156Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.516502083,
+              "maximumCorrectnessError": 4.5237061817620673e-13,
+              "runId": "20260831T185338Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct10--p1",
+          "candidateOrder": 9,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 1
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5750751756781273,
+          "maximumAlgorithmResidentBytes": 6055541192,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.201529333,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T185406Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.641009042,
+              "maximumCorrectnessError": 4.876476199399479e-13,
+              "runId": "20260831T185551Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct10--p2",
+          "candidateOrder": 10,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 2
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5524635245131494,
+          "maximumAlgorithmResidentBytes": 6055541200,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.200314208,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T185618Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.523685958,
+              "maximumCorrectnessError": 4.876476199399479e-13,
+              "runId": "20260831T185758Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct10--p4",
+          "candidateOrder": 11,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 4
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5330607799681331,
+          "maximumAlgorithmResidentBytes": 6055541216,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.191554375,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T185826Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.483410625,
+              "maximumCorrectnessError": 4.876476199399479e-13,
+              "runId": "20260831T190004Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        },
+        {
+          "candidateId": "h8--ct10--p10",
+          "candidateOrder": 12,
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 10
+          },
+          "complete": true,
+          "valid": true,
+          "geometricSeconds": 0.5265159471893414,
+          "maximumAlgorithmResidentBytes": 6055541264,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.186124334,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T190031Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.489429333,
+              "maximumCorrectnessError": 4.876476199399479e-13,
+              "runId": "20260831T190210Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        }
+      ],
+      "intendedUse": "benchmark-local-provisional-default",
+      "productionValidated": false
+    }
+  ],
+  "interpretation": "These are benchmark-local provisional worker defaults for this named Apple M1 Max. They do not claim production-optimal WVM settings or a general-Mac default."
+}

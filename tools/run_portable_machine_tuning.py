@@ -1127,14 +1127,16 @@ def publication_summary(manifest: dict) -> dict:
             "intendedUse": selection["intendedUse"],
             "productionValidated": selection["productionValidated"],
         })
+    cpu_brand = str(manifest["machine"].get("cpuBrand", "recorded machine"))
+    hostname = str(manifest["machine"].get("hostname", "unknown host"))
     return {
         "schema": PUBLICATION_SCHEMA,
         "experimentId": EXPERIMENT_ID,
         "incrementId": manifest.get("incrementId", INCREMENT_ID),
         "publicationStatus": CLASSIFICATION,
         "statusReason": (
-            "Clean M4 Max calibration evidence; provisional until the same frozen "
-            "campaign is replicated on Matilda/M1 Max."
+            f"Clean {cpu_brand} calibration evidence from {hostname}; provisional "
+            "benchmark-local evidence pending cross-machine synthesis."
         ),
         "intendedUse": INTENDED_USE,
         "productionValidated": False,
@@ -1165,7 +1167,7 @@ def publication_summary(manifest: dict) -> dict:
         "implementations": implementation_rows,
         "interpretation": (
             "These are benchmark-local provisional worker defaults for this named "
-            "M4 Max. They do not claim production-optimal WVM settings or a "
+            f"{cpu_brand}. They do not claim production-optimal WVM settings or a "
             "general-Mac default."
         ),
     }

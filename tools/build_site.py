@@ -7444,9 +7444,9 @@ def wvm_native_layout_optimization_synthesis(
     """
 
 
-def portable_machine_tuning_synthesis(evidence: dict | None) -> str:
-    if evidence is None:
-        return ""
+def portable_machine_tuning_machine_synthesis(
+    evidence: dict, artifact_name: str,
+) -> str:
     names = {
         "wvm-native-optimized-v1": "WVM-native general",
         "compact-general-fused-views-v1": "Compact general",
@@ -7499,10 +7499,13 @@ def portable_machine_tuning_synthesis(evidence: dict | None) -> str:
             )
     campaign = evidence["campaign"]
     machine = evidence["machine"]
+    hostname = str(machine.get("hostname", "recorded host")).split(".")[0]
+    machine_name = hostname.split("-", 1)[0].capitalize()
+    cpu_brand = str(machine.get("cpuBrand", "recorded Apple processor"))
     return f"""
     <section class="evidence-callout">
-      <p class="eyebrow">Lyra calibration · preliminary</p>
-      <h3>One clean M4 Max worker calibration</h3>
+      <p class="eyebrow">{escaped(machine_name)} calibration · preliminary</p>
+      <h3>One clean {escaped(cpu_brand)} worker calibration on {escaped(machine_name)}</h3>
       <p>This campaign keeps each mathematical boundary, provider, layout, tile width, allocation policy, and authoritative fixture fixed. It changes only stage-local worker counts derived from the machine topology: {int(machine['performanceCores'])} performance cores, {int(machine['efficiencyCores'])} efficiency cores, and {int(machine['totalPhysicalCores'])} physical cores. One tuple must cover both calibration sizes; size-dependent dispatch is prohibited.</p>
       <div class="table-scroll"><table class="experiment-evidence-table">
         <caption>Selected benchmark-local tuples. Speedup is the portable seed divided by the selected geometric-mean total. Component timings remain available on each run page and are not used as the selection score.</caption>
@@ -7517,9 +7520,20 @@ def portable_machine_tuning_synthesis(evidence: dict | None) -> str:
         <tbody>{''.join(trace_rows)}</tbody>
       </table></div>
       <p class="method-note"><strong>Interpretation limit:</strong> {escaped(evidence['interpretation'])} The compact general and WVM-native general paths remain separate integration choices, and the constant-stratification type-I path remains a separate mathematical implementation.</p>
-      <p><a href="../../artifacts/decisions/issue-023-portable-machine-tuning-lyra-v1.json">Download the compact M4 calibration and selection trace JSON</a>.</p>
+      <p><a href="../../artifacts/decisions/{quote(artifact_name)}">Download the compact {escaped(cpu_brand)} calibration and selection trace JSON</a>.</p>
     </section>
     """
+
+
+def portable_machine_tuning_synthesis(
+    evidence_records: list[tuple[str, dict]] | None,
+) -> str:
+    if not evidence_records:
+        return ""
+    return "".join(
+        portable_machine_tuning_machine_synthesis(evidence, artifact_name)
+        for artifact_name, evidence in evidence_records
+    )
 
 
 def build_experiment_page(
@@ -7531,7 +7545,7 @@ def build_experiment_page(
     issue22_pointwise_evidence: dict | None = None,
     issue24_inverse_evidence: dict | None = None,
     issue25_wvm_native_evidence: dict | None = None,
-    issue23_tuning_evidence: dict | None = None,
+    issue23_tuning_evidence: list[tuple[str, dict]] | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -7598,13 +7612,22 @@ def build_experiment_page(
         )
     if (
         experiment_id == "issue-023-portable-tuning-reference-campaign"
-        and issue23_tuning_evidence is not None
+        and issue23_tuning_evidence
     ):
-        campaign = issue23_tuning_evidence["campaign"]
+        campaigns = [
+            evidence["campaign"] for _, evidence in issue23_tuning_evidence
+        ]
+        machine_labels = [
+            f"{evidence['machine']['hostname'].split('.')[0].split('-', 1)[0].capitalize()}/"
+            f"{evidence['machine']['cpuBrand']}"
+            for _, evidence in issue23_tuning_evidence
+        ]
         evidence_statement = (
-            f"The clean Lyra/M4 Max calibration publishes {int(campaign['runCount'])} "
-            "permanent candidate run pages and one compact selection trace. "
-            "The evidence remains preliminary until Matilda/M1 Max replication."
+            f"The clean {' and '.join(machine_labels)} calibrations publish "
+            f"{sum(int(campaign['runCount']) for campaign in campaigns)} permanent "
+            f"candidate run pages and {len(campaigns)} compact selection traces. "
+            "The benchmark-local evidence remains preliminary pending cross-machine "
+            "synthesis."
         )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
         authoritative_count = sum(
@@ -8428,7 +8451,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue19_reference_evidence = None
     issue21_fused_views_evidence = None
     issue22_pointwise_evidence = None
-    issue23_tuning_evidence = None
+    issue23_tuning_evidence: list[tuple[str, dict]] = []
     issue24_inverse_evidence = None
     issue25_wvm_native_evidence = None
     if decision_artifacts.is_dir():
@@ -8512,20 +8535,22 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #22 pointwise reference has the wrong schema"
                 )
-        tuning_path = (
-            decision_artifacts /
-            "issue-023-portable-machine-tuning-lyra-v1.json"
-        )
-        if tuning_path.is_file():
-            issue23_tuning_evidence = json.loads(
-                tuning_path.read_text(encoding="utf-8")
-            )
-            if issue23_tuning_evidence.get("schema") != (
-                "spectral-kernel-machine-tuning-publication-v1"
-            ):
-                raise ValueError(
-                    "issue #23 portable machine tuning has the wrong schema"
+        for tuning_name in (
+            "issue-023-portable-machine-tuning-lyra-v1.json",
+            "issue-023-portable-machine-tuning-matilda-v1.json",
+        ):
+            tuning_path = decision_artifacts / tuning_name
+            if tuning_path.is_file():
+                tuning_evidence = json.loads(
+                    tuning_path.read_text(encoding="utf-8")
                 )
+                if tuning_evidence.get("schema") != (
+                    "spectral-kernel-machine-tuning-publication-v1"
+                ):
+                    raise ValueError(
+                        "issue #23 portable machine tuning has the wrong schema"
+                    )
+                issue23_tuning_evidence.append((tuning_name, tuning_evidence))
         inverse_path = (
             decision_artifacts /
             "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"

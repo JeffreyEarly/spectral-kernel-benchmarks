@@ -64,6 +64,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_20_page = output / "experiments" / "issue-020-constant-stratification-type1" / "index.html"
             issue_21_page = output / "experiments" / "issue-021-fused-small-grouped-gemm" / "index.html"
             issue_22_page = output / "experiments" / "issue-022-pointwise-advection-optimization" / "index.html"
+            issue_23_page = output / "experiments" / "issue-023-portable-tuning-reference-campaign" / "index.html"
             issue_24_page = output / "experiments" / "issue-024-retained-inverse-zero-fill" / "index.html"
             issue_25_page = output / "experiments" / "issue-025-wvm-native-layout-optimization" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
@@ -93,6 +94,14 @@ class BuildSiteTests(unittest.TestCase):
             issue_22_reference_artifact = (
                 output / "artifacts" / "decisions" /
                 "issue-022-pointwise-advection-reference-lyra-v1.json"
+            )
+            issue_23_lyra_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-023-portable-machine-tuning-lyra-v1.json"
+            )
+            issue_23_matilda_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-023-portable-machine-tuning-matilda-v1.json"
             )
             issue_24_screen_artifact = (
                 output / "artifacts" / "decisions" /
@@ -127,6 +136,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_20_page.is_file())
             self.assertTrue(issue_21_page.is_file())
             self.assertTrue(issue_22_page.is_file())
+            self.assertTrue(issue_23_page.is_file())
             self.assertTrue(issue_24_page.is_file())
             self.assertTrue(issue_25_page.is_file())
             self.assertTrue(methods_page.is_file())
@@ -140,6 +150,8 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_19_reference_artifact.is_file())
             self.assertTrue(issue_21_reference_artifact.is_file())
             self.assertTrue(issue_22_reference_artifact.is_file())
+            self.assertTrue(issue_23_lyra_artifact.is_file())
+            self.assertTrue(issue_23_matilda_artifact.is_file())
             self.assertTrue(issue_24_screen_artifact.is_file())
             self.assertTrue(issue_25_reference_artifact.is_file())
             summary_html = summary_page.read_text(encoding="utf-8")
@@ -190,6 +202,15 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("568.9 ms", issue_22_html)
             self.assertIn("1086.8 ms", issue_22_html)
             self.assertIn("bounded pointwise-to-FFT fusion is deferred", issue_22_html)
+            issue_23_html = issue_23_page.read_text(encoding="utf-8")
+            self.assertIn("Lyra calibration · preliminary", issue_23_html)
+            self.assertIn("Matilda calibration · preliminary", issue_23_html)
+            self.assertIn("Apple M4 Max worker calibration on Lyra", issue_23_html)
+            self.assertIn("Apple M1 Max worker calibration on Matilda", issue_23_html)
+            self.assertIn("188 permanent candidate run pages", issue_23_html)
+            self.assertIn("h12--gv1--p4", issue_23_html)
+            self.assertIn("h8--gv1--p8", issue_23_html)
+            self.assertIn("h8--ct10--p8", issue_23_html)
             issue_24_html = issue_24_page.read_text(encoding="utf-8")
             self.assertIn("Experiment · issue #24 · complete", issue_24_html)
             self.assertIn("completed negative disposition", issue_24_html)

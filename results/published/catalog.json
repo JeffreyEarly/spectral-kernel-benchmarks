@@ -37188,6 +37188,2118 @@
         "samplesSha256": "137d334342c7760e84a7e9ede5f7184f1ca72a23571d0e6c7cf7c91f66ddad27"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260831T162232Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T162232Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T162232Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "3f145f08957142033bffe69c198b18e1764b731a9979e618a4cc4bd0a6aa8dbf",
+        "samplesSha256": "daeecc0189a30ec87136358cb292448f302dcf7e1ccc75e264a293541dd69b91"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T162247Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T162247Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T162247Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "186d551dd399bfe834154389976ad234a4260ba1e1b65d2a498d10d6ce47f417",
+        "samplesSha256": "4451a80b50818fc6efd0f022380a66fe3b9b0d517e742f0728519bbb25956da0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T163508Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h1--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T163508Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T163508Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "76bf50613c398f766bde2d811d9416b96f831c3b6416e59dc66e11b03d3f9883",
+        "samplesSha256": "80be7364579713f9b09e893919d0dcb88532ef8a2d8f1e41880bdfe2379fe370"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T163529Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h1--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T163529Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T163529Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "3c498be9a27af3eaa36383514ef16449e35b2a6d45a86348631798c6b4c0bc7e",
+        "samplesSha256": "37fee8e30f99ccb452734d3b3a15e2bc6f079424e2e174d4c1572da97df712e5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T164756Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h2--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T164756Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T164756Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "7cbb00507b7034c283dc9cf58d88ecef4f25f72caffbd955fdb675ea0eabb2b1",
+        "samplesSha256": "aad7f983f8c01df9173131a8ce23c9195e8fcce3c7f057cef0c7056420186a78"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T164814Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h2--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T164814Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T164814Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "d03d391141d947a9ad13947fe6fc53e1f5421e5b0f8043a2fc8b3fc60e1d9c36",
+        "samplesSha256": "3dd4b8e6e6eada59c505412b03a42caa3871b1fc1528de8917840fb078ccdd61"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T165915Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h4--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T165915Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T165915Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "7eb5d1114c8071c5d8ed96d9948ca2eadd06c33e832e56608f656532b930d17e",
+        "samplesSha256": "e38eaf2d652c861ee7940fbcbf0661591d2ca9b9c2742b5d265983630fa7105b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T165931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h4--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T165931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T165931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "e1711b8ce5ef1bdc73d04746b1e83f7f573aa6f1ef72308663190b924a4b7f80",
+        "samplesSha256": "5fe65a3b9109cf9dfe591d16764530e64d983cf4a84cc525d7717f1c84b4c3e9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T170854Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T170854Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T170854Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "19a2aaaa186c5d18058f9cde61abb6d32ddf51c8189a4528f1196b85c5729f31",
+        "samplesSha256": "8fa2583f0dedd482500dfdb1b2e506ce55e791a5f316894ed3bc897eb570d5e7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T170909Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T170909Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T170909Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "7eda54fc84be1fae8009224071c7e97aca7ac878d1c25cd879d3d3666558bea9",
+        "samplesSha256": "f133e89d37aff10c8f98f310e50a4e9bbcc5c78d5471a4ac471ebdcf8e3e6feb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "c970dd380347281f7025386d3a7d14a37f6312b4f5fe029c7a020fd716090f69",
+        "samplesSha256": "510090a150dd53873e05fa56e352768f4a55640aaf678a05f728b006c27267fc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "48cd56b25a6c6d69e7e200e12f1d8109d7e5220aa5c4534d5a7262a676c0926f",
+        "samplesSha256": "004d19889deff26699ab8a3ec31a166f36fa803cf5c793c1a9c09915eb79bb63"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T171720Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T171720Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T171720Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "bb7125561e8c3e6e59d37910bbd0a5fe0a414f005139dfb9ab70b3510c433a58",
+        "samplesSha256": "f8c053190702750a76534225d6a236505d236cdde5b3c1c14e072e6a1aa0f84c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T171738Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T171738Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T171738Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "26d8c3eb4ee4c7f579c4e6f021a7d2299eb57151a920a02c0e8bfd65a12b2eba",
+        "samplesSha256": "8da04ca7e642115753936b77d651bfe4bdae40b74848d44036b706f9e3b69601"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T172441Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T172441Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T172441Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "b54ab82867075ce08e930718c135e9a320f22b3726994a4e6f82e5ae3d71c8f8",
+        "samplesSha256": "4ac076e7bcf6ba86bf17279055567e729b15378e6c8f111aa235147832fb72b8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T172457Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T172457Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T172457Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "d1d8facf60158735092844c0a5b5a9303efbb3632a51476eaa7bfacfa8a352fd",
+        "samplesSha256": "356395dac0388198e5d71d37e647b7856797d54b827e99ac6aef9c3c720cce2b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T173142Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T173142Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T173142Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "9308637ff4b32efd9db05f4a9c880d255abd412ed1ae87044831acc94aad1a78",
+        "samplesSha256": "d781221e64073d692146f00eb643858da824bbbfb44da86a77a57fe2dff35b5f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T173157Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T173157Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T173157Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "00888a3b954452070d418c1c6ebb6e34e1416d3cd53884b4eff7e571e3dc36b6",
+        "samplesSha256": "8d13d2426bd8fd15fcce463df0b21a0c7d9a7bc7f0950af115e8391f0e4510e7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T173917Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2",
+      "campaignCandidateId": "h8--gv10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T173917Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2/result.json",
+        "samples": "runs/20260831T173917Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2/samples.csv",
+        "resultSha256": "ed045d173576b6f43ac5ed556f4fa3ca772f376916ac7891539c8e80ea7241c4",
+        "samplesSha256": "d58e001aa18d5cae19d94781ef3b71dce21fa389d581e49695662eff837006aa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T173931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2",
+      "campaignCandidateId": "h8--gv10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T173931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2/result.json",
+        "samples": "runs/20260831T173931Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-matilda-2/samples.csv",
+        "resultSha256": "067361a319fd7cad07bcb372c105d0ab1cc6b7d9121d3978b40e68cb51408ed0",
+        "samplesSha256": "f2611f533f6f748d3fa7e6e8c30fb289e8df4e0b5ef926a961e88f5ae9702f01"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T175009Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T175009Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T175009Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "6d91f9bb56ea19468b1c591c7b2c6b1cd26b9f6c34ce5bcbe2cd77a0e0ef7aad",
+        "samplesSha256": "1ad93cfaed44de171e10f9f36ada65ecdaf12b1ff47edb7164e4ff984474db41"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T175023Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T175023Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T175023Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "c647d72a006d4c877b4f252630bded1edf749cddd7abc414065cd3d97c97b66b",
+        "samplesSha256": "7a072ded60031ca3dea19a09564e7ee886a35202af0665ba5cb9a4057f51b441"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T175943Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2",
+      "campaignCandidateId": "h8--gv10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T175943Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2/result.json",
+        "samples": "runs/20260831T175943Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2/samples.csv",
+        "resultSha256": "8bf48b199cea9dd05a09bf3b7b98a7ccbaa6d8612e2d616e2fc4b4e816f35b9f",
+        "samplesSha256": "ea212ab61f0479999dd4e0db4fba6bb3e871d328efdb83de4004df2cf4f448a7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T175958Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2",
+      "campaignCandidateId": "h8--gv10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T175958Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2/result.json",
+        "samples": "runs/20260831T175958Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-matilda-2/samples.csv",
+        "resultSha256": "2bf2d388e5aa5226a45fcc46054fc08748ef753118e5064d629dbfb32bcc659e",
+        "samplesSha256": "d3c50866be6b0c159566dc26eacdbaf5e19e86c3bed075395e4d7c760e865a1f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T181035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "844b66a93f81c5aa29743ff7771e008afa64f51967360297b621b6a62dac815f",
+        "samplesSha256": "fe929374a08c8cb64128af84d1080e8fe89b6636d59978ca425876f5981b5463"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181050Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181050Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T181050Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "acb4392fa1879f6a758ab4869a08c8ef6d227935cce93701650db234cbb1c241",
+        "samplesSha256": "abd2476b229c642ee371fee45b27650e742b9461ab41a82e93f7588a45ddda2e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181547Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181547Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181547Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "9c2a302004f4d148a7383bf1ddd43b1335633093f9d28314945a9b65439daa31",
+        "samplesSha256": "785441b93a14b45ff5a895bdb22c5dcf9f37ecff4a700da16e4ec6f38ae4136b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181559Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181559Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181559Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "830f98cf455c8182eeef7b9817d45db048e42e42a872133d2ef5eebdd1ec63dd",
+        "samplesSha256": "4758384d0ad59e98a727a2f6a8ce163b1d9b372ece8292e22900f597a86e155d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181644Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h1--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181644Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181644Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "537d469a4909603de165af4988e63a2c0ef325eb11f2f355e5db814aa988c06b",
+        "samplesSha256": "5889abdfa307698074b023b29bdaa63ef24027821f907d51c577468053aea71e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181704Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h1--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181704Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181704Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "39158e1bdfd11edff3ff32e6edf148b905ee3186f1143e4e76e7dbcedb9490f6",
+        "samplesSha256": "7205cbb1b73c833663d61b2549bb1b8051b88edffaa4fd8689b2ccb6f324dac4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181914Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h2--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181914Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181914Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "af65d496db7bca209a144e8476f92d8fe5e6f7ee74e808a8ba85183deba0e51d",
+        "samplesSha256": "0209c8302ddecfcac8073b4b15cc023ec2673df68215b44ef9689e901fde1268"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T181929Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h2--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T181929Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T181929Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "b5022e49e7d06da7a2d3b8232047e44bef0702ecb73bc1151ee1ccedfe07f8dd",
+        "samplesSha256": "4a1d0945329f4bc558227191c82e1ebd4ceabe87703b40e09becd9a9b2b223ef"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182056Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h4--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182056Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182056Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "2cab11735408c5839759a1f207acdc4803299e3a776f98e81760918ce51e7c6b",
+        "samplesSha256": "8c28cc118d5697d8a3418414be12b34e490d1251087cc7239ae8d3e061d53ba9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182108Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h4--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182108Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182108Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "a0ccd6445b5d30da173c4f00c4bb5dd925ddcff6c73e0105c3590db52fdbe004",
+        "samplesSha256": "a781f25c1c7655c99b488388eaf1217c6f880f5cb65f51d1479d13b8a2c39bc4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182204Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182204Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182204Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "2cff58c33df01d190580c4798b14e3722fd81b965ba31e3e7ad030a4397bd7da",
+        "samplesSha256": "861ee5e2e86e2bfc1efe9ba35b6cbcff7b83f671ebb8bd4b72ea234ed82a5acb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182215Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "d8c6b57116f1960d1f305760a05329a39a8a8a27459d6d038ff65ffa943c801c",
+        "samplesSha256": "871f1137378a1932bc957c1e36d2c2a915d7aa2a74e5234e9bf2c92658d4bf22"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "37cf00f8064fb0b2b2523c661ce8210198dee054a45dff7468563ed67d1a803e",
+        "samplesSha256": "0613ea62bb002b52208c800ac2a5663b2e0b28f723279d5a288ee23b3e8d5992"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "a31e0bc9eb99de59a0e119428698461f39c89fe07f4a5810646aa9f53cb6228d",
+        "samplesSha256": "54f98733a6420db1657b430c7de6c08753ca7949cb8d1d2e376283bf481243b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182343Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182343Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182343Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "2dbac556b33f95357eb3c99e7dc73a6af01749aaf2e406c12417b1e02a5c686f",
+        "samplesSha256": "e0f6ff8e8fd3e98d2fa8dcb50d06a3c34f18fd5e1ca1bd667d6b24fc4bd2cea9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182354Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182354Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182354Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "1adc76a4015138274504bd8c389b7ce394469b2abe7ea37af9a8cc4397e896da",
+        "samplesSha256": "bdc887648bbde83037a118d0a8cd1f044d841268e34165e8eca54b6c7161beb1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182445Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182445Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182445Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "1e658c5db36d44cd3ba47868f1b55a825556a97458e6443a22f68ae7aadffd9b",
+        "samplesSha256": "9b6780bc0ab235c6e335d51a1be7f7faa4275d7ed1321446c8355c43e47b3d88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "1800b3302d2124f4bae11c9f3891aa71a0004e45a086a2e649093c4cfcc30c66",
+        "samplesSha256": "9c9ac388176d7bf6c51377429b2b44d517c9978c051486e6b225e3bf0f8c5fb2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "02644bae56bbeda978cfc309a47ad8b0056d3dd72024e8729e07f490c6e562b9",
+        "samplesSha256": "dd922c62a646359be75bb19e8b0d4ca6501f1e986f4e5fe7ed6945a40278a338"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182553Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h8--gv8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182553Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T182553Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "7acc48c3fe7ed1f2e8f720298905d73ac6227ee50e14f35e6a6e6681e9241bf2",
+        "samplesSha256": "42f47a757c083ab0b90b44abdc1d53429936dbe5006bd3810bc7fb716c774ee5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182639Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2",
+      "campaignCandidateId": "h8--gv10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182639Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2/result.json",
+        "samples": "runs/20260831T182639Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2/samples.csv",
+        "resultSha256": "ce40cdaf6bfb7da2f5cc2f50032717b726dfcdaf435284ed2a330ca095914360",
+        "samplesSha256": "2c1a0586874bcb325153c3ff7ba6dc9c7b896110d6bbadef825d9e9eecdfb32e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182649Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2",
+      "campaignCandidateId": "h8--gv10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182649Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2/result.json",
+        "samples": "runs/20260831T182649Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-matilda-2/samples.csv",
+        "resultSha256": "4cea17aff9d13c1760587dddf924d3b865d31b92147533ad9e6a8ed7a05dc745",
+        "samplesSha256": "65ccfce72cc8f87be04c1503e2bb8ef1391f0eb75131c285587f59a157da1c26"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182737Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182737Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T182737Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "7f0bb6cf0a6d20a1b5cb8f77e5bc8e51e47b5859c82c88c384cac1720dc0da87",
+        "samplesSha256": "1383131eaab6ffbcdadd57abc646a82efc69778885066dd09be7b10bdcd2d721"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182748Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182748Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T182748Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "d68718a9657c5842bec11af8d7f2dae07b0f0f9bf4d3abca3c84f9f004017f8b",
+        "samplesSha256": "4f330780be5f52b2c23ee3f41e19ed9433218432943b5cfcec4306aa4bb92f5b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182833Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2",
+      "campaignCandidateId": "h8--gv10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182833Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2/result.json",
+        "samples": "runs/20260831T182833Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2/samples.csv",
+        "resultSha256": "6cfc20e01b99771ab5efeb6eefaeb6c05a43af260e8f9411621754a10ad2ffe9",
+        "samplesSha256": "566431c8d58b7a8e3bed67f6d093c5e65d06d2b8bf8b5d5746118e18568e6e65"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182844Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2",
+      "campaignCandidateId": "h8--gv10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182844Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2/result.json",
+        "samples": "runs/20260831T182844Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-matilda-2/samples.csv",
+        "resultSha256": "80d93e14476dae6f0afcdee83106404585b88d92318c9fde5e4364ca64287259",
+        "samplesSha256": "97da86324daa1bce65761ea09c1dab196890a7e375aa8c6db311244c3af73b2e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182928Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182928Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T182928Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "4745bd41eb07010f22652ac46291f5f98cb9d40ad16a744b23d55c3c01ad8a69",
+        "samplesSha256": "6642e8ed97b2132d2ae999863e81d0b684c01cadb15a6ca738569336e2685644"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T182939Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T182939Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T182939Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "cd3a7673d389ac5a48b91c2fba9099dae1f0cc192ff6600c83c94a4411b96e8c",
+        "samplesSha256": "fb271e4772c2f69e7395b85d8519244152f768e729b5bb0ff33780e16589a774"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "5a3bd81f6e786dd402599659f3463e1c02d6b73012a16ad5d900ef14e8698590",
+        "samplesSha256": "b0804fa21bbc14ae9a1afe31901edfb102e658c9a9a36c856c0ab848b38f7a15"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "c4a049d6227b62f39077c080422365e921bb9e48177852a663bd4f9b5ec7a66b",
+        "samplesSha256": "7f15b06eca9b02c31e90a2729c3b08da55d70f0c9ec80e0a9e9c2e15ac3b106f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183259Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h1--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183259Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183259Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "d79f8747040c522d25e612756519b8cc99f3d08f47f11c6d433a19902be8ddd1",
+        "samplesSha256": "d890e75f806e88534a04feee31ce739cb1b97647596109af4347a7695f7185ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183646Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h1--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183646Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183646Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "8ecc6e85d535e1e9b91516ff3f9d2b006ce54a3262a780eaba84a8c17e5521e2",
+        "samplesSha256": "c98e6b43d7bb62daf28ea1e583d92199110543f0cf40e9b9a5aea77506048bb1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183719Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h2--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183719Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183719Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "707661a4daab251b073826400cd3240ef254e88f102de7b1baf9de47e4716845",
+        "samplesSha256": "a549c08d6d60b7216d04f645f568569d78b7e0f1c127d89a340589eba33217c1"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T183943Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h2--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T183943Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T183943Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "ab9cb9e44cb28c0ddb62790f3b09e262144db623d8e4c1d79a2c301d55b6dd5e",
+        "samplesSha256": "f1888f6c964e455207bdcce19a6e19d4f202faaa9809677d6f642ce090c2d905"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184012Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h4--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184012Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184012Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "c4bf7a88f1404dfa353e790a913be9c52b0a2765ee13cb4f178db7b641d8d52f",
+        "samplesSha256": "d3569d55fff29b624c7aac2237b46200f1411adb4e804fd90e234c12240ca928"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184205Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h4--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184205Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184205Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "01f92caa3ef9818bbf1a0fbdd34eac5bd5df66e033dda142ce011b633d5ca3ab",
+        "samplesSha256": "0df60fe13b46c352d08f3f98424768e39b79eec712bf0f1b13a6fa8d2ba406a9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184234Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h10--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184234Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184234Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "c6e193f5795173f6dad2b80cb210c475a7abf66d3cc09b3d516c057e0b662401",
+        "samplesSha256": "7b8e340a3d091b65300e9b7cdf7742bf38dd4b150903c4d28ef7652b18786f3f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184408Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h10--ct10--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184408Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184408Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "bf23eb3fd63ee7343414ecffac902ef4abfdaa4b2577d3138eac19898bc5e261",
+        "samplesSha256": "5c9fbbec76cebb146ec616ef5d3b0851c500f34f937344df2ffacac43759684c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184435Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184435Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184435Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "06e6a4d655be87990bd517b443e9b1f03295fff77c6b40504aca91b69d3d1236",
+        "samplesSha256": "8c7ba951965f29f3b3b198947a8f8bfcfe81d7dd7be4b855d707cc97b1f489fb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184706Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184706Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184706Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "6256342ad5e17522a191b9872baaed171242e680501d3f335d434c0d82a063ae",
+        "samplesSha256": "5068ab8f18447dcde43e0950c6fc7166570e9eff1aed0f24e1542118b6a14f90"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184732Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=2, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184732Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184732Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "11dd8e9b57513cd3b8ae83dc031c068745836c4722ce6886b7f251b0342ba035",
+        "samplesSha256": "784ff9da286f1c1988065157615eb10deb584a09b9d2463c8622b3add1f0e059"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184932Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct2--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=2, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184932Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184932Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "b1c38d8681b6c16332fe48f28ea6fbd7e74e305be34c30a88066d6e31dbdb322",
+        "samplesSha256": "471ff8b439d2e14385b4f8039f85787417dde7392486e64849a5bcfc0ccad855"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T184952Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=4, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T184952Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T184952Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "d5b4ff3a5d9d95a20b20b5e7e0ee99b04d595c07d480e9a9023cbf1a35c9c153",
+        "samplesSha256": "e85f2fc69fef971f80b6cc6fbb28c947b9b0c15fb28e8a0a19d3904e2b645600"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185132Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct4--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=4, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185132Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185132Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "1998128aed35981cd4b798349814ca6d83eabd28ef2b1eb6ed3b58b94dac9f3e",
+        "samplesSha256": "e6cba3bbe0d487d623cdc3d3829c5cce6959b94d8a571206ed007cec5d0741cb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185156Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=8, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185156Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185156Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "139d9620611398d4358b4dbaa951161714aad2d35fc20982351110c0189fbd0f",
+        "samplesSha256": "6da84bf5d18c642f600a6789df040105a35ea9d8250f3dbdd4bc47eca38b44fd"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185338Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct8--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=8, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185338Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185338Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "9a19718157c5b143d42c2a906b5586f434d6e1b524d6d6a6ad70492c37e33af6",
+        "samplesSha256": "0577717bddd644ff0a69a2adf11b70cd878cbe04d490e4e1f30040f8e1dab745"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185406Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185406Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185406Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "53bbea9b6b79c88b466f150fa6fcc85d684f7fc25e941a5fb5924f8c17303ce1",
+        "samplesSha256": "4e80be778746f94f425f9c33290ecd8c1faf73393c27f2889b9a0ba7c5ccd206"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185551Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p1",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185551Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185551Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "d079275be9f5f6c6819c58ec2773e1567fb8556338298dee42c45a4bf53c21ee",
+        "samplesSha256": "2675240f76c17d584da8c8a66c51a832ac64966d9daa7fd0ba9fe79f61d3eb12"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185618Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185618Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185618Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "2642c53389ed8176ea6d560e2f6678f1c6ac0f09a4b07859ad95bcafbaddccc5",
+        "samplesSha256": "1c15d3aa4c5655a0af63b5892ca54f1ee46cf56d28eb1cec2556820b281eea19"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185758Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185758Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185758Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "1e5a289d2c5401e6d336c10ddd417b8a52d89985d3e182b53c527397e6ba73ea",
+        "samplesSha256": "c55bd74d0b10c5b27c8599696d8567e8e86d22d4b7278398adb673fe0c2607ab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T185826Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T185826Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T185826Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "abab71dfa117f395440f5205123ba2361f498db194358dc7517b1f5737173412",
+        "samplesSha256": "bca08b6d620ab824e6afbaf39bb79be8069a97988daa0fb72e4ab8dc0ecdebd8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190004Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p4",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190004Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T190004Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "6ecfb6a78ff619bc932532a42bc4ede96c14a17552b5f1d8590f3c7f74f8c5d0",
+        "samplesSha256": "36e706039e295e4693a1b3378c11da7a63586132d4d5bac4b64d9ae6ebb0c3ff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190031Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190031Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T190031Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "cd78b40b3bb54ed1be3a2042a714ce55cac27bf79660716cb2f8f1179e926253",
+        "samplesSha256": "770bce63876e5aefb24b441995f0f1958f4e6e7f70c88f728ecbc04b1ac2c625"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190210Z-issue20-constant-stratification-authoritative-matilda-2",
+      "campaignCandidateId": "h8--ct10--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=10, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190210Z-issue20-constant-stratification-authoritative-matilda-2/result.json",
+        "samples": "runs/20260831T190210Z-issue20-constant-stratification-authoritative-matilda-2/samples.csv",
+        "resultSha256": "f3f8946566d29dc40f770239108afb04b283f6993e6882edd874a23a9e3f837d",
+        "samplesSha256": "5da863fb043c0e0eb59a4cf277a36cc67e56e6599672bef10b880668f2bc420e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190217Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h10--gv1--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190217Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190217Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "6222566b464fba6060126136d35973331b716019d7b00b0dd7f5f28f0ccbcb4e",
+        "samplesSha256": "0c922758a5a217ba4e430e5051552d042be0351cd93243d68c94dffb24b94b88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190228Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h10--gv1--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190228Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190228Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "01713797a2d7bc14b14d65daee45a08a488a9bf24c75a894f885149ae006cb3f",
+        "samplesSha256": "cf328bf8cd3597733b80f0ab13f106603f799c4cc4ed5cb00c076f30b366a37e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190337Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv1--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190337Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190337Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "274c30857fdcacc94ea8f7a993c881741d130d9b0ece56e3abe6c4293c8df91c",
+        "samplesSha256": "a1a64580b076389abd130db25d2fa6797c3d35474eaf4f52ec99c0c9906ed35e"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190349Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h8--gv1--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190349Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190349Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "08e07b92fd4110cb1f541e5ef2d51d1bd960d6a2ff2c1741c4cc3f8ff9d57f27",
+        "samplesSha256": "b999f641d39d5a62ec373080209590a58822e8289f77db92aa0ee950189690d4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h10--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "11e9119b07ab6ffa32fd1ae087f2e50d0b63fa3eb1124271c627c40ece2b1d21",
+        "samplesSha256": "faa33f7ee068bd6ae54b1890f75623ee5cf9d67c0e9d5bfe0ba96e0898fc2c3b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190510Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2",
+      "campaignCandidateId": "h10--gv10--p2",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190510Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/result.json",
+        "samples": "runs/20260831T190510Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-matilda-2/samples.csv",
+        "resultSha256": "f1adad3576ea94de70e9305478337fa0fedd59be08ab58879110a7b82960ed0c",
+        "samplesSha256": "6d9e514e171e1c0d28d529cfcf68bfeff0dc3af369bf94de3eeda0b4dccc0bf2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190747Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190747Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T190747Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "e8302b023e46b6907edce853b7676643426ee4becfe1f4448623dd8dfc0f7543",
+        "samplesSha256": "339a2c7dd2b69d1b7be5b328a3534ee935c42867e32fcf2a8e837fa338d4650d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190758Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2",
+      "campaignCandidateId": "h10--gv1--p8",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=10).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190758Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/result.json",
+        "samples": "runs/20260831T190758Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2/samples.csv",
+        "resultSha256": "079c04cbadce59afa40c2f115aa70374221560738fd49786259c2d7ee74ca94a",
+        "samplesSha256": "daa665155260faf6fd343c7a6289edac981c896b63d0a831f0c6241481074b43"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190900Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv1--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190900Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T190900Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "9b573336da944d7880c28e7ab9fa4d0b746fd0c015d7779daaceb09805833e93",
+        "samplesSha256": "2b3d775a16e7ac55ec607592dd51c1c650479bd042df8ac712fb6ff4d5577443"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T190911Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2",
+      "campaignCandidateId": "h8--gv1--p10",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "status": "preliminary",
+      "statusReason": "Clean Matilda/M1 Max replication evidence; provisional benchmark-local calibration pending cross-machine synthesis.",
+      "summary": "Apple M1 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T190911Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/result.json",
+        "samples": "runs/20260831T190911Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-10-matilda-2/samples.csv",
+        "resultSha256": "5cde2fe443b77b6c8f23bf049f1b6bdd3c777913cc92a66def29ca1fe2b6b342",
+        "samplesSha256": "212e3321f1eb2be02b552fc62ef7b7a1afde7c1f69c2b2360eca535698a5a2ca"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [

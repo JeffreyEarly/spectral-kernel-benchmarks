@@ -11,6 +11,12 @@ from pathlib import Path
 from publication import PUBLICATION_STATUSES, sha256_file
 
 
+LEGACY_MANIFEST_INCREMENT_IDS = {
+    "spectral-kernel-machine-tuning-v1":
+        "portable-machine-tuning-calibration-v1",
+}
+
+
 def load_json(path: Path) -> dict:
     with path.open(encoding="utf-8") as stream:
         return json.load(stream)
@@ -49,7 +55,9 @@ def main() -> int:
     manifest = load_json(manifest_path)
     if not isinstance(manifest.get("runs"), list) or not manifest["runs"]:
         parser.error("manifest contains no runs")
-    increment_id = manifest.get("incrementId")
+    increment_id = manifest.get(
+        "incrementId", LEGACY_MANIFEST_INCREMENT_IDS.get(manifest.get("schema")),
+    )
     if increment_id is not None and (
         not isinstance(increment_id, str) or not increment_id.strip()
     ):

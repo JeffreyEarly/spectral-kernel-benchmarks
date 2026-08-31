@@ -11,6 +11,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "tools"))
 
 import run_portable_machine_tuning as portable  # noqa: E402
+import publish_local_sweep as publisher  # noqa: E402
 
 
 def machine(performance: int = 8, efficiency: int = 2) -> dict:
@@ -40,6 +41,12 @@ def candidate_row(identifier: str, order: int, workers: dict,
 
 
 class PortableMachineTuningTests(unittest.TestCase):
+    def test_legacy_manifest_preserves_shared_publication_increment(self) -> None:
+        self.assertEqual(
+            portable.INCREMENT_ID,
+            publisher.LEGACY_MANIFEST_INCREMENT_IDS[portable.SCHEMA],
+        )
+
     def test_registry_freezes_three_distinct_boundaries(self) -> None:
         registry = portable.implementations()
         self.assertEqual(3, len(registry))
@@ -313,6 +320,8 @@ class PortableMachineTuningTests(unittest.TestCase):
             summary["implementations"][0]["selected"]["profiles"][0]["runId"],
         )
         self.assertFalse(summary["productionValidated"])
+        self.assertIn("Apple M1 Max", summary["statusReason"])
+        self.assertIn("Apple M1 Max", summary["interpretation"])
 
 
 if __name__ == "__main__":
