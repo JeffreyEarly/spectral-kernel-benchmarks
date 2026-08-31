@@ -19,7 +19,10 @@ def load_json(path: Path) -> dict:
 def main() -> int:
     repository_root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, required=True, help="Local sweep directory containing manifest.json")
+    parser.add_argument(
+        "--input", type=Path, required=True,
+        help="Local sweep directory containing manifest.json or machine-tuning.json",
+    )
     parser.add_argument("--experiment", required=True, help="Existing stable experiment ID")
     parser.add_argument("--status", choices=sorted(PUBLICATION_STATUSES), default="preliminary")
     parser.add_argument("--status-reason", required=True)
@@ -33,9 +36,16 @@ def main() -> int:
     arguments = parser.parse_args()
 
     input_dir = arguments.input.resolve()
-    manifest_path = input_dir / "manifest.json"
-    if not manifest_path.is_file():
-        parser.error(f"manifest is missing: {manifest_path}")
+    manifest_paths = [
+        path for path in (
+            input_dir / "manifest.json", input_dir / "machine-tuning.json",
+        ) if path.is_file()
+    ]
+    if len(manifest_paths) != 1:
+        parser.error(
+            "input must contain exactly one manifest.json or machine-tuning.json"
+        )
+    manifest_path = manifest_paths[0]
     manifest = load_json(manifest_path)
     if not isinstance(manifest.get("runs"), list) or not manifest["runs"]:
         parser.error("manifest contains no runs")
@@ -65,7 +75,11 @@ def main() -> int:
         if not isinstance(result_name, str):
             parser.error(f"manifest run lacks a result path: {manifest_entry.get('id', '<unknown>')}")
         source_result = input_dir / result_name
-        source_samples = source_result.with_suffix(".csv")
+        samples_name = manifest_entry.get("samples")
+        source_samples = (
+            input_dir / samples_name
+            if isinstance(samples_name, str) else source_result.with_suffix(".csv")
+        )
         if not source_result.is_file() or not source_samples.is_file():
             parser.error(f"missing JSON/CSV pair for {result_name}")
         result = load_json(source_result)
@@ -121,7 +135,11 @@ def main() -> int:
                 {"campaignCandidateId": manifest_entry["candidate"]["id"]}
                 if isinstance(manifest_entry.get("candidate"), dict)
                 and isinstance(manifest_entry["candidate"].get("id"), str)
-                else {}
+                else (
+                    {"campaignCandidateId": manifest_entry["candidateId"]}
+                    if isinstance(manifest_entry.get("candidateId"), str)
+                    else {}
+                )
             ),
             "status": arguments.status,
             "statusReason": arguments.status_reason,

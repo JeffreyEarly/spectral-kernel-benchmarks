@@ -34945,6 +34945,48 @@
       ]
     },
     {
+      "id": "issue-023-portable-tuning-reference-campaign",
+      "issue": 23,
+      "phase": "planned",
+      "title": "Portable benchmark tuning and WVM integration handoff",
+      "question": "Can the three frozen implementations expose reproducible benchmark-local worker defaults on the named M1 Max and M4 Max machines without claiming production-optimal WVM settings?",
+      "baseline": "Use each implementation's frozen worker tuple as its portable seed, then change only topology-derived stage-local worker counts across the two calibration workloads.",
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "downstreamIssues": [],
+      "definition": {
+        "unitOfWork": "Run each frozen implementation's complete authoritative boundary at 256 squared/Nz=129/F4 and 512 squared/Nz=257/F4 with one machine-local worker tuple covering both sizes.",
+        "candidates": "The WVM-native optimized general path, compact direct-family-view general path, and compact exact constant-stratification path remain separate. Each uses a portable seed, one-factor worker sweeps, and a bounded combined-winner neighborhood.",
+        "workloads": "Authoritative Float64 four-field calibration cases at 256 squared/Nz=129 and 512 squared/Nz=257 on Lyra/M4 Max and Matilda/M1 Max. Held-out large reference cases are explicitly outside this issue.",
+        "controlledVariables": "Provider, Float64 precision, mathematical boundary, representation, tile width, algorithm, placement, allocation policy, buffer lifetime, fixtures, correctness oracle, and absence of size-dependent dispatch.",
+        "changedVariables": "Horizontal outer workers, the applicable general vertical outer or constant type-I internal workers, and pointwise spatial-static workers derived from machine topology.",
+        "timedBoundary": "The independently sampled uninstrumented complete boundary for each implementation. Primitive and component timings remain diagnostic and are retained in every result bundle.",
+        "excludedWork": "Held-out reference inference, cross-Mac adoption gates, production WVM worker selection, MATLAB dispatch, time integration, model state, I/O, algorithm research, Float32, GPU, and KFR/DUCC.",
+        "allocationPolicy": "Every eligible candidate preserves its frozen out-of-place caller contract and performs zero warmed application allocations. Record resident, scratch, estimated-peak, and observed memory separately."
+      },
+      "correctness": {
+        "oracle": "Use each frozen implementation's authoritative complete-boundary oracle, including mode keys, target ordering, caller-input preservation, placement, and allocation checks.",
+        "tolerance": "General paths require Float64 maximum scale-normalized and relative-L2 error at most 1e-12. The constant path retains its frozen 2e-12 maximum and 1e-12 relative-L2 algorithm-equivalence rules while reporting the separate MATLAB cross-backend diagnostic.",
+        "capabilityHandling": "Incorrect, allocating, incomplete, unsupported, stale, or incompatible cells are ineligible. Capacity and capability exclusions remain visible; no silent fallback, resized workload, or size-dependent dispatch is permitted.",
+        "canSupport": "Portable campaign operation and benchmark-local provisional worker defaults for the named machines, plus a concrete integration handoff.",
+        "cannotSupport": "Production-optimal WVM worker settings, a cross-Mac adoption claim, held-out large-workload inference, or a default for untested Apple hardware."
+      },
+      "requiredTables": [
+        "implementation contracts and frozen versus tunable parameters",
+        "machine topology and complete worker candidate trace",
+        "per-workload complete-call and component timing",
+        "benchmark-local tuning benefit relative to the portable seed",
+        "resident, scratch, estimated-peak, observed, and capacity memory",
+        "correctness, placement, allocation, and compatibility validation",
+        "provisional worker tuples and downstream WVM retuning requirement"
+      ]
+    },
+    {
       "id": "issue-024-retained-inverse-zero-fill",
       "issue": 24,
       "phase": "complete",

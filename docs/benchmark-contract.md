@@ -205,6 +205,18 @@ Reference timing uses isolated balanced candidate/control processes with three w
 
 Memory is collected in separate processes after correctness-only and setup-only storage is released. Timing samples from memory processes do not enter performance aggregates. A case whose estimated explicit peak exceeds the declared safe fraction of physical memory is an explicit capacity exclusion. The runner does not swap deliberately, resize the workload, or substitute a different algorithm. A portability conclusion remains limited to matched feasible profiles and to the named hardware-plus-toolchain configurations; it never creates workload-size dispatch or a general-Mac claim.
 
+## Portable benchmark-local machine tuning
+
+Issue #23 reuses the completed algorithm evidence without reopening algorithm selection. Its registry contains the WVM-native general-stratification path, the compact general-stratification path, and the compact constant-stratification path. Their mathematical boundaries remain separate. Float64, FFTW 3.3.11, antialiasing, representation, tile width, placement, allocation policy, buffer lifetime, and absence of size-dependent dispatch are contract fields rather than tuning choices.
+
+The machine-local candidate envelope contains one, every power of two no greater than the total physical-core count, the detected performance-core count, and the total physical-core count. A deterministic portable seed uses performance cores for horizontal execution, total physical cores for the applicable vertical stage, and the largest power of two no greater than the performance-core count for pointwise work. One-factor sweeps are followed by the combined one-factor winners and neighbors that restore one stage to the portable seed. No nested outer and internal worker pools execute concurrently.
+
+Calibration uses only the four-field 256-squared/Nz=129 and 512-squared/Nz=257 authoritative workloads. Correct, complete, caller-preserving, zero-warmed-allocation candidates are ranked by geometric-mean complete-call time. Candidates within 1% of the fastest are equivalent; fewer total workers, lower algorithm-resident memory, and deterministic candidate order break ties. The chosen tuple covers both sizes and is recorded as a benchmark-local provisional default, not a production WVM setting.
+
+The `spectral-kernel-machine-tuning-v1` manifest binds the selected implementation contracts to the source tree, executable hash, authoritative fixture hashes, machine topology, candidate expansion, commands, run records, correctness, memory, component timings, and selection trace. Atomic manifest updates make an interrupted campaign resumable without duplicating valid observations. A changed executable, fixture, machine, implementation contract, workload, or sampling contract is incompatible rather than silently resumed.
+
+Lyra/M4 Max and Matilda/M1 Max validate the workflow on the two calibration cases. The comparison is descriptive and may publish benchmark-local defaults and tuning benefit, but it applies no cross-Mac adoption gate and makes no production-optimality claim. Held-out 1024-squared and deep-vertical reference campaigns are outside issue #23. The integrated WVM boundary must validate or retune worker counts after MATLAB runtime interaction, production cache state, buffer reuse, and the complete nonlinear calculation are present.
+
 ## Result bundle
 
 The JSON document conforms to `spectral-kernel-benchmark-v1` and records:
