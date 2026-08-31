@@ -942,6 +942,7 @@ struct RunOptions {
     std::string retainedRepresentation = "interleaved";
     std::size_t fftwInternalWorkers = 0;
     std::size_t fftwOuterWorkers = 1;
+    bool fftwOuterWorkersSpecified = false;
     double fftwPlanningTimeLimitSeconds = 0.0;
     std::string vdspStrategy = "in-place";
     std::string vdspBatchStrategy = "direct-persistent";

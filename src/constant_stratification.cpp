@@ -1347,9 +1347,9 @@ BenchmarkReport runConstantStratificationFluxBenchmark(
     const auto verticalWorkers = options.fftwInternalWorkers == 0
         ? std::max<std::size_t>(1, selected.defaultWorkers)
         : options.fftwInternalWorkers;
-    const auto horizontalWorkers = options.fftwOuterWorkers == 1
-        ? std::max<std::size_t>(1, selected.defaultWorkers)
-        : options.fftwOuterWorkers;
+    const auto horizontalWorkers = options.fftwOuterWorkersSpecified
+        ? options.fftwOuterWorkers
+        : std::max<std::size_t>(1, selected.defaultWorkers);
     const auto pointwisePolicy =
         pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
     const auto pointwiseWorkers = options.pointwiseWorkers == 0

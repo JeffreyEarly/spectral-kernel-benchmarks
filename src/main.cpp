@@ -185,7 +185,10 @@ int main(int argc, char** argv) {
                 else if (key == "--fftw-alignment") options.fftwAlignment = requireValue(argc, argv, index);
                 else if (key == "--fftw-wisdom") options.fftwWisdom = requireValue(argc, argv, index);
                 else if (key == "--fftw-internal-workers") options.fftwInternalWorkers = std::stoull(requireValue(argc, argv, index));
-                else if (key == "--fftw-outer-workers") options.fftwOuterWorkers = std::stoull(requireValue(argc, argv, index));
+                else if (key == "--fftw-outer-workers") {
+                    options.fftwOuterWorkers = std::stoull(requireValue(argc, argv, index));
+                    options.fftwOuterWorkersSpecified = true;
+                }
                 else if (key == "--fftw-planning-time-limit") options.fftwPlanningTimeLimitSeconds = std::stod(requireValue(argc, argv, index));
                 else if (key == "--vdsp-strategy") options.vdspStrategy = requireValue(argc, argv, index);
                 else if (key == "--vdsp-batch-strategy") options.vdspBatchStrategy = requireValue(argc, argv, index);

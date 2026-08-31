@@ -2661,7 +2661,8 @@ int main() {
             options.profile = "smoke";
             options.fftwPlanning = "estimate";
             options.fftwInternalWorkers = 1;
-            options.fftwOuterWorkers = 2;
+            options.fftwOuterWorkers = 1;
+            options.fftwOuterWorkersSpecified = true;
             options.streamingTileWidth = 16;
             options.pointwisePolicy = "spatial-static";
             options.pointwiseWorkers = 2;
@@ -2681,6 +2682,10 @@ int main() {
                         "pipeline-constant-stratification-streaming-pruned-tile16",
                     "constant-stratification composed provider identities");
             for (const auto& provider : report.providers) {
+                require(provider.schedulingId.find(
+                            ";horizontal-internal-1-outer-1;") !=
+                            std::string::npos,
+                        "constant-stratification honors an explicit one-worker horizontal request");
                 require(provider.execution.forward.nativePlacement ==
                             "out-of-place" &&
                             provider.execution.forward.adapterPlacement ==
