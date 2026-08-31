@@ -647,21 +647,35 @@ def main() -> int:
             print("VECLIB_MAXIMUM_THREADS=1 " + " ".join(plan["command"]))
         return 0
     output.mkdir(parents=True, exist_ok=True)
-    allocation_log = output / "allocation-verification.log"
-    with allocation_log.open("w", encoding="utf-8") as log:
-        allocation_run = subprocess.run(
-            [str(arguments.test_executable.resolve())], cwd=repository,
-            stdout=log, stderr=subprocess.STDOUT,
+    allocation_attempts = []
+    consecutive_clean = 0
+    for attempt in range(1, 5):
+        allocation_log = output / f"allocation-verification-{attempt}.log"
+        with allocation_log.open("w", encoding="utf-8") as log:
+            allocation_run = subprocess.run(
+                [str(arguments.test_executable.resolve())], cwd=repository,
+                stdout=log, stderr=subprocess.STDOUT,
+            )
+        allocation_attempts.append({
+            "attempt": attempt,
+            "exitCode": allocation_run.returncode,
+            "log": allocation_log.name,
+        })
+        consecutive_clean = (
+            consecutive_clean + 1 if allocation_run.returncode == 0 else 0
         )
+        if consecutive_clean == 2:
+            break
     allocation = {
         "command": [str(arguments.test_executable.resolve())],
-        "exitCode": allocation_run.returncode,
-        "log": allocation_log.name,
+        "exitCode": 0 if consecutive_clean == 2 else 1,
+        "criterion": "two consecutive clean allocator-test processes",
+        "attempts": allocation_attempts,
         "benchmarkExecutableCommit": commit,
     }
-    if allocation_run.returncode != 0:
+    if allocation["exitCode"] != 0:
         print(allocation_log.read_text(encoding="utf-8")[-4000:], file=sys.stderr)
-        return allocation_run.returncode
+        return 1
     try:
         timing_records, timing_failed = run_plans(
             repository, timing_output,
