@@ -7242,6 +7242,208 @@ def constant_stratification_authoritative_synthesis(
     """
 
 
+def wvm_native_layout_optimization_synthesis(
+    bundles: list[PublishedBundle], evidence: dict | None,
+) -> str:
+    if evidence is None:
+        return ""
+    if evidence.get("schema") != (
+        "spectral-kernel-wvm-native-layout-optimization-analysis-v1"
+    ):
+        raise ValueError("issue #25 WVM-native reference has the wrong schema")
+    if (
+        evidence.get("phase") != "reference"
+        or evidence.get("decision", {}).get("freezeWvmNativeOptimizedV1")
+        is not True
+    ):
+        raise ValueError("issue #25 WVM-native reference did not freeze a finalist")
+    increment_id = "wvm-native-strided-field-views-v1"
+    cohort = [
+        bundle for bundle in bundles
+        if bundle.publication.get("incrementId") == increment_id
+        and bundle.publication["status"] == "reference"
+    ]
+    timing_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "reference"
+    ]
+    memory_bundles = [
+        bundle for bundle in cohort
+        if bundle.publication.get("campaignPhase") == "memory"
+    ]
+    if len(timing_bundles) != 36 or len(memory_bundles) != 12:
+        return ""
+
+    final = evidence["comparisons"]["optimizedVsControl"]
+    interval = final["empiricalStratifiedPairedRange"]
+    profile_rows = []
+    for profile in final["profiles"]:
+        profile_id = profile["profile"]
+        nx = 1024 if "1024" in profile_id else (512 if "512" in profile_id else 256)
+        nz = 257 if "nz257" in profile_id else 129
+        links = []
+        for bundle in sorted(
+            [
+                item for item in timing_bundles
+                if item.result["run"]["profile"] == profile_id
+                and item.publication.get("campaignCandidateId") ==
+                    "wvm-native-optimized-v1"
+            ],
+            key=lambda item: int(item.publication.get("campaignRound", 0)),
+        ):
+            links.append(
+                f'<a href="../../runs/{quote(bundle.publication["id"])}/index.html">'
+                f'r{int(bundle.publication["campaignRound"])}</a>'
+            )
+        paired = profile["empiricalPairedRange"]
+        profile_rows.append(
+            "<tr>"
+            f'<th scope="row">{nx}² / N<sub>z</sub>={nz}<br>'
+            f'<span class="muted">{" / ".join(links)}</span></th>'
+            f'<td class="numeric">{format_ms(profile["denominatorMedianSeconds"])} ms</td>'
+            f'<td class="numeric">{format_ms(profile["numeratorMedianSeconds"])} ms</td>'
+            f'<td class="numeric"><strong>{float(profile["medianRatio"]):.3f}×</strong><br>'
+            f'<span class="muted">{float(paired["lower"]):.3f}×–{float(paired["upper"]):.3f}×</span></td>'
+            "</tr>"
+        )
+
+    comparison_labels = {
+        "pointwiseOnlyVsControl": "Spatial-static-8 only / issue #19 control",
+        "stridedViewsOnlyVsControl": "Native strided views only / issue #19 control",
+        "optimizedVsControl": "Combined WVM-native finalist / issue #19 control",
+        "pointwiseMarginalAfterViews": "Pointwise marginal after direct views",
+        "viewsMarginalAfterPointwise": "Direct-view marginal after pointwise",
+    }
+    attribution_rows = []
+    for key, label in comparison_labels.items():
+        comparison = evidence["comparisons"][key]
+        attribution_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(label)}</th>'
+            f'<td class="numeric"><strong>{float(comparison["geometricRatio"]):.3f}×</strong></td>'
+            f'<td class="numeric">{float(comparison["maximumProfileRatio"]):.3f}×</td>'
+            "</tr>"
+        )
+
+    component_definitions = (
+        ("Raw inverse vertical MM", "primitive",
+         "raw inverse vertical MM (15 modal inputs; exact WVM F/G families)"),
+        ("Shared U/V/W inverse horizontal FFT", "component",
+         "shared U,V,W horizontal reconstruction"),
+        ("Derivative inverse horizontal FFT", "component",
+         "per-target derivative horizontal reconstruction"),
+        ("Four pointwise targets", "component",
+         "four streamed pointwise advection expressions"),
+        ("Four raw forward horizontal FFTs", "primitive",
+         "four streamed full horizontal forward FFTs"),
+        ("WVM extraction/scatter", "adapter-component",
+         "WVM-order triple extraction and target scatter"),
+        ("Raw forward vertical MM", "primitive",
+         "raw forward vertical MM (4 modal targets; exact WVM F/G families)"),
+        ("Uninstrumented total", "uninstrumented-total",
+         "authoritative production-lifetime streamed four-target spectral-flux composition"),
+    )
+
+    def component_median(profile_id: str, candidate_id: str,
+                         scope: str, stage: str) -> float:
+        values = []
+        for bundle in timing_bundles:
+            if (
+                bundle.result["run"]["profile"] != profile_id
+                or bundle.publication.get("campaignCandidateId") != candidate_id
+            ):
+                continue
+            matches = [
+                item
+                for provider in bundle.result["providers"]
+                for item in provider.get("timings", [])
+                if item.get("scope") == scope and item.get("stage") == stage
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"issue #25 run {bundle.publication['id']} lacks one "
+                    f"{scope}/{stage} timing"
+                )
+            values.append(float(matches[0]["medianSeconds"]))
+        if len(values) != 3:
+            raise ValueError(
+                f"issue #25 lacks three {profile_id}/{candidate_id}/{stage} timings"
+            )
+        return statistics.median(values)
+
+    component_rows = []
+    for label, scope, stage in component_definitions:
+        cells = []
+        for profile in final["profiles"]:
+            control = component_median(
+                profile["profile"], "wvm-native-issue19-control", scope, stage,
+            )
+            candidate = component_median(
+                profile["profile"], "wvm-native-optimized-v1", scope, stage,
+            )
+            ratio = candidate / control if control else 0.0
+            value = (
+                f'{format_ms(control)} → {format_ms(candidate)} ms '
+                f'(<strong>{ratio:.3f}×</strong>)'
+            )
+            if scope == "adapter-component" and candidate == 0.0:
+                value = (
+                    f'{format_ms(control)} ms → <strong>elided</strong> '
+                    '(zero executions)'
+                )
+            cells.append(f'<td class="numeric">{value}</td>')
+        component_rows.append(
+            f'<tr><th scope="row">{escaped(label)}</th>{"".join(cells)}</tr>'
+        )
+
+    memory = evidence["memoryFinalistToControl"]
+    exclusions = evidence["deepCapacityExclusions"]
+    finalist_exclusion = next(
+        item for item in exclusions
+        if item["candidateId"] == "wvm-native-optimized-v1"
+    )
+    topology = evidence["frozenTopology"]
+    return f"""
+    <section class="section" aria-labelledby="wvm-native-reference-heading">
+      <p class="eyebrow">M4 Max authoritative reference</p>
+      <h2 id="wvm-native-reference-heading">Direct native-family FFTW views remove the WVM bridge without changing the caller layout</h2>
+      <p>The frozen <code>wvm-native-optimized-v1</code> graph is <strong>{float(final["geometricRatio"]):.3f}×</strong> the issue #19 WVM-native control geometrically, with a stratified paired range of <strong>{float(interval["lower"]):.3f}×–{float(interval["upper"]):.3f}×</strong> and a worst workload of {float(final["maximumProfileRatio"]):.3f}×. All outputs match the authoritative mode-keyed WVM oracle; the maximum error is {float(evidence["maximumCorrectnessError"]):.3e}.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Three rotated 21-sample process rounds per feasible workload. Times are medians of process medians. Ratios are paired within round and need not equal the quotient of the separately displayed medians.</caption>
+        <thead><tr><th scope="col">Workload and finalist runs</th><th scope="col">Issue #19 WVM control</th><th scope="col">WVM native optimized v1</th><th scope="col">Finalist/control</th></tr></thead>
+        <tbody>{''.join(profile_rows)}</tbody>
+      </table></div>
+      <h3>Attribution</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Each row names its own denominator. Ratios from different rows are not multiplied.</caption>
+        <thead><tr><th scope="col">Coherent increment</th><th scope="col">Geometric ratio</th><th scope="col">Worst workload</th></tr></thead>
+        <tbody>{''.join(attribution_rows)}</tbody>
+      </table></div>
+      <p>Pointwise threading alone changes the complete total only modestly. The dominant improvement comes from eliminating the materialized five three-field extractions and four one-field scatters. Once that movement is gone, the frozen eight-worker pointwise policy provides a further uniform reduction.</p>
+      <h3>Component ledger</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Median of the three process medians for the frozen control → finalist. Component samples are diagnostic and do not sum to the independently sampled total.</caption>
+        <thead><tr><th scope="col">Stage</th><th scope="col">256² / N<sub>z</sub>=129</th><th scope="col">512² / N<sub>z</sub>=257</th><th scope="col">1024² / N<sub>z</sub>=129</th></tr></thead>
+        <tbody>{''.join(component_rows)}</tbody>
+      </table></div>
+      <h3>Algorithm and representation contract</h3>
+      <ol>
+        <li><strong>Vertical inverse:</strong> the existing direct complex zgemm providers reconstruct the exact wave-f and wave-g families in WVM frequency-major interleaved storage.</li>
+        <li><strong>Horizontal inverse:</strong> persistent FFTW guru plans use each family's native frequency stride. Each three-field logical batch shares one outer-worker dispatch. FFTW may destroy the reconstructed spectrum because every field is consumed exactly once; caller-owned modal inputs remain preserved.</li>
+        <li><strong>Pointwise work:</strong> one shared U/V/W volume, one reusable derivative triple, and one reusable target evaluate four <code>-(U*qx+V*qy+W*qz)</code> expressions with spatial-static-{int(topology["pointwiseWorkers"])}.</li>
+        <li><strong>Horizontal forward:</strong> each target FFT writes directly into its final WVM family field. The existing vertical zgemm then projects the retained modes into caller-owned WVM modal output.</li>
+      </ol>
+      <p>No gather, transpose, split/interleaved conversion, three-field spectrum copy, or target scatter remains in steady state. Extraction/scatter is published as <code>elided</code> with zero executions. Raw FFT, vertical MM, pointwise, setup, and complete totals remain separately available on every immutable run page.</p>
+      <h3>Memory and capacity</h3>
+      <p>Relative to the control, the finalist is {float(memory["algorithmResidentBytes"]):.3f}× algorithm-resident memory, {float(memory["scratchBytes"]):.3f}× reusable scratch, {float(memory["estimatedProcessPeakBytes"]):.3f}× estimated explicit peak, and {float(memory["observedProcessHighWaterBytes"]):.3f}× observed process high water. The deep 512²/N<sub>z</sub>=513 workload remains an explicit capacity exclusion: direct views save {format_bytes(int(finalist_exclusion["elidedBridgeBytes"]))}, but the conservative setup requirement is still {format_bytes(int(finalist_exclusion["requiredPhysicalMemoryBytes"]))} on a {format_bytes(int(finalist_exclusion["physicalMemoryBytes"]))} machine.</p>
+      <h3>Issue #23 handoff</h3>
+      <p>The portable benchmark should treat this algorithm graph as fixed and tune only three hardware knobs: horizontal FFT outer workers (currently {int(topology["horizontalWorkers"])}), vertical outer-dynamic workers (currently {int(topology["verticalWorkers"])}), and spatial-static pointwise workers (currently {int(topology["pointwiseWorkers"])}). FFTW internal workers remain one and Accelerate remains limited to one requested thread while outer scheduling is active. The compact general and constant-stratification finalists remain separate algorithms; no size-dependent dispatch is introduced.</p>
+      <p class="method-note"><strong>Scope:</strong> this establishes the best tested WVM-native spectral boundary for MATLAB plus a compiled core. It does not measure the complete nonlinear flux, MATLAB/MEX dispatch, phase or coefficient assembly, a timestep, Float32, or a general-Mac worker policy. Existing pruned providers require compact split staging, so native-destination pruning is recorded as unsupported by the validated WVM-interleaved provider set rather than silently called layout-neutral.</p>
+      <p><a href="../../artifacts/decisions/issue-025-wvm-native-layout-reference-lyra-v1.json">Download the issue #25 reference analysis JSON</a>.</p>
+    </section>
+    """
+
+
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
@@ -7250,6 +7452,7 @@ def build_experiment_page(
     issue21_fused_views_evidence: dict | None = None,
     issue22_pointwise_evidence: dict | None = None,
     issue24_inverse_evidence: dict | None = None,
+    issue25_wvm_native_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -7294,6 +7497,25 @@ def build_experiment_page(
             "One compact screening summary records the completed negative "
             "disposition. The twelve preliminary run pages remain permanent; "
             "no candidate advanced to reference depth."
+        )
+    if (
+        experiment_id == "issue-025-wvm-native-layout-optimization"
+        and issue25_wvm_native_evidence is not None
+    ):
+        timing_reference_count = sum(
+            bundle.publication["status"] == "reference"
+            and bundle.publication.get("campaignPhase") == "reference"
+            for bundle in related
+        )
+        memory_reference_count = sum(
+            bundle.publication["status"] == "reference"
+            and bundle.publication.get("campaignPhase") == "memory"
+            for bundle in related
+        )
+        evidence_statement = (
+            f"The completed M4 publication contains {timing_reference_count} "
+            f"permanent timing run pages and {memory_reference_count} isolated-memory "
+            "run pages for the four-rung attribution campaign."
         )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
         authoritative_count = sum(
@@ -7344,6 +7566,10 @@ def build_experiment_page(
     elif experiment_id == "issue-024-retained-inverse-zero-fill":
         synthesis = retained_inverse_zero_fill_synthesis(
             issue24_inverse_evidence, "../../",
+        )
+    elif experiment_id == "issue-025-wvm-native-layout-optimization":
+        synthesis = wvm_native_layout_optimization_synthesis(
+            related, issue25_wvm_native_evidence,
         )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
@@ -7848,6 +8074,7 @@ def build_summary_page(
     issue21_reference: dict | None,
     issue22_reference: dict | None,
     issue24_inverse: dict | None,
+    issue25_wvm_native: dict | None,
 ) -> str:
     if (
         cross_mac_synthesis is None
@@ -7855,9 +8082,10 @@ def build_summary_page(
         or issue21_reference is None
         or issue22_reference is None
         or issue24_inverse is None
+        or issue25_wvm_native is None
     ):
         raise ValueError(
-            "algorithm summary requires the cross-Mac and issue #19/#21/#22/#24 evidence"
+            "algorithm summary requires the cross-Mac and issue #19/#21/#22/#24/#25 evidence"
         )
     machines = {
         item["machine"]["cpuBrand"]: item
@@ -7873,6 +8101,7 @@ def build_summary_page(
         and issue19_reference["gate"]["advanceToWvmIntegrationExperiment"]
         and issue21_reference["gate"]["advanceFusedViewsToWvmIntegration"]
         and issue22_reference["gate"]["freezeSelectedM4PointwisePolicy"]
+        and issue25_wvm_native["decision"]["freezeWvmNativeOptimizedV1"]
     ):
         raise ValueError("algorithm summary cannot describe an unpassed reference gate")
     if issue21_reference["gate"]["newGemmArithmeticMeasured"] is not False:
@@ -7889,11 +8118,13 @@ def build_summary_page(
     )
     issue19_interval = issue19_reference["empiricalStratifiedPairedRange"]
     issue21_interval = issue21_reference["empiricalStratifiedPairedRange"]
+    issue25_final = issue25_wvm_native["comparisons"]["optimizedVsControl"]
+    issue25_interval = issue25_final["empiricalStratifiedPairedRange"]
     content = f"""
     <section class="hero compact">
       <p class="eyebrow">Current synthesis · Float64 Apple Silicon</p>
       <h1>From FFT primitives to a functional-core candidate</h1>
-      <p class="lede">The benchmark campaign has converged on one experimental compiled-engine algorithm: FFTW partial-column pruning, a persistent compact radial split representation, split-real vertical projection, and direct vertical-family views inside a streamed four-field graph.</p>
+      <p class="lede">The benchmark campaign has converged on two boundary-specific algorithms: a compact split streaming graph for a persistent compiled engine, and an optimized direct-view graph when MATLAB-visible WVM interleaved arrays remain authoritative.</p>
       <p class="notice"><strong>Ready to implement does not mean ready to adopt.</strong> The candidate is correct and fast at the declared spectral boundary. It has not yet executed WVM’s complete nonlinear flux, MATLAB-to-core call, model timestep, or state-management path.</p>
     </section>
     <section class="section" aria-labelledby="candidate-heading">
@@ -7926,11 +8157,13 @@ def build_summary_page(
           <tr><th scope="row"><a href="../experiments/issue-021-fused-small-grouped-gemm/index.html">Direct vertical-family views</a></th><td>Direct strided family views versus the issue #19 streaming graph with materialized compact extraction/scatter</td><td><strong>{float(issue21_reference["geometricCandidateToControl"]):.3f}×</strong> time ({float(issue21_interval["lower"]):.3f}×–{float(issue21_interval["upper"]):.3f}×), {float(issue21_reference["memoryOnlyGeometricRatios"]["algorithmResidentBytes"]):.3f}× resident memory, and {float(issue21_reference["memoryOnlyGeometricRatios"]["scratchBytes"]):.3f}× scratch.</td><td>The remaining actionable bottleneck was serial data movement, not raw vertical GEMM. Carry direct family views into the functional core.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-022-pointwise-advection-optimization/index.html">Pointwise advection</a></th><td>Spatial-static-8 versus the issue #21 serial pointwise control inside the matched complete boundary</td><td><strong>{float(issue22_reference["selectedCandidate"]["geometricPointwiseToSerial"]):.3f}×</strong> isolated pointwise time and <strong>{float(issue22_reference["selectedCandidate"]["geometricTotalToSerial"]):.3f}×</strong> complete time.</td><td>Freeze one eight-worker M4 policy. Pointwise is now about 9%–11% of total; defer pointwise-to-FFT fusion and move the frozen tuple into the portable campaign.</td></tr>
           <tr><th scope="row"><a href="../experiments/issue-024-retained-inverse-zero-fill/index.html">Inverse zero-fill and embedding</a></th><td>Active-column reset, compact preserved input, and full-stride preserved input versus the frozen contiguous full-zero control</td><td>The nearest candidate is <strong>{float(issue24_inverse["candidates"][3]["geometricInverseBoundaryToControl"]):.3f}×</strong> inverse and <strong>{float(issue24_inverse["candidates"][3]["geometricTotalToControl"]):.3f}×</strong> total; no alternative advances.</td><td>Keep the existing contiguous clear and in-place column inverse. The zero-fill is documented movement, but removing it does not speed the complete boundary.</td></tr>
+          <tr><th scope="row"><a href="../experiments/issue-025-wvm-native-layout-optimization/index.html">Optimized WVM-native boundary</a></th><td>Direct FFTW field views plus spatial-static-8 versus the issue #19 WVM-native extraction/scatter control</td><td><strong>{float(issue25_final["geometricRatio"]):.3f}×</strong> complete time ({float(issue25_interval["lower"]):.3f}×–{float(issue25_interval["upper"]):.3f}×), with a worst workload of {float(issue25_final["maximumProfileRatio"]):.3f}×.</td><td>Keep native WVM input/output storage without paying for materialized spectrum extraction and target scatter. This is the MATLAB-plus-compiled-core finalist.</td></tr>
         </tbody>
       </table></div>
-      <p class="method-note">The M1 Max campaign predates the direct-family-view increment. Cross-Mac portability therefore applies to the underlying streaming tile-16 graph; the latest direct-view improvement is currently an M4 Max result and must be replicated after integration.</p>
+      <p class="method-note">The M1 Max campaign predates the issue #21 and issue #25 direct-view increments. Cross-Mac portability therefore applies to the underlying streaming tile-16 graph; the latest direct-view improvements are currently M4 Max results and must be replicated through the portable issue #23 campaign.</p>
     </section>
     {pointwise_advection_reference_synthesis(issue22_reference, "../")}
+    {wvm_native_layout_optimization_synthesis(bundles, issue25_wvm_native).replace('../../', '../')}
     {retained_inverse_zero_fill_synthesis(issue24_inverse, "../")}
     <section class="section" aria-labelledby="alternatives-heading">
       <p class="eyebrow">Qualified alternatives and negative evidence</p><h2 id="alternatives-heading">What we are not carrying forward</h2>
@@ -7947,7 +8180,7 @@ def build_summary_page(
       <div class="summary-grid">
         <section class="summary-card"><p class="eyebrow">Established</p><p class="summary-value">Correct spectral operator</p><p>Authoritative WVM fixtures, four fields, mode-keyed outputs, errors near 10<sup>−15</sup>, fixed placement, and zero warmed application allocations.</p></section>
         <section class="summary-card"><p class="eyebrow">Not yet established</p><p class="summary-value">Complete WVM execution</p><p>No full nonlinear-flux, MATLAB/MEX boundary, phase assembly, tendency accumulation, timestep, state management, or I/O claim has been made.</p></section>
-        <section class="summary-card"><p class="eyebrow">Next decision</p><p class="summary-value">Opt-in WVM core</p><p>Implement both the WVM-native reference and fused streaming candidate behind one production-shaped interface before considering a default change.</p></section>
+        <section class="summary-card"><p class="eyebrow">Next decision</p><p class="summary-value">Portable tuning contract</p><p>Carry both frozen graphs and their hardware knobs into issue #23 before moving WVM transforms behind a compiled-core interface.</p></section>
       </div>
       <ol>
         <li>Build an opt-in C++ nonlinear spectral-flux core in the WVM authoring repository, retaining the existing WVM-native path as the reference implementation.</li>
@@ -7955,7 +8188,7 @@ def build_summary_page(
         <li>Run the four-field 256², 512², 1024², and feasible deep-vertical cases on the M4 Max; then repeat the integrated finalist on the M1 Max.</li>
         <li>Change no production default until the real integrated boundary clears the correctness, 10% improvement, regression, confidence, memory, and cross-Mac gates.</li>
       </ol>
-      <p><a href="../artifacts/decisions/issue-011-cross-mac-portability.json">Cross-Mac synthesis JSON</a> · <a href="../artifacts/decisions/issue-019-authoritative-reference-lyra-v1.json">Production-lifetime reference JSON</a> · <a href="../artifacts/decisions/issue-021-fused-vertical-views-lyra-v1.json">Direct-view reference JSON</a> · <a href="../artifacts/decisions/issue-024-retained-inverse-zero-fill-screen-lyra-v1.json">Inverse zero-fill screen JSON</a></p>
+      <p><a href="../artifacts/decisions/issue-011-cross-mac-portability.json">Cross-Mac synthesis JSON</a> · <a href="../artifacts/decisions/issue-019-authoritative-reference-lyra-v1.json">Production-lifetime reference JSON</a> · <a href="../artifacts/decisions/issue-021-fused-vertical-views-lyra-v1.json">Direct-view reference JSON</a> · <a href="../artifacts/decisions/issue-025-wvm-native-layout-reference-lyra-v1.json">WVM-native reference JSON</a> · <a href="../artifacts/decisions/issue-024-retained-inverse-zero-fill-screen-lyra-v1.json">Inverse zero-fill screen JSON</a></p>
     </section>
     """
     return shell("Algorithms and results", content, "../")
@@ -8105,6 +8338,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue21_fused_views_evidence = None
     issue22_pointwise_evidence = None
     issue24_inverse_evidence = None
+    issue25_wvm_native_evidence = None
     if decision_artifacts.is_dir():
         output_decisions = output_dir / "artifacts" / "decisions"
         output_decisions.mkdir()
@@ -8201,6 +8435,20 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #24 inverse zero-fill screen has the wrong schema"
                 )
+        wvm_native_path = (
+            decision_artifacts /
+            "issue-025-wvm-native-layout-reference-lyra-v1.json"
+        )
+        if wvm_native_path.is_file():
+            issue25_wvm_native_evidence = json.loads(
+                wvm_native_path.read_text(encoding="utf-8")
+            )
+            if issue25_wvm_native_evidence.get("schema") != (
+                "spectral-kernel-wvm-native-layout-optimization-analysis-v1"
+            ):
+                raise ValueError(
+                    "issue #25 WVM-native reference has the wrong schema"
+                )
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     write_page(output_dir / "index.html", build_index(catalog, bundles))
     write_page(
@@ -8208,7 +8456,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
         build_summary_page(
             bundles, cross_mac_synthesis, issue19_reference_evidence,
             issue21_fused_views_evidence, issue22_pointwise_evidence,
-            issue24_inverse_evidence,
+            issue24_inverse_evidence, issue25_wvm_native_evidence,
         ),
     )
 
@@ -8239,6 +8487,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 issue21_fused_views_evidence,
                 issue22_pointwise_evidence,
                 issue24_inverse_evidence,
+                issue25_wvm_native_evidence,
             ),
         )
     write_page(

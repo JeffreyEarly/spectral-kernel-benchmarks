@@ -329,6 +329,18 @@ python3 tools/run_authoritative_spectral_flux_reference.py \
   --output results/local/<reference-campaign>
 ```
 
+Issue #25 keeps the issue #19 WVM-native modal boundary but removes its materialized horizontal bridge. `wvm-direct-strided-field-views` plans FFTW directly against each wave-f or wave-g field's native frequency stride. Its inverse consumes the reconstructed spectrum as a single-use intermediate; caller-owned modal inputs remain unchanged. Forward transforms write each target directly into its WVM-native family slot. The campaign holds horizontal outer-12 and vertical outer-dynamic-16 fixed, then measures the frozen control, pointwise-only, direct-view-only, and combined `wvm-native-optimized-v1` rungs so the gains remain attributable:
+
+```sh
+python3 tools/run_wvm_native_layout_optimization.py \
+  --phase screen \
+  --fixture wvm-current-256-nz129-f4=/path/to/prepared-256.bin \
+  --fixture wvm-current-512-nz257-f4=/path/to/prepared-512.bin \
+  --fixture wvm-large-1024-nz129-f4=/path/to/prepared-1024.bin
+```
+
+The screen must pass before the same executable can run the balanced three-round reference phase. The 512-squared/Nz=513 workload remains in the evidence matrix as a capacity result; it is never silently resized. This benchmark selects a MATLAB-compatible WVM-native graph, not the compact compiled-state graph, and leaves machine-local worker tuning to issue #23.
+
 The runner reuses the exact clean executable calibrated on that machine, rotates candidate and profile order, and collects three warmups plus 21 samples in each isolated timing process. It runs memory-only workers separately, verifies the authoritative fixture and WVM commit on every observation, and never reuses calibration or preliminary samples. After three balanced rounds it adds rounds four and five only when the preregistered stability or decision-boundary triggers fire. The analysis reports raw component medians and setup independently from the authoritative uninstrumented total, applies the 0.90 geometric adoption gate and 1.03 worst-profile guardrail, and keeps deep-workload capacity exclusions visible. Passing this benchmark gate advances the graph only to a later WVM integration experiment; it does not implement the complete nonlinear flux or authorize a WVM source change.
 
 Issue #21 first tests whether the dominant issue #19 representation charge can be removed before writing a new GEMM microkernel. The frozen control materializes five three-field compact split arrays between the vertical inverse providers and the pruned inverse FFT, then materializes four compact targets before vertical projection. The direct-family-view candidate instead lets the pruned inverse read the exact wave-f/wave-g split outputs through per-field mode strides and lets the pruned forward write the wave-f/wave-g projection inputs directly. The transpose remains inside the provider's existing persistent horizontal worker pool; the intermediate 3+1 split buffers and their serial extraction/scatter are elided. FFT arithmetic, vertical dgemm arithmetic, matrices, scheduling, workloads, streamed lifetime, and oracle remain fixed.

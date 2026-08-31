@@ -32748,6 +32748,1446 @@
         "samplesSha256": "e150d3f06014b031f91f5740bae4a2b74a17b45af0159d41a953d7849cda72a6"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260831T003518Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003518Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T003518Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "06a1555eea60afa93a58ff61383ea78efae4774437a1976328039360650a471d",
+        "samplesSha256": "75ca3e45ee93606e3f34b3ff39b070cb5517e45a9a12816c2cbcb4f5e4a0d713"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T003539Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003539Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T003539Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "354fe56a010c8dce441185ce12566d2b27619e56ca9625350bec1ee5d4b5ab70",
+        "samplesSha256": "b41164c96fbc46df4e49f4e7e6444402e1e412b7855ada372fb066ce2b21157b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T003558Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003558Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T003558Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "09efb567b6dc2f0fe8ebd855ca897567c46696a939887477e83de91bcf400625",
+        "samplesSha256": "026b0fcf313100b2d41a76844a1cbc0a576b0e534d2ecaf29411b3bed730fda9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T003606Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003606Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T003606Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "ae52058e09594d0a2d65cbd9a47a7fd2fcb622186422707c091071bcb74ab70c",
+        "samplesSha256": "891bc599fbbd4a10ef6fb74a42bb28f3edf73c9cadce7d15e7e58dc3ccec6d8b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T003617Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003617Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T003617Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "3814a18444a2c05f5367e72716518299175f5f70a4407bd9349b0117b698a076",
+        "samplesSha256": "1d3119ece5f1ed8cea3775389c30810f0b1c1c92fbb1c51811402205c93727b8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T003859Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T003859Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T003859Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "13e7ed296ef072dda733ee3d03bd3cc27648dbd8ff8c76fb2331789e8f13ed58",
+        "samplesSha256": "c99b177478609a7918d780516990376586725c231c6ce8e91b0a6ba7661d0592"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T004024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T004024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T004024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "a0ade527e774f81cba72fbef5902bd9fb75c9fd9752f702ed70d074b27313e06",
+        "samplesSha256": "129e4336eda91bec2783025f22a80ccd952dbd66c18a9c0c683c05b95b1eec7c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T004143Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T004143Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T004143Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "32c275caef491b0ac673399251badd96d288666dd7123049e5d15bd5f0f248b4",
+        "samplesSha256": "7a2df23a83e3644fc113ab6591c1e82f9ebf431165a725cf22a2d45ac3062886"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T004432Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T004432Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T004432Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "a4b69b3122eca4c09d8c4b1c04682ccf648c46870ec4a14fc5480591102a8ca8",
+        "samplesSha256": "0a341c85a38ad1083876717cf59f17ef851d2c84de4e9b79704523513cec50b2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T004653Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T004653Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T004653Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "deb9cb22d531b3d93e80bb1cf133b31f0b6c0986f439ca1295d367a697357d1a",
+        "samplesSha256": "d9d69376159b1c514edc32744d4197380056e28faf01d959fb44937ba5672ea3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T004857Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T004857Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T004857Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "493d9454cc4698fdbdfde414da82d51acbab35b91bf530e4825a988128a4102c",
+        "samplesSha256": "845811a115d1e45ba66416bb36d51fc408132e902db640e72542023d6d36437c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T010208Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T010208Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T010208Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "e5517bf89d2506672ba6d8d9f570cba999677f5bde99ae72ad84d5d3034e75ec",
+        "samplesSha256": "f749059d1f7709ac8d7380a932830f5032694f92552be670e7a1096bc3bf84b9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T011529Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T011529Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T011529Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "2f4d7c5e54e5427bd82a4ccb15ad5b8a1a6cfa00c6af78124f5d223ac10570da",
+        "samplesSha256": "7f6d0d3b62974f64c0597b2a5e0ef845080a55ca6133ddbeb5f5c2099f6b5149"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T011812Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T011812Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T011812Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "1e9477a3f375249cbc947c1d8b4eb03eab9ee8e3e643d3a51b03ba31970e104b",
+        "samplesSha256": "1bcbf3c037170ca704b165e2faa4cc8d25dd37eb66c9dcee712c0f7462673aca"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T011937Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T011937Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T011937Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "750af179d0c49ca23630716b624fb38288c2a1c0a8f25563735051cd9bbadb74",
+        "samplesSha256": "f09410a44459a5524bf94ab3317a50116c6bcb07e5e359abd05254f021c28f07"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T012057Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T012057Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T012057Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "dc2a186b2050b815176987ef09454b1a40e8a0d36f3b21981fff86380ce9102a",
+        "samplesSha256": "0b624acc178a610624a2f65baa3b292836107308ee08a9ebfaa2f01413d5a5d6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T012347Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T012347Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T012347Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "7823e1b274548d88cc1a267c8012e702c27a1097ec0203c5702ffbae457adf08",
+        "samplesSha256": "2a96c873f54332a2dacbf93b685092c952c9ff0a703730c9f9d099e6628dffff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T012607Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T012607Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T012607Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "cc52d638f3c9eb94e443da5859e79e62b6cc143a6358030e5ccf58b5f248bcc4",
+        "samplesSha256": "eeee73b35845aaf78cdd91d3da8743b550af361ec6b714532a460d4e6d5b3522"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T012816Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T012816Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T012816Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "1a3f37f6954da07842a5182207ae60dd515b30afd26643a1a3b74d93af8f1dbd",
+        "samplesSha256": "4b3289a05433335346ae4ca6fd5efb57c3304d7f6851c4422410c4be2b1563ec"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T014133Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T014133Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T014133Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "47645c1dbf4348cecdbfa1befdfea2bda0cf778bebd1ffc8a267996612708ab6",
+        "samplesSha256": "53c4037399abf3e67bbbcff912cea62396acbf74dc6708f14b0244c36da24c45"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015438Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015438Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T015438Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "074d2c34816df34d8c8cf98afcd3188d489ee7a45f1df6dc5139b8b8ae5038e9",
+        "samplesSha256": "0499475614f08c1964095d7c1d931adbdecb4541df1cf06d4649c6b3d314178d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015445Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015445Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T015445Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "5c0d6d8cc0cbdb1ca9878cdcef5ee1f8458e6347b0306a2203eeb2577531a568",
+        "samplesSha256": "ca13d2bc8289e74103ef99e0b42c89aab130b799efd93cd814e2a1458d99e47f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015505Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015505Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T015505Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "cbfe7aef387354a44d89b88f8105e0dc7f702b8084f8b9d8a30d0538d179a89b",
+        "samplesSha256": "f05b5837db014f701abf012335a62d59e65cd6ff2fe0a0a32d5384afc9e6ba94"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015526Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 2,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015526Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T015526Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "8748d2bfaef67fed109e3827bc54134b8f519c3fd24f9ff7fa32a2f9c16d608c",
+        "samplesSha256": "0765f9a30d0a00fed7c5c310c056c693983e5e98aad205e8647c79ee9cd319a0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015537Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015537Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T015537Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "f183d51f4e9857b3e0b94c4d044e5f7673f5cb92a6b72639595c9705d5c74975",
+        "samplesSha256": "49be7d02b2871765a6c3c8c5f041de32774b25597d13cb6ae93272e27172e48b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T015757Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T015757Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T015757Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "fbeef24648c06d4ffd49b6c825bade15f9135ccb7bdfdfc49004c715c48b2f04",
+        "samplesSha256": "10d3ffe011eaecf4e1ebad055dfba83cc7bacce986f01bb6e3a38ab78cc8a6c7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T020007Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T020007Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T020007Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "9904cd88df1d3259a79f36d79f0a06e44042f47fee6753295a27b2fb9c7a7178",
+        "samplesSha256": "f0d611293f7352f65c2c002c5dee3c41824b0b4707dd6e4e551498c6007c2051"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T021329Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T021329Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T021329Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "6ff41787b1d7298f7b061530e79b35b39be8fa76a319cf626d2849b03419f3ad",
+        "samplesSha256": "8dea4001e510cac18c4661d531ab95db340fcf0ebf6ce70ff702afd24819471a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T022629Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T022629Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T022629Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "94fa682518e7d42c4046e3eb591ead87e3053e3fded0366e4dcd257edc750e8d",
+        "samplesSha256": "1b4697f90bd140f0cbce1f7876c9065bdda6f52d834bf39d39ff5af5731ae891"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T022637Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T022637Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T022637Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "4426319197b1f01ecf543af49e7cd08eb21b07fde0646a1efd52789740d40867",
+        "samplesSha256": "497a5603868e5cc0ee7747f1bc9fcd45d44ab2d2753297585dc7cde629476832"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T022657Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T022657Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T022657Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "f7c7e8a67ebe220589b158be48252ceded39cb3166f65447347761a264a96992",
+        "samplesSha256": "bf09e34f1da92a8d47728f050886d7732b9006ebdf8dd1ca1ba2328560f51577"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T022717Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T022717Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T022717Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "9d41b862f6bbd1fb3f5bed2205334b467ed6742392d47307ddf5be3f8a4d4dd9",
+        "samplesSha256": "9e4a5e2449c59692a7c4ccdd4786f8f3c7827df29ef6207b703e0fc6a0216e95"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T022729Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T022729Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T022729Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "f90e6e35b6ee28743fbe68c4027fbb2848c6c4905358545a8e744632d840eb9e",
+        "samplesSha256": "e6fecb555cd3fdb25725cde91ccb7304d64579f0158da2af3b1736ea5f670ca4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023017Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023017Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023017Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "123d0e31abbc08229b0f8fb7f738a036726a82ff8c533a7fc7dcf8b7edbfee47",
+        "samplesSha256": "af1bb6506227da65b41f41f050d31bb27a0736a711eb25ed3ee23aa6c00dc89a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023300Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023300Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T023300Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "76130ad87fe879e459e9a7bd4693206563eb27fa212668bc02c6d4e56ddc1c07",
+        "samplesSha256": "1bbb23a32a993d94c3b90999b8c83c60fc0e4b65b9a3267f9b635f3157f5d1ec"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023425Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "reference",
+      "campaignRound": 3,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Balanced M4 Max issue #25 reference: three rotated 21-sample rounds for the frozen control, pointwise-only, direct-view-only, and combined WVM-native finalist; all correctness, provenance, placement, allocation, and decision gates pass.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023425Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023425Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "e8c7b5b7d6e36e6a1151cc9c43b0cbef6ca2431bbb063f8f3c55d29b57768893",
+        "samplesSha256": "7ceb2382ed52b348772964c04839f2fd4f5546ccc74f004304d97846196e4e63"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023541Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023541Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T023541Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "a9de044f32940bfcf7beef8d46cc941436bf42de6330da9daebb2d9a46136558",
+        "samplesSha256": "b6b98fdec57463a9abf0da15e10e74eee6ee4fb949dd24dec859f8b288f37a60"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023544Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023544Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023544Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "090bf409e02a5db6c768ca749d9bcb0119a317a791994b43d2f9f378218d1889",
+        "samplesSha256": "f947d55d9e31b0bd80dbd60d9052db3d50f12156658c7140b2ea80808e16b9ea"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023547Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023547Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T023547Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "5799ba2f72dd4c63101de4e93eee586c4fe6a2d2076893b534b5c4c8bcde1b3a",
+        "samplesSha256": "7e75dcbd41f4e577725c13677862738097832f9d6618a948751bc8dd3167814c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023549Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023549Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023549Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "29a141cdff740da8efe7eee7446bb0e2f7c640459efb79ae3271e55a1157ae7d",
+        "samplesSha256": "bcc7e4e30a60a0e749d6d6584450b685fd6165cf036fcdc46f381250a788a24a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023554Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023554Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023554Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "a3b03ae52827fa5bae7f86dd0b0c9b96e264099f5aa76a8cd8309bc6c57d9d25",
+        "samplesSha256": "25143c3fed6e054ae982653a105d95c398180dd601606e9263b185d7ccd78523"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023621Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023621Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T023621Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "7688ea84c720a197001cdccf1249b58152cec340dd722600766fef0d8aeb30dd",
+        "samplesSha256": "fd2c5b57b4af6a9617c0d763170fefa4b0bb638938c7e43647ed53564c11a46d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023641Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023641Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023641Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "c34955ec7e762a3ec65e1a6e2e14cfa3ee47f64cabe80ec758c55521ef9c1de8",
+        "samplesSha256": "dfe545d06d015ed033687b35f89449041d7ce1ec8595357d8c643fa1dcd30b3d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023659Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023659Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T023659Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "5c9dda74ea2b2efdec41da9e4135a1cc438914882028e9f64af07423c68369f7",
+        "samplesSha256": "bbe601481071f1b8027f6cb8d108f5fae1f0d04f2257fba57571a9d6d9c0a13f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023728Z-issue25-authoritative-wvm-direct-strided-field-views-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-strided-views-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023728Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/result.json",
+        "samples": "runs/20260831T023728Z-issue25-authoritative-wvm-direct-strided-field-views-lyra/samples.csv",
+        "resultSha256": "24510973d5b379564a3bc299560cd2bd09dfe7c4f098976e1092b725e477e638",
+        "samplesSha256": "7a6e9193a750999dde31a3b5338e25b767f5782fb4aac029e36064cbaa0ac40d"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023807Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-optimized-v1",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023807Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T023807Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "41841e0225cc78f85f25c72b50a90a9dd724a2b2a52f8f89b25a7e5e62d69e65",
+        "samplesSha256": "b9f82976a091a34d4f77c89fc727f5717e3a61b48046f228df797d11e39ee564"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T023843Z-issue19-authoritative-wvm-direct-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-issue19-control",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T023843Z-issue19-authoritative-wvm-direct-lyra/result.json",
+        "samples": "runs/20260831T023843Z-issue19-authoritative-wvm-direct-lyra/samples.csv",
+        "resultSha256": "dabfaca3226222212ba871607f978aca4e1d9695797f33ad1f8b367f30d1f098",
+        "samplesSha256": "7875d47de5364f412b7f8ad7922c5ac4d3981122a8e88a63995db21a9a392a12"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T024024Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra",
+      "incrementId": "wvm-native-strided-field-views-v1",
+      "campaignPhase": "memory",
+      "campaignRound": 1,
+      "campaignCandidateId": "wvm-native-pointwise-only",
+      "status": "reference",
+      "statusReason": "Isolated M4 Max issue #25 memory cohort for the complete four-rung WVM-native reference; deep Nz=513 remains a separately published capacity exclusion in the synthesis.",
+      "summary": "Apple M4 Max float64 1024 by 1024, Nz=129, fields=4 using full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        25
+      ],
+      "experiments": [
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T024024Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T024024Z-issue22-authoritative-wvm-direct-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "5b7ee46997df3ca508a4b2d44edd0582f0eca4b3d0ba3500f9167e54895974c2",
+        "samplesSha256": "b0c20d8732d91e049af15323d9d8041b99ff3fe8154575b8721860f621680fcc"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -33544,6 +34984,49 @@
         "FFTW preservation capability and stale-mode correctness",
         "algorithm-resident, inverse scratch, estimated-peak, and observed memory",
         "allocation verification and reference-advance disposition"
+      ]
+    },
+    {
+      "id": "issue-025-wvm-native-layout-optimization",
+      "issue": 25,
+      "phase": "complete",
+      "title": "WVM-native layout optimization",
+      "question": "How much of the compact pipeline's performance advantage can be recovered while preserving WVM-native persistent input and output storage?",
+      "baseline": "Use the authoritative issue #19 wvm-direct graph with its full frequency-major interleaved FFTW bridge, exact WVM wave-f and wave-g vertical operators, production-lifetime four-target boundary, and fixed M4 schedule.",
+      "priorExperiments": [
+        "issue-019-production-lifetime-spectral-flux-composition",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization"
+      ],
+      "downstreamIssues": [
+        23
+      ],
+      "definition": {
+        "unitOfWork": "Begin with 15 caller-owned WVM-native retained modal fields; reconstruct shared U,V,W once; stream four three-derivative pointwise targets; and return four caller-owned WVM-native retained modal targets through the exact wave-f and wave-g vertical operators.",
+        "candidates": "The frozen issue #19 WVM-native control, pointwise spatial-static-8 alone, native family-stride FFTW field views alone, and their combined wvm-native-optimized-v1 finalist. The field-view inverse destructively consumes only single-use reconstructed intermediates; caller modal inputs remain preserved.",
+        "workloads": "Authoritative Float64 four-field WVM fixtures at 256 squared/Nz=129, 512 squared/Nz=257, and 1024 squared/Nz=129, plus an explicit 512 squared/Nz=513 capacity result.",
+        "controlledVariables": "Logical 15-to-4 operator, WVM fixture and oracle, persistent modal input/output representation, normalization, FFTW 3.3.11 build and planning, exact vertical matrices, horizontal outer-12, vertical outer-dynamic-16, antialiasing, target lifetime, allocation policy, and one graph across sizes.",
+        "changedVariables": "Materialized three-field extraction and one-field scatter versus direct FFTW plans using each WVM family frequency stride, followed by serial versus frozen spatial-static-8 pointwise execution.",
+        "timedBoundary": "Ready WVM-native modal inputs through vertical reconstruction, five three-field inverse horizontal batches, four pointwise expressions, four forward horizontal transforms, vertical projection, required movement, and ready WVM-native modal outputs. The uninstrumented total is authoritative and components are diagnostic.",
+        "excludedWork": "Complete nonlinear-flux coefficient assembly, phase evolution, MATLAB or MEX dispatch, model state, time integration, I/O, fixture loading, planning, oracle comparison, compact persistent caller state, constant-stratification specialization, and hardware worker tuning.",
+        "allocationPolicy": "All vertical providers, FFTW plans, worker pools, WVM-native arrays, and real work volumes are persistent. Warmed execution performs zero application allocations; persistent, scratch, estimated-peak, observed, and capacity memory remain separate."
+      },
+      "correctness": {
+        "oracle": "Use the exact versioned WVM-exported inputs, family maps, vertical operators, mode keys, conventions, and four expected modal targets. Also verify arbitrary native strides, target order, caller modal-input preservation, DC reality, Hermitian boundaries, and destructive intermediate lifetime.",
+        "tolerance": "Float64 maximum scale-normalized and relative-L2 errors at most 1e-12.",
+        "capabilityHandling": "Unsupported native strides, compact-only pruning, allocation failure, correctness failure, memory regression, negative timing, and capacity exclusion remain visible. No silent staging, fallback, workload substitution, or size-dependent dispatch is permitted.",
+        "canSupport": "Selection of one WVM-native algorithm for MATLAB plus compiled-core integration and identification of its hardware worker knobs for issue #23.",
+        "cannotSupport": "Selection of the compact compiled-state algorithm, complete WVM nonlinear-flux or MATLAB dispatch performance, constant stratification, Float32, or a general-Mac worker policy."
+      },
+      "requiredTables": [
+        "four-rung complete-call attribution and paired inference",
+        "raw inverse and forward horizontal FFT",
+        "raw inverse and forward vertical GEMM",
+        "pointwise physical-space work",
+        "materialized versus elided WVM-order movement",
+        "persistent, scratch, estimated-peak, observed, and capacity memory",
+        "correctness, allocation, placement, input lifetime, and scheduling",
+        "WVM-native integration contract and issue #23 tunable parameters"
       ]
     }
   ]

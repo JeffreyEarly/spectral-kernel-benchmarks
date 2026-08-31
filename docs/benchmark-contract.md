@@ -258,6 +258,22 @@ The first increment uses a deterministic synthetic fixture only to validate the 
 
 Both paths are out-of-place at their public boundary and reuse all application-owned storage. Accelerate may lazily reserve opaque internal state during setup warmup; this remains distinct from application allocation and is covered by the opaque-provider-memory ledger. The allocator interposer verifies that every component and the complete composition perform zero application allocations after that warmup.
 
+## WVM-native strided field views
+
+Issue #25 preserves the issue #19 caller contract: persistent inputs and outputs remain complex-interleaved WVM modal arrays partitioned into the exact wave-f and wave-g operator families during setup. It changes only the internal horizontal boundary. The materialized control copies three native spectrum fields into one contiguous FFT batch before each inverse transform and scatters each forward target from a contiguous batch into its native family. The direct-view candidate instead gives FFTW one logical field at a time with native strides
+
+\[
+s_z = 1, \qquad s_{k_x} = N_zN_f, \qquad s_{k_y} = N_zN_f(N_x/2+1),
+\]
+
+where \(N_f\) is the number of fields in that wave-f or wave-g family. Outer workers still shard the \(z\) planes. Three logical fields share one persistent dispatch for each inverse batch, and each forward target writes directly to its final family field.
+
+Multidimensional FFTW complex-to-real execution may overwrite its spectrum input. The candidate permits that mutation only for reconstructed physical-spectrum intermediates whose mathematical lifetime ends at the transform. The caller-owned modal input is independently checked after every complete composition and must remain unchanged. Component timing restores reconstructed fields outside the timed interval before repeatedly sampling a destructive inverse; the complete uninstrumented timing needs no preservation copy because vertical reconstruction begins every call.
+
+The issue #25 campaign measures four coherent rungs: the frozen issue #19 control, the issue #22 pointwise policy alone, native strided field views alone, and both changes combined. Raw horizontal transforms, raw vertical matrix multiplication, pointwise work, movement, setup, memory, and the complete total remain separate. A direct-view run marks extraction/scatter as `elided` with zero executions and zero bytes rather than assigning a fabricated duration.
+
+Existing pruned horizontal implementations require a compact split representation. They are not silently relabeled as layout-neutral WVM-native views: any use from a WVM interleaved boundary would require and charge an additional staging algorithm. Issue #25 therefore records native-destination pruning as unsupported by the validated provider set and retains the compact pipeline as a separate finalist.
+
 ## Scope boundary
 
 This repository benchmarks primitives and composed spectral-operator graphs. It does not duplicate WVM's equations, nonlinear flux implementation, time integration, state management, or output system. A later WVM integration benchmark will validate any selected provider/layout tuple inside the production nonlinear calculation.

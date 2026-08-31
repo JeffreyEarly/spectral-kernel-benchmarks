@@ -65,6 +65,7 @@ class BuildSiteTests(unittest.TestCase):
             issue_21_page = output / "experiments" / "issue-021-fused-small-grouped-gemm" / "index.html"
             issue_22_page = output / "experiments" / "issue-022-pointwise-advection-optimization" / "index.html"
             issue_24_page = output / "experiments" / "issue-024-retained-inverse-zero-fill" / "index.html"
+            issue_25_page = output / "experiments" / "issue-025-wvm-native-layout-optimization" / "index.html"
             methods_page = output / "methods" / "operators-and-representations" / "index.html"
             fixture_methods_page = output / "methods" / "wvm-spectral-flux-fixture" / "index.html"
             constant_type1_methods_page = output / "methods" / "wvm-constant-stratification-type1" / "index.html"
@@ -97,12 +98,13 @@ class BuildSiteTests(unittest.TestCase):
                 output / "artifacts" / "decisions" /
                 "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
             )
+            issue_25_reference_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-025-wvm-native-layout-reference-lyra-v1.json"
+            )
 
             self.assertIn("Which spectral kernels are actually fastest?", index)
             self.assertIn("preliminary", index)
-            self.assertIn("Coefficient assembly", index)
-            self.assertIn("Composed total", index)
-            self.assertIn("dealiased four-field convolution", index)
             self.assertIn("functional-core candidate", index)
             self.assertIn("Read the algorithm and results summary", index)
             self.assertTrue(legacy_page.is_file())
@@ -126,6 +128,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_21_page.is_file())
             self.assertTrue(issue_22_page.is_file())
             self.assertTrue(issue_24_page.is_file())
+            self.assertTrue(issue_25_page.is_file())
             self.assertTrue(methods_page.is_file())
             self.assertTrue(fixture_methods_page.is_file())
             self.assertTrue(constant_type1_methods_page.is_file())
@@ -138,6 +141,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_21_reference_artifact.is_file())
             self.assertTrue(issue_22_reference_artifact.is_file())
             self.assertTrue(issue_24_screen_artifact.is_file())
+            self.assertTrue(issue_25_reference_artifact.is_file())
             summary_html = summary_page.read_text(encoding="utf-8")
             self.assertIn("From FFT primitives to a functional-core candidate", summary_html)
             self.assertIn("Ready to implement does not mean ready to adopt", summary_html)
@@ -156,7 +160,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("0.902× explicit FFTW", summary_html)
             self.assertIn("Custom grouped GEMM", summary_html)
             self.assertIn("What “functional-core candidate” means", summary_html)
-            self.assertIn("Opt-in WVM core", summary_html)
+            self.assertIn("Portable tuning contract", summary_html)
             self.assertIn("No full nonlinear-flux", summary_html)
             self.assertIn("Where the selected pipeline spends its time", summary_html)
             self.assertIn("spatial-static-8", summary_html)
@@ -172,6 +176,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("Keep the contiguous full-zero inverse preparation", summary_html)
             self.assertIn("1.025×", summary_html)
             self.assertIn("1.004×", summary_html)
+            self.assertIn("Direct native-family FFTW views remove the WVM bridge", summary_html)
+            self.assertIn("Issue #23 handoff", summary_html)
+            self.assertIn("Component ledger", summary_html)
+            self.assertIn("Raw inverse vertical MM", summary_html)
+            self.assertIn("WVM extraction/scatter", summary_html)
             issue_22_html = issue_22_page.read_text(encoding="utf-8")
             self.assertIn("Experiment · issue #22 · complete", issue_22_html)
             self.assertIn("45 permanent timing run pages", issue_22_html)
@@ -190,6 +199,16 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("full-stride-preserved-input", issue_24_html)
             self.assertIn("79.768 ms to 119.1 ms", issue_24_html)
             self.assertIn("no candidate advanced to reference depth", issue_24_html)
+            issue_25_html = issue_25_page.read_text(encoding="utf-8")
+            self.assertIn("Experiment · issue #25 · complete", issue_25_html)
+            self.assertIn("four-rung attribution campaign", issue_25_html)
+            self.assertIn("Direct native-family FFTW views remove the WVM bridge", issue_25_html)
+            self.assertIn("wvm-native-optimized-v1", issue_25_html)
+            self.assertIn("No gather, transpose, split/interleaved conversion", issue_25_html)
+            self.assertIn("Issue #23 handoff", issue_25_html)
+            self.assertIn("native-destination pruning is recorded as unsupported", issue_25_html)
+            self.assertIn("Component ledger", issue_25_html)
+            self.assertIn("zero executions", issue_25_html)
             issue_20_html = issue_20_page.read_text(encoding="utf-8")
             self.assertIn("Experiment · issue #20 · collecting", issue_20_html)
             self.assertIn("15 inverse type-I channels", issue_20_html)

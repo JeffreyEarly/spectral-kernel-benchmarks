@@ -1,0 +1,478 @@
+{
+  "schema": "spectral-kernel-wvm-native-layout-optimization-analysis-v1",
+  "experimentId": "issue-025-wvm-native-layout-optimization",
+  "incrementId": "wvm-native-strided-field-views-v1",
+  "phase": "reference",
+  "classification": "reference",
+  "machine": {
+    "hostname": "lyra.ad.nwra.com",
+    "cpuBrand": "Apple M4 Max",
+    "hardwareModel": "Mac16,9",
+    "performanceCores": 12,
+    "efficiencyCores": 4,
+    "totalPhysicalCores": 16,
+    "physicalMemoryBytes": 137438953472,
+    "macOS": "26.6.1",
+    "macOSBuild": "25G76",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "cmake": "cmake version 3.31.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "power": "AC Power:\n Sleep On Power Button 1\n autorestartatconnect 0\n lowpowermode         0\n standby              0\n ttyskeepawake        1\n powernap             1\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n autorestart          1\n disksleep            10",
+    "threadEnvironment": {
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "benchmarkExecutableCommit": "e08fbc4d609f3c950c5a588deeff4af9c1df9a43",
+  "waveVortexModelCommit": "6ad254fb9756ac918bb72e036020d004879df1f2",
+  "frozenTopology": {
+    "horizontalWorkers": 12,
+    "verticalSchedule": "outer-dynamic",
+    "verticalWorkers": 16,
+    "pointwiseWorkers": 8
+  },
+  "completeMatchedMatrix": true,
+  "allCorrectWithin1e12": true,
+  "maximumCorrectnessError": 1.2332263086749762e-15,
+  "comparisons": {
+    "pointwiseOnlyVsControl": {
+      "numerator": "wvm-native-pointwise-only",
+      "denominator": "wvm-native-issue19-control",
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.301406291,
+          "denominatorMedianSeconds": 0.3111715,
+          "medianRatio": 0.9705576791407897,
+          "roundRatios": [
+            0.9705576791407897,
+            0.9658449737414375,
+            0.9772966836615822
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.9658449737414375,
+            "upper": 0.9772966836615822
+          }
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 2.495970125,
+          "denominatorMedianSeconds": 2.603995667,
+          "medianRatio": 0.95851546783699,
+          "roundRatios": [
+            0.9543489037707578,
+            0.95851546783699,
+            0.9635150576505327
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.9543489037707578,
+            "upper": 0.9635150576505327
+          }
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 23.793129459,
+          "denominatorMedianSeconds": 24.043818416,
+          "medianRatio": 0.9890068261859727,
+          "roundRatios": [
+            0.9924557898394808,
+            0.9890068261859727,
+            0.9844966245160265
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.9844966245160265,
+            "upper": 0.9924557898394808
+          }
+        }
+      ],
+      "geometricRatio": 0.9726126675293583,
+      "maximumProfileRatio": 0.9890068261859727,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.9681506577197865,
+        "upper": 0.9776844330446395
+      },
+      "complete": true
+    },
+    "stridedViewsOnlyVsControl": {
+      "numerator": "wvm-native-strided-views-only",
+      "denominator": "wvm-native-issue19-control",
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.108595041,
+          "denominatorMedianSeconds": 0.3111715,
+          "medianRatio": 0.35052696021325863,
+          "roundRatios": [
+            0.3527136176519829,
+            0.34677204539600937,
+            0.35052696021325863
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.34677204539600937,
+            "upper": 0.3527136176519829
+          }
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 1.100077291,
+          "denominatorMedianSeconds": 2.603995667,
+          "medianRatio": 0.4231409220326094,
+          "roundRatios": [
+            0.42185051992951245,
+            0.43057224104052244,
+            0.4231409220326094
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.42185051992951245,
+            "upper": 0.43057224104052244
+          }
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 1.833854625,
+          "denominatorMedianSeconds": 24.043818416,
+          "medianRatio": 0.07588004307195846,
+          "roundRatios": [
+            0.07466506025475479,
+            0.07647094264264052,
+            0.07588004307195846
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.07466506025475479,
+            "upper": 0.07647094264264052
+          }
+        }
+      ],
+      "geometricRatio": 0.22410145409017923,
+      "maximumProfileRatio": 0.4231409220326094,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.2218741446964602,
+        "upper": 0.22645829480750757
+      },
+      "complete": true
+    },
+    "optimizedVsControl": {
+      "numerator": "wvm-native-optimized-v1",
+      "denominator": "wvm-native-issue19-control",
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.094861667,
+          "denominatorMedianSeconds": 0.3111715,
+          "medianRatio": 0.3081080078423445,
+          "roundRatios": [
+            0.3081080078423445,
+            0.3014876570136258,
+            0.314429235967947
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.3014876570136258,
+            "upper": 0.314429235967947
+          }
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.996044041,
+          "denominatorMedianSeconds": 2.603995667,
+          "medianRatio": 0.3831248925343248,
+          "roundRatios": [
+            0.38182059228787474,
+            0.38379925000082576,
+            0.3831248925343248
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.38182059228787474,
+            "upper": 0.38379925000082576
+          }
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 1.639482584,
+          "denominatorMedianSeconds": 24.043818416,
+          "medianRatio": 0.06793619718276422,
+          "roundRatios": [
+            0.06579255199232803,
+            0.0681872802245505,
+            0.06793619718276422
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.06579255199232803,
+            "upper": 0.0681872802245505
+          }
+        }
+      ],
+      "geometricRatio": 0.20016195292702557,
+      "maximumProfileRatio": 0.3831248925343248,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.19638208742690977,
+        "upper": 0.20188782848282488
+      },
+      "complete": true
+    },
+    "pointwiseMarginalAfterViews": {
+      "numerator": "wvm-native-optimized-v1",
+      "denominator": "wvm-native-strided-views-only",
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.094861667,
+          "denominatorMedianSeconds": 0.108595041,
+          "medianRatio": 0.8735359011467199,
+          "roundRatios": [
+            0.8735359011467199,
+            0.8694116524569637,
+            0.8970186937308616
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.8694116524569637,
+            "upper": 0.8970186937308616
+          }
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.996044041,
+          "denominatorMedianSeconds": 1.100077291,
+          "medianRatio": 0.9051087393507863,
+          "roundRatios": [
+            0.9051087393507863,
+            0.8913701660686139,
+            0.9054309630322147
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.8913701660686139,
+            "upper": 0.9054309630322147
+          }
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 1.639482584,
+          "denominatorMedianSeconds": 1.833854625,
+          "medianRatio": 0.8916756857987125,
+          "roundRatios": [
+            0.8811692077639254,
+            0.8916756857987125,
+            0.895310472061001
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.8811692077639254,
+            "upper": 0.895310472061001
+          }
+        }
+      ],
+      "geometricRatio": 0.8900125837623872,
+      "maximumProfileRatio": 0.9051087393507863,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.8806046095101062,
+        "upper": 0.8992425186515355
+      },
+      "complete": true
+    },
+    "viewsMarginalAfterPointwise": {
+      "numerator": "wvm-native-optimized-v1",
+      "denominator": "wvm-native-pointwise-only",
+      "profiles": [
+        {
+          "profile": "wvm-current-256-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.094861667,
+          "denominatorMedianSeconds": 0.301406291,
+          "medianRatio": 0.3174546082774851,
+          "roundRatios": [
+            0.3174546082774851,
+            0.31214911834736725,
+            0.3217336569585939
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.31214911834736725,
+            "upper": 0.3217336569585939
+          }
+        },
+        {
+          "profile": "wvm-current-512-nz257-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 0.996044041,
+          "denominatorMedianSeconds": 2.495970125,
+          "medianRatio": 0.40008490687132503,
+          "roundRatios": [
+            0.40008490687132503,
+            0.40041007461978334,
+            0.3976324910464288
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.3976324910464288,
+            "upper": 0.40041007461978334
+          }
+        },
+        {
+          "profile": "wvm-large-1024-nz129-f4",
+          "rounds": [
+            1,
+            2,
+            3
+          ],
+          "numeratorMedianSeconds": 1.639482584,
+          "denominatorMedianSeconds": 23.793129459,
+          "medianRatio": 0.06894520686728665,
+          "roundRatios": [
+            0.06629267788640668,
+            0.06894520686728665,
+            0.0690060234753586
+          ],
+          "empiricalPairedRange": {
+            "lower": 0.06629267788640668,
+            "upper": 0.0690060234753586
+          }
+        }
+      ],
+      "geometricRatio": 0.20611643753482395,
+      "maximumProfileRatio": 0.40008490687132503,
+      "empiricalStratifiedPairedRange": {
+        "lower": 0.20188459443577125,
+        "upper": 0.20715535499590396
+      },
+      "complete": true
+    }
+  },
+  "memoryEvidenceComplete": true,
+  "memoryFinalistToControl": {
+    "persistentBytes": 1.0000000050434565,
+    "scratchBytes": 0.6353110495999742,
+    "algorithmResidentBytes": 0.9510240776297971,
+    "estimatedProcessPeakBytes": 0.9510240776297971,
+    "observedProcessHighWaterBytes": 0.9756235431084095
+  },
+  "deepCapacityExclusions": [
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "wvm-native-issue19-control",
+      "status": "capacity-exclusion",
+      "requiredPhysicalMemoryBytes": 243158866308,
+      "physicalMemoryBytes": 137438953472,
+      "elidedBridgeBytes": 0,
+      "reason": "the conservative issue #19 vertical-operator construction peak still exceeds physical memory after charging the exact direct-view bridge saving"
+    },
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "wvm-native-pointwise-only",
+      "status": "capacity-exclusion",
+      "requiredPhysicalMemoryBytes": 243158866308,
+      "physicalMemoryBytes": 137438953472,
+      "elidedBridgeBytes": 0,
+      "reason": "the conservative issue #19 vertical-operator construction peak still exceeds physical memory after charging the exact direct-view bridge saving"
+    },
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "wvm-native-strided-views-only",
+      "status": "capacity-exclusion",
+      "requiredPhysicalMemoryBytes": 238838700420,
+      "physicalMemoryBytes": 137438953472,
+      "elidedBridgeBytes": 4320165888,
+      "reason": "the conservative issue #19 vertical-operator construction peak still exceeds physical memory after charging the exact direct-view bridge saving"
+    },
+    {
+      "profile": "wvm-large-512-nz513-f4",
+      "candidateId": "wvm-native-optimized-v1",
+      "status": "capacity-exclusion",
+      "requiredPhysicalMemoryBytes": 238838700420,
+      "physicalMemoryBytes": 137438953472,
+      "elidedBridgeBytes": 4320165888,
+      "reason": "the conservative issue #19 vertical-operator construction peak still exceeds physical memory after charging the exact direct-view bridge saving"
+    }
+  ],
+  "allocationVerification": {
+    "command": [
+      "build/release/skbench_tests"
+    ],
+    "exitCode": 0,
+    "criterion": "two consecutive clean allocator-test processes",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 0,
+        "log": "allocation-verification-1.log"
+      },
+      {
+        "attempt": 2,
+        "exitCode": 0,
+        "log": "allocation-verification-2.log"
+      }
+    ],
+    "benchmarkExecutableCommit": "e08fbc4d609f3c950c5a588deeff4af9c1df9a43"
+  },
+  "screenAdvanceToReference": false,
+  "decision": {
+    "finalist": "wvm-native-optimized-v1",
+    "freezeWvmNativeOptimizedV1": true,
+    "onePolicyAcrossSizes": true,
+    "sizeDependentDispatch": false,
+    "nativePrunedDisposition": "not a layout-neutral increment: all validated pruned providers require compact split staging; a new native-interleaved pruned provider is deferred rather than silently charged as direct views",
+    "completeNonlinearFluxMeasured": false,
+    "hardwareWorkerTuningDeferredToIssue23": true
+  }
+}
