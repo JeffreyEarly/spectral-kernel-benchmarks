@@ -34188,6 +34188,3006 @@
         "samplesSha256": "b0c20d8732d91e049af15323d9d8041b99ff3fe8154575b8721860f621680fcc"
       },
       "legacyUrls": []
+    },
+    {
+      "id": "20260831T044932Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T044932Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T044932Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "e3e2841c27546ef13284d228a122fe124f3ecbc0df400eb468714bdab6aab220",
+        "samplesSha256": "57f7764bfd79eb1fc298655354ef3dbcc0a8f293609eea27cdc5aca3b5e6fb14"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T044939Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T044939Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T044939Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "4dc1d389ca41c6ac6b46c40ffe7e523e517185fb872c427b98e0e50551d69252",
+        "samplesSha256": "c54ce76ae7406939aeebb6accc05df3f06fd7c305a1f08fa12f30c87bb957e25"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045013Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045013Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045013Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "449e9e362091c70824792f2f54332532ed73bc07f83a658df651b90dc8c031a7",
+        "samplesSha256": "0c3837124f88e55d96e43d9d50deeb1947ede277a04007a9429e3e91706b1bb0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045024Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "09a82d79e7f2c8ea4ca918414c04dacd122c655943efa877356f4e0071a02375",
+        "samplesSha256": "687209c4c0359ba7bb944e970c8caa43ccbc06ab8715e16effac9e64ca318186"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045136Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045136Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045136Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "b056ffe90f443f76d56b31a7374ed87cfff055a81a54f2d4aa77b8aad6f53371",
+        "samplesSha256": "9efe12a1129ca69b6040f91a10eaeaccd82500c702f33ed4a97413dd124554c9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045145Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045145Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045145Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "4182a2b471bbbedcdbfb7084e1e097e99d7bc48a023a0f99fddf22b5ca51242f",
+        "samplesSha256": "0489eb97f7feaed40025999b8c47f3c06e929d149ba1b332c37258d701aca335"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045237Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045237Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045237Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "8205bcd18e83abbdae6c5e7b70bb0f3de7aaf65c1acb8e7e7ba370c8e7ec779f",
+        "samplesSha256": "edea6aabfcef5ddc4af43914631e42a4139db5d92fb30c33ae5bd747332163b4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045245Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045245Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045245Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "87a77b8fc4a310413eb7b376f955b730dcc6f7a9d050267f0492120ae75fa9d3",
+        "samplesSha256": "76ed646b092950c6c7fb2d4fb383b2b59dbde36a2abbe634b376fbf4d1ce9507"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045329Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045329Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045329Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "bb0f776329a00b71172b360c62fbd90b4bedf3a228723cc916ed7c92acedcd88",
+        "samplesSha256": "3d68def0e952d71789a6f0eb8930e947e95292fe666cc4484a8c0a34030ff4aa"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045336Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045336Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045336Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "d7e1d8971021cc382bac37754788df3fb047d647f9ce43842fa75c27e9fcf9f0",
+        "samplesSha256": "dc171c9110c3aae2b4f6aa62eb304899eea2d29ba4774e1afc808db15bfccc67"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045413Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045413Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045413Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "3cbfad6ca0f93737f6284adba61b35ab4b95c71c684a748c75554bb80657550c",
+        "samplesSha256": "2128160d07f7ccf5188cdb9d424173cc643154674a4695211dbd53091a5a29e3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045420Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045420Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045420Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "aa114ebc0e8773c72a6269e085d22768bffa43d4c8f4bdb23fd0336be9c2a884",
+        "samplesSha256": "757bdf0ac2715437e38f60df6284f61667cbc96c4ea6375803adbcb8db5fa9d7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045455Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "22deef2f1efbcbdf00bb12412d39493f5f924ab233c5aff808a48fbeda1636ff",
+        "samplesSha256": "b6dc0ca88be7ec81e75bbc2ca302f19d01001cddea1437d82fb57bbb9ae82dbf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045500Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045500Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045500Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "fb6cd5282974966ec223405f09d949496ddd72672316047079ff81a0be8c15f6",
+        "samplesSha256": "debd7d8f22354eed1d66a8b8e3f03593285d3289fcc4f9ddf570c3b684edb82a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045520Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045520Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045520Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "2298969a9ba1a7e7b4c511e8c7b64dcfc771efd55ee6fb42d597a24d41f205bb",
+        "samplesSha256": "29ceb74bf1e35b81a0df4291012e8f0b55cb4e4328c1208a9836a709a1b967c7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045528Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045528Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045528Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "ac22df5dc9c88924e8d0df885fe1029bcad684815b1f197459efec2f3b43a94b",
+        "samplesSha256": "cc3dd93d794d6eac2ec5ab969fb39dd2b165899f0e67bea85d9d57efba2229e6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045616Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045616Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045616Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "5e1a5f58bbe4fe73a37bcb488bf1be240412d10cacd3096f7b5f5966165d72ef",
+        "samplesSha256": "616d73f19850778232ca0cf8f4b839a46cb0d5d660847f5a18e368abcb416414"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045623Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045623Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045623Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "de44890b01a6d5920dd6b7fe1324deb90f0e9e5f94bd693c464b2ab3fb435f86",
+        "samplesSha256": "d2811b0205968e96684684a80dac5d7353b8a469b77700fca5a79c484e508577"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045704Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045704Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045704Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "4ba1ed078aa0ec01862c99477bbcf372caa0850b56a28c9d54b0d16ab54e4f49",
+        "samplesSha256": "c418c715ee0c4eeffd13360ac063bc345a6c0ba6a2d75660dec3894ceca302b5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045711Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045711Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045711Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "a46393698c0304a9cf290fa1dbb8ac4471ceb617efcaa1dbc7575988f97ce555",
+        "samplesSha256": "1289e3557f1cee574909e2e0179157cfc6423c02bc76491e174894fd89adb9f9"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045746Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045746Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045746Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "5e3f3b4b9d0390f29816956f32c18cb5c9d37466d96fa15dc918852ca34649a2",
+        "samplesSha256": "88d3a919fba2099e171c5c29ee93135baebc98ee0c87b69a46942fd55a1442dc"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045753Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045753Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T045753Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "81ad46642dcb05e641311497aa94f64922e2cc35f53cb74301b2b87f692de6aa",
+        "samplesSha256": "2407e11a21d108c58b92d45a00a4f2d7591fbf34f11d071e212477ac47f23d06"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045828Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045828Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra/result.json",
+        "samples": "runs/20260831T045828Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra/samples.csv",
+        "resultSha256": "d3c69b6f026919aa6c29954150c35513a53016a86ad2d0536de3bb4c4db18802",
+        "samplesSha256": "5ba3c51ec39fc2669fc6438993d1aa9cafea8e6b5a090233a200d881e6334743"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045835Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045835Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra/result.json",
+        "samples": "runs/20260831T045835Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-1-lyra/samples.csv",
+        "resultSha256": "96ba53322adb697c58e32bf5f78d0ab08ffd18caad4b26818e58bb0e1c6562b4",
+        "samplesSha256": "5b3c2842a6fd7da72a67af1dda5f3c946a50b4b2fd2b127ca998747d12fbfb47"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045911Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045911Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra/result.json",
+        "samples": "runs/20260831T045911Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra/samples.csv",
+        "resultSha256": "a03c5b7f8a35ccaf9a9de83c13177b18fd59c073a3ac8b6ecb4446a5371fc857",
+        "samplesSha256": "70f810ddc6e9b6f2450fdcbca4bacc64c5040504e7fdeabbb0b4d691808fa947"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045918Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045918Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra/result.json",
+        "samples": "runs/20260831T045918Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-2-lyra/samples.csv",
+        "resultSha256": "a30df77008e0b7f09e6add5751d694105c783ad56a1056a5f9f9ee598a83c485",
+        "samplesSha256": "19ebf345485b8cc04cb23cbe4f4c0cc1d67c3354823bc90998256d1a0934eaab"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T045954Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T045954Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T045954Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "e71ef1f7e77f658b98d7ca3d5ec31a572a4d8858da2581ff825e604a50f9840a",
+        "samplesSha256": "b666f5fd2c562bb7859ec75df71e0fa7d2878ef5852fd043b61b69f4bf77ebac"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050000Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050000Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T050000Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "b992a54c5faa854a9f827c727cf9e91f3b7bb5503810b65146a47c9c8043017e",
+        "samplesSha256": "886068ccacb9763aead362357d44cd611f2c3caf24fa09afe9664f3bcd602ee8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260831T050035Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "abb949175a9423bd223993f4cd1c2eadfbcebd9231224e05b5b413912ca09d18",
+        "samplesSha256": "f8a31fe1eb9644265fc0bb6e440f16772289f28c6f9082fb8cce52821bf21fba"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050042Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050042Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260831T050042Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "173e448bcd46a5d7d07d47036038dcc22545a8bacd98b4b7c81e3bbca3a65abd",
+        "samplesSha256": "e03af95dfe2048813c84e16364626299a87455c1cedf2c7a1b86a493e83853a4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050117Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050117Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T050117Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "61405ec3b9bc678ed5502f31ed4cc77ba7aae0014d1c56890259d3bdae9a676f",
+        "samplesSha256": "e2e796d74b9464c2a8ae8ead504156380eabb9f6f4bfc0348350f05ba6e9f4ae"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050124Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050124Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T050124Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "ad89d03bb37eebbd3fe30459de70784724db97d5c7cd50fb20b8ae2c3e99f880",
+        "samplesSha256": "3e4d806324d3b79baecb3419e8a2559e2ca4dfc1ec6a28f3f47a88425f590291"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050159Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050159Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050159Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "01eee87f3c055adae3439e8d13a551b3b2f6bbc1c8914654568303b5fbc91845",
+        "samplesSha256": "c4f4267ad484ff3bfc6bdcdb7ef7989589c6c35be2b560c81273498d52bd5188"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050205Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050205Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050205Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "b455340d79e55334bbad6cba78794a7e4b1455775cc036f76d19cd11e59e3dac",
+        "samplesSha256": "c70a0923cefd376697b3f99cd345ebaf6b89320e1670276da35978220fbea006"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050226Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050226Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050226Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "174ee5c001f6fe444b716bf78ec154ea2be1f613f3382f81a4accddc5976f632",
+        "samplesSha256": "5eaf7b00beab384940535f1bc790e18a1dd539c0a7d50ae9c2f75b19d0c160fe"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050238Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050238Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050238Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "aff765eb0391d895983cb1e8b70140ac331b072117659645883dde37984f5967",
+        "samplesSha256": "72fa1957bf7921834d1b8594eb44efd72a8e8674cac07213461c5b3b52498b70"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050357Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050357Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050357Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "84b87b08ca024039e7f5aa48165aa408212b859a23049ffdb0bf480a434f5108",
+        "samplesSha256": "46276fb00bdb04b14583f6cce5f4af71e2e3da844c30d91ae54a43880aa6d0f0"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050406Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050406Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050406Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "5bf5bb4bf00d90a1a961e71c371ba013a1e4ce2dfbbb6b2756abb217ae2fdd54",
+        "samplesSha256": "2563daaf813adab3b2496a37bc4bacaea9f4525a0388cbaee34be22a926fb9e7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050456Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "fdf78d706f84d3d919d470b49776c701000514b2a3c6e32e82ef8fb10d8c2f7c",
+        "samplesSha256": "9a3b8c563cbf2ff0ff41701df2ef4c8b2939edbcf6377ef43eb0c5660e6df446"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050503Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050503Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050503Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "aa79d64e2ea173e6bd1746bc3f9fa9eb9d294eb23c2c5b3b8a1cd89f1622757b",
+        "samplesSha256": "938748dccc26cfe9d35b5e275bf507f90e4604193754758513d35685c681d8be"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050536Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050536Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050536Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "90ce170d6c54a7a9190e090351197a7285c740c005da757c4e5f1365fbc86e90",
+        "samplesSha256": "427dbfcc4a9011855aae7d61f686225630e19d058a843d13947f3eda4905cede"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050542Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050542Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050542Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "9500e7a2edcccccbfc43063dbd642258e0234422621f1bacb9e8fac395aadcde",
+        "samplesSha256": "7889f2539bbeb5e824c9990381da4024de76c2039ff89a3d09346f3d026b09de"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050606Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050606Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050606Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "422d8d18a35b4fa0d280952437e631b8815a80b9841807a40573ce9dd709fe17",
+        "samplesSha256": "25637b3609a7619bde723f682a2b02aae9e8b99b04c8b880a5c0a46546cf15b3"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050611Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--gv16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050611Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050611Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "893c30616124a2f94c1e77bc2229e55d037ea7d4f81ed8b3eb9150239325458c",
+        "samplesSha256": "9a978ecfd0d2f4ab34d66f9230035e427ea6f9f27856784a9ec6c2a901015d88"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050633Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050633Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050633Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "6eb16809e86d97d888b105e2d4759d1572091b6bcf477b87d6d518277f66f5f0",
+        "samplesSha256": "6755c9d314599b17e1a5c815c106c755502860b80d43b7940d548c818064fca8"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050638Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050638Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050638Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "892f972df78cb7e03483b5a1b3c94ae05db22e1771190aea470f1ba6eccac242",
+        "samplesSha256": "c12d25c843d6b424d06f3549719874299b2a92cbc78bc0fb75df4dbee566fdcb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050656Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050656Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050656Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "362c0391d32338053a398a1a754a765d81cf102819f3de0c566fab303222c0e8",
+        "samplesSha256": "6b32ffe1860cd844af1002219836f8485130a5c9ea53a156f1dd5692f10d9032"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050702Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050702Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050702Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "91a3f3a61ceb6d20cdb4dcc3b63760ce486b504b9a0ebf63d8c683d84c5bae4a",
+        "samplesSha256": "47ae150de29f5e8580dfa8786a16afdd69568ced63077cea653dba6ed5929cda"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050727Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050727Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050727Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "6a8f83b24bcb6af20b200ebf9325974a8681301b26711666c22d8fad52430951",
+        "samplesSha256": "b29d74c2e1f0b571b5159add867da6a2f1521492396ed079ae9c6f92d1f9bbd2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050733Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050733Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050733Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "6c78015e8634505867d556cc8a04cfba2d1cf849ae8474ceef1d7ed440276888",
+        "samplesSha256": "e9f0c443f1238c4e9ffebed4ee97fd80ae772dd2b70510fdf8a48f8f2ca2f0fe"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050756Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050756Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050756Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "a2ac83ea03f1125b9265e7923ea3e2d0f68cba19fc8fbe80f9e9dc3efc391590",
+        "samplesSha256": "ab59487e52278a4110f74bee285324cf0a306a4179f45521872fa05dc7983b22"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050801Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050801Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050801Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "3303320f704132f9445709c3fd07768399388c501815d78f688cc4e12960dd2b",
+        "samplesSha256": "00346e4faa811134e3b6a69e2fdfb02febfa2d1009f53d5141b553e64e58c236"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050823Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050823Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050823Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "c7f50b5aa01834a7a784f5fe1055751ca48b235306a7843035c581c7dbd03e9e",
+        "samplesSha256": "a1c57dfc9c76c34943177e774b396e351149f8017ad5e78128583b759ce6a57c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050829Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050829Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/result.json",
+        "samples": "runs/20260831T050829Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra/samples.csv",
+        "resultSha256": "73ccae05b2287b65123901ce65b22072e57e4c46c809f125e64fe71eb10caa3c",
+        "samplesSha256": "662270cfccda1df787af38fef293d7a782480038e8d7d297e7f960559822c374"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050850Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050850Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra/result.json",
+        "samples": "runs/20260831T050850Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra/samples.csv",
+        "resultSha256": "adf4772d540d7b382dada49a69a0825e6fcdf97a0506ffa5731e5a4702b5eb2c",
+        "samplesSha256": "09a112e2b5254866abcb100e4c71d5074b881d9eedc6e73551d382220da71b89"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050856Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050856Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra/result.json",
+        "samples": "runs/20260831T050856Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-1-lyra/samples.csv",
+        "resultSha256": "9613dbdc991c6d2bef6447901a31ca99503d0b6800aa832dbbe0eb8be5487c0b",
+        "samplesSha256": "3fdcdcba4d5f9f085d7dc7951ac889d107e28d4ad67157dbe6896b53bf9f5470"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050919Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050919Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra/result.json",
+        "samples": "runs/20260831T050919Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra/samples.csv",
+        "resultSha256": "75c38db3a12038ed8adfd3c849b3cfff623597633f4f59c53d428a99e1b4fc46",
+        "samplesSha256": "79033441b7301824fae977a0ef5eca11112567283222c0d2064516bb34bae775"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050925Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050925Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra/result.json",
+        "samples": "runs/20260831T050925Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-2-lyra/samples.csv",
+        "resultSha256": "01387333623b930fe801965da676db6eeff6b743d780f5b0ad05bc1c2046c914",
+        "samplesSha256": "b0ade046709ad9ede2dcd82d0123edf7ccc8c4256c872f2c2199a1c4fb2d6a60"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050947Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050947Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T050947Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "fa7727341aacb2910305f531d71ba908655961a1a903fa3b9d44438ddcf56a07",
+        "samplesSha256": "1d661754779abe4edf0c630bc650264572470e848886fd637603a864a24c2361"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T050953Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T050953Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T050953Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "25125b10e49c8b71551243346950d0f997d5e42ea06972c50bd495318982c4b2",
+        "samplesSha256": "9e271830f76c40cfb12c211cecec5f85884e71f9e3a469431ffffb184675e28b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051014Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051014Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260831T051014Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "7e01e6acedafe4e53b6bc3833ef0056c5527effdfc570e0019a752c2c09e5ee5",
+        "samplesSha256": "b2aa572085c62fdc2ff47b213cf14455cd71bf7925751a32da10bda76ba621b5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051020Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051020Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/result.json",
+        "samples": "runs/20260831T051020Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-12-lyra/samples.csv",
+        "resultSha256": "f07afb6c4f860794047c2d056644e81a951f235f6c6fc89dfda0fa7e9003b344",
+        "samplesSha256": "ea58746c9d6e41102cc46c02ed31c037340406e545102f99504c5836ec83bf3c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T051041Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "271a9edd2a47169e212bba79eba671198c9af15bb7c765f12ac1d19655f42721",
+        "samplesSha256": "6e968b76280ed6544e54fe1ae9c88096196dd56c86aa594c2dbe4dbad37e88c4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051047Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051047Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T051047Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "fe367afce48f2f17d33f77e0775464b520e8ba1baadd9031423b2b4b9ae2ae9e",
+        "samplesSha256": "a29e430b38d1a762ccfc05cc642fe5f8af6fc83a8c2d865405691e20cbe921cb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051120Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051120Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051120Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "761631299566171d100242ed3f39cc8c6ae055e00d46d9553cfa824cbc899f13",
+        "samplesSha256": "1fde00ccfdb406f164b52fa22ae38c5867d82bc24c3dcd68983bba635cfd6311"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051219Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051219Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051219Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "df82e4df6e75083a01963b07510c2acf581dfdd9ca86fb2cc596653e6116d8d7",
+        "samplesSha256": "e9bb88dfcc821751402c7c18ca499d3f28b48f16b4ea53e46899f3c3cd2fc4b6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051247Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051247Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051247Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "92beea0ccc4c9aba732427e98bb85bda9c2f9eef93f75cfc6a0717138eba802c",
+        "samplesSha256": "1b34679b3976c03163485a99cc0570a2dd47363e4b075875ef1a36b126727b6b"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051512Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h1--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=1).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051512Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051512Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "cab81703a446e6e0949f3222fd75581f16a7c4b0bf9c5578de494b709a91f439",
+        "samplesSha256": "3c07480b165e56e308b8d3a9607725c95a02ccd4cd07a4b0c6dd51eeb6799ea4"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051534Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051534Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051534Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "d7df38a990584396fd16c31d75e16a3a4a15d7aa3164ce45b9132fc4899d7649",
+        "samplesSha256": "7c8e05828d50f21437dd75a1d4125433be08cbc9e6304989a365b94a5c51c949"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051709Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h2--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=2).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051709Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051709Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "99c24a0a045ab825ff281f1da2bffea6bcddd96c495f50d2962aecb967ba066d",
+        "samplesSha256": "f6bb378b996a01529394ddb3e60017c062447982c44acf4a88105e2d4c9b4040"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051729Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051729Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051729Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "8313172d183efbb5f3cd5436ebc6ea98f02e0e8c035c06bfb5ae7e6934e0b1c2",
+        "samplesSha256": "5be221f1b75f74cc6cc02de3e2569ad478725115b63c6aafa921a07e604a79c5"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051846Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h4--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=4).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051846Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051846Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "030694d4d316c584547d8eaaa7527cae49c75e12552d15715217c70477f7bee4",
+        "samplesSha256": "aaca31d543ca0a0ddca860b213d6bf0cafb4f5b9ce26d23ad7c29864dc65a788"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T051905Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T051905Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T051905Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "9261044d78c40e4e383d33a96823fa0584d21801fd9f5a6ecfed1b7c58f039aa",
+        "samplesSha256": "46516f0f0b366fdc58e7bc51d77758ba00ff919fd237044ba712dc85b30cac44"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052008Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h8--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=8).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052008Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052008Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "bdeb8b638f41ff2b459d1ca435a21d3c121058559309f1d7f290e536e87b35fa",
+        "samplesSha256": "0054f41dfedd225865304a1f0e63d661b9af3bc394930992218b882f6db3d8d7"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052026Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052026Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052026Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "c17a1110dcd7dcc5a81d96ec0393b494a96b1f456d285bab7f75fac2549233b9",
+        "samplesSha256": "07b6ddde69df9ad6b072a904a6a13a003f7d86e8462518b0a9b1c1777575d30a"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052125Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h16--ct16--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=16).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052125Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052125Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "ccb4730b8180fa337644d82a5c10afa6458ae2051a8f06220d8980b43c3ce8a3",
+        "samplesSha256": "f048086a175d2581aea017c3905c00b21d6b3b9e90abfdb44e017ff91915d33c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052141Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052141Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052141Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "b19e26d05ed66cda13d6d73b5720177c3b076fdb174a199d9c4777abd8b92415",
+        "samplesSha256": "baee85f981748ea5142f19e41a2c775bae49fc7ef104484ac5398400aed98d74"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052321Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct1--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052321Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052321Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "7a9d85d13a76ab74b8fcd973888da74ae296352b8cb71ad3f6cead26e68911b0",
+        "samplesSha256": "decd025e30948115467ee118ac2a4a9cb2fcec1bc4afe719a4273b9a0efdd08c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052334Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=2, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052334Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052334Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "7b4ae452d662251535c2ca2c27f1aaf4ca402977a9a327094182e2ee0353c455",
+        "samplesSha256": "59c65bd20070d09f9201962c01a8a532bb46f17fead996a41b7b574ee8ebedf6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052459Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct2--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=2, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052459Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052459Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "d518eb0d0c22517aa2634c928001e383a8a3fb5d8909e3722219ec48b0633718",
+        "samplesSha256": "4be8cbcbfb800401d76e7eb5eeaf1d7c0f3ab34bd210d1d4b6b1ddc9e0fca1bb"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052513Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=4, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052513Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052513Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "8dda15d96fee883a9be06d4e9f0b67688308a67e94452518d685e8c0608f7b0f",
+        "samplesSha256": "dba81074a0f7392f0622dafc069e1ce39d6edd34c9c9656ae4d33543e701ab6c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052615Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct4--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=4, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052615Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052615Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "efecfc1e789064ea923bf9e14e7d2fde54b5862f4949fa593a9573a5182613b9",
+        "samplesSha256": "d34b3a8fe479d3c1821a018b194a727dfde0bd8a414f5c2b5161d27334f22816"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052630Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=8, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052630Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052630Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "227c67b494f270a8bd0199f68ba731b680bc3cd1f2ecb3b7c85e87ac080bb16e",
+        "samplesSha256": "afe6bae80507efbbcbfe6145bfdd3ee5475343d716cbe7e387198898583f378c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052731Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct8--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=8, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052731Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052731Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "b16ce487c1373203b9e026c60111cd17f3c2f30b10db7e25ff86ac54df47458d",
+        "samplesSha256": "9326eefa164c0579a62b4af7b99cc7366e81cb6bdc534501fc641152a77a6709"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052749Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=12, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052749Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052749Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "ca86cc2d9ca0d24d18d086969ed19a0d17b1a2b40a739b7e04d8d3a4a4470869",
+        "samplesSha256": "eff05942eef66f39c534dc57cfc724f097a3b333e76cd3ebe528d79e452ee562"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052847Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct12--p8",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=12, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052847Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052847Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "2a5fc199007cddf3500b43f35f27b8fc47ba2083d6002960714d899c133217b7",
+        "samplesSha256": "9324cba5dd67b9f07118a1e327367ab19774d50c632174015c59b2e271622734"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T052906Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T052906Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T052906Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "74ad4abc3b8017690d52bd4d04ee247399b4480115d5a7652a6c3f9050e36713",
+        "samplesSha256": "1f0bc156da859d1e39d432b7a0b8243cb9a1d33901f2c6844260bf3a1874dbdf"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053009Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p1",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053009Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053009Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "e64431b1a37e1146722a8706da675e4e78ec6081e42fa5e538e8380f9ad3316e",
+        "samplesSha256": "c21e5df43279253001a8a32e92e7cda31df39614f42558d261976d1bd7f3f0e6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053026Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053026Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053026Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "3978ca85b86aa438747b3cdad04fb3480480e187856fbafe0a1e5ef3326e92a7",
+        "samplesSha256": "d28467a0d9d6830bebba153485dba7b0fe5597685b9e347e8361841bef13d48f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053127Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p2",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053127Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053127Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "39f3bc577422800a73e94aaa9d6955dd349dd009ea0aa53017238767e4873186",
+        "samplesSha256": "f48e348a1ac2070341394b64c88d14e5a01c7ec02d3248d135910de4a8bcebff"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053145Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053145Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053145Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "0c24e72b6959b62317d6ca2d1d3e5999b90cf3cba14324483752afefe489e2fa",
+        "samplesSha256": "81ca7e14557ec7061c25c515e90b05e6cf2910e1f2fd5c36e53d5483a149ac59"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053243Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053243Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053243Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "cf5082e64d96622a8cf66379bdb42ddc8ead9696a19a2d3f5777fc0e9477bdbf",
+        "samplesSha256": "4b3bcb2b530a2fb6bf6874ea88d3e033099b5b65d1914b1e496146a9ac2b5ab6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053301Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053301Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053301Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "c5d46d205d33dc23d9fda89bffd71e04e62c1b52ac6a5386d50aa73ac660e3e1",
+        "samplesSha256": "119a07d754bd724ab4602dfb56175356a7d466c85cfc287209bff74ad1982a2c"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053359Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p12",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053359Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053359Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "129ee306db0a99c1dde31a4b27c90f881969c963905bc5eb543b74242da9f58a",
+        "samplesSha256": "e98ec09184f486e773d7bd2db149f9005fd103dfa05a5d040e01a5c510e26a30"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053418Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053418Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053418Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "c7e52f5f3a34cf516e4267290b92d8dce7fe9e39cc0359bcb0a113865b6697be",
+        "samplesSha256": "89112bca4f68b150cfd99d930b1a057ca737d2b409f2105b5f5ecb7c91b8a266"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053514Z-issue20-constant-stratification-authoritative-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--ct16--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using compact-split-type1+partial-column-pruned-tile16+streamed-3-shared-3-derivative+pointwise-4-target+wvm-coefficients-v1 (internal=16, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053514Z-issue20-constant-stratification-authoritative-lyra/result.json",
+        "samples": "runs/20260831T053514Z-issue20-constant-stratification-authoritative-lyra/samples.csv",
+        "resultSha256": "4a5756aaf8f12f08b9c36c18ab245ece8bfa44944d0a04e42c424d4cf6f01c9c",
+        "samplesSha256": "6f75f3b1ec31b18fdfda88dec727b8a2c79142502495b7cab24bea96a9e632b6"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053518Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053518Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T053518Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "cea11002f5a2ca275492d42cd52d80af59a8ee4e021b29a06a59ddc3b7ad0148",
+        "samplesSha256": "2af0233d8d8556b7dbae2fa97fe0ba7e19552ba692dd28c0a11d391fc4b7f086"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053524Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p4",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053524Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/result.json",
+        "samples": "runs/20260831T053524Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra/samples.csv",
+        "resultSha256": "27d967e12ddfdc07e928ddf450c602b3e628a1866b429dec262ecf8c046c7c97",
+        "samplesSha256": "1d6836220454a4e59532c61680505fd30d5607bd1d39bb568afe93a49c01389f"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 256 by 256, Nz=129, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T053543Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "fce67031a5195b0f0b2e69c2bd097bf8f1dae0fdda3cf660a54cdb353a09fc58",
+        "samplesSha256": "cb7ec4f1f3aace452c34c892f63754c8ddc2c3147f397c6bf603b5f0bdab6ba2"
+      },
+      "legacyUrls": []
+    },
+    {
+      "id": "20260831T053549Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra",
+      "incrementId": "portable-machine-tuning-calibration-v1",
+      "campaignCandidateId": "h12--gv1--p16",
+      "status": "preliminary",
+      "statusReason": "Clean Lyra/M4 Max calibration; benchmark-local provisional defaults pending Matilda/M1 Max replication.",
+      "summary": "Apple M4 Max float64 512 by 512, Nz=257, fields=4 using partial-column-pruned-tile16+direct-split-family-views+streamed-3-shared-3-derivative+split-wvm-fg-k2-15to4-v3+pointwise-spatial-static-v1 (internal=1, outer=12).",
+      "issues": [
+        23
+      ],
+      "experiments": [
+        "issue-023-portable-tuning-reference-campaign"
+      ],
+      "priorExperiments": [
+        "issue-009-combined-spectral-pipeline",
+        "issue-020-constant-stratification-type1",
+        "issue-021-fused-small-grouped-gemm",
+        "issue-022-pointwise-advection-optimization",
+        "issue-025-wvm-native-layout-optimization"
+      ],
+      "supersedes": [],
+      "grandfathered": false,
+      "artifacts": {
+        "result": "runs/20260831T053549Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/result.json",
+        "samples": "runs/20260831T053549Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-16-lyra/samples.csv",
+        "resultSha256": "a440b73903ef8be4a2fb76859eead9756422a1bb70288be609718e4baf8bb5c0",
+        "samplesSha256": "137d334342c7760e84a7e9ede5f7184f1ca72a23571d0e6c7cf7c91f66ddad27"
+      },
+      "legacyUrls": []
     }
   ],
   "experiments": [
@@ -34947,7 +37947,7 @@
     {
       "id": "issue-023-portable-tuning-reference-campaign",
       "issue": 23,
-      "phase": "planned",
+      "phase": "collecting",
       "title": "Portable benchmark tuning and WVM integration handoff",
       "question": "Can the three frozen implementations expose reproducible benchmark-local worker defaults on the named M1 Max and M4 Max machines without claiming production-optimal WVM settings?",
       "baseline": "Use each implementation's frozen worker tuple as its portable seed, then change only topology-derived stage-local worker counts across the two calibration workloads.",

@@ -22,7 +22,9 @@ from run_vertical_gemm_sweep import git_source_state
 
 
 EXPERIMENT_ID = "issue-023-portable-tuning-reference-campaign"
+INCREMENT_ID = "portable-machine-tuning-calibration-v1"
 SCHEMA = "spectral-kernel-machine-tuning-v1"
+PUBLICATION_SCHEMA = "spectral-kernel-machine-tuning-publication-v1"
 CLASSIFICATION = "preliminary"
 INTENDED_USE = "benchmark-local-provisional-default"
 PROFILES = (
@@ -661,6 +663,7 @@ def manifest_template(
     return {
         "schema": SCHEMA,
         "experimentId": EXPERIMENT_ID,
+        "incrementId": INCREMENT_ID,
         "classification": CLASSIFICATION,
         "intendedUse": INTENDED_USE,
         "productionValidated": False,
@@ -1065,6 +1068,117 @@ def command_validate(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def publication_summary(manifest: dict) -> dict:
+    errors = validate_manifest(manifest)
+    if errors:
+        raise ValueError("; ".join(errors))
+    selections = manifest.get("analysis", {}).get("selections", {})
+    run_lookup = {
+        (run.get("implementationId"), run.get("candidateId"), run.get("profile")): run
+        for run in manifest.get("runs", [])
+    }
+    implementation_rows: list[dict] = []
+    for contract in manifest.get("implementations", []):
+        implementation_id = contract["id"]
+        selection = selections.get(implementation_id)
+        if not isinstance(selection, dict) or not isinstance(
+            selection.get("selected"), dict
+        ):
+            raise ValueError(f"missing selection for {implementation_id}")
+        candidates: list[dict] = []
+        for candidate in selection.get("candidates", []):
+            profiles: list[dict] = []
+            for profile in candidate.get("profiles", []):
+                run = run_lookup.get((
+                    implementation_id, candidate.get("candidateId"),
+                    profile.get("profile"),
+                ))
+                profiles.append({
+                    **profile,
+                    **({"runId": run["runId"]} if run and run.get("runId") else {}),
+                })
+            candidates.append({**candidate, "profiles": profiles})
+        selected_id = selection["selected"]["candidateId"]
+        selected = next(
+            (candidate for candidate in candidates
+             if candidate["candidateId"] == selected_id), None,
+        )
+        if selected is None:
+            raise ValueError(f"selected candidate is absent for {implementation_id}")
+        seed_id = manifest["candidateMatrix"][implementation_id][0]["id"]
+        seed = next(
+            (candidate for candidate in candidates
+             if candidate["candidateId"] == seed_id), None,
+        )
+        if seed is None:
+            raise ValueError(f"portable seed is absent for {implementation_id}")
+        implementation_rows.append({
+            "id": implementation_id,
+            "mathematicalBoundary": contract["mathematical_boundary"],
+            "representation": contract["representation"],
+            "knobs": contract["knobs"],
+            "portableSeed": seed,
+            "selected": selected,
+            "seedToSelectedSpeedup": (
+                float(seed["geometricSeconds"]) /
+                float(selected["geometricSeconds"])
+            ),
+            "candidateTrace": candidates,
+            "intendedUse": selection["intendedUse"],
+            "productionValidated": selection["productionValidated"],
+        })
+    return {
+        "schema": PUBLICATION_SCHEMA,
+        "experimentId": EXPERIMENT_ID,
+        "incrementId": manifest.get("incrementId", INCREMENT_ID),
+        "publicationStatus": CLASSIFICATION,
+        "statusReason": (
+            "Clean M4 Max calibration evidence; provisional until the same frozen "
+            "campaign is replicated on Matilda/M1 Max."
+        ),
+        "intendedUse": INTENDED_USE,
+        "productionValidated": False,
+        "createdAtUtc": manifest.get("createdAtUtc"),
+        "machine": manifest["machine"],
+        "identity": {
+            "sourceTreeGitCommit": manifest["identity"]["sourceTreeGitCommit"],
+            "sourceTreeDirty": manifest["identity"]["sourceTreeDirty"],
+            "executableSha256": manifest["identity"]["executableSha256"],
+            "implementationContractHashes": manifest["identity"][
+                "implementationContractHashes"
+            ],
+            "fixtureHashes": manifest["identity"]["fixtureHashes"],
+            "compatibilityHash": manifest["compatibilityHash"],
+        },
+        "campaign": {
+            "profiles": manifest["profiles"],
+            "warmups": manifest["warmups"],
+            "samples": manifest["samples"],
+            "runCount": len(manifest.get("runs", [])),
+            "validRunCount": sum(
+                run.get("valid") is True for run in manifest.get("runs", [])
+            ),
+            "candidatePolicy": manifest["candidatePolicy"],
+            "selectionRule": manifest["analysis"]["selectionRule"],
+            "threadEnvironment": manifest["threadEnvironment"],
+        },
+        "implementations": implementation_rows,
+        "interpretation": (
+            "These are benchmark-local provisional worker defaults for this named "
+            "M4 Max. They do not claim production-optimal WVM settings or a "
+            "general-Mac default."
+        ),
+    }
+
+
+def command_summarize(arguments: argparse.Namespace) -> int:
+    manifest = load_json(arguments.manifest.expanduser().resolve())
+    summary = publication_summary(manifest)
+    write_json_atomic(arguments.output.expanduser().resolve(), summary)
+    print(f"publication summary={arguments.output.expanduser().resolve()}")
+    return 0
+
+
 def command_compare(arguments: argparse.Namespace) -> int:
     manifests = [load_json(path.expanduser().resolve()) for path in arguments.manifest]
     for manifest in manifests:
@@ -1118,6 +1232,11 @@ def parser() -> argparse.ArgumentParser:
     validate = subparsers.add_parser("validate")
     validate.add_argument("--manifest", type=Path, required=True)
     validate.set_defaults(handler=command_validate)
+
+    summarize = subparsers.add_parser("summarize")
+    summarize.add_argument("--manifest", type=Path, required=True)
+    summarize.add_argument("--output", type=Path, required=True)
+    summarize.set_defaults(handler=command_summarize)
 
     compare = subparsers.add_parser("compare")
     compare.add_argument("manifest", nargs="+", type=Path)

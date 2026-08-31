@@ -7444,6 +7444,84 @@ def wvm_native_layout_optimization_synthesis(
     """
 
 
+def portable_machine_tuning_synthesis(evidence: dict | None) -> str:
+    if evidence is None:
+        return ""
+    names = {
+        "wvm-native-optimized-v1": "WVM-native general",
+        "compact-general-fused-views-v1": "Compact general",
+        "compact-constant-type1-v1": "Compact constant stratification",
+    }
+    selected_rows: list[str] = []
+    trace_rows: list[str] = []
+    for implementation in evidence["implementations"]:
+        implementation_id = implementation["id"]
+        label = names.get(implementation_id, implementation_id)
+        selected = implementation["selected"]
+        profile_cells = {item["profile"]: item for item in selected["profiles"]}
+        selected_rows.append(
+            "<tr>"
+            f'<th scope="row">{escaped(label)}</th>'
+            f'<td><code>{escaped(selected["candidateId"])}</code></td>'
+            f'<td>{escaped(", ".join(f"{key}={value}" for key, value in selected["workers"].items()))}</td>'
+            f'<td class="numeric">{float(implementation["seedToSelectedSpeedup"]):.3f}×</td>'
+            f'<td class="numeric">{format_ms(float(profile_cells["wvm-current-256-nz129-f4"]["seconds"]))}</td>'
+            f'<td class="numeric">{format_ms(float(profile_cells["wvm-current-512-nz257-f4"]["seconds"]))}</td>'
+            f'<td class="numeric">{format_bytes(int(selected["maximumAlgorithmResidentBytes"]))}</td>'
+            f'<td class="numeric">{max(float(item["maximumCorrectnessError"]) for item in selected["profiles"]):.3e}</td>'
+            "</tr>"
+        )
+        selected_seconds = float(selected["geometricSeconds"])
+        for candidate in implementation["candidateTrace"]:
+            profile_links: list[str] = []
+            for profile in candidate.get("profiles", []):
+                run_id = profile.get("runId")
+                formatted = format_ms(float(profile["seconds"]))
+                profile_links.append(
+                    f'<a href="../../runs/{quote(run_id)}/index.html">{formatted}</a>'
+                    if run_id else formatted
+                )
+            selected_marker = (
+                ' <span class="status reference">selected</span>'
+                if candidate["candidateId"] == selected["candidateId"] else ""
+            )
+            trace_rows.append(
+                "<tr>"
+                f'<th scope="row">{escaped(label)}</th>'
+                f'<td><code>{escaped(candidate["candidateId"])}</code>{selected_marker}</td>'
+                f'<td>{escaped(", ".join(f"{key}={value}" for key, value in candidate["workers"].items()))}</td>'
+                f'<td class="numeric">{float(candidate["geometricSeconds"]) / selected_seconds:.3f}×</td>'
+                f'<td class="numeric">{profile_links[0] if profile_links else "—"}</td>'
+                f'<td class="numeric">{profile_links[1] if len(profile_links) > 1 else "—"}</td>'
+                f'<td class="numeric">{format_bytes(int(candidate["maximumAlgorithmResidentBytes"]))}</td>'
+                f'<td>{"valid" if candidate.get("valid") else "ineligible"}</td>'
+                "</tr>"
+            )
+    campaign = evidence["campaign"]
+    machine = evidence["machine"]
+    return f"""
+    <section class="evidence-callout">
+      <p class="eyebrow">Lyra calibration · preliminary</p>
+      <h3>One clean M4 Max worker calibration</h3>
+      <p>This campaign keeps each mathematical boundary, provider, layout, tile width, allocation policy, and authoritative fixture fixed. It changes only stage-local worker counts derived from the machine topology: {int(machine['performanceCores'])} performance cores, {int(machine['efficiencyCores'])} efficiency cores, and {int(machine['totalPhysicalCores'])} physical cores. One tuple must cover both calibration sizes; size-dependent dispatch is prohibited.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Selected benchmark-local tuples. Speedup is the portable seed divided by the selected geometric-mean total. Component timings remain available on each run page and are not used as the selection score.</caption>
+        <thead><tr><th scope="col">Implementation</th><th scope="col">Selected tuple</th><th scope="col">Workers</th><th scope="col">Seed speedup</th><th scope="col">256² / N<sub>z</sub>=129</th><th scope="col">512² / N<sub>z</sub>=257</th><th scope="col">Max resident</th><th scope="col">Max error</th></tr></thead>
+        <tbody>{''.join(selected_rows)}</tbody>
+      </table></div>
+      <p>The score is geometric-mean complete-call time across the two workloads. Candidates within {100.0 * (float(campaign['selectionRule']['nearFastestFactor']) - 1.0):.1f}% of the fastest are resolved by fewer total workers, then lower resident memory, then deterministic candidate order. This intentionally avoids treating measurement noise as a reason to consume more cores.</p>
+      <h3>Complete candidate trace</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>All {int(campaign['runCount'])} immutable process records: two workloads for every one-factor or combined-neighborhood candidate. Ratio is candidate geometric time divided by the selected time within the same implementation.</caption>
+        <thead><tr><th scope="col">Implementation</th><th scope="col">Candidate</th><th scope="col">Workers</th><th scope="col">Ratio to selected</th><th scope="col">256²</th><th scope="col">512²</th><th scope="col">Max resident</th><th scope="col">Eligibility</th></tr></thead>
+        <tbody>{''.join(trace_rows)}</tbody>
+      </table></div>
+      <p class="method-note"><strong>Interpretation limit:</strong> {escaped(evidence['interpretation'])} The compact general and WVM-native general paths remain separate integration choices, and the constant-stratification type-I path remains a separate mathematical implementation.</p>
+      <p><a href="../../artifacts/decisions/issue-023-portable-machine-tuning-lyra-v1.json">Download the compact M4 calibration and selection trace JSON</a>.</p>
+    </section>
+    """
+
+
 def build_experiment_page(
     experiment: dict, bundles: list[PublishedBundle],
     issue19_scaleout_evidence: dict | None = None,
@@ -7453,6 +7531,7 @@ def build_experiment_page(
     issue22_pointwise_evidence: dict | None = None,
     issue24_inverse_evidence: dict | None = None,
     issue25_wvm_native_evidence: dict | None = None,
+    issue23_tuning_evidence: dict | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -7517,6 +7596,16 @@ def build_experiment_page(
             f"permanent timing run pages and {memory_reference_count} isolated-memory "
             "run pages for the four-rung attribution campaign."
         )
+    if (
+        experiment_id == "issue-023-portable-tuning-reference-campaign"
+        and issue23_tuning_evidence is not None
+    ):
+        campaign = issue23_tuning_evidence["campaign"]
+        evidence_statement = (
+            f"The clean Lyra/M4 Max calibration publishes {int(campaign['runCount'])} "
+            "permanent candidate run pages and one compact selection trace. "
+            "The evidence remains preliminary until Matilda/M1 Max replication."
+        )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
         authoritative_count = sum(
             bundle.publication.get("incrementId") ==
@@ -7571,6 +7660,8 @@ def build_experiment_page(
         synthesis = wvm_native_layout_optimization_synthesis(
             related, issue25_wvm_native_evidence,
         )
+    elif experiment_id == "issue-023-portable-tuning-reference-campaign":
+        synthesis = portable_machine_tuning_synthesis(issue23_tuning_evidence)
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
@@ -8337,6 +8428,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue19_reference_evidence = None
     issue21_fused_views_evidence = None
     issue22_pointwise_evidence = None
+    issue23_tuning_evidence = None
     issue24_inverse_evidence = None
     issue25_wvm_native_evidence = None
     if decision_artifacts.is_dir():
@@ -8420,6 +8512,20 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 raise ValueError(
                     "issue #22 pointwise reference has the wrong schema"
                 )
+        tuning_path = (
+            decision_artifacts /
+            "issue-023-portable-machine-tuning-lyra-v1.json"
+        )
+        if tuning_path.is_file():
+            issue23_tuning_evidence = json.loads(
+                tuning_path.read_text(encoding="utf-8")
+            )
+            if issue23_tuning_evidence.get("schema") != (
+                "spectral-kernel-machine-tuning-publication-v1"
+            ):
+                raise ValueError(
+                    "issue #23 portable machine tuning has the wrong schema"
+                )
         inverse_path = (
             decision_artifacts /
             "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
@@ -8488,6 +8594,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 issue22_pointwise_evidence,
                 issue24_inverse_evidence,
                 issue25_wvm_native_evidence,
+                issue23_tuning_evidence,
             ),
         )
     write_page(

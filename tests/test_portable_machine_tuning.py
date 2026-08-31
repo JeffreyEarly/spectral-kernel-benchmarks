@@ -232,6 +232,88 @@ class PortableMachineTuningTests(unittest.TestCase):
             self.assertEqual(0, completed.returncode, completed.stderr)
             self.assertIn("Prepared 1 immutable bundle", completed.stdout)
 
+    def test_publication_summary_preserves_trace_and_run_links(self) -> None:
+        contracts = [portable.contract_record(item)
+                     for item in portable.implementations()]
+        candidate_matrix = {}
+        selections = {}
+        runs = []
+        for contract in contracts:
+            implementation = portable.implementation_named(contract["id"])
+            seed = portable.portable_seed(8, 10)
+            workers = seed.applicable(implementation)
+            candidate_id = portable.tuple_identifier(implementation, seed)
+            candidate_matrix[implementation.id] = [{
+                "id": candidate_id,
+                "workers": workers,
+                "phase": "one-factor-screen",
+            }]
+            profiles = []
+            for profile in portable.PROFILES:
+                run_id = f"run-{implementation.id}-{profile}"
+                profiles.append({
+                    "profile": profile,
+                    "seconds": 1.0,
+                    "maximumCorrectnessError": 1.0e-15,
+                })
+                runs.append({
+                    "id": run_id,
+                    "implementationId": implementation.id,
+                    "candidateId": candidate_id,
+                    "profile": profile,
+                    "runId": run_id,
+                    "valid": True,
+                })
+            candidate = candidate_row(candidate_id, 0, workers, 1.0)
+            candidate["profiles"] = profiles
+            selections[implementation.id] = {
+                "candidates": [candidate],
+                "selected": candidate,
+                "intendedUse": portable.INTENDED_USE,
+                "productionValidated": False,
+            }
+        identity = {
+            "sourceTreeGitCommit": "a" * 40,
+            "sourceTreeDirty": False,
+            "executableSha256": "sha256:" + "b" * 64,
+            "implementationContractHashes": {
+                contract["id"]: contract["contractHash"]
+                for contract in contracts
+            },
+            "fixtureHashes": {},
+        }
+        manifest = {
+            "schema": portable.SCHEMA,
+            "experimentId": portable.EXPERIMENT_ID,
+            "incrementId": portable.INCREMENT_ID,
+            "intendedUse": portable.INTENDED_USE,
+            "productionValidated": False,
+            "createdAtUtc": "2026-08-31T00:00:00Z",
+            "machine": machine(),
+            "identity": identity,
+            "compatibilityHash": portable.canonical_hash(identity),
+            "implementations": contracts,
+            "profiles": list(portable.PROFILES),
+            "candidateMatrix": candidate_matrix,
+            "candidatePolicy": {},
+            "threadEnvironment": portable.THREAD_ENVIRONMENT,
+            "warmups": 2,
+            "samples": 7,
+            "runs": runs,
+            "analysis": {
+                "selectionRule": {"score": "test"},
+                "selections": selections,
+            },
+        }
+        summary = portable.publication_summary(manifest)
+        self.assertEqual(portable.PUBLICATION_SCHEMA, summary["schema"])
+        self.assertEqual(6, summary["campaign"]["validRunCount"])
+        self.assertEqual(
+            runs[0]["runId"],
+            summary["implementations"][0]["selected"]["profiles"][0]["runId"],
+        )
+        self.assertFalse(summary["productionValidated"])
+
 
 if __name__ == "__main__":
     unittest.main()
