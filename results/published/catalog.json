@@ -40059,9 +40059,9 @@
     {
       "id": "issue-023-portable-tuning-reference-campaign",
       "issue": 23,
-      "phase": "collecting",
+      "phase": "complete",
       "title": "Portable benchmark tuning and WVM integration handoff",
-      "question": "Can the three frozen implementations expose reproducible benchmark-local worker defaults on the named M1 Max and M4 Max machines without claiming production-optimal WVM settings?",
+      "question": "Can the three frozen implementations expose reproducible benchmark-local worker defaults and a bounded cross-machine tuning contract on the named M1 Max and M4 Max machines without claiming production-optimal WVM settings?",
       "baseline": "Use each implementation's frozen worker tuple as its portable seed, then change only topology-derived stage-local worker counts across the two calibration workloads.",
       "priorExperiments": [
         "issue-009-combined-spectral-pipeline",
@@ -40085,7 +40085,7 @@
         "oracle": "Use each frozen implementation's authoritative complete-boundary oracle, including mode keys, target ordering, caller-input preservation, placement, and allocation checks.",
         "tolerance": "General paths require Float64 maximum scale-normalized and relative-L2 error at most 1e-12. The constant path retains its frozen 2e-12 maximum and 1e-12 relative-L2 algorithm-equivalence rules while reporting the separate MATLAB cross-backend diagnostic.",
         "capabilityHandling": "Incorrect, allocating, incomplete, unsupported, stale, or incompatible cells are ineligible. Capacity and capability exclusions remain visible; no silent fallback, resized workload, or size-dependent dispatch is permitted.",
-        "canSupport": "Portable campaign operation and benchmark-local provisional worker defaults for the named machines, plus a concrete integration handoff.",
+        "canSupport": "Portable campaign operation, benchmark-local worker defaults for the named machines, a bounded cross-machine tuning contract, and a concrete integration handoff.",
         "cannotSupport": "Production-optimal WVM worker settings, a cross-Mac adoption claim, held-out large-workload inference, or a default for untested Apple hardware."
       },
       "requiredTables": [
@@ -40095,7 +40095,7 @@
         "benchmark-local tuning benefit relative to the portable seed",
         "resident, scratch, estimated-peak, observed, and capacity memory",
         "correctness, placement, allocation, and compatibility validation",
-        "provisional worker tuples and downstream WVM retuning requirement"
+        "reference portable defaults, bounded pointwise calibration, and downstream WVM retuning requirement"
       ]
     },
     {

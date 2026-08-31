@@ -25,6 +25,9 @@ EXPERIMENT_ID = "issue-023-portable-tuning-reference-campaign"
 INCREMENT_ID = "portable-machine-tuning-calibration-v1"
 SCHEMA = "spectral-kernel-machine-tuning-v1"
 PUBLICATION_SCHEMA = "spectral-kernel-machine-tuning-publication-v1"
+CROSS_MACHINE_SCHEMA = (
+    "spectral-kernel-machine-tuning-cross-machine-synthesis-v1"
+)
 CLASSIFICATION = "preliminary"
 INTENDED_USE = "benchmark-local-provisional-default"
 PROFILES = (
@@ -164,6 +167,13 @@ def candidate_counts(performance_cores: int, total_cores: int) -> tuple[int, ...
         values.add(value)
         value *= 2
     return tuple(sorted(values))
+
+
+def bounded_pointwise_counts(
+    performance_cores: int, total_cores: int,
+) -> tuple[int, ...]:
+    """Return the deduplicated routine calibration set after synthesis."""
+    return candidate_counts(performance_cores, total_cores)
 
 
 def portable_seed(performance_cores: int, total_cores: int) -> WorkerTuple:
@@ -1203,6 +1213,239 @@ def command_compare(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def cross_machine_synthesis(
+    publications: list[tuple[str, dict]],
+) -> dict:
+    """Synthesize clean named-machine calibrations into a bounded handoff."""
+    if len(publications) != 2:
+        raise ValueError("cross-machine synthesis requires exactly two publications")
+    for artifact_name, publication in publications:
+        if publication.get("schema") != PUBLICATION_SCHEMA:
+            raise ValueError(f"wrong publication schema: {artifact_name}")
+        if publication.get("publicationStatus") != "preliminary":
+            raise ValueError(f"source publication must remain preliminary: {artifact_name}")
+        if publication.get("identity", {}).get("sourceTreeDirty") is not False:
+            raise ValueError(f"source publication is not clean: {artifact_name}")
+
+    first = publications[0][1]
+    shared_identity_keys = (
+        "sourceTreeGitCommit", "implementationContractHashes", "fixtureHashes",
+    )
+    for artifact_name, publication in publications[1:]:
+        for key in shared_identity_keys:
+            if publication["identity"].get(key) != first["identity"].get(key):
+                raise ValueError(f"cross-machine identity mismatch for {key}: {artifact_name}")
+        for key in ("profiles", "warmups", "samples"):
+            if publication["campaign"].get(key) != first["campaign"].get(key):
+                raise ValueError(f"cross-machine campaign mismatch for {key}: {artifact_name}")
+
+    implementation_ids = [item["id"] for item in first["implementations"]]
+    if set(implementation_ids) != {
+        "wvm-native-optimized-v1",
+        "compact-general-fused-views-v1",
+        "compact-constant-type1-v1",
+    }:
+        raise ValueError("cross-machine synthesis requires all three frozen implementations")
+
+    source_rows: list[dict] = []
+    selections_by_implementation: dict[str, list[dict]] = {
+        identifier: [] for identifier in implementation_ids
+    }
+    for artifact_name, publication in publications:
+        machine = publication["machine"]
+        implementation_lookup = {
+            item["id"]: item for item in publication["implementations"]
+        }
+        if set(implementation_lookup) != set(implementation_ids):
+            raise ValueError(f"implementation set mismatch: {artifact_name}")
+        source_rows.append({
+            "artifact": artifact_name,
+            "publicationStatus": publication["publicationStatus"],
+            "machine": machine,
+            "campaign": {
+                "runCount": publication["campaign"]["runCount"],
+                "validRunCount": publication["campaign"]["validRunCount"],
+            },
+            "identity": publication["identity"],
+        })
+        for identifier in implementation_ids:
+            selected = implementation_lookup[identifier]["selected"]
+            selections_by_implementation[identifier].append({
+                "artifact": artifact_name,
+                "hostname": machine["hostname"],
+                "cpuBrand": machine["cpuBrand"],
+                "performanceCores": machine["performanceCores"],
+                "totalPhysicalCores": machine["totalPhysicalCores"],
+                "candidateId": selected["candidateId"],
+                "workers": selected["workers"],
+                "geometricSeconds": selected["geometricSeconds"],
+                "maximumAlgorithmResidentBytes": selected[
+                    "maximumAlgorithmResidentBytes"
+                ],
+                "profiles": selected["profiles"],
+            })
+
+    general_ids = (
+        "wvm-native-optimized-v1", "compact-general-fused-views-v1",
+    )
+    for identifier in general_ids:
+        for selection in selections_by_implementation[identifier]:
+            if selection["workers"]["horizontal"] != selection["performanceCores"]:
+                raise ValueError(f"horizontal=P is not supported for {identifier}")
+            if selection["workers"]["general_vertical"] != 1:
+                raise ValueError(f"general vertical=1 is not supported for {identifier}")
+    for selection in selections_by_implementation["compact-constant-type1-v1"]:
+        if selection["workers"]["horizontal"] != selection["performanceCores"]:
+            raise ValueError("horizontal=P is not supported for the constant path")
+        if selection["workers"]["constant_type1"] != selection["totalPhysicalCores"]:
+            raise ValueError("constant Type-I=physical cores is not supported")
+
+    implementation_roles = {
+        "wvm-native-optimized-v1": "MATLAB-plus-compiled-core general alternate",
+        "compact-general-fused-views-v1": "preferred general compiled-core path",
+        "compact-constant-type1-v1": "specialized constant-stratification path",
+    }
+    implementations = []
+    for identifier in implementation_ids:
+        source_implementation = next(
+            item for item in first["implementations"] if item["id"] == identifier
+        )
+        implementations.append({
+            "id": identifier,
+            "role": implementation_roles[identifier],
+            "mathematicalBoundary": source_implementation["mathematicalBoundary"],
+            "representation": source_implementation["representation"],
+            "contractHash": first["identity"]["implementationContractHashes"][identifier],
+            "machineSelections": selections_by_implementation[identifier],
+        })
+
+    per_machine_general_comparison = []
+    for source in source_rows:
+        hostname = source["machine"]["hostname"]
+        wvm = next(
+            row for row in selections_by_implementation["wvm-native-optimized-v1"]
+            if row["hostname"] == hostname
+        )
+        compact = next(
+            row for row in selections_by_implementation[
+                "compact-general-fused-views-v1"
+            ] if row["hostname"] == hostname
+        )
+        per_machine_general_comparison.append({
+            "hostname": hostname,
+            "cpuBrand": source["machine"]["cpuBrand"],
+            "compactToWvmGeometricTimeRatio": (
+                compact["geometricSeconds"] / wvm["geometricSeconds"]
+            ),
+            "compactSpeedupOverWvm": (
+                wvm["geometricSeconds"] / compact["geometricSeconds"]
+            ),
+            "compactToWvmResidentMemoryRatio": (
+                compact["maximumAlgorithmResidentBytes"] /
+                wvm["maximumAlgorithmResidentBytes"]
+            ),
+        })
+
+    cross_machine_timing_comparison = []
+    for identifier in implementation_ids:
+        machine_rows = selections_by_implementation[identifier]
+        fastest = min(float(row["geometricSeconds"]) for row in machine_rows)
+        cross_machine_timing_comparison.append({
+            "implementationId": identifier,
+            "machines": [
+                {
+                    "hostname": row["hostname"],
+                    "cpuBrand": row["cpuBrand"],
+                    "geometricSeconds": row["geometricSeconds"],
+                    "ratioToFastestNamedMachine": (
+                        float(row["geometricSeconds"]) / fastest
+                    ),
+                }
+                for row in machine_rows
+            ],
+        })
+
+    return {
+        "schema": CROSS_MACHINE_SCHEMA,
+        "experimentId": EXPERIMENT_ID,
+        "publicationStatus": "reference",
+        "statusReason": (
+            "Clean matching M1 Max and M4 Max calibrations support a bounded "
+            "benchmark-local tuning handoff for the three frozen implementations."
+        ),
+        "intendedUse": "portable-benchmark-tuning-and-integration-handoff",
+        "productionValidated": False,
+        "sourcePublications": source_rows,
+        "sharedIdentity": {
+            key: first["identity"][key] for key in shared_identity_keys
+        },
+        "campaign": {
+            "profiles": first["campaign"]["profiles"],
+            "warmups": first["campaign"]["warmups"],
+            "samples": first["campaign"]["samples"],
+            "sourceRunCount": sum(row["campaign"]["runCount"] for row in source_rows),
+            "validSourceRunCount": sum(
+                row["campaign"]["validRunCount"] for row in source_rows
+            ),
+            "selectionRule": first["campaign"]["selectionRule"],
+        },
+        "implementations": implementations,
+        "portableTuningContract": {
+            "oneTupleAcrossCalibrationWorkloads": True,
+            "sizeDependentDispatch": False,
+            "topologyDefaults": {
+                "horizontalWorkers": "performanceCores",
+                "generalVerticalWorkers": 1,
+                "constantType1InternalWorkers": "totalPhysicalCores",
+                "fftwInternalWorkersForGeneralPaths": 1,
+                "requestedAccelerateThreadsDuringOuterScheduling": 1,
+            },
+            "routineCalibratedKnob": "pointwiseWorkers",
+            "pointwiseCandidateRule": (
+                "deduplicated {1, powers of two through total physical cores, "
+                "performance cores, total physical cores}"
+            ),
+            "calibrationProfiles": first["campaign"]["profiles"],
+            "score": first["campaign"]["selectionRule"]["score"],
+            "nearFastestFactor": first["campaign"]["selectionRule"][
+                "nearFastestFactor"
+            ],
+            "tieBreak": first["campaign"]["selectionRule"]["tieBreak"],
+            "optionalNewTopologyConfirmation": {
+                "purpose": "confirmation rather than routine tuning",
+                "horizontal": "compare performanceCores with one neighboring count",
+                "generalVertical": "compare one with one topology-derived parallel count",
+                "constantType1": "compare totalPhysicalCores with performanceCores",
+            },
+        },
+        "generalPathComparison": per_machine_general_comparison,
+        "crossMachineTimingComparison": cross_machine_timing_comparison,
+        "conclusions": [
+            "Use compact-general-fused-views-v1 as the preferred general compiled-core path.",
+            "Retain wvm-native-optimized-v1 for MATLAB plus compiled-core integration.",
+            "Use compact-constant-type1-v1 only for its separate constant-stratification boundary.",
+            "Treat pointwise workers as the only routine machine-calibrated worker knob.",
+            "Retune inside production WVM before claiming production-optimal settings.",
+        ],
+        "interpretationLimit": (
+            "This is a benchmark-local handoff across the named M1 Max and M4 Max. "
+            "It is not a production WVM tuning result, a held-out large-workload "
+            "inference, or a default for every future Apple processor."
+        ),
+    }
+
+
+def command_synthesize(arguments: argparse.Namespace) -> int:
+    publications = [
+        (path.name, load_json(path.expanduser().resolve()))
+        for path in arguments.publication
+    ]
+    synthesis = cross_machine_synthesis(publications)
+    write_json_atomic(arguments.output.expanduser().resolve(), synthesis)
+    print(f"cross-machine synthesis={arguments.output.expanduser().resolve()}")
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     subparsers = root.add_subparsers(dest="command", required=True)
@@ -1243,6 +1486,11 @@ def parser() -> argparse.ArgumentParser:
     compare = subparsers.add_parser("compare")
     compare.add_argument("manifest", nargs="+", type=Path)
     compare.set_defaults(handler=command_compare)
+
+    synthesize = subparsers.add_parser("synthesize")
+    synthesize.add_argument("--publication", action="append", required=True, type=Path)
+    synthesize.add_argument("--output", required=True, type=Path)
+    synthesize.set_defaults(handler=command_synthesize)
     return root
 
 

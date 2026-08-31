@@ -7527,13 +7527,83 @@ def portable_machine_tuning_machine_synthesis(
 
 def portable_machine_tuning_synthesis(
     evidence_records: list[tuple[str, dict]] | None,
+    cross_machine_record: tuple[str, dict] | None = None,
 ) -> str:
-    if not evidence_records:
+    if not evidence_records and cross_machine_record is None:
         return ""
-    return "".join(
+    machine_sections = "".join(
         portable_machine_tuning_machine_synthesis(evidence, artifact_name)
-        for artifact_name, evidence in evidence_records
+        for artifact_name, evidence in (evidence_records or [])
     )
+    if cross_machine_record is None:
+        return machine_sections
+    artifact_name, evidence = cross_machine_record
+    comparison_rows = "".join(
+        "<tr>"
+        f'<th scope="row">{escaped(row["cpuBrand"])}</th>'
+        f'<td class="numeric">{float(row["compactToWvmGeometricTimeRatio"]):.3f}×</td>'
+        f'<td class="numeric">{float(row["compactSpeedupOverWvm"]):.3f}×</td>'
+        f'<td class="numeric">{float(row["compactToWvmResidentMemoryRatio"]):.3f}×</td>'
+        "</tr>"
+        for row in evidence["generalPathComparison"]
+    )
+    selections: dict[str, list[dict]] = {
+        implementation["id"]: implementation["machineSelections"]
+        for implementation in evidence["implementations"]
+    }
+    implementation_names = {
+        "wvm-native-optimized-v1": "WVM-native general",
+        "compact-general-fused-views-v1": "Compact general",
+        "compact-constant-type1-v1": "Compact constant stratification",
+    }
+    selection_rows = "".join(
+        "<tr>"
+        f'<th scope="row">{escaped(implementation_names[identifier])}</th>'
+        + "".join(
+            f'<td><code>{escaped(row["candidateId"])}</code><br>'
+            f'<span class="muted">{format_ms(float(row["geometricSeconds"]))} ms geometric</span></td>'
+            for row in machine_rows
+        )
+        + f'<td class="numeric">{float(machine_rows[1]["geometricSeconds"]) / float(machine_rows[0]["geometricSeconds"]):.3f}×</td>'
+        + "</tr>"
+        for identifier, machine_rows in selections.items()
+    )
+    machine_headings = [
+        escaped(source["machine"]["cpuBrand"])
+        for source in evidence["sourcePublications"]
+    ]
+    contract = evidence["portableTuningContract"]
+    defaults = contract["topologyDefaults"]
+    reference_section = f"""
+    <section class="evidence-callout">
+      <p class="eyebrow">Cross-machine synthesis · reference</p>
+      <h2>The frozen algorithms now have a bounded portable tuning contract</h2>
+      <p>All {int(evidence['campaign']['validSourceRunCount'])} source runs are valid and use matching fixtures, implementation contracts, source commit, precision, placement, allocation policy, warmups, and sample count. The two named machines independently select horizontal workers equal to performance-core count, one general vertical worker, and total physical-core count for the constant Type-I transform.</p>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>The complete-call selection uses one tuple across both calibration sizes; no size-dependent dispatch is permitted.</caption>
+        <thead><tr><th scope="col">Frozen implementation</th><th scope="col">{machine_headings[0]} selection</th><th scope="col">{machine_headings[1]} selection</th><th scope="col">Second/first machine time</th></tr></thead>
+        <tbody>{selection_rows}</tbody>
+      </table></div>
+      <h3>General-path result</h3>
+      <div class="table-scroll"><table class="experiment-evidence-table">
+        <caption>Compact general relative to the separately retained WVM-native implementation on each machine.</caption>
+        <thead><tr><th scope="col">Machine</th><th scope="col">Time ratio</th><th scope="col">Speedup</th><th scope="col">Resident-memory ratio</th></tr></thead>
+        <tbody>{comparison_rows}</tbody>
+      </table></div>
+      <h3>Portable defaults and the remaining knob</h3>
+      <dl class="detail-list evidence-definition">
+        <div><dt>Horizontal FFT workers</dt><dd>Use the performance-core count.</dd></div>
+        <div><dt>General vertical workers</dt><dd>Use {int(defaults['generalVerticalWorkers'])}; do not nest a vertical outer pool around the single-threaded library calls.</dd></div>
+        <div><dt>Constant Type-I workers</dt><dd>Use the total physical-core count for this separate mathematical path.</dd></div>
+        <div><dt>Library workers</dt><dd>Use {int(defaults['fftwInternalWorkersForGeneralPaths'])} FFTW internal worker on general paths and request {int(defaults['requestedAccelerateThreadsDuringOuterScheduling'])} Accelerate thread while outer scheduling is active.</dd></div>
+        <div><dt>Routine machine calibration</dt><dd>Sweep only pointwise workers over {escaped(contract['pointwiseCandidateRule'])}; rank the geometric mean across both calibration sizes, apply the 1% near-fastest band, then prefer fewer workers.</dd></div>
+      </dl>
+      <p><strong>Integration choices:</strong> carry <code>compact-general-fused-views-v1</code> as the preferred general compiled-core path, retain <code>wvm-native-optimized-v1</code> for MATLAB plus compiled-core integration, and keep <code>compact-constant-type1-v1</code> as the specialized constant-stratification path.</p>
+      <p class="method-note"><strong>Interpretation limit:</strong> {escaped(evidence['interpretationLimit'])}</p>
+      <p><a href="../../artifacts/decisions/{quote(artifact_name)}">Download the reference cross-machine synthesis JSON</a>.</p>
+    </section>
+    """
+    return reference_section + machine_sections
 
 
 def build_experiment_page(
@@ -7546,6 +7616,7 @@ def build_experiment_page(
     issue24_inverse_evidence: dict | None = None,
     issue25_wvm_native_evidence: dict | None = None,
     issue23_tuning_evidence: list[tuple[str, dict]] | None = None,
+    issue23_cross_machine_evidence: tuple[str, dict] | None = None,
 ) -> str:
     experiment_id = experiment["id"]
     related = [bundle for bundle in bundles if experiment_id in bundle.publication["experiments"]]
@@ -7622,12 +7693,18 @@ def build_experiment_page(
             f"{evidence['machine']['cpuBrand']}"
             for _, evidence in issue23_tuning_evidence
         ]
+        reference_statement = (
+            " A reference cross-machine synthesis now freezes the bounded tuning "
+            "handoff."
+            if issue23_cross_machine_evidence is not None else
+            " The benchmark-local evidence remains preliminary pending "
+            "cross-machine synthesis."
+        )
         evidence_statement = (
             f"The clean {' and '.join(machine_labels)} calibrations publish "
             f"{sum(int(campaign['runCount']) for campaign in campaigns)} permanent "
-            f"candidate run pages and {len(campaigns)} compact selection traces. "
-            "The benchmark-local evidence remains preliminary pending cross-machine "
-            "synthesis."
+            f"candidate run pages and {len(campaigns)} compact selection traces."
+            f"{reference_statement}"
         )
     if experiment_id == "issue-020-constant-stratification-type1" and related:
         authoritative_count = sum(
@@ -7684,7 +7761,9 @@ def build_experiment_page(
             related, issue25_wvm_native_evidence,
         )
     elif experiment_id == "issue-023-portable-tuning-reference-campaign":
-        synthesis = portable_machine_tuning_synthesis(issue23_tuning_evidence)
+        synthesis = portable_machine_tuning_synthesis(
+            issue23_tuning_evidence, issue23_cross_machine_evidence,
+        )
     elif experiment_id == "issue-004-fftw-strategy-sweep":
         synthesis = fftw_strategy_synthesis(related)
     elif experiment_id == "issue-006-vdsp-batching-scheduling":
@@ -8452,6 +8531,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
     issue21_fused_views_evidence = None
     issue22_pointwise_evidence = None
     issue23_tuning_evidence: list[tuple[str, dict]] = []
+    issue23_cross_machine_evidence = None
     issue24_inverse_evidence = None
     issue25_wvm_native_evidence = None
     if decision_artifacts.is_dir():
@@ -8551,6 +8631,23 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                         "issue #23 portable machine tuning has the wrong schema"
                     )
                 issue23_tuning_evidence.append((tuning_name, tuning_evidence))
+        tuning_synthesis_name = (
+            "issue-023-portable-machine-tuning-cross-machine-v1.json"
+        )
+        tuning_synthesis_path = decision_artifacts / tuning_synthesis_name
+        if tuning_synthesis_path.is_file():
+            tuning_synthesis = json.loads(
+                tuning_synthesis_path.read_text(encoding="utf-8")
+            )
+            if tuning_synthesis.get("schema") != (
+                "spectral-kernel-machine-tuning-cross-machine-synthesis-v1"
+            ):
+                raise ValueError(
+                    "issue #23 cross-machine tuning synthesis has the wrong schema"
+                )
+            issue23_cross_machine_evidence = (
+                tuning_synthesis_name, tuning_synthesis,
+            )
         inverse_path = (
             decision_artifacts /
             "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
@@ -8620,6 +8717,7 @@ def build_site(results_dir: Path, output_dir: Path) -> None:
                 issue24_inverse_evidence,
                 issue25_wvm_native_evidence,
                 issue23_tuning_evidence,
+                issue23_cross_machine_evidence,
             ),
         )
     write_page(

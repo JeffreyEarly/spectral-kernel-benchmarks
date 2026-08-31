@@ -60,6 +60,9 @@ class PortableMachineTuningTests(unittest.TestCase):
     def test_candidate_counts_cover_powers_performance_and_total(self) -> None:
         self.assertEqual((1, 2, 4, 8, 10), portable.candidate_counts(8, 10))
         self.assertEqual((1, 2, 4, 8, 12, 16), portable.candidate_counts(12, 16))
+        self.assertEqual(
+            (1, 2, 4, 8, 10), portable.bounded_pointwise_counts(8, 10),
+        )
         with self.assertRaises(ValueError):
             portable.candidate_counts(12, 8)
 
@@ -322,6 +325,41 @@ class PortableMachineTuningTests(unittest.TestCase):
         self.assertFalse(summary["productionValidated"])
         self.assertIn("Apple M1 Max", summary["statusReason"])
         self.assertIn("Apple M1 Max", summary["interpretation"])
+
+    def test_cross_machine_synthesis_freezes_supported_defaults(self) -> None:
+        publications = []
+        for name in (
+            "issue-023-portable-machine-tuning-lyra-v1.json",
+            "issue-023-portable-machine-tuning-matilda-v1.json",
+        ):
+            path = REPOSITORY_ROOT / "results" / "published" / "decisions" / name
+            publications.append((name, json.loads(path.read_text(encoding="utf-8"))))
+        synthesis = portable.cross_machine_synthesis(publications)
+        self.assertEqual(portable.CROSS_MACHINE_SCHEMA, synthesis["schema"])
+        self.assertEqual("reference", synthesis["publicationStatus"])
+        self.assertEqual(188, synthesis["campaign"]["validSourceRunCount"])
+        defaults = synthesis["portableTuningContract"]["topologyDefaults"]
+        self.assertEqual("performanceCores", defaults["horizontalWorkers"])
+        self.assertEqual(1, defaults["generalVerticalWorkers"])
+        self.assertEqual("totalPhysicalCores", defaults["constantType1InternalWorkers"])
+        self.assertEqual(
+            "pointwiseWorkers",
+            synthesis["portableTuningContract"]["routineCalibratedKnob"],
+        )
+        comparisons = synthesis["generalPathComparison"]
+        self.assertEqual(2, len(comparisons))
+        self.assertTrue(all(
+            row["compactToWvmGeometricTimeRatio"] < 0.75
+            and row["compactToWvmResidentMemoryRatio"] < 0.50
+            for row in comparisons
+        ))
+        timing = synthesis["crossMachineTimingComparison"]
+        self.assertEqual(3, len(timing))
+        self.assertTrue(all(
+            row["machines"][0]["ratioToFastestNamedMachine"] == 1.0
+            and row["machines"][1]["ratioToFastestNamedMachine"] > 1.9
+            for row in timing
+        ))
 
 
 if __name__ == "__main__":

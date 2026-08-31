@@ -103,6 +103,10 @@ class BuildSiteTests(unittest.TestCase):
                 output / "artifacts" / "decisions" /
                 "issue-023-portable-machine-tuning-matilda-v1.json"
             )
+            issue_23_cross_machine_artifact = (
+                output / "artifacts" / "decisions" /
+                "issue-023-portable-machine-tuning-cross-machine-v1.json"
+            )
             issue_24_screen_artifact = (
                 output / "artifacts" / "decisions" /
                 "issue-024-retained-inverse-zero-fill-screen-lyra-v1.json"
@@ -152,6 +156,7 @@ class BuildSiteTests(unittest.TestCase):
             self.assertTrue(issue_22_reference_artifact.is_file())
             self.assertTrue(issue_23_lyra_artifact.is_file())
             self.assertTrue(issue_23_matilda_artifact.is_file())
+            self.assertTrue(issue_23_cross_machine_artifact.is_file())
             self.assertTrue(issue_24_screen_artifact.is_file())
             self.assertTrue(issue_25_reference_artifact.is_file())
             summary_html = summary_page.read_text(encoding="utf-8")
@@ -203,6 +208,11 @@ class BuildSiteTests(unittest.TestCase):
             self.assertIn("1086.8 ms", issue_22_html)
             self.assertIn("bounded pointwise-to-FFT fusion is deferred", issue_22_html)
             issue_23_html = issue_23_page.read_text(encoding="utf-8")
+            self.assertIn("Experiment · issue #23 · complete", issue_23_html)
+            self.assertIn("Cross-machine synthesis · reference", issue_23_html)
+            self.assertIn("bounded portable tuning contract", issue_23_html)
+            self.assertIn("Sweep only pointwise workers", issue_23_html)
+            self.assertIn("compact-general-fused-views-v1", issue_23_html)
             self.assertIn("Lyra calibration · preliminary", issue_23_html)
             self.assertIn("Matilda calibration · preliminary", issue_23_html)
             self.assertIn("Apple M4 Max worker calibration on Lyra", issue_23_html)

@@ -1,0 +1,437 @@
+{
+  "schema": "spectral-kernel-machine-tuning-cross-machine-synthesis-v1",
+  "experimentId": "issue-023-portable-tuning-reference-campaign",
+  "publicationStatus": "reference",
+  "statusReason": "Clean matching M1 Max and M4 Max calibrations support a bounded benchmark-local tuning handoff for the three frozen implementations.",
+  "intendedUse": "portable-benchmark-tuning-and-integration-handoff",
+  "productionValidated": false,
+  "sourcePublications": [
+    {
+      "artifact": "issue-023-portable-machine-tuning-lyra-v1.json",
+      "publicationStatus": "preliminary",
+      "machine": {
+        "hostname": "lyra.ad.nwra.com",
+        "cpuBrand": "Apple M4 Max",
+        "hardwareModel": "Mac16,9",
+        "performanceCores": 12,
+        "efficiencyCores": 4,
+        "totalPhysicalCores": 16,
+        "physicalMemoryBytes": 137438953472,
+        "macOS": "26.6.1",
+        "macOSBuild": "25G76",
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+        "cmake": "cmake version 3.31.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+        "power": "AC Power:\n Sleep On Power Button 1\n autorestartatconnect 0\n lowpowermode         0\n standby              0\n ttyskeepawake        1\n powernap             1\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n autorestart          1\n disksleep            10",
+        "threadEnvironment": {
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "campaign": {
+        "runCount": 100,
+        "validRunCount": 100
+      },
+      "identity": {
+        "sourceTreeGitCommit": "3bb0959fc82fe2811ba1ccaedc1c49b1e4fd10a7",
+        "sourceTreeDirty": false,
+        "executableSha256": "sha256:de9a3b704b766b84a2e1641fd52a0356ee77ec12d77ae7e57edcfec4992c22c7",
+        "implementationContractHashes": {
+          "wvm-native-optimized-v1": "sha256:c45b7a5049f8ed8b43ebb4fd89b9ca9f5ea77b0625d497873331f26f22873906",
+          "compact-general-fused-views-v1": "sha256:8277b05d8dba2a7b38a9ba60952180ac995d206248a9344d22485d0345d2a201",
+          "compact-constant-type1-v1": "sha256:ed9a2976f5b598a2e717bfd165278394ba8c7e1e3ce529566e055c732416a47f"
+        },
+        "fixtureHashes": {
+          "constant:wvm-current-256-nz129-f4": "sha256:e8063ba45236a2dc37ee3424b3f7dd25ec1095203a94a795d1f5fdda06988e6a",
+          "constant:wvm-current-512-nz257-f4": "sha256:755b7423f630af4123d395501a32b6f6b635682b52dec3e98221edefb03d46b7",
+          "general:wvm-current-256-nz129-f4": "sha256:6b5a324a3a843a5f19268cbc732b82faf6fffffaa1c8b5580a3a6c48b42f700b",
+          "general:wvm-current-512-nz257-f4": "sha256:0d0d54e60fea07024c19943a3c3ded6c082349b7173cc29336729e60ae5929b4"
+        },
+        "compatibilityHash": "sha256:b3e5f8114f311b44cef9acc5c42f1e0634a8039d9f8f9b08d538179e3183ea0d"
+      }
+    },
+    {
+      "artifact": "issue-023-portable-machine-tuning-matilda-v1.json",
+      "publicationStatus": "preliminary",
+      "machine": {
+        "hostname": "matilda-2.local",
+        "cpuBrand": "Apple M1 Max",
+        "hardwareModel": "MacBookPro18,2",
+        "performanceCores": 8,
+        "efficiencyCores": 2,
+        "totalPhysicalCores": 10,
+        "physicalMemoryBytes": 68719476736,
+        "macOS": "26.5.2",
+        "macOSBuild": "25F84",
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+        "cmake": "cmake version 4.4.2\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+        "power": "Battery Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                0\n tcpkeepalive         1\n disksleep            10",
+        "threadEnvironment": {
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "campaign": {
+        "runCount": 88,
+        "validRunCount": 88
+      },
+      "identity": {
+        "sourceTreeGitCommit": "3bb0959fc82fe2811ba1ccaedc1c49b1e4fd10a7",
+        "sourceTreeDirty": false,
+        "executableSha256": "sha256:395c3ed45cce356ddde5e25fbb257ec1a689a028704a10fbc6827c27e9859a4a",
+        "implementationContractHashes": {
+          "wvm-native-optimized-v1": "sha256:c45b7a5049f8ed8b43ebb4fd89b9ca9f5ea77b0625d497873331f26f22873906",
+          "compact-general-fused-views-v1": "sha256:8277b05d8dba2a7b38a9ba60952180ac995d206248a9344d22485d0345d2a201",
+          "compact-constant-type1-v1": "sha256:ed9a2976f5b598a2e717bfd165278394ba8c7e1e3ce529566e055c732416a47f"
+        },
+        "fixtureHashes": {
+          "general:wvm-current-256-nz129-f4": "sha256:6b5a324a3a843a5f19268cbc732b82faf6fffffaa1c8b5580a3a6c48b42f700b",
+          "general:wvm-current-512-nz257-f4": "sha256:0d0d54e60fea07024c19943a3c3ded6c082349b7173cc29336729e60ae5929b4",
+          "constant:wvm-current-256-nz129-f4": "sha256:e8063ba45236a2dc37ee3424b3f7dd25ec1095203a94a795d1f5fdda06988e6a",
+          "constant:wvm-current-512-nz257-f4": "sha256:755b7423f630af4123d395501a32b6f6b635682b52dec3e98221edefb03d46b7"
+        },
+        "compatibilityHash": "sha256:8b0e24393b615b53e0c9a48160eed0ae64ce53315206ff4dc594b696b75e81c2"
+      }
+    }
+  ],
+  "sharedIdentity": {
+    "sourceTreeGitCommit": "3bb0959fc82fe2811ba1ccaedc1c49b1e4fd10a7",
+    "implementationContractHashes": {
+      "wvm-native-optimized-v1": "sha256:c45b7a5049f8ed8b43ebb4fd89b9ca9f5ea77b0625d497873331f26f22873906",
+      "compact-general-fused-views-v1": "sha256:8277b05d8dba2a7b38a9ba60952180ac995d206248a9344d22485d0345d2a201",
+      "compact-constant-type1-v1": "sha256:ed9a2976f5b598a2e717bfd165278394ba8c7e1e3ce529566e055c732416a47f"
+    },
+    "fixtureHashes": {
+      "constant:wvm-current-256-nz129-f4": "sha256:e8063ba45236a2dc37ee3424b3f7dd25ec1095203a94a795d1f5fdda06988e6a",
+      "constant:wvm-current-512-nz257-f4": "sha256:755b7423f630af4123d395501a32b6f6b635682b52dec3e98221edefb03d46b7",
+      "general:wvm-current-256-nz129-f4": "sha256:6b5a324a3a843a5f19268cbc732b82faf6fffffaa1c8b5580a3a6c48b42f700b",
+      "general:wvm-current-512-nz257-f4": "sha256:0d0d54e60fea07024c19943a3c3ded6c082349b7173cc29336729e60ae5929b4"
+    }
+  },
+  "campaign": {
+    "profiles": [
+      "wvm-current-256-nz129-f4",
+      "wvm-current-512-nz257-f4"
+    ],
+    "warmups": 2,
+    "samples": 7,
+    "sourceRunCount": 188,
+    "validSourceRunCount": 188,
+    "selectionRule": {
+      "score": "geometric mean complete-call time across both calibration profiles",
+      "nearFastestFactor": 1.01,
+      "tieBreak": [
+        "fewest total workers",
+        "least resident memory",
+        "candidate order"
+      ]
+    }
+  },
+  "implementations": [
+    {
+      "id": "wvm-native-optimized-v1",
+      "role": "MATLAB-plus-compiled-core general alternate",
+      "mathematicalBoundary": "15 WVM-native modal inputs to four WVM-native modal targets",
+      "representation": "WVM-native persistent complex-interleaved modal state",
+      "contractHash": "sha256:c45b7a5049f8ed8b43ebb4fd89b9ca9f5ea77b0625d497873331f26f22873906",
+      "machineSelections": [
+        {
+          "artifact": "issue-023-portable-machine-tuning-lyra-v1.json",
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "performanceCores": 12,
+          "totalPhysicalCores": 16,
+          "candidateId": "h12--gv1--p4",
+          "workers": {
+            "horizontal": 12,
+            "general_vertical": 1,
+            "pointwise": 4
+          },
+          "geometricSeconds": 0.16355748201508544,
+          "maximumAlgorithmResidentBytes": 54781237304,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.05985875,
+              "maximumCorrectnessError": 1.020390420753119e-15,
+              "runId": "20260831T053518Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.446902916,
+              "maximumCorrectnessError": 1.0315291723375688e-15,
+              "runId": "20260831T053524Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-4-lyra"
+            }
+          ]
+        },
+        {
+          "artifact": "issue-023-portable-machine-tuning-matilda-v1.json",
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "performanceCores": 8,
+          "totalPhysicalCores": 10,
+          "candidateId": "h8--gv1--p8",
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "geometricSeconds": 0.33297517907352187,
+          "maximumAlgorithmResidentBytes": 54781237336,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.115240917,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T171611Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.962092916,
+              "maximumCorrectnessError": 1.2332263086749762e-15,
+              "runId": "20260831T171622Z-issue25-authoritative-wvm-direct-strided-field-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compact-general-fused-views-v1",
+      "role": "preferred general compiled-core path",
+      "mathematicalBoundary": "15 compact modal inputs to four compact modal targets",
+      "representation": "compact radial split modal state",
+      "contractHash": "sha256:8277b05d8dba2a7b38a9ba60952180ac995d206248a9344d22485d0345d2a201",
+      "machineSelections": [
+        {
+          "artifact": "issue-023-portable-machine-tuning-lyra-v1.json",
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "performanceCores": 12,
+          "totalPhysicalCores": 16,
+          "candidateId": "h12--gv1--p8",
+          "workers": {
+            "horizontal": 12,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "geometricSeconds": 0.12082604865813486,
+          "maximumAlgorithmResidentBytes": 27004206936,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.042956166,
+              "maximumCorrectnessError": 1.039049132879323e-15,
+              "runId": "20260831T050633Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.339856542,
+              "maximumCorrectnessError": 1.0758873768814454e-15,
+              "runId": "20260831T050638Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-lyra"
+            }
+          ]
+        },
+        {
+          "artifact": "issue-023-portable-machine-tuning-matilda-v1.json",
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "performanceCores": 8,
+          "totalPhysicalCores": 10,
+          "candidateId": "h8--gv1--p8",
+          "workers": {
+            "horizontal": 8,
+            "general_vertical": 1,
+            "pointwise": 8
+          },
+          "geometricSeconds": 0.2328232875114861,
+          "maximumAlgorithmResidentBytes": 26893637464,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.077469125,
+              "maximumCorrectnessError": 9.78006552412832e-16,
+              "runId": "20260831T182300Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.699719833,
+              "maximumCorrectnessError": 1.018606086994892e-15,
+              "runId": "20260831T182309Z-issue22-authoritative-streaming-pruned-compact-split-fused-vertical-views-pointwise-spatial-static-8-matilda-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compact-constant-type1-v1",
+      "role": "specialized constant-stratification path",
+      "mathematicalBoundary": "constant-stratification modal state to exact nonlinear-flux targets",
+      "representation": "compact radial split constant-stratification modal state",
+      "contractHash": "sha256:ed9a2976f5b598a2e717bfd165278394ba8c7e1e3ce529566e055c732416a47f",
+      "machineSelections": [
+        {
+          "artifact": "issue-023-portable-machine-tuning-lyra-v1.json",
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "performanceCores": 12,
+          "totalPhysicalCores": 16,
+          "candidateId": "h12--ct16--p4",
+          "workers": {
+            "horizontal": 12,
+            "constant_type1": 16,
+            "pointwise": 4
+          },
+          "geometricSeconds": 0.2645262918815484,
+          "maximumAlgorithmResidentBytes": 6166110688,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.094368875,
+              "maximumCorrectnessError": 2.631178485959368e-13,
+              "runId": "20260831T053145Z-issue20-constant-stratification-authoritative-lyra"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 0.741496167,
+              "maximumCorrectnessError": 6.949341741976842e-13,
+              "runId": "20260831T053243Z-issue20-constant-stratification-authoritative-lyra"
+            }
+          ]
+        },
+        {
+          "artifact": "issue-023-portable-machine-tuning-matilda-v1.json",
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "performanceCores": 8,
+          "totalPhysicalCores": 10,
+          "candidateId": "h8--ct10--p8",
+          "workers": {
+            "horizontal": 8,
+            "constant_type1": 10,
+            "pointwise": 8
+          },
+          "geometricSeconds": 0.5066718458929502,
+          "maximumAlgorithmResidentBytes": 6055541248,
+          "profiles": [
+            {
+              "profile": "wvm-current-256-nz129-f4",
+              "seconds": 0.176760708,
+              "maximumCorrectnessError": 3.6094655087182057e-13,
+              "runId": "20260831T183042Z-issue20-constant-stratification-authoritative-matilda-2"
+            },
+            {
+              "profile": "wvm-current-512-nz257-f4",
+              "seconds": 1.452338375,
+              "maximumCorrectnessError": 5.513571344856733e-13,
+              "runId": "20260831T183217Z-issue20-constant-stratification-authoritative-matilda-2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "portableTuningContract": {
+    "oneTupleAcrossCalibrationWorkloads": true,
+    "sizeDependentDispatch": false,
+    "topologyDefaults": {
+      "horizontalWorkers": "performanceCores",
+      "generalVerticalWorkers": 1,
+      "constantType1InternalWorkers": "totalPhysicalCores",
+      "fftwInternalWorkersForGeneralPaths": 1,
+      "requestedAccelerateThreadsDuringOuterScheduling": 1
+    },
+    "routineCalibratedKnob": "pointwiseWorkers",
+    "pointwiseCandidateRule": "deduplicated {1, powers of two through total physical cores, performance cores, total physical cores}",
+    "calibrationProfiles": [
+      "wvm-current-256-nz129-f4",
+      "wvm-current-512-nz257-f4"
+    ],
+    "score": "geometric mean complete-call time across both calibration profiles",
+    "nearFastestFactor": 1.01,
+    "tieBreak": [
+      "fewest total workers",
+      "least resident memory",
+      "candidate order"
+    ],
+    "optionalNewTopologyConfirmation": {
+      "purpose": "confirmation rather than routine tuning",
+      "horizontal": "compare performanceCores with one neighboring count",
+      "generalVertical": "compare one with one topology-derived parallel count",
+      "constantType1": "compare totalPhysicalCores with performanceCores"
+    }
+  },
+  "generalPathComparison": [
+    {
+      "hostname": "lyra.ad.nwra.com",
+      "cpuBrand": "Apple M4 Max",
+      "compactToWvmGeometricTimeRatio": 0.73873752010312,
+      "compactSpeedupOverWvm": 1.3536607696065182,
+      "compactToWvmResidentMemoryRatio": 0.49294627622491133
+    },
+    {
+      "hostname": "matilda-2.local",
+      "cpuBrand": "Apple M1 Max",
+      "compactToWvmGeometricTimeRatio": 0.6992211496343337,
+      "compactSpeedupOverWvm": 1.430162689619675,
+      "compactToWvmResidentMemoryRatio": 0.4909278937795477
+    }
+  ],
+  "crossMachineTimingComparison": [
+    {
+      "implementationId": "wvm-native-optimized-v1",
+      "machines": [
+        {
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "geometricSeconds": 0.16355748201508544,
+          "ratioToFastestNamedMachine": 1.0
+        },
+        {
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "geometricSeconds": 0.33297517907352187,
+          "ratioToFastestNamedMachine": 2.0358296971263625
+        }
+      ]
+    },
+    {
+      "implementationId": "compact-general-fused-views-v1",
+      "machines": [
+        {
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "geometricSeconds": 0.12082604865813486,
+          "ratioToFastestNamedMachine": 1.0
+        },
+        {
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "geometricSeconds": 0.2328232875114861,
+          "ratioToFastestNamedMachine": 1.926929582628628
+        }
+      ]
+    },
+    {
+      "implementationId": "compact-constant-type1-v1",
+      "machines": [
+        {
+          "hostname": "lyra.ad.nwra.com",
+          "cpuBrand": "Apple M4 Max",
+          "geometricSeconds": 0.2645262918815484,
+          "ratioToFastestNamedMachine": 1.0
+        },
+        {
+          "hostname": "matilda-2.local",
+          "cpuBrand": "Apple M1 Max",
+          "geometricSeconds": 0.5066718458929502,
+          "ratioToFastestNamedMachine": 1.9153931440577996
+        }
+      ]
+    }
+  ],
+  "conclusions": [
+    "Use compact-general-fused-views-v1 as the preferred general compiled-core path.",
+    "Retain wvm-native-optimized-v1 for MATLAB plus compiled-core integration.",
+    "Use compact-constant-type1-v1 only for its separate constant-stratification boundary.",
+    "Treat pointwise workers as the only routine machine-calibrated worker knob.",
+    "Retune inside production WVM before claiming production-optimal settings."
+  ],
+  "interpretationLimit": "This is a benchmark-local handoff across the named M1 Max and M4 Max. It is not a production WVM tuning result, a held-out large-workload inference, or a default for every future Apple processor."
+}
