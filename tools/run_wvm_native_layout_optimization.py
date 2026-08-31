@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from run_authoritative_spectral_flux_reference import (
+    benchmark_sources_unchanged,
     fixture_assignments,
     load_json,
     write_json,
@@ -469,7 +470,7 @@ def deep_capacity(evidence: dict) -> list[dict]:
             "profile": DEEP_PROFILE, "candidateId": candidate.id,
             "status": "capacity-exclusion",
             "requiredPhysicalMemoryBytes": required,
-            "physicalMemoryBytes": int(control["physicalMemoryBytes"]),
+            "physicalMemoryBytes": int(evidence["machine"]["physicalMemoryBytes"]),
             "elidedBridgeBytes": bridge_savings if direct else 0,
             "reason": (
                 "the conservative issue #19 vertical-operator construction peak "
@@ -623,7 +624,9 @@ def main() -> int:
             screen.get("schema") != ANALYSIS_SCHEMA
             or screen.get("phase") != "screen"
             or screen.get("screenAdvanceToReference") is not True
-            or screen.get("benchmarkExecutableCommit") != commit
+            or not benchmark_sources_unchanged(
+                repository, screen.get("benchmarkExecutableCommit", ""), commit
+            )
         ):
             parser.error("screen evidence does not authorize this reference phase")
     phase = arguments.phase
