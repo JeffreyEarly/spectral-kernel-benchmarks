@@ -5,6 +5,7 @@
 #include <fftw3.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -95,6 +96,108 @@ void requireAllocationFreeExecution(const skbench::Workload& workload, skbench::
         if (strategy.outerWorkers > 1) provider.executeSchedulerNoop();
     }
     require(skbench::test::endAllocationTracking() == 0, "FFTW steady-state execution allocated memory");
+}
+
+void requireDirectWvmFieldViewExecution() {
+    const skbench::Workload familyWorkload{8, 8, 7, 5, 1.0, 1.0, true};
+    auto singleFieldWorkload = familyWorkload;
+    singleFieldWorkload.fields = 1;
+    const auto strategy = skbench::FFTWStrategy{
+        skbench::FFTWPlanningMode::estimate,
+        skbench::FFTWAlignmentStrategy::unaligned,
+        skbench::FFTWWisdomStrategy::cold,
+        1,
+        2,
+        0.0,
+        skbench::FFTWDataLayout::interleaved,
+        skbench::FFTWSpectrumOrder::wvmFrequencyMajor};
+    std::vector<double> real(familyWorkload.realElements());
+    for (std::size_t index = 0; index < real.size(); ++index)
+        real[index] = static_cast<double>((17 * index + 3) % 101) / 101.0;
+
+    skbench::FFTWProvider reference(familyWorkload, strategy);
+    std::vector<skbench::Complex> expectedSpectrum(
+        familyWorkload.spectrumElements());
+    reference.forward(real.data(), expectedSpectrum.data());
+
+    skbench::FFTWInterleavedWvmFieldViewProvider direct(
+        singleFieldWorkload, {familyWorkload.planes()}, strategy);
+    std::vector<skbench::Complex> actualSpectrum(
+        familyWorkload.spectrumElements());
+    const std::array<std::size_t, 3> selectedFields{0, 2, 4};
+    for (const auto field : selectedFields) {
+        direct.forwardField(
+            real.data() + field * singleFieldWorkload.realElements(),
+            {actualSpectrum.data() + familyWorkload.nz * field,
+             familyWorkload.planes()});
+    }
+    for (const auto field : selectedFields) {
+        for (std::size_t frequency = 0;
+             frequency < familyWorkload.halfRows(); ++frequency) {
+            for (std::size_t z = 0; z < familyWorkload.nz; ++z) {
+                const auto index = z + familyWorkload.nz * field +
+                    familyWorkload.planes() * frequency;
+                require(skbench::maximumRelativeError(
+                            &actualSpectrum[index], &expectedSpectrum[index], 1) <=
+                            1.0e-12,
+                        "direct WVM field-view forward equivalence");
+            }
+        }
+    }
+
+    std::array<
+        skbench::FFTWInterleavedWvmFieldViewProvider::MutableFieldView, 3>
+        views;
+    for (std::size_t logical = 0; logical < selectedFields.size(); ++logical) {
+        const auto field = selectedFields[logical];
+        views[logical] = {
+            actualSpectrum.data() + familyWorkload.nz * field,
+            familyWorkload.planes()};
+    }
+    std::vector<double> inverse(
+        selectedFields.size() * singleFieldWorkload.realElements());
+    direct.inverseFields(views.data(), views.size(), inverse.data());
+    const auto transformScale = static_cast<double>(
+        familyWorkload.nx * familyWorkload.ny);
+    for (std::size_t logical = 0; logical < selectedFields.size(); ++logical) {
+        const auto field = selectedFields[logical];
+        for (std::size_t element = 0;
+             element < singleFieldWorkload.realElements(); ++element) {
+            const auto expected = transformScale * real[
+                field * singleFieldWorkload.realElements() + element];
+            const auto actual = inverse[
+                logical * singleFieldWorkload.realElements() + element];
+            const auto scale = std::max(1.0, std::abs(expected));
+            require(std::abs(actual - expected) / scale <= 1.0e-12,
+                    "direct WVM field-view inverse equivalence");
+        }
+    }
+    require(direct.inverseInputIsDestructive(),
+            "direct WVM field-view destructive-input contract");
+
+    for (std::size_t repetition = 0; repetition < 3; ++repetition) {
+        for (const auto field : selectedFields) {
+            direct.forwardField(
+                real.data() + field * singleFieldWorkload.realElements(),
+                {actualSpectrum.data() + familyWorkload.nz * field,
+                 familyWorkload.planes()});
+        }
+        direct.inverseFields(views.data(), views.size(), inverse.data());
+        direct.executeSchedulerNoop();
+    }
+    skbench::test::beginAllocationTracking();
+    for (std::size_t repetition = 0; repetition < 16; ++repetition) {
+        for (const auto field : selectedFields) {
+            direct.forwardField(
+                real.data() + field * singleFieldWorkload.realElements(),
+                {actualSpectrum.data() + familyWorkload.nz * field,
+                 familyWorkload.planes()});
+        }
+        direct.inverseFields(views.data(), views.size(), inverse.data());
+        direct.executeSchedulerNoop();
+    }
+    require(skbench::test::endAllocationTracking() == 0,
+            "direct WVM field-view steady-state execution allocated memory");
 }
 
 void requireAllocationFreePrunedExecution(
@@ -974,6 +1077,7 @@ int main() {
         require(workload.planes() == 14, "plane count");
         require(workload.nxHalf() == 5, "half width");
         require(workload.retainedVerticalModes() == 4, "retained vertical count");
+        requireDirectWvmFieldViewExecution();
 
         for (const auto strategy : {skbench::VDSPTransformStrategy::inPlace,
                                     skbench::VDSPTransformStrategy::inPlaceExplicitScratch,

@@ -58,6 +58,24 @@ std::vector<double> sample(std::size_t warmups, std::size_t samples,
     return result;
 }
 
+template <typename Prepare, typename Action>
+std::vector<double> samplePrepared(std::size_t warmups, std::size_t samples,
+                                   Prepare prepare, Action action) {
+    for (std::size_t index = 0; index < warmups; ++index) {
+        prepare();
+        action();
+    }
+    std::vector<double> result;
+    result.reserve(samples);
+    for (std::size_t index = 0; index < samples; ++index) {
+        prepare();
+        const auto start = Clock::now();
+        action();
+        result.push_back(std::chrono::duration<double>(Clock::now() - start).count());
+    }
+    return result;
+}
+
 TimingSeries timing(std::string scope, std::string stage,
                     std::string direction, StageState state,
                     std::uint64_t bytesMoved,
@@ -906,7 +924,7 @@ ProviderRecord runWvmDirect(
     SpectralFluxFixture& fixture, FamilyOperators& operators,
     const VerticalGemmStrategy& verticalStrategy,
     std::size_t warmups, std::size_t samples, std::size_t fftwInternalWorkers,
-    double fixtureSeconds) {
+    double fixtureSeconds, bool stridedFieldViews) {
     const auto setupStart = Clock::now();
     const auto pointwisePolicy =
         pointwiseAdvectionPolicyNamed(options.pointwisePolicy);
@@ -950,27 +968,50 @@ ProviderRecord runWvmDirect(
             VerticalGemmBufferPolicy::forwardOnly);
         releaseOperatorSource(operators.values[family]);
     }
-    FFTWProvider inverse(
-        context.tripleWorkload, FFTWStrategy{
+    const FFTWStrategy inverseStrategy{
             fftwPlanningModeNamed(options.fftwPlanning),
             fftwAlignmentStrategyNamed(options.fftwAlignment),
             fftwWisdomStrategyNamed(options.fftwWisdom), fftwInternalWorkers,
             options.fftwOuterWorkers, options.fftwPlanningTimeLimitSeconds,
             FFTWDataLayout::interleaved,
-            FFTWSpectrumOrder::wvmFrequencyMajor});
-    FFTWProvider forward(
-        context.targetWorkload, FFTWStrategy{
+            FFTWSpectrumOrder::wvmFrequencyMajor};
+    const FFTWStrategy forwardStrategy{
             fftwPlanningModeNamed(options.fftwPlanning),
             fftwAlignmentStrategyNamed(options.fftwAlignment),
             fftwWisdomStrategyNamed(options.fftwWisdom), fftwInternalWorkers,
             options.fftwOuterWorkers, options.fftwPlanningTimeLimitSeconds,
             FFTWDataLayout::interleaved,
-            FFTWSpectrumOrder::wvmFrequencyMajor});
+            FFTWSpectrumOrder::wvmFrequencyMajor};
+    std::unique_ptr<FFTWProvider> inverse;
+    std::unique_ptr<FFTWProvider> forward;
+    std::unique_ptr<FFTWInterleavedWvmFieldViewProvider> directInverse;
+    std::unique_ptr<FFTWInterleavedWvmFieldViewProvider> directForward;
+    if (stridedFieldViews) {
+        directInverse = std::make_unique<FFTWInterleavedWvmFieldViewProvider>(
+            context.targetWorkload,
+            std::vector<std::size_t>{
+                context.inputFamilyWorkloads[0].planes(),
+                context.inputFamilyWorkloads[1].planes()},
+            inverseStrategy, VerticalGemmBufferPolicy::inverseOnly);
+        directForward = std::make_unique<FFTWInterleavedWvmFieldViewProvider>(
+            context.targetWorkload,
+            std::vector<std::size_t>{
+                context.targetFamilyWorkloads[0].planes(),
+                context.targetFamilyWorkloads[1].planes()},
+            forwardStrategy, VerticalGemmBufferPolicy::forwardOnly);
+    } else {
+        inverse = std::make_unique<FFTWProvider>(
+            context.tripleWorkload, inverseStrategy);
+        forward = std::make_unique<FFTWProvider>(
+            context.targetWorkload, forwardStrategy);
+    }
     PointwiseAdvectionExecutor pointwiseExecutor(
         pointwisePolicy, pointwiseWorkers, context.realVolumeElements,
         context.pointwiseScale);
-    std::vector<Complex> tripleSpectrum(context.tripleWorkload.spectrumElements());
-    std::vector<Complex> targetSpectrum(context.targetWorkload.spectrumElements());
+    std::vector<Complex> tripleSpectrum(
+        stridedFieldViews ? 0 : context.tripleWorkload.spectrumElements());
+    std::vector<Complex> targetSpectrum(
+        stridedFieldViews ? 0 : context.targetWorkload.spectrumElements());
     std::vector<double> shared(context.tripleWorkload.realElements());
     std::vector<double> derivative(context.tripleWorkload.realElements());
     std::vector<double> target(context.targetWorkload.realElements());
@@ -1007,6 +1048,30 @@ ProviderRecord runWvmDirect(
             }
         }
     };
+    auto directInverseTriple = [&](std::size_t firstOriginalField,
+                                   double* output) {
+        std::array<FFTWInterleavedWvmFieldViewProvider::MutableFieldView, 3>
+            fields;
+        for (std::size_t field = 0; field < 3; ++field) {
+            const auto original = firstOriginalField + field;
+            const auto family = context.inputMap.family[original];
+            const auto local = context.inputMap.local[original];
+            fields[field] = {
+                fullPhysicalInput[family].data() +
+                    context.outputWorkload.nz * local,
+                context.inputFamilyWorkloads[family].planes()};
+        }
+        directInverse->inverseFields(fields.data(), fields.size(), output);
+    };
+    auto directForwardTarget = [&](std::size_t originalTarget) {
+        const auto family = context.targetMap.family[originalTarget];
+        const auto local = context.targetMap.local[originalTarget];
+        directForward->forwardField(
+            target.data(),
+            {fullPhysicalOutput[family].data() +
+                 context.outputWorkload.nz * local,
+             context.targetFamilyWorkloads[family].planes()});
+    };
     auto executeVerticalInverse = [&] {
         for (std::size_t family = 0; family < 2; ++family) {
             reconstruction[family]->initializeSpectrumOutput(
@@ -1023,30 +1088,50 @@ ProviderRecord runWvmDirect(
         }
     };
     auto executeShared = [&] {
-        extractTriple(0);
-        inverse.inverse(tripleSpectrum.data(), shared.data());
+        if (stridedFieldViews) {
+            directInverseTriple(0, shared.data());
+        } else {
+            extractTriple(0);
+            inverse->inverse(tripleSpectrum.data(), shared.data());
+        }
     };
     auto executeDerivatives = [&] {
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-            extractTriple(3 + 3 * targetIndex);
-            inverse.inverse(tripleSpectrum.data(), derivative.data());
+            if (stridedFieldViews) {
+                directInverseTriple(3 + 3 * targetIndex, derivative.data());
+            } else {
+                extractTriple(3 + 3 * targetIndex);
+                inverse->inverse(tripleSpectrum.data(), derivative.data());
+            }
         }
     };
     auto executeForwardTargets = [&] {
-        for (std::size_t repeat = 0; repeat < 4; ++repeat)
-            forward.forward(target.data(), targetSpectrum.data());
+        for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
+            if (stridedFieldViews) {
+                directForwardTarget(targetIndex);
+            } else {
+                forward->forward(target.data(), targetSpectrum.data());
+            }
+        }
     };
     auto executeAll = [&] {
         executeVerticalInverse();
-        extractTriple(0);
-        inverse.inverse(tripleSpectrum.data(), shared.data());
+        executeShared();
         for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-            extractTriple(3 + 3 * targetIndex);
-            inverse.inverse(tripleSpectrum.data(), derivative.data());
+            if (stridedFieldViews) {
+                directInverseTriple(3 + 3 * targetIndex, derivative.data());
+            } else {
+                extractTriple(3 + 3 * targetIndex);
+                inverse->inverse(tripleSpectrum.data(), derivative.data());
+            }
             pointwiseExecutor.execute(
                 shared.data(), derivative.data(), target.data());
-            forward.forward(target.data(), targetSpectrum.data());
-            scatterTarget(targetIndex);
+            if (stridedFieldViews) {
+                directForwardTarget(targetIndex);
+            } else {
+                forward->forward(target.data(), targetSpectrum.data());
+                scatterTarget(targetIndex);
+            }
         }
         executeVerticalForward();
     };
@@ -1081,6 +1166,12 @@ ProviderRecord runWvmDirect(
     record.libraryIdentity = "pinned FFTW 3.3.11 and Apple Accelerate";
     record.algorithmId =
         "full-wvm-order-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v2";
+    if (stridedFieldViews) {
+        record.id =
+            "pipeline-production-lifetime-wvm-direct-strided-field-views-authoritative";
+        record.algorithmId =
+            "full-wvm-order-strided-field-view-fftw+streamed-3-shared-3-derivative+direct-zgemm-wvm-fg-15to4-v1";
+    }
     if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
         record.id += "-pointwise-" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy));
@@ -1089,7 +1180,9 @@ ProviderRecord runWvmDirect(
             "-v1";
     }
     record.nativeRepresentationId =
-        "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal; setup-only wave-f/wave-g field partition";
+        stridedFieldViews
+            ? "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal; direct destructive single-use FFTW views into setup-only wave-f/wave-g field partitions"
+            : "persistent-wvm-frequency-major-interleaved-full-spectrum-and-modal; setup-only wave-f/wave-g field partition";
     record.modeOrderId = "logical-radial-(k,l,j,target); exact WVM F/G mapping";
     record.schedulingId =
         "horizontal-outer-" + std::to_string(options.fftwOuterWorkers) +
@@ -1116,6 +1209,10 @@ ProviderRecord runWvmDirect(
     record.planningConfiguration =
         "authoritative spectral-flux-fixture-v1; Float64; full WVM-order spectra; "
         "exact WVM wave-f/wave-g K2 operators; field-family permutation is setup-only";
+    if (stridedFieldViews) {
+        record.planningConfiguration +=
+            "; direct FFTW native-family frequency strides; inverse reconstructed intermediates are single-use and destructively consumed";
+    }
     if (pointwisePolicy != PointwiseAdvectionPolicy::serial) {
         record.planningConfiguration += "; pointwise=" +
             std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
@@ -1146,9 +1243,21 @@ ProviderRecord runWvmDirect(
         byteCount(shared.size() + derivative.size() + target.size(), sizeof(double)));
     record.algorithmResidentBytes = record.explicitPersistentBytes + record.scratchBytes;
     record.otherSetupSeconds = setupSeconds;
-    record.allocationSeconds += inverse.allocationSeconds() + forward.allocationSeconds();
-    record.planningSeconds = inverse.planningSeconds() + forward.planningSeconds();
-    record.opaquePlanningBytes = inverse.planningBytes() + forward.planningBytes();
+    if (stridedFieldViews) {
+        record.allocationSeconds += directInverse->allocationSeconds() +
+            directForward->allocationSeconds();
+        record.planningSeconds = directInverse->planningSeconds() +
+            directForward->planningSeconds();
+        record.opaquePlanningBytes = directInverse->planningBytes() +
+            directForward->planningBytes();
+    } else {
+        record.allocationSeconds += inverse->allocationSeconds() +
+            forward->allocationSeconds();
+        record.planningSeconds = inverse->planningSeconds() +
+            forward->planningSeconds();
+        record.opaquePlanningBytes = inverse->planningBytes() +
+            forward->planningBytes();
+    }
     record.correctness = {
         correctness("complete composition versus authoritative WVM oracle",
                     actual.data(), fixture.expectedModalTargets.data(), actual.size()),
@@ -1167,7 +1276,7 @@ ProviderRecord runWvmDirect(
     }
     const auto verticalInverseBytes = byteCount(fullInputElements, sizeof(Complex));
     const auto verticalForwardBytes = byteCount(fullOutputElements, sizeof(Complex));
-    const auto movementBytes = byteCount(
+    const auto movementBytes = stridedFieldViews ? std::uint64_t{0} : byteCount(
         context.outputWorkload.nz * (15 + 4) *
             context.targetWorkload.halfRows(), sizeof(Complex));
     record.timings = {
@@ -1183,11 +1292,17 @@ ProviderRecord runWvmDirect(
         timing("component", "shared U,V,W horizontal reconstruction", "inverse",
                StageState::executed,
                byteCount(3 * context.realVolumeElements, sizeof(double)),
-               sample(warmups, samples, executeShared)),
+               stridedFieldViews
+                   ? samplePrepared(warmups, samples, executeVerticalInverse,
+                                    executeShared)
+                   : sample(warmups, samples, executeShared)),
         timing("component", "per-target derivative horizontal reconstruction", "inverse",
                StageState::executed,
                byteCount(12 * context.realVolumeElements, sizeof(double)),
-               sample(warmups, samples, executeDerivatives)),
+               stridedFieldViews
+                   ? samplePrepared(warmups, samples, executeVerticalInverse,
+                                    executeDerivatives)
+                   : sample(warmups, samples, executeDerivatives)),
         timing("component", "four streamed pointwise advection expressions", "pointwise",
                StageState::executed,
                byteCount(28 * context.realVolumeElements, sizeof(double)),
@@ -1203,14 +1318,19 @@ ProviderRecord runWvmDirect(
                          sizeof(Complex)),
                sample(warmups, samples, executeForwardTargets)),
         timing("adapter-component", "WVM-order triple extraction and target scatter",
-               "movement", StageState::executed, movementBytes,
-               sample(warmups, samples, [&] {
-                   extractTriple(0);
-                   for (std::size_t targetIndex = 0; targetIndex < 4; ++targetIndex) {
-                       extractTriple(3 + 3 * targetIndex);
-                       scatterTarget(targetIndex);
-                   }
-               })),
+               "movement",
+               stridedFieldViews ? StageState::elided : StageState::executed,
+               movementBytes,
+               stridedFieldViews
+                   ? std::vector<double>{}
+                   : sample(warmups, samples, [&] {
+                         extractTriple(0);
+                         for (std::size_t targetIndex = 0; targetIndex < 4;
+                              ++targetIndex) {
+                             extractTriple(3 + 3 * targetIndex);
+                             scatterTarget(targetIndex);
+                         }
+                     })),
         timing("primitive", "raw forward vertical MM (4 modal targets; exact WVM F/G families)",
                "forward", StageState::executed, verticalForwardBytes,
                sample(warmups, samples, executeVerticalForward))};
@@ -1263,7 +1383,14 @@ ProviderRecord runWvmDirect(
                    std::string(pointwiseAdvectionPolicyName(pointwisePolicy)) +
                    "; workers=" + std::to_string(pointwiseWorkers)},
         {"horizontal forward and retention", StageState::executed,
-         "full WVM-order FFTW output feeds direct vertical zgemm"},
+         stridedFieldViews
+             ? "FFTW writes full output directly into each WVM-native target-family field view"
+             : "full WVM-order FFTW output feeds direct vertical zgemm"},
+        {"WVM-order extraction and scatter",
+         stridedFieldViews ? StageState::elided : StageState::executed,
+         stridedFieldViews
+             ? "native family-stride FFTW plans destructively consume single-use reconstructed fields and write target fields in place"
+             : "materialized three-field inverse and one-field forward spectrum bridges"},
         {"vertical projection", StageState::executed,
          "direct complex zgemm uses exact WVM F/G matrices"},
         {"steady-state allocation", StageState::elided,
@@ -1286,15 +1413,17 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
             "Authoritative production-lifetime benchmark requires a prepared fixture.");
     }
     if (options.boundaryPolicy != "wvm-direct" &&
+        options.boundaryPolicy != "wvm-direct-strided-field-views" &&
         options.boundaryPolicy != "streaming-pruned-compact-split" &&
         options.boundaryPolicy !=
             "streaming-pruned-compact-split-fused-vertical-views") {
         throw std::invalid_argument(
-            "Authoritative production-lifetime boundary policy must be wvm-direct "
-            "streaming-pruned-compact-split, or "
+            "Authoritative production-lifetime boundary policy must be wvm-direct, "
+            "wvm-direct-strided-field-views, streaming-pruned-compact-split, or "
             "streaming-pruned-compact-split-fused-vertical-views.");
     }
-    if (options.boundaryPolicy == "wvm-direct" &&
+    if ((options.boundaryPolicy == "wvm-direct" ||
+         options.boundaryPolicy == "wvm-direct-strided-field-views") &&
         options.streamingInversePolicy != "full-zero") {
         throw std::invalid_argument(
             "Alternative streaming inverse preparation requires a streaming-pruned boundary policy.");
@@ -1351,7 +1480,11 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
     report.environment = environmentRecord();
     const auto inverseExperiment =
         options.streamingInversePolicy != "full-zero";
-    const auto issueTag = inverseExperiment
+    const auto stridedFieldViews =
+        options.boundaryPolicy == "wvm-direct-strided-field-views";
+    const auto issueTag = stridedFieldViews
+        ? "issue25-authoritative-"
+        : inverseExperiment
         ? "issue24-authoritative-"
         : pointwisePolicy != PointwiseAdvectionPolicy::serial
             ? "issue22-authoritative-"
@@ -1415,7 +1548,8 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
         fixture.generatorIdentity, fixture.fixtureHash, fixture.normalization,
         fixture.modeMapping, fixture.derivativeConvention, true};
 
-    const auto streaming = options.boundaryPolicy != "wvm-direct";
+    const auto streaming = options.boundaryPolicy != "wvm-direct" &&
+        !stridedFieldViews;
     const auto fusedFamilyViews = options.boundaryPolicy ==
         "streaming-pruned-compact-split-fused-vertical-views";
     auto record = streaming
@@ -1423,7 +1557,8 @@ BenchmarkReport runAuthoritativeProductionLifetimeFluxBenchmark(
                        warmups, samples, fftwInternalWorkers, fixtureSeconds,
                        fusedFamilyViews)
         : runWvmDirect(options, context, fixture, operators, verticalStrategy,
-                       warmups, samples, fftwInternalWorkers, fixtureSeconds);
+                       warmups, samples, fftwInternalWorkers, fixtureSeconds,
+                       stridedFieldViews);
     record.compilerFlags = report.environment.compilerFlags;
     report.spectralPipelineEstimatedExplicitPeakBytes =
         record.estimatedProcessPeakBytes;

@@ -916,6 +916,413 @@ private:
     }
 };
 
+class FFTWInterleavedWvmFieldViewProvider::Impl {
+public:
+    struct PlanPair {
+        fftw_plan forward = nullptr;
+        fftw_plan inverse = nullptr;
+        std::size_t beginPlane = 0;
+        std::size_t planeCount = 0;
+    };
+
+    struct StridePlans {
+        std::size_t frequencyStride = 0;
+        std::vector<PlanPair> shards;
+    };
+
+    Impl(const Workload& workload, std::vector<std::size_t> frequencyStrides,
+         FFTWStrategy strategy, VerticalGemmBufferPolicy bufferPolicy)
+        : workload_(workload), strategy_(strategy), bufferPolicy_(bufferPolicy),
+          frequencyStrides_(std::move(frequencyStrides)) {
+        validate();
+        std::sort(frequencyStrides_.begin(), frequencyStrides_.end());
+        frequencyStrides_.erase(
+            std::unique(frequencyStrides_.begin(), frequencyStrides_.end()),
+            frequencyStrides_.end());
+
+        const auto setupStart = Clock::now();
+        {
+            std::lock_guard<std::mutex> lock(planningMutex);
+            if (fftw_init_threads() == 0)
+                throw std::runtime_error("fftw_init_threads failed.");
+        }
+        otherSetupSeconds_ = elapsedSeconds(setupStart);
+
+        const auto realBytes = workload_.realElements() * sizeof(double);
+        const auto maximumStride = frequencyStrides_.back();
+        const auto spectrumElements = maximumStride * workload_.halfRows();
+        const auto spectrumBytes = spectrumElements * sizeof(fftw_complex);
+        planningBytes_ = realBytes + spectrumBytes;
+        const auto allocationStart = Clock::now();
+        realSurrogate_ = static_cast<double*>(fftw_malloc(realBytes));
+        spectrumSurrogate_ = static_cast<fftw_complex*>(fftw_malloc(spectrumBytes));
+        if (realSurrogate_ == nullptr || spectrumSurrogate_ == nullptr) {
+            releaseSurrogates();
+            throw std::bad_alloc();
+        }
+        allocationSeconds_ = elapsedSeconds(allocationStart);
+
+        try {
+            std::lock_guard<std::mutex> lock(planningMutex);
+            fftw_forget_wisdom();
+            const auto flags = plannerFlags(strategy_);
+            const auto planningStart = Clock::now();
+            plans_ = createPlans(flags);
+            planningSeconds_ = elapsedSeconds(planningStart);
+            fftw_set_timelimit(FFTW_NO_TIMELIMIT);
+            fftw_forget_wisdom();
+        } catch (...) {
+            fftw_set_timelimit(FFTW_NO_TIMELIMIT);
+            fftw_forget_wisdom();
+            releaseSurrogates();
+            throw;
+        }
+        releaseSurrogates();
+
+        const auto executorStart = Clock::now();
+        executor_ = std::make_unique<PersistentIndexExecutor>(
+            strategy_.outerWorkers);
+        otherSetupSeconds_ += elapsedSeconds(executorStart);
+    }
+
+    ~Impl() {
+        executor_.reset();
+        std::lock_guard<std::mutex> lock(planningMutex);
+        destroyPlans();
+        releaseSurrogates();
+    }
+
+    void inverseFields(MutableFieldView* fields, std::size_t fieldCount,
+                       double* output) {
+        requireInverse();
+        validateViews(fields, fieldCount);
+        if (output == nullptr)
+            throw std::invalid_argument("WVM field-view inverse output is null.");
+        InverseContext context{this, fields, fieldCount, output};
+        executor_->run(&executeInverseShard, &context);
+    }
+
+    void forwardField(const double* input, MutableFieldView output) {
+        requireForward();
+        validateView(output);
+        if (input == nullptr)
+            throw std::invalid_argument("WVM field-view forward input is null.");
+        ForwardContext context{this, input, output};
+        executor_->run(&executeForwardShard, &context);
+    }
+
+    void executeSchedulerNoop() { executor_->run(&noopShard, nullptr); }
+
+    const StridePlans& plansFor(std::size_t frequencyStride) const {
+        const auto found = std::lower_bound(
+            plans_.begin(), plans_.end(), frequencyStride,
+            [](const StridePlans& item, std::size_t value) {
+                return item.frequencyStride < value;
+            });
+        if (found == plans_.end() || found->frequencyStride != frequencyStride) {
+            throw std::invalid_argument(
+                "WVM field view uses a frequency stride that was not planned.");
+        }
+        return *found;
+    }
+
+    Workload workload_;
+    FFTWStrategy strategy_;
+    VerticalGemmBufferPolicy bufferPolicy_;
+    std::vector<std::size_t> frequencyStrides_;
+    std::vector<StridePlans> plans_;
+    std::unique_ptr<PersistentIndexExecutor> executor_;
+    double* realSurrogate_ = nullptr;
+    fftw_complex* spectrumSurrogate_ = nullptr;
+    double otherSetupSeconds_ = 0.0;
+    double allocationSeconds_ = 0.0;
+    double planningSeconds_ = 0.0;
+    std::size_t planningBytes_ = 0;
+
+private:
+    struct InverseContext {
+        Impl* provider;
+        MutableFieldView* fields;
+        std::size_t fieldCount;
+        double* output;
+    };
+
+    struct ForwardContext {
+        Impl* provider;
+        const double* input;
+        MutableFieldView output;
+    };
+
+    void validate() const {
+        if (workload_.fields != 1)
+            throw std::invalid_argument(
+                "WVM field-view FFTW requires a one-field logical workload.");
+        if (frequencyStrides_.empty())
+            throw std::invalid_argument(
+                "WVM field-view FFTW requires at least one native frequency stride.");
+        if (std::any_of(frequencyStrides_.begin(), frequencyStrides_.end(),
+                        [this](std::size_t stride) {
+                            return stride < workload_.nz;
+                        })) {
+            throw std::invalid_argument(
+                "WVM field-view frequency strides must contain every vertical plane.");
+        }
+        if (strategy_.layout != FFTWDataLayout::interleaved ||
+            strategy_.spectrumOrder != FFTWSpectrumOrder::wvmFrequencyMajor) {
+            throw std::invalid_argument(
+                "WVM field-view FFTW requires interleaved frequency-major storage.");
+        }
+        if (strategy_.alignment != FFTWAlignmentStrategy::unaligned) {
+            throw std::invalid_argument(
+                "WVM field-view FFTW currently requires FFTW_UNALIGNED because native field offsets have distinct alignment classes.");
+        }
+        if (strategy_.wisdom != FFTWWisdomStrategy::cold) {
+            throw std::invalid_argument(
+                "WVM field-view FFTW currently supports cold planning only.");
+        }
+        if (strategy_.internalWorkers == 0 ||
+            strategy_.internalWorkers > static_cast<std::size_t>(INT_MAX) ||
+            strategy_.outerWorkers == 0 ||
+            strategy_.outerWorkers > workload_.nz) {
+            throw std::invalid_argument(
+                "WVM field-view FFTW worker counts are outside the supported range.");
+        }
+        if (!std::isfinite(strategy_.planningTimeLimitSeconds) ||
+            strategy_.planningTimeLimitSeconds < 0.0) {
+            throw std::invalid_argument(
+                "WVM field-view FFTW planning limit must be finite and nonnegative.");
+        }
+    }
+
+    void requireForward() const {
+        if (bufferPolicy_ == VerticalGemmBufferPolicy::inverseOnly)
+            throw std::logic_error(
+                "Forward transform requested from an inverse-only WVM field-view provider.");
+    }
+
+    void requireInverse() const {
+        if (bufferPolicy_ == VerticalGemmBufferPolicy::forwardOnly)
+            throw std::logic_error(
+                "Inverse transform requested from a forward-only WVM field-view provider.");
+    }
+
+    void validateView(MutableFieldView field) const {
+        if (field.data == nullptr)
+            throw std::invalid_argument("WVM FFTW field view is null.");
+        (void)plansFor(field.frequencyStride);
+    }
+
+    void validateViews(MutableFieldView* fields, std::size_t fieldCount) const {
+        if (fields == nullptr || fieldCount == 0)
+            throw std::invalid_argument(
+                "WVM field-view inverse requires at least one field.");
+        for (std::size_t field = 0; field < fieldCount; ++field)
+            validateView(fields[field]);
+    }
+
+    std::vector<StridePlans> createPlans(unsigned flags) {
+        std::vector<StridePlans> result;
+        result.reserve(frequencyStrides_.size());
+        fftw_plan_with_nthreads(static_cast<int>(strategy_.internalWorkers));
+        for (const auto frequencyStride : frequencyStrides_) {
+            StridePlans stridePlans;
+            stridePlans.frequencyStride = frequencyStride;
+            stridePlans.shards.reserve(strategy_.outerWorkers);
+            for (std::size_t shard = 0; shard < strategy_.outerWorkers;
+                 ++shard) {
+                PlanPair plan;
+                plan.beginPlane = workload_.nz * shard /
+                    strategy_.outerWorkers;
+                const auto end = workload_.nz * (shard + 1) /
+                    strategy_.outerWorkers;
+                plan.planeCount = end - plan.beginPlane;
+                auto* real = realSurrogate_ +
+                    plan.beginPlane * workload_.realPlaneElements();
+                auto* spectrum = spectrumSurrogate_ + plan.beginPlane;
+                const auto limit = strategy_.planningTimeLimitSeconds > 0.0
+                    ? strategy_.planningTimeLimitSeconds
+                    : FFTW_NO_TIMELIMIT;
+                fftw_set_timelimit(limit);
+                if (bufferPolicy_ != VerticalGemmBufferPolicy::inverseOnly)
+                    plan.forward = makeForwardPlan(
+                        plan, frequencyStride, real, spectrum, flags);
+                if (bufferPolicy_ != VerticalGemmBufferPolicy::forwardOnly)
+                    plan.inverse = makeInversePlan(
+                        plan, frequencyStride, spectrum, real, flags);
+                if ((bufferPolicy_ != VerticalGemmBufferPolicy::inverseOnly &&
+                     plan.forward == nullptr) ||
+                    (bufferPolicy_ != VerticalGemmBufferPolicy::forwardOnly &&
+                     plan.inverse == nullptr)) {
+                    if (plan.forward != nullptr) fftw_destroy_plan(plan.forward);
+                    if (plan.inverse != nullptr) fftw_destroy_plan(plan.inverse);
+                    for (auto& existing : result) {
+                        for (auto& shardPlan : existing.shards) {
+                            if (shardPlan.forward != nullptr)
+                                fftw_destroy_plan(shardPlan.forward);
+                            if (shardPlan.inverse != nullptr)
+                                fftw_destroy_plan(shardPlan.inverse);
+                        }
+                    }
+                    throw std::runtime_error(
+                        "FFTW could not create a direct WVM field-view plan.");
+                }
+                stridePlans.shards.push_back(plan);
+            }
+            result.push_back(std::move(stridePlans));
+        }
+        return result;
+    }
+
+    fftw_plan makeForwardPlan(const PlanPair& shard,
+                              std::size_t frequencyStride, double* real,
+                              fftw_complex* spectrum, unsigned flags) const {
+        fftw_iodim64 dimensions[2] = {
+            {static_cast<ptrdiff_t>(workload_.ny),
+             static_cast<ptrdiff_t>(workload_.nx),
+             static_cast<ptrdiff_t>(frequencyStride * workload_.nxHalf())},
+            {static_cast<ptrdiff_t>(workload_.nx), 1,
+             static_cast<ptrdiff_t>(frequencyStride)}};
+        fftw_iodim64 batch = {
+            static_cast<ptrdiff_t>(shard.planeCount),
+            static_cast<ptrdiff_t>(workload_.realPlaneElements()), 1};
+        return fftw_plan_guru64_dft_r2c(
+            2, dimensions, 1, &batch, real, spectrum, flags);
+    }
+
+    fftw_plan makeInversePlan(const PlanPair& shard,
+                              std::size_t frequencyStride,
+                              fftw_complex* spectrum, double* real,
+                              unsigned flags) const {
+        fftw_iodim64 dimensions[2] = {
+            {static_cast<ptrdiff_t>(workload_.ny),
+             static_cast<ptrdiff_t>(frequencyStride * workload_.nxHalf()),
+             static_cast<ptrdiff_t>(workload_.nx)},
+            {static_cast<ptrdiff_t>(workload_.nx),
+             static_cast<ptrdiff_t>(frequencyStride), 1}};
+        fftw_iodim64 batch = {
+            static_cast<ptrdiff_t>(shard.planeCount), 1,
+            static_cast<ptrdiff_t>(workload_.realPlaneElements())};
+        return fftw_plan_guru64_dft_c2r(
+            2, dimensions, 1, &batch, spectrum, real, flags);
+    }
+
+    static void executeInverseShard(void* rawContext,
+                                    std::size_t shardIndex) {
+        auto& context = *static_cast<InverseContext*>(rawContext);
+        auto& provider = *context.provider;
+        for (std::size_t field = 0; field < context.fieldCount; ++field) {
+            const auto& stridePlans = provider.plansFor(
+                context.fields[field].frequencyStride);
+            const auto& shard = stridePlans.shards[shardIndex];
+            auto* input = reinterpret_cast<fftw_complex*>(
+                context.fields[field].data + shard.beginPlane);
+            auto* output = context.output +
+                field * provider.workload_.realElements() +
+                shard.beginPlane * provider.workload_.realPlaneElements();
+            fftw_execute_dft_c2r(shard.inverse, input, output);
+        }
+    }
+
+    static void executeForwardShard(void* rawContext,
+                                    std::size_t shardIndex) {
+        auto& context = *static_cast<ForwardContext*>(rawContext);
+        auto& provider = *context.provider;
+        const auto& stridePlans = provider.plansFor(
+            context.output.frequencyStride);
+        const auto& shard = stridePlans.shards[shardIndex];
+        auto* input = const_cast<double*>(context.input) +
+            shard.beginPlane * provider.workload_.realPlaneElements();
+        auto* output = reinterpret_cast<fftw_complex*>(
+            context.output.data + shard.beginPlane);
+        fftw_execute_dft_r2c(shard.forward, input, output);
+    }
+
+    static void noopShard(void*, std::size_t) {}
+
+    void destroyPlans() {
+        for (auto& stridePlans : plans_) {
+            for (auto& plan : stridePlans.shards) {
+                if (plan.forward != nullptr) fftw_destroy_plan(plan.forward);
+                if (plan.inverse != nullptr) fftw_destroy_plan(plan.inverse);
+                plan.forward = nullptr;
+                plan.inverse = nullptr;
+            }
+        }
+        plans_.clear();
+    }
+
+    void releaseSurrogates() {
+        if (realSurrogate_ != nullptr) fftw_free(realSurrogate_);
+        if (spectrumSurrogate_ != nullptr) fftw_free(spectrumSurrogate_);
+        realSurrogate_ = nullptr;
+        spectrumSurrogate_ = nullptr;
+    }
+};
+
+FFTWInterleavedWvmFieldViewProvider::FFTWInterleavedWvmFieldViewProvider(
+    const Workload& workload, std::vector<std::size_t> frequencyStrides,
+    FFTWStrategy strategy, VerticalGemmBufferPolicy bufferPolicy)
+    : impl_(std::make_unique<Impl>(
+          workload, std::move(frequencyStrides), strategy, bufferPolicy)) {}
+
+FFTWInterleavedWvmFieldViewProvider::~FFTWInterleavedWvmFieldViewProvider() =
+    default;
+FFTWInterleavedWvmFieldViewProvider::FFTWInterleavedWvmFieldViewProvider(
+    FFTWInterleavedWvmFieldViewProvider&&) noexcept = default;
+FFTWInterleavedWvmFieldViewProvider&
+FFTWInterleavedWvmFieldViewProvider::operator=(
+    FFTWInterleavedWvmFieldViewProvider&&) noexcept = default;
+
+void FFTWInterleavedWvmFieldViewProvider::inverseFields(
+    MutableFieldView* fields, std::size_t fieldCount, double* output) {
+    impl_->inverseFields(fields, fieldCount, output);
+}
+
+void FFTWInterleavedWvmFieldViewProvider::forwardField(
+    const double* input, MutableFieldView output) {
+    impl_->forwardField(input, output);
+}
+
+void FFTWInterleavedWvmFieldViewProvider::executeSchedulerNoop() {
+    impl_->executeSchedulerNoop();
+}
+
+bool FFTWInterleavedWvmFieldViewProvider::inverseInputIsDestructive() const noexcept {
+    return true;
+}
+
+double FFTWInterleavedWvmFieldViewProvider::otherSetupSeconds() const noexcept {
+    return impl_->otherSetupSeconds_;
+}
+
+double FFTWInterleavedWvmFieldViewProvider::allocationSeconds() const noexcept {
+    return impl_->allocationSeconds_;
+}
+
+double FFTWInterleavedWvmFieldViewProvider::planningSeconds() const noexcept {
+    return impl_->planningSeconds_;
+}
+
+std::size_t FFTWInterleavedWvmFieldViewProvider::planningBytes() const noexcept {
+    return impl_->planningBytes_;
+}
+
+std::size_t FFTWInterleavedWvmFieldViewProvider::internalWorkers() const noexcept {
+    return impl_->strategy_.internalWorkers;
+}
+
+std::size_t FFTWInterleavedWvmFieldViewProvider::outerWorkers() const noexcept {
+    return impl_->strategy_.outerWorkers;
+}
+
+std::string FFTWInterleavedWvmFieldViewProvider::libraryIdentity() const {
+    return libraryContaining(reinterpret_cast<const void*>(&fftw_execute));
+}
+
+std::string FFTWInterleavedWvmFieldViewProvider::version() const {
+    return fftw_version;
+}
+
 FFTWProvider::FFTWProvider(const Workload& workload, std::size_t workers)
     : FFTWProvider(workload, FFTWStrategy{FFTWPlanningMode::measure, FFTWAlignmentStrategy::unaligned,
                                          FFTWWisdomStrategy::cold, workers, 1, 0.0}) {}

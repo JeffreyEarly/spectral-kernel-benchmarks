@@ -420,6 +420,50 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+class FFTWInterleavedWvmFieldViewProvider {
+public:
+    struct MutableFieldView {
+        Complex* data = nullptr;
+        std::size_t frequencyStride = 0;
+    };
+
+    FFTWInterleavedWvmFieldViewProvider(
+        const Workload& singleFieldWorkload,
+        std::vector<std::size_t> frequencyStrides,
+        FFTWStrategy strategy,
+        VerticalGemmBufferPolicy bufferPolicy =
+            VerticalGemmBufferPolicy::bidirectional);
+    ~FFTWInterleavedWvmFieldViewProvider();
+    FFTWInterleavedWvmFieldViewProvider(
+        FFTWInterleavedWvmFieldViewProvider&&) noexcept;
+    FFTWInterleavedWvmFieldViewProvider& operator=(
+        FFTWInterleavedWvmFieldViewProvider&&) noexcept;
+    FFTWInterleavedWvmFieldViewProvider(
+        const FFTWInterleavedWvmFieldViewProvider&) = delete;
+    FFTWInterleavedWvmFieldViewProvider& operator=(
+        const FFTWInterleavedWvmFieldViewProvider&) = delete;
+
+    // FFTW multidimensional c2r execution may overwrite each mutable spectrum
+    // view. The output contains field-major real volumes in the order supplied.
+    void inverseFields(MutableFieldView* fields, std::size_t fieldCount,
+                       double* output);
+    void forwardField(const double* input, MutableFieldView output);
+    void executeSchedulerNoop();
+    bool inverseInputIsDestructive() const noexcept;
+    double otherSetupSeconds() const noexcept;
+    double allocationSeconds() const noexcept;
+    double planningSeconds() const noexcept;
+    std::size_t planningBytes() const noexcept;
+    std::size_t internalWorkers() const noexcept;
+    std::size_t outerWorkers() const noexcept;
+    std::string libraryIdentity() const;
+    std::string version() const;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 class FFTWPrunedProvider {
 public:
     FFTWPrunedProvider(const Workload& workload, const std::vector<RetainedMode>& modes,

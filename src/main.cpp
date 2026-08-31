@@ -70,6 +70,7 @@ void list() {
               << "  vertically-batched-advection (optional FFTW++ build)\n"
               << "spectral boundary policies:\n"
               << "  wvm-direct\n"
+              << "  wvm-direct-strided-field-views\n"
               << "  wvm-packed-split\n"
               << "  pruned-compact-interleaved\n"
               << "  plane-major-fused-split\n"
